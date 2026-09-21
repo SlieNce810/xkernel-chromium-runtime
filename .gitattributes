@@ -1,0 +1,26 @@
+# ============================================================================
+# 换行符策略
+#
+# 本仓库的脚本（scripts/**/*.sh、*.py、*.c）最终都由 scp 送到 T490（Ubuntu）
+# 上执行。若在 Windows 侧被检出为 CRLF，bash 会因 shebang 后的 \r 报
+# 「bad interpreter: No such file or directory」——这是本项目踩过的坑，
+# 故强制文本文件统一 LF。
+# ============================================================================
+
+* text=auto eol=lf
+
+# ── 二进制：禁止任何换行转换 ────────────────────────────────────────────────
+*.ppm   binary
+*.png   binary
+*.pdf   binary
+*.img   binary
+*.tar   binary
+*.gz    binary
+*.tgz   binary
+*.so    binary
+*.bin   binary
+
+# ── 证据目录里的原始日志/截图不得被改写（比赛要求证据不可编辑）──────────────
+evidence/**/*.log   -text
+evidence/**/*.ppm   -text
+evidence/**/*.png   -text

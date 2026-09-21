@@ -1,0 +1,29 @@
+Mon Sep 21 06:54:09 UTC 2026 start  alpine=3.23.4
+Mon Sep 21 06:54:10 UTC 2026 df before: /dev/vda                  3.9G    760.4M      3.0G  20% /
+Mon Sep 21 06:54:10 UTC 2026 ===== 1. 解包 /pkgs.tar.gz =====
+Mon Sep 21 06:54:10 UTC 2026 tar 文件: -rw-r--r-- 1 root root 387128041 Sep 21 06:54 /pkgs.tar.gz
+Mon Sep 21 06:59:48 UTC 2026 tar rc=0
+Mon Sep 21 07:00:33 UTC 2026 ===== 2. 关键文件实体校验（Size 必须非 0）=====
+Mon Sep 21 07:00:34 UTC 2026   -rwxr-xr-x 1 1000 1000 249957096 Sep 21 06:59 /usr/lib/chromium/chromium
+Mon Sep 21 07:00:34 UTC 2026   lrwxrwxrwx 1 root root 16 Sep 21 06:58 /usr/bin/chromium -> chromium-browser
+Mon Sep 21 07:00:34 UTC 2026   -rw-r--r-- 1 1000 1000 2664 Sep 21 07:00 /etc/fonts/fonts.conf
+Mon Sep 21 07:00:34 UTC 2026   -rw-r--r-- 1 1000 1000 147528 Sep 21 07:00 /usr/share/fonts/opensans/OpenSans-Regular.ttf
+Mon Sep 21 07:00:35 UTC 2026   /usr/lib/chromium 体积: 291.1M
+Mon Sep 21 07:00:39 UTC 2026   chromium --version: Chromium 149.0.7827.53 Alpine Linux
+Mon Sep 21 07:00:39 UTC 2026   fonts.conf 头 2 行: <?xml version="1.0"?> <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"> 
+Mon Sep 21 07:00:40 UTC 2026 df after: /dev/vda                  3.9G      1.4G      2.3G  37% /
+Mon Sep 21 07:00:40 UTC 2026 ===== 3. fc-cache =====
+Mon Sep 21 07:00:48 UTC 2026 fc-list 计数: 75
+Mon Sep 21 07:00:48 UTC 2026 ===== 4. 输入设备 =====
+Mon Sep 21 07:00:48 UTC 2026   已写 /run/udev/data/c13:1 → ID_INPUT_KEYBOARD（evprobe 实测结论）
+Mon Sep 21 07:00:49 UTC 2026   /dev/input 实况: total 0|crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0|crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice|
+Mon Sep 21 07:00:49 UTC 2026 ===== 5. weston（libseat-shim + 伪造 sysfs + card0）=====
+Mon Sep 21 07:00:53 UTC 2026   seatd pid=90 socket=yes
+Mon Sep 21 07:01:20 UTC 2026   weston pid=97 （等待 20s）
+Mon Sep 21 07:01:20 UTC 2026   wayland socket: total 0|srwxr-xr-x    1 root     root             0 Sep 21 07:00 wayland-1|-rw-r-----    1 root     root             0 Sep 21 07:00 wayland-1.lock|
+Mon Sep 21 07:01:20 UTC 2026   界标:
+Mon Sep 21 07:01:20 UTC 2026 ===== 6. Chromium =====
+Mon Sep 21 07:01:21 UTC 2026   已拉起 chromium（TCG 下首帧较慢，最多等 120s）
+Mon Sep 21 07:03:27 UTC 2026   chromium 进程: 161 163 
+Mon Sep 21 07:03:27 UTC 2026   chromium.log 尾 15 行:
+Mon Sep 21 07:03:27 UTC 2026 进入 watcher（每 30s，含 sync）

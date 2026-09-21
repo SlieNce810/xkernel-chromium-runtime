@@ -1,0 +1,12 @@
+# 完整运行命令（赛题要求「提供完整运行命令」）
+
+## 本脚本命令行
+python3 scripts/run-session.py --cwd /home/mo/x-kernel --make-args 'GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n' --duration 900.0 --interval 45.0 --out /home/mo/xk6/evidence/2026-09-21_t490-v10-strace
+
+## 实际执行的 make 命令
+make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+
+## guest 内需要执行的命令（如适用）
+export XDG_RUNTIME_DIR=/run/user/0
+export WAYLAND_DISPLAY=wayland-0
+chromium --ozone-platform=wayland --no-sandbox --disable-gpu --disable-dev-shm-usage file:///usr/share/html-test/index.html

@@ -1,0 +1,189 @@
+Mon Sep 21 08:26:36 UTC 2026 start alpine=3.23.4 uptime=
+Mon Sep 21 08:26:37 UTC 2026 df: /dev/vda                  3.9G      1.4G      2.3G  37% /
+Mon Sep 21 08:26:37 UTC 2026 ===== 1. 前置校验 =====
+Mon Sep 21 08:26:37 UTC 2026   chromium: -rwxr-xr-x 1 1000 1000 249957096 Sep 21 06:59 /usr/lib/chromium/chromium
+Mon Sep 21 08:26:52 UTC 2026   version : Chromium 149.0.7827.53 Alpine Linux
+Mon Sep 21 08:26:52 UTC 2026   fonts.conf 行数: 101
+Mon Sep 21 08:26:53 UTC 2026   /dev/input: event0 mice 
+Mon Sep 21 08:26:53 UTC 2026 ===== 2. 探针 =====
+Mon Sep 21 08:26:53 UTC 2026 ----- 运行 /nvprobe -----
+[NV] pid=39 tid=39
+[NV] T0 PR_GET_NO_NEW_PRIVS (before) = 0 errno=0
+[NV] T1 PR_SET_NO_NEW_PRIVS(1) -> rc=0 errno=0 (No error information)
+[NV] T1 set returns 0 (was ENOSYS=38)             PASS
+[NV] T2 PR_GET_NO_NEW_PRIVS (after) = 1 errno=0
+[NV] T2 get reads back 1                          PASS
+[NV] T3 PR_SET_NO_NEW_PRIVS(0) -> rc=-1 errno=22
+[NV] T3 arg2=0 rejected with EINVAL(22)           PASS
+[NV] T4 fork child read  -> 1 (raw exit=0)
+[NV] T4 flag inherited across fork                PASS
+[NV] T5 chromium-style child exit=0 (0=survived, 134=RAW_LOG(FATAL) path, 127=execve fail)
+[NV] T5 chromium-style child survives execve      PASS
+[NV] ---- helper: 复刻结果对照 ----
+[NV] errno 语义: EINVAL(22) 与 EPERM(1) 被 Chromium 容忍；ENOSYS(38) 不在容忍集 → FATAL
+[RESULT] fail=0
+[RESULT] ALL_PASS
+Mon Sep 21 08:26:54 UTC 2026 ----- /nvprobe 判定行 -----
+Mon Sep 21 08:26:54 UTC 2026 ----- 运行 /p2probe -----
+=== p2probe: sched tid 解析 + netlink 多播组 bind ===
+[ENV] pid=47 tid=47
+[SCHED] sched_getparam(pid=0) -> 0 errno=0 (No error information) prio=0
+[SCHED_PID0] SCHED_PID0=PASS  (主线程按 pid=0 查询（对照，补丁前后都应通过）)
+[SCHED] sched_getscheduler(pid=0) -> 0 errno=0 (No error information)
+[SCHED_PID0_POLICY] SCHED_PID0_POLICY=PASS  (主线程查询策略)
+[SCHED] 子线程: gettid=49 getpid=47 (tid != pid ⇒ 这是本项的关键)
+[SCHED] raw sched_getparam(tid=49) -> 0 errno=0 (No error information) prio=0
+[SCHED_THREAD_TID] SCHED_THREAD_TID=PASS  (子线程按**自己的 tid** 查询（补丁前应为 ESRCH=3）)
+[SCHED] raw sched_getscheduler(tid=49) -> 0 errno=0 (No error information)
+[SCHED_THREAD_TID_POLICY] SCHED_THREAD_TID_POLICY=PASS  (子线程按 tid 查询策略)
+[SCHED] pthread_getschedparam(pthread_self()) -> rc=0 errno=0 (No error information) policy=0 prio=0
+[SCHED_PTHREAD_GETSCHEDPARAM] SCHED_PTHREAD_GETSCHEDPARAM=PASS  (musl pthread_getschedparam —— Chromium/absl 实际走的路径)
+[NETLINK] groups=0 对照: bind(fd=3, nl_groups=0x0) -> 0 errno=0 (No error information)
+[NETLINK_BIND_NO_GROUPS] NETLINK_BIND_NO_GROUPS=PASS  (不带多播组的 bind（对照，补丁前后都应通过）)
+[NETLINK] groups!=0 目标: bind(fd=3, nl_groups=0xd) -> 0 errno=0 (No error information)
+[NETLINK_BIND_GROUPS] NETLINK_BIND_GROUPS=PASS  (带 RTMGRP 多播组的 bind —— Chromium AddressTrackerLinux 的用法（补丁前应为 EOPNOTSUPP=95）)
+
+[RESULT] fail=0
+[RESULT] ALL_PASS — P2 两处修复均生效
+Mon Sep 21 08:26:55 UTC 2026 ----- /p2probe 判定行 -----
+Mon Sep 21 08:26:55 UTC 2026 ----- 运行 /childprobe -----
+=== childprobe: Chromium 子进程启动路径验证 ===
+[ENV] pid=54 ppid=7
+[C1] readlink(/proc/self/exe) -> "/childprobe"
+[CHILD_PROC_SELF_EXE] CHILD_PROC_SELF_EXE=PASS  (读取 /proc/self/exe（Chromium 用它定位自身）)
+[C2] fork 子进程运行中 pid=56 ppid=54
+[CHILD] 我是被 exec 起来的子进程: pid=57 ppid=54
+[CHILD] 我是被 exec 起来的子进程: pid=58 ppid=54
+[ENV] pid=54 ppid=7
+[C1] readlink(/proc/self/exe) -> "/childprobe"
+[CHILD_PROC_SELF_EXE] CHILD_PROC_SELF_EXE=PASS  (读取 /proc/self/exe（Chromium 用它定位自身）)
+[C2] fork 子进程 waitpid: exited=1 code=0 signaled=0
+[CHILD_FORK] CHILD_FORK=PASS  (纯 fork 通路)
+[C3] waitpid: exited=1 code=0 signaled=0
+[CHILD_EXEC_SELF_EXE] CHILD_EXEC_SELF_EXE=PASS  (fork + execve(/proc/self/exe, "--child") —— **Chromium 子进程启动路径**)
+[C4] waitpid: exited=1 code=0 signaled=0
+[CHILD_EXEC_ABSPATH] CHILD_EXEC_ABSPATH=PASS  (fork + execve("/childprobe") 绝对路径对照)
+[C5] busybox true: exited=1 code=0 signaled=0
+[CHILD_EXEC_BUSYBOX] CHILD_EXEC_BUSYBOX=PASS  (execve 外部程序 /bin/busybox)
+
+[RESULT] fail=0
+[RESULT] ALL_PASS
+Mon Sep 21 08:26:56 UTC 2026 ----- /childprobe 判定行 -----
+Mon Sep 21 08:26:56 UTC 2026 ----- 运行 /evprobe -----
+=== evprobe: evdev 输入设备枚举 ===
+[EV] /dev/input/event0
+[EV]   EVIOCGNAME  rc=21 name="QEMU Virtio Keyboard"
+[EV]   EVIOCGID    bustype=BUS_VIRTUAL(0x0006) vendor=0x0627 product=0x0001 version=0x0001
+[EV]   EV  types:  SYN=0 KEY=1 REL=0 ABS=0 MSC=0 SW=0 REP=0
+[EV]   key bits:  BTN_LEFT=0 BTN_RIGHT=0 BTN_MIDDLE=0 BTN_TOUCH=0 KEY_A=1 KEY_Z=1 KEY_SPACE=1
+[EVSUM] node=/dev/input/event0 minor=1 class=KEYBOARD (rel=0 abs=0 btn=0 kbdkeys=1)
+[EV] /dev/input/event1 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event2 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event3 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event4 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event5 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event6 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event7 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event8 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event9 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event10 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event11 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event12 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event13 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event14 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event15 open -> -1 errno=2 (No such file or directory)
+
+[EV] 共找到 1 个 evdev 节点
+[EVMAP] 建议的 udev 伪造（可用次设备号）：keyboard=c13:1  pointer=c13:-1
+[EVMAP] 警告：未识别出指针节点（鼠标/平板）
+Mon Sep 21 08:26:57 UTC 2026 ----- /evprobe 判定行 -----
+Mon Sep 21 08:26:57 UTC 2026   跳过（未注入）: /fdprobe
+Mon Sep 21 08:26:58 UTC 2026 ===== 3. weston（libseat-shim + 伪造 sysfs + card0）=====
+Mon Sep 21 08:27:03 UTC 2026   seatd pid=84 
+Mon Sep 21 08:27:05 UTC 2026   weston pid=90 （等 0s）socket=NONE
+Mon Sep 21 08:27:05 UTC 2026 ===== 4. Chromium（B 模式：--in-process-gpu）=====
+Mon Sep 21 08:27:05 UTC 2026   WAYLAND_DISPLAY=wayland-0
+Mon Sep 21 08:27:06 UTC 2026   browser pid=105
+=== +0s ===
+browser:  
+zygote:   
+gpu:      
+utility:  
+renderer: 
+=== +20s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  
+renderer: 
+=== +40s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +60s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +80s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +100s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +120s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +140s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +160s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+=== +180s ===
+browser:  105 
+zygote:   
+gpu:      
+utility:  177 
+renderer: 
+Mon Sep 21 08:30:51 UTC 2026   browser 仍在运行（200s）✓
+Mon Sep 21 08:30:52 UTC 2026 ===== 5. 全局计数（不依赖 tail 窗口）=====
+Mon Sep 21 08:30:52 UTC 2026   chromium.log 总行数: 264
+Mon Sep 21 08:30:53 UTC 2026   COUNT [Network service crashed] = 0
+Mon Sep 21 08:30:54 UTC 2026   COUNT [NO_NEW_PRIVS] = 0
+Mon Sep 21 08:30:54 UTC 2026   COUNT [pthread_getschedparam failed] = 0
+Mon Sep 21 08:30:55 UTC 2026   COUNT [GPU process isn] = 0
+Mon Sep 21 08:30:56 UTC 2026   COUNT [FATAL] = 0
+Mon Sep 21 08:30:56 UTC 2026   COUNT [Aborted] = 0
+Mon Sep 21 08:30:57 UTC 2026   COUNT [landlock_create_ruleset] = 0
+Mon Sep 21 08:30:58 UTC 2026   COUNT [Failed to connect to Wayland] = 0
+Mon Sep 21 08:30:59 UTC 2026   COUNT [LaunchProcess] = 0
+Mon Sep 21 08:30:59 UTC 2026   最终进程格局:
+Mon Sep 21 08:31:00 UTC 2026     browser =[105 ]
+Mon Sep 21 08:31:00 UTC 2026     zygote  =[]
+Mon Sep 21 08:31:01 UTC 2026     gpu     =[]
+Mon Sep 21 08:31:02 UTC 2026     utility =[177 ]
+Mon Sep 21 08:31:03 UTC 2026     renderer=[]
+Mon Sep 21 08:31:03 UTC 2026   renderer 计数: 
+Mon Sep 21 08:31:04 UTC 2026   ==== chromium.log 前 60 行（子进程早期输出最可能在这里）====
+Mon Sep 21 08:31:04 UTC 2026   ==== chromium.log 尾 60 行 ====
+Mon Sep 21 08:31:05 UTC 2026   ==== 错误行 ====
+Mon Sep 21 08:31:05 UTC 2026 ===== 6. watcher =====

@@ -1,0 +1,85 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-09-20T12:38:21.624
+hostname         : LAPTOP-084DRR30
+os               : Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.35
+os_pretty        : Ubuntu 22.04.5 LTS
+machine          : x86_64
+cpu_model        : AMD Ryzen 7 8845HS w/ Radeon 780M Graphics
+cpu_logical      : 16
+mem_total        : 15.3 GiB
+qemu-system-aarch64 : QEMU emulator version 8.2.3 (v8.2.3)
+wsl              : YES (xkmake 会排除 KVM，但建议用原生 Linux)
+git_describe     : 
+git_commit       : 
+disk_free        : 234.1 GiB
+
+--- 本次会话 ---
+out_dir          : /mnt/e/02_competition/中电杯/evidence/2026-09-20_wsl2-run4
+cwd              : /home/mofan/x-kernel
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+duration_sec     : 2400.0
+interval_sec     : 120.0
+actual_sec       : 32.9
+screendumps      : 0 / 0 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+4:38:22.010726992 UTC
+
+[37m[  0.875117 knet:175] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mofan@LAPTOP-084DRR30
+build_time = 2026-09-20T03:59:50.473143144Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = 88f8b50a29a103340f801b935970e1524b720cf5
+git_dirty = true
+build_id = 7d73ca24dcd84e7edb36f96ed00d5b9a76e324a9f500a56490f474840abaf119
+smp = 4
+panicked at posix/process/src/init_process.rs:97:25:
+Failed to load init image: Invalid executable format
+Backtrace:
+0: 0xffff80000011048b
+1: 0xffff8000006aa0d7
+2: 0xffff800000002ee7
+3: 0xffff800000003c13
+4: 0xffff80000010f27f
+5: 0xffff800000668633
+
+
+[xkmake] 6 backtrace frame(s) detected in QEMU output; resolved against /home/mofan/x-kernel/target/xkmake/kplat-aarch64/release/kernel.debug.elf:
+  0: 0xffff80000011048b
+    __rustc::rust_begin_unwind
+    /home/mofan/x-kernel/core/kruntime/src/lang_items.rs:11
+  1: 0xffff8000006aa0d7
+    core::panicking::panic_fmt
+    /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panicking.rs:80
+  2: 0xffff800000002ee7
+    posix_process::init_process::spawn_init_process::<ksyscall::dispatch::dispatch_irq_syscall, entry::kernel_main::{closure#0}>::{closure#3}
+    /home/mofan/x-kernel/posix/process/src/init_process.rs:97
+  3: 0xffff800000003c13
+    entry::kernel_main
+    /home/mofan/x-kernel/entry/src/main.rs:95
+  4: 0xffff80000010f27f
+    <kruntime::SystemInitEntry>::enter
+    /home/mofan/x-kernel/core/kruntime/src/lib.rs:117
+  5: 0xffff800000668633
+    <alloc::boxed::Box<dyn core::ops::function::FnOnce<(), Output = ()>> as core::ops::function::FnOnce<()>>::call_once
+    /home/mofan/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/boxed.rs:2240
+^Ax

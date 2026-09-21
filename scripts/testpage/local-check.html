@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>x-kernel Chromium 渲染自检页</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "DejaVu Sans", "Noto Sans CJK SC", "Noto Sans", sans-serif;
+    background: #ffffff;
+    color: #111111;
+    padding: 0;
+  }
+  /* 顶部大色条：用于截图后一眼确认「画面确实来自本页」 */
+  .banner {
+    height: 64px;
+    background: #c8102e;               /* 红 */
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 64px;
+    padding-left: 24px;
+    letter-spacing: 2px;
+  }
+  .wrap { padding: 20px 24px; }
+
+  /* 三色块：验证色彩通道正确（截图里顺序应为 红 / 绿 / 蓝，自左向右） */
+  .swatches { display: flex; gap: 12px; margin: 12px 0 18px; }
+  .sw { width: 120px; height: 72px; border: 2px solid #111111; }
+  .sw1 { background: #ff0000; }
+  .sw2 { background: #00ff00; }
+  .sw3 { background: #0000ff; }
+
+  /* 棋盘格：验证像素对齐 / 缩放是否产生模糊 */
+  .checker {
+    border-collapse: collapse;
+    margin: 6px 0 18px;
+    border: 2px solid #111111;
+  }
+  .checker td { width: 24px; height: 24px; padding: 0; }
+  .checker td.a { background: #111111; }
+  .checker td.b { background: #ffffff; }
+
+  table.data {
+    border-collapse: collapse;
+    margin: 6px 0 18px;
+    font-size: 16px;
+  }
+  table.data th, table.data td {
+    border: 1px solid #444444;
+    padding: 6px 12px;
+    text-align: left;
+  }
+  table.data th { background: #f0f0f0; }
+
+  .note { font-size: 15px; color: #333333; margin: 14px 0; }
+  .mono { font-family: "DejaVu Sans Mono", monospace; font-size: 15px;
+          background: #f6f6f6; border: 1px solid #cccccc; padding: 8px 10px; }
+  #runtime { font-weight: bold; color: #0b6b2f; }
+  #ua { font-size: 13px; color: #555555; word-break: break-all; }
+  .footer { border-top: 2px solid #111111; margin-top: 22px; padding-top: 10px;
+            font-size: 14px; color: #444444; }
+</style>
+</head>
+<body>
+
+<div class="banner">XK-6 · 渲染自检页 v1.0 · marker=XK-CHROMIUM-OK</div>
+
+<div class="wrap">
+
+  <p class="note">
+    本页用于验证「Chromium 创建窗口 + 正确渲染本地 HTML」（基础任务 20 分）。
+    截图后逐项核对下列可见特征：
+  </p>
+
+  <h3>① 三原色块（自左向右：红 / 绿 / 蓝）</h3>
+  <div class="swatches">
+    <div class="sw sw1"></div>
+    <div class="sw sw2"></div>
+    <div class="sw sw3"></div>
+  </div>
+
+  <h3>② 黑白棋盘（应边缘锐利，无灰边/模糊）</h3>
+  <table class="checker">
+    <tr><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td></tr>
+    <tr><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td></tr>
+    <tr><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td></tr>
+    <tr><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td><td class="b"></td><td class="a"></td></tr>
+  </table>
+
+  <h3>③ 表格与边框（应无错行、无边框丢失）</h3>
+  <table class="data">
+    <tr><th>检查项</th><th>期望</th><th>对应评分点</th></tr>
+    <tr><td>Weston 图形会话</td><td>启动 + 稳定 ≥10 分钟</td><td>图形环境 20 分</td></tr>
+    <tr><td>Chromium 窗口</td><td>成功创建窗口</td><td>浏览器功能 10 分</td></tr>
+    <tr><td>HTML 渲染</td><td>本页内容正确呈现</td><td>浏览器功能 10 分</td></tr>
+  </table>
+
+  <h3>④ 文本渲染（ASCII + 中文）</h3>
+  <p class="note">
+    英文：The quick brown fox jumps over the lazy dog. 0123456789<br>
+    中文：麒麟软件 · 中电杯 · 基于 x-kernel 的 Chromium 运行环境构建与优化<br>
+    <strong>如果中文显示为方框（tofu），说明 guest 内缺少 CJK 字体</strong>，
+    可在 guest 内执行 <span class="mono">apk add font-noto-cjk</span>；
+    若空间紧张，本页也可只用英文特征项作为判据。
+  </p>
+
+  <h3>⑤ JavaScript 执行（若被禁用则显示 DISABLED）</h3>
+  <p class="note">
+    运行时状态：<span id="runtime">JS-NOT-RUNNING</span><br>
+    渲染时间：<span id="clock">-</span>
+  </p>
+
+  <h3>⑥ 渲染环境指纹</h3>
+  <p id="ua">…</p>
+
+  <div class="footer">
+    x-kernel 基础任务 · 占位自检页（组委会指定测试页到位后请替换）<br>
+    判据：截图与上述 ①–⑥ 特征一致即视为「渲染正确」
+  </div>
+</div>
+
+<script>
+  document.getElementById('runtime').textContent = 'JS-OK';
+  document.getElementById('runtime').style.color = '#0b6b2f';
+  var d = new Date();
+  document.getElementById('clock').textContent =
+      d.toISOString().replace('T', ' ').replace('Z', ' UTC');
+  document.getElementById('ua').textContent = navigator.userAgent;
+  // 便于脚本化核对：把关键判据挂到 title 上
+  document.title = 'XK-6 渲染自检页 / JS-OK';
+</script>
+
+</body>
+</html>

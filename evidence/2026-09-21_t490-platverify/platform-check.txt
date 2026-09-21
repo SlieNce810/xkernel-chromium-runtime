@@ -1,0 +1,89 @@
+==============================================================================
+ 赛题六 · 第七节 统一评测平台 —— 合规预检
+ 时间   : 2026-09-21T21:24:35+08:00
+ 仓库   : /home/mo/x-kernel
+ 断言集 : /home/mo/xk6/scripts/t490/platform.env
+==============================================================================
+
+── 七(一)1  架构与配置：AArch64 + 组委会 qemu_defconfig 基线 ──
+[PASS] 组委会基线存在: platforms/kplat-aarch64/qemu_defconfig (1432 字节 / 55 行)
+[PASS] 旧平台路径 platforms/aarch64-qemu-virt 不存在（不会误用 README 路径）
+[PASS] .config 存在 (3006 字节 / 116 行)
+[PASS] .config 的 ARCH 为 aarch64
+[PASS] .config 为 MACHINE_AARCH64_QEMU
+[PASS] .config 启用 virtio GPU 驱动
+[PASS] .config 启用 virtio INPUT 驱动
+[PASS] .config 启用 virtio PCI 总线
+[PASS] .config 未混入 riscv64/x86_64/loongarch64
+[PASS] .config 未混入 RK3588 机型
+[PASS] .config 未启用 VMM
+[INFO] NR_CPUS = NR_CPUS=4  （期望与 SMP=4 匹配）
+[PASS] 线上 .config 与组委会基线重展开结果 逐字节一致 (sha256 42e8d16450352712…)
+
+── 七(一)2  QEMU 规格：>= 8.0 且纯 TCG（初赛禁 KVM/HVF） ──
+[PASS] qemu-system-aarch64 位于 /home/mo/qemu-root/usr/bin/qemu-system-aarch64
+[PASS] QEMU 版本 10.2.1 >= 8.0 （QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)）
+[PASS] 宿主无 /dev/kvm（即使不传 ACCEL 也必然是纯 TCG）
+
+── QEMU 命令行（make justrun XKMAKE_ARGS=--dry-run 干跑，无副作用） ──
+[PASS] 成功抓取字面 QEMU 命令行（17 行）
+
+       qemu-system-aarch64
+         -m 4g
+         -smp 4
+         -cpu cortex-a76
+         -machine 'virt,gic-version=3'
+         -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
+         -device 'virtio-blk-pci,drive=disk0'
+         -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img'
+         -device 'virtio-net-pci,netdev=net0'
+         -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555'
+         -device virtio-gpu-pci
+         -vga none
+         -serial 'mon:stdio'
+         -object 'rng-random,id=host_rng0'
+         -device 'virtio-rng-pci,rng=host_rng0'
+         -device virtio-keyboard-pci
+         -device virtio-mouse-pci
+
+[PASS] 命令行无任何 -accel（纯 TCG 硬判据）
+[PASS] 命令行无 -accel kvm
+[PASS] 命令行无 -accel hvf
+[PASS] 命令行含 -cpu cortex-a76（非 host，本身即 TCG 证据）
+[PASS] 命令行含 -cpu cortex-a76 或带引号变体
+[PASS] 命令行含 -machine virt,gic-version=3
+[PASS] 命令行含 -m 4g（非默认 1g）
+[PASS] 命令行含 -smp 4
+[PASS] 设备组合含 virtio-gpu-pci
+[PASS] 设备组合含 virtio-blk-pci
+[PASS] 设备组合含 virtio-net-pci
+[PASS] 设备组合含 virtio-keyboard-pci
+[PASS] 设备组合含 virtio-mouse-pci
+[PASS] 命令行含 -serial mon:stdio（screendump 取证通路）
+[PASS] 命令行不含 -nographic（否则无图形窗口）
+[PASS] 命令行含 -device virtio-gpu-pci（图形后端）
+[PASS] 命令行含 -vga none（避免与 virtio-gpu 冲突）
+
+── 七(二)  测量规范：git tag 存档 + 宿主指纹 ──
+[PASS] git_commit   = 8162e8a51139b52325582bfb8d2095c871954342
+[PASS] git_describe = p0-drm-version-fix-dirty
+[WARN] 工作区 dirty —— 七(二)3 要求 before/after 基线以 git tag 存档、组委会复核存档代码；采数前先 commit/tag
+[INFO] 现有 tag: p0-drm-version-fix 
+[INFO] 七(二)4 交叉核验指纹（每份证据都应带这些字段）：
+[INFO]   cpu_model = Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+[INFO]   mem_total = 14.7 GiB
+[INFO]   os        = Ubuntu 26.04 LTS
+[INFO]   qemu      = QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+[INFO]   repeat    = >= 5 次取 median + 波动范围
+
+── 第八节 参考资料（方案选型应可追溯到这里） ──
+[INFO] 1 x-kernel 基线    : https://gitee.com/openkylin/x-kernel
+[INFO] 2 Wayland 协议     : https://wayland.freedesktop.org/
+[INFO] 3 X.Org/X11 参考   : https://www.x.org/wiki/
+[INFO] 4 X.Org 官方文档   : https://xorg.freedesktop.org/archive/current/doc/
+[INFO] 5 Chromium Ozone   : https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
+
+==============================================================================
+ 判定：PASS=35  FAIL=0  WARN=1
+ PLATFORM_COMPLIANT —— 符合赛题第七节统一评测平台要求
+==============================================================================
