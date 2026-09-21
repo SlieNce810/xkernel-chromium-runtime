@@ -1,0 +1,50 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-09-21T22:29:15.740
+hostname         : mo-ThinkPad-T490
+os               : Linux-7.0.0-31-generic-x86_64-with-glibc2.43
+guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+git_cwd          : /home/mo/x-kernel
+os_pretty        : Ubuntu 26.04 LTS
+machine          : x86_64
+host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+cpu_logical      : 8
+mem_total        : 14.7 GiB
+qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+git_describe     : v0.2-compat-p0p4-1-g0c611be
+git_commit       : 0c611be973668031f80ca82a607d2535cadd8666
+disk_free        : 384.0 GiB (/home/mo/x-kernel)
+
+--- 本次会话 ---
+out_dir          : /home/mo/xk6/evidence/2026-09-21_t490-g17chr
+cwd              : /home/mo/x-kernel
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+duration_sec     : 600.0
+interval_sec     : 120.0
+actual_sec       : 603.4
+screendumps      : 6 / 6 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt (含字面 qemu-system-aarch64 命令行)
+
+--- 赛题第七节 平台合规 ---
+platform_check   : PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+detail_file      : platform-compliance.txt
+guest_arch       : aarch64 (七(一)1)
+accel            : 无 -accel（纯 TCG，七(一)2）
+device_combo     : virtio-gpu-pci + virtio-input(keyboard/mouse) + virtio-blk + virtio-net (七(一)3)
+evidence_shots   : QEMU monitor screendump（七(一)3 唯一认可的截图方式）
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-fina[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-final[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-final.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-final.p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-final.pp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-g17chr/screenshots/shot-06-final.ppm[K
+(qemu) 
+QEMU: Terminated
+

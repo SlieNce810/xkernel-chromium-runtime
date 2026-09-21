@@ -1,0 +1,80 @@
+Mon Sep 21 14:29:40 UTC 2026 start uptime= chromium=Chromium 149.0.7827.53 Alpine Linux
+Mon Sep 21 14:29:40 UTC 2026 ===== 探针 /compatprobe =====
+[CP] pid=21 tid=21
+[CP] socketpair(AF_UNIX,STREAM)             rc=0     errno=0   -                            PASS
+[CP] getsockopt(SO_PEERCRED)                rc=0 len=12 pid=21 uid=0 gid=0
+[CP]   -> peer pid matches                  rc=21    errno=0   -                            PASS
+[CP] getsockopt(SO_SNDBUF)                  rc=0 sbuf=65536
+[CP]   -> SO_SNDBUF readable                rc=0     errno=0   -                            PASS
+[CP] sendmsg(MSG_NOSIGNAL) on unix          rc=1     errno=0   -                            PASS
+[CP] recv() after MSG_NOSIGNAL send         rc=1     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,SEQPACKET)          rc=0     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,DGRAM)              rc=0     errno=0   -                            PASS
+[CP] socketpair(STREAM|CLOEXEC|NB)          rc=0     errno=0   -                            PASS
+[CP] memfd_create + ftruncate               rc=0     errno=0   -                            PASS
+[CP] shm_open + ftruncate + mmap(MAP_SHARED) rc=0     errno=0   -                            PASS
+[CP] open(/dev/shm/.xk6probe)               rc=3     errno=0   -                            PASS
+[CP] eventfd write+read                     rc=8     errno=0   -                            PASS
+[CP] timerfd_create(CLOCK_MONOTONIC)        rc=3     errno=0   -                            PASS
+[CP] epoll_ctl(ADD, pipe read end)          rc=0     errno=0   -                            PASS
+[CP] epoll_wait sees readable pipe          rc=1     errno=0   -                            PASS
+[CP] signalfd(SIGCHLD)                      rc=3     errno=0   -                            PASS
+[CP] getrandom(16)                          rc=16    errno=0   -                            PASS
+[CP] madvise(aligned, DONTNEED)             rc=0     errno=0   -                            PASS
+[CP] madvise(misaligned) expect EINVAL      rc=-1    errno=22  Invalid argument             PASS
+[CP] madvise(HOLE in middle)                rc=0 errno=0 (-)
+[CP]   -> Linux tolerates gap (expect 0)    rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_NORMAL)                   rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_WILLNEED)                 rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_FREE)                     rc=0     errno=0   -                            PASS
+[CP] sendmsg(SEQPACKET, SCM_CREDENTIALS)    rc=1 errno=0
+[CP]   -> send accepted                     rc=1     errno=0   -                            PASS
+[CP]   SCM_CREDENTIALS pid=21 uid=0 gid=0
+[CP] recvmsg delivers SCM_CREDENTIALS       rc=1     errno=0   -                            PASS
+[CP] prctl(PR_SET_PDEATHSIG,SIGKILL)        rc=-1    errno=22  Invalid argument             FAIL
+[CP] child writes to inherited pipe fd      rc=0     errno=0   -                            PASS
+[CPSUM] pass=26 fail=1
+[RESULT] fail=1
+[RESULT] HAD_FAILURE
+Mon Sep 21 14:29:41 UTC 2026 ----- /compatprobe 判定行 -----
+Mon Sep 21 14:29:41 UTC 2026 ===== 探针 /nvprobe =====
+[NV] pid=28 tid=28
+[NV] T0 PR_GET_NO_NEW_PRIVS (before) = 0 errno=0
+[NV] T1 PR_SET_NO_NEW_PRIVS(1) -> rc=0 errno=0 (No error information)
+[NV] T1 set returns 0 (was ENOSYS=38)             PASS
+[NV] T2 PR_GET_NO_NEW_PRIVS (after) = 1 errno=0
+[NV] T2 get reads back 1                          PASS
+[NV] T3 PR_SET_NO_NEW_PRIVS(0) -> rc=-1 errno=22
+[NV] T3 arg2=0 rejected with EINVAL(22)           PASS
+[NV] T4 fork child read  -> 1 (raw exit=0)
+[NV] T4 flag inherited across fork                PASS
+[NV] T5 chromium-style child exit=0 (0=survived, 134=RAW_LOG(FATAL) path, 127=execve fail)
+[NV] T5 chromium-style child survives execve      PASS
+[NV] ---- helper: 复刻结果对照 ----
+[NV] errno 语义: EINVAL(22) 与 EPERM(1) 被 Chromium 容忍；ENOSYS(38) 不在容忍集 → FATAL
+[RESULT] fail=0
+[RESULT] ALL_PASS
+Mon Sep 21 14:29:42 UTC 2026 ----- /nvprobe 判定行 -----
+Mon Sep 21 14:29:42 UTC 2026 ===== weston =====
+Mon Sep 21 14:29:50 UTC 2026   weston pid=50  socket=wayland-0（等 1s）
+Mon Sep 21 14:29:50 UTC 2026 ===== Chromium（D 段配置复跑：--in-process-gpu + disable-features）=====
+Mon Sep 21 14:29:51 UTC 2026   browser pid=71
+--- +0s browser=[71] zygote=[] gpu=[] utility=[] renderer=[]
+--- +10s browser=[71] zygote=[94 95 ] gpu=[] utility=[] renderer=[]
+--- +20s browser=[71] zygote=[] gpu=[] utility=[] renderer=[]
+--- +30s browser=[71] zygote=[] gpu=[] utility=[148 ] renderer=[]
+--- +40s browser=[71] zygote=[] gpu=[] utility=[148 ] renderer=[]
+--- +50s browser=[71] zygote=[] gpu=[] utility=[148 ] renderer=[]
+Mon Sep 21 14:31:36 UTC 2026   已退出 rc=191（存活约 60s）
+Mon Sep 21 14:31:38 UTC 2026   COUNT [Network service crashed] = 0
+Mon Sep 21 14:31:40 UTC 2026   COUNT [NO_NEW_PRIVS] = 0
+Mon Sep 21 14:31:42 UTC 2026   COUNT [RenderProcessHost] = 0
+Mon Sep 21 14:31:44 UTC 2026   COUNT [type=renderer] = 0
+Mon Sep 21 14:31:46 UTC 2026   COUNT [renderer] = 0
+Mon Sep 21 14:31:47 UTC 2026   COUNT [GPU process isn] = 0
+Mon Sep 21 14:31:48 UTC 2026   COUNT [FATAL] = 0
+Mon Sep 21 14:31:49 UTC 2026   COUNT [Unimplemented] = 0
+Mon Sep 21 14:31:49 UTC 2026   ==== 导航/加载关键行 ====
+Mon Sep 21 14:31:51 UTC 2026   ==== 尾 30 行 ====
+Mon Sep 21 14:31:52 UTC 2026   ==== 错误行 ====
+Mon Sep 21 14:31:53 UTC 2026 ===== watcher =====

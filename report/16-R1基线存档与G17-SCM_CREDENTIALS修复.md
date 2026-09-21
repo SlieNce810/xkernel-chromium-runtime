@@ -20,6 +20,7 @@
 | 6 | **G17 · 修复** | ✅ 2 文件 / 9 处改动（`cmsg.rs` + `io.rs`），**编译器一次通过** |
 | 7 | **G17 · 验证** | ✅ `credprobe` 在 **T490 原生（Linux 基线）** 与 **guest** 上**同源同结果：7/7 PASS** |
 | 8 | **G17 · 上游现状** | ⚠️ **最新上游 main（`!821`）仍未修** → 这是可提上游的有效缺口（补丁分 4 分/项） |
+| 9 | **G17 · Chromium 层效果** | ✅ `crashpad missing credentials` **从「出现」变为 0 次**<br>❌ 但 **renderer 仍未创建、browser 仍 rc=191 @~60 s**（§2.7，症状消除≠阻塞解除） |
 
 ---
 
@@ -217,6 +218,40 @@ aarch64-linux-musl-gcc -static -O2 -Wall -Wextra -o credprobe    credprobe.c   #
 探针首版误按「`rc == 0` 才算成功」判定，结果在**原生 Linux 上也大面积误报 FAIL**（7 项里 4 项假失败）。
 修正为 `rc >= 0` 后双端均 7/7 PASS。**凡 syscall 探针，先确认返回值约定再写断言。**
 
+### 2.7 Chromium 层复跑：症状消除，但 renderer 仍未创建
+
+用 G17 内核跑一轮 `autorun_r4.sh`（600s，`--in-process-gpu` + `--disable-features=SegmentationPlatform,…`），
+证据 `evidence/2026-09-21_t490-g17chr/`：
+
+| 观测项 | G17 之前（report/13） | **G17 之后（本轮）** | 结论 |
+|---|---|---|---|
+| `crashpad … missing credentials` | 出现 | **0 次** | ✅ **已消除** |
+| `COUNT [RenderProcessHost]` | 0 | **0** | ❌ 未改善 |
+| `COUNT [type=renderer]` | 0 | **0** | ❌ 未改善 |
+| browser 退出码 | 191（约 50–60 s） | **191（约 60 s）** | ❌ 未改善 |
+| `COUNT [FATAL]` / `[Unimplemented]` / `[Network service crashed]` | 0 | **0 / 0 / 0** | 无新增缺口 |
+| `COUNT [NO_NEW_PRIVS]` | 0 | **0** | P3 保持有效 |
+| `FileURLLoader::Start: file:///…index.html` | 出现（D 段） | **出现** | 导航仍能开始 |
+
+进程轨迹（`r4.log`）：
+
+```text
+--- +0s  browser=[71] zygote=[]   gpu=[]   utility=[] renderer=[]
+--- +10s browser=[71] zygote=[94 95] gpu=[] utility=[] renderer=[]
+--- +20s browser=[71] zygote=[]   gpu=[]   utility=[] renderer=[]
+--- +30s browser=[71] zygote=[]   gpu=[]   utility=[148] renderer=[]
+--- +50s browser=[71] zygote=[]   gpu=[]   utility=[148] renderer=[]
+       已退出 rc=191（存活约 60s）
+```
+
+> **诚实结论**：P5 精准修掉了它宣称修的那件事（`missing credentials` 从此不再出现），
+> 但 **renderer 的 191 退出是另一条独立通路**，G17 没有解开它。
+> 阻塞点**后移**（凭证缺失不再是可见症状）但没有消失 —— 这是有效增量，不是终点。
+>
+> 值得注意：zygote 在 +10s 出现过（pid 94/95）随后消失，utility 进程（148）能存活到 browser 退出。
+> 下一个观测方向：想办法在这 60 s 窗口内抓到 browser 侧 `--vmodule=*content*=2,*mojo*=2`
+> 的失败点，以及 zygote 为何在 +10s 后消失。
+
 ---
 
 ## 3. 交付物
@@ -239,8 +274,9 @@ T490 内核提交：`8162e8a` → `8efe025` → `c6930c2` → `031a3b4` → `f8b
 
 | # | 事项 | 说明 |
 |---|---|---|
-| **N1** | **用 G17 内核复跑 Chromium，确认 crashpad 是否不再报 `missing credentials`、renderer 是否被创建** | G17 只解决了 syscall 层事实；能否解开 renderer 阻塞要看下游 |
-| N2 | 补 B2（AF_UNIX 的 `SO_PASSCRED` 自动附带凭证） | 若 N1 显示仍缺凭证，这是下一处 |
+| ~~N1~~ | ~~用 G17 内核复跑 Chromium，确认 crashpad 是否不再报 `missing credentials`~~ | ✅ **已完成**：`missing credentials` **0 次**（已消除）；但 **renderer 仍未创建、browser 仍 rc=191@60s**（见 §2.7） |
+| **N1b** | 抓 191 退出的真正失败点 | 在 60 s 窗口内打开 `--vmodule=*content*=2,*mojo*=2`；并解释 zygote(pid 94/95) 为何 +10s 后消失 |
+| N2 | 补 B2（AF_UNIX 的 `SO_PASSCRED` 自动附带凭证） | 若后续发现仍有凭证相关报错，这是下一处 |
 | N3 | 把 P5 提上游（`openkylin/x-kernel`） | 上游 `!821` 仍未修，属真实缺口；需先 rebase 到最新 main 并跑全检 |
 | N4 | 评估**把基线 rebase 到上游 `!821`** | 上游已前进 11 个 MR，且自带 `SO_PASSCRED`/`UnixCredentials`/接收侧序列化 —— 能让 P5 更小更易合入，但需重验 |
 | N5 | R3：补「≥5 次中位数 + 波动范围」聚合脚本 | 性能项 15 分里的「数据统计规范 3 分」 |
