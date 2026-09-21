@@ -1,0 +1,80 @@
+From c6930c2c1a92110d1d15f239e41a5cda23503904 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 22:17:15 +0800
+Subject: [PATCH 3/7] fix(ksyscall): resolve sched target by tid as well as
+ tgid
+
+sched_getparam/sched_setparam/sched_getscheduler looked the target up by tgid
+only. musl's pthread_getschedparam forwards the *target thread's* kernel tid, so
+the lookup failed with ESRCH for every non-leader thread -- and Chromium queries
+the scheduling parameters of its own worker threads during startup.
+
+Try the tid first and fall back to the process-leader lookup.
+---
+ core/ksyscall/src/task/sched.rs | 37 +++++++++++++++++++++++++++++++--
+ 1 file changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/core/ksyscall/src/task/sched.rs b/core/ksyscall/src/task/sched.rs
+index 4add50f..a2ed2ac 100644
+--- a/core/ksyscall/src/task/sched.rs
++++ b/core/ksyscall/src/task/sched.rs
+@@ -288,8 +288,24 @@ pub fn sys_setpriority(which: u32, who: u32, prio: i32) -> KResult<isize> {
+     }
+ }
+ 
++/// Resolves the `pid` argument shared by the `sched_*` syscalls.
++///
++/// Callers may pass either a process id (tgid) or a thread id (tid): musl's
++/// `pthread_getschedparam` forwards the *target thread's kernel tid*, so
++/// resolving process leaders only makes every call on a secondary thread fail
++/// with ESRCH. Try the tid first and fall back to the process-leader lookup,
++/// mirroring [`affinity_target`].
+ fn scheduler_target(pid: i32) -> KResult<ktask::KtaskRef> {
+-    kprocess::scheduler::target_task(pid)
++    if pid < 0 {
++        return Err(KError::NoSuchProcess);
++    }
++    if pid == 0 {
++        return Ok(current().clone());
++    }
++    match kprocess::scheduler::task_by_tid(pid as u32) {
++        Ok(task) => Ok(task),
++        Err(_) => kprocess::scheduler::target_task(pid),
++    }
+ }
+ 
+ fn configured_scheduler_policy() -> u32 {
+@@ -427,7 +443,7 @@ mod tests {
+ 
+     use super::{
+         affinity_target, check_affinity_permission, check_setpriority_permission,
+-        prepare_setaffinity_target,
++        prepare_setaffinity_target, scheduler_target,
+     };
+ 
+     fn assert_affinity_err<T>(result: Result<T, KError>, expected: KError) {
+@@ -550,4 +566,21 @@ mod tests {
+             .is_ok()
+         );
+     }
++
++    #[def_test(user, serial)]
++    fn scheduler_target_resolves_the_caller_and_its_own_tid() {
++        let via_zero = scheduler_target(0).expect("pid 0 is the caller");
++        assert!(current().ptr_eq(&via_zero));
++
++        // musl's pthread_getschedparam passes the target thread's kernel tid.
++        let tid = kprocess::current_user_tid() as i32;
++        let via_tid = scheduler_target(tid).expect("caller tid must resolve");
++        assert!(current().ptr_eq(&via_tid));
++    }
++
++    #[def_test]
++    fn scheduler_target_rejects_unknown_ids() {
++        assert_affinity_err(scheduler_target(-1), KError::NoSuchProcess);
++        assert_affinity_err(scheduler_target(i32::MAX), KError::NoSuchProcess);
++    }
+ }
+-- 
+2.53.0
+

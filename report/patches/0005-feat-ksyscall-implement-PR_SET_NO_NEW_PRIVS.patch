@@ -1,0 +1,89 @@
+From f8b92247922fb1127138bbd8830bec504913908f Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 22:17:30 +0800
+Subject: [PATCH 5/7] feat(ksyscall): implement PR_SET_NO_NEW_PRIVS
+
+prctl(PR_SET_NO_NEW_PRIVS) unconditionally returned ENOSYS, so every Chromium
+child process died between fork and exec: base/process/launch_posix.cc probes
+the option and treats a failure as fatal. The kernel-side latch already existed
+(process/kprocess/src/thread/core.rs) -- it was simply not reachable through the
+syscall.
+
+Also make the flag readable back through PR_GET_NO_NEW_PRIVS.
+---
+ core/ksyscall/src/task/ctl.rs | 32 ++++++++++++++++++++++++++------
+ 1 file changed, 26 insertions(+), 6 deletions(-)
+
+diff --git a/core/ksyscall/src/task/ctl.rs b/core/ksyscall/src/task/ctl.rs
+index e4d59dc..4271ac1 100644
+--- a/core/ksyscall/src/task/ctl.rs
++++ b/core/ksyscall/src/task/ctl.rs
+@@ -11,7 +11,7 @@
+ 
+ use core::ffi::c_char;
+ 
+-use kerrno::{KError, KResult, LinuxError};
++use kerrno::{KError, KResult};
+ use ktask::current;
+ use kuaccess::vm_load_string;
+ use linux_raw_sys::general::{__user_cap_data_struct, __user_cap_header_struct};
+@@ -118,10 +118,20 @@ pub fn sys_prctl(
+             return Ok(0);
+         }
+         PR_SET_NO_NEW_PRIVS => {
++            // Linux 3.5+: record the sticky "no privilege gain on execve" flag and
++            // return 0. The attribute is inherited across fork/clone (see
++            // `Thread::prepare_process_fork` / `prepare_thread_clone`) and cannot be
++            // unset, so this is a one-way latch.
++            //
++            // Refusing with ENOSYS here is NOT compatible: user space is entitled to
++            // probe with EINVAL/EPERM (see chromium base/process/launch_posix.cc),
++            // and an unexpected errno turns a best-effort hardening step into a
++            // fatal one — every Chromium child aborts right after fork(), before
++            // execvp(), which is why the browser could never spawn a renderer.
+             if arg2 != 1 || arg3 != 0 || arg4 != 0 || arg5 != 0 {
+                 return Err(KError::InvalidInput);
+             }
+-            return Err(KError::from(LinuxError::ENOSYS));
++            kprocess::current_user_thread().set_no_new_privileges();
+         }
+         PR_GET_NO_NEW_PRIVS => {
+             if arg2 != 0 || arg3 != 0 || arg4 != 0 || arg5 != 0 {
+@@ -210,7 +220,7 @@ pub fn sys_prctl(
+ 
+ #[cfg(unittest)]
+ mod tests {
+-    use kerrno::{KError, LinuxError};
++    use kerrno::KError;
+     use linux_raw_sys::prctl::*;
+     use unittest::{assert_eq, def_test};
+ 
+@@ -268,12 +278,22 @@ mod tests {
+         assert_eq!(sys_prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0), Ok(0));
+     }
+ 
++    // NOTE: the no_new_privs latch cannot be cleared, so this test is
++    // order-sensitive — it must stay *after* `prctl_get_no_new_privs_reports_unset`,
++    // which asserts the pristine value, and `def_test(..., serial)` keeps the
++    // declared order. Argument validation is checked first so the failing branch
++    // never latches the flag.
+     #[def_test(user, serial)]
+-    fn prctl_set_no_new_privs_requires_exec_enforcement() {
++    fn prctl_set_no_new_privs_latches_and_reads_back() {
+         assert_eq!(
+-            sys_prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0),
+-            Err(KError::from(LinuxError::ENOSYS))
++            sys_prctl(PR_SET_NO_NEW_PRIVS, 0, 0, 0, 0),
++            Err(KError::InvalidInput)
+         );
++        assert_eq!(sys_prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0), Ok(0));
++        assert_eq!(sys_prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0), Ok(1));
++        // Sticky: a second set stays Ok(0) and never regresses.
++        assert_eq!(sys_prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0), Ok(0));
++        assert_eq!(sys_prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0), Ok(1));
+     }
+ 
+     #[def_test(user, serial)]
+-- 
+2.53.0
+

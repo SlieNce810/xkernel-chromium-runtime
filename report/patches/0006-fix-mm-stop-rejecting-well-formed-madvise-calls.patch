@@ -1,0 +1,92 @@
+From 7b6056439f3ef276ccbde6c466be95ebea5f1d96 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 22:17:37 +0800
+Subject: [PATCH 6/7] fix(mm): stop rejecting well-formed madvise calls
+
+Two errnos that Linux never produces for a valid call:
+
+- only MADV_DONTNEED was accepted, so MADV_NORMAL/RANDOM/SEQUENTIAL/WILLNEED/
+  FREE returned EINVAL. PartitionAlloc and V8 issue these routinely.
+- MADV_DONTNEED required the range to be fully covered by VMAs and returned
+  ENOMEM on any hole. Linux applies the advice to whatever is mapped and
+  silently ignores unmapped gaps.
+---
+ mm/memspace/src/aspace.rs | 21 +++++++++++++--------
+ posix/mm/src/mmap.rs      | 14 ++++++++++++--
+ 2 files changed, 25 insertions(+), 10 deletions(-)
+
+diff --git a/mm/memspace/src/aspace.rs b/mm/memspace/src/aspace.rs
+index 7d55dae..17eb200 100644
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -1262,7 +1262,13 @@ impl MmSpace {
+         self.drain_pending_invalidations();
+         self.validate_region(start, size)?;
+         let range = VirtAddrRange::from_start_size(start, size);
+-        let overlapped_vmas = self.covering_vmas_in_range(range)?;
++        // Linux applies MADV_DONTNEED to whatever part of the range is mapped
++        // and silently ignores unmapped gaps; `madvise(2)` only rejects a
++        // misaligned addr or a range outside the address space (both still
++        // enforced by `validate_region` above). Demanding that the range be
++        // fully covered by VMAs returned ENOMEM where Linux succeeds, which
++        // user space does not expect.
++        let overlapped_vmas = self.vmas.collect_overlapping(range);
+         let mut handled = false;
+         let mut pgtbl = self.pgtbl.modify();
+         for vma in overlapped_vmas {
+@@ -1826,7 +1832,7 @@ mod tests {
+     }
+ 
+     #[def_test]
+-    fn madvise_dontneed_requires_fully_mapped_range() {
++    fn madvise_dontneed_tolerates_unmapped_gaps() {
+         let start = VirtAddr::from_usize(0x4000);
+         let flags = MappingFlags::READ | MappingFlags::WRITE;
+         let mut aspace =
+@@ -1858,13 +1864,12 @@ mod tests {
+                 .is_resolved()
+         );
+ 
++        aspace
++            .madvise_dontneed(start, PAGE_SIZE_4K * 3)
++            .expect("Linux tolerates an unmapped gap inside the MADV_DONTNEED range");
+         assert!(
+-            aspace.madvise_dontneed(start, PAGE_SIZE_4K * 3).is_err(),
+-            "range with an unmapped gap must not be partially discarded"
+-        );
+-        assert!(
+-            aspace.pgtbl.modify().query(start).is_ok(),
+-            "failed MADV_DONTNEED must leave existing PTEs intact"
++            aspace.pgtbl.modify().query(start).is_err(),
++            "the mapped page inside the range must still be discarded despite the gap"
+         );
+     }
+ 
+diff --git a/posix/mm/src/mmap.rs b/posix/mm/src/mmap.rs
+index 22c11a5..e77d3f4 100644
+--- a/posix/mm/src/mmap.rs
++++ b/posix/mm/src/mmap.rs
+@@ -391,8 +391,18 @@ impl MadviseRequest {
+         length: usize,
+         advice: i32,
+     ) -> KResult<Option<Self>> {
+-        if advice != MADV_DONTNEED as i32 {
+-            return Err(KError::InvalidInput);
++        // Linux accepts the advisory hints below and is free to ignore them;
++        // allocators and runtimes rely on that (glibc malloc arenas use
++        // MADV_DONTNEED, PartitionAlloc/V8 use MADV_FREE). Rejecting them with
++        // EINVAL is an errno Linux never produces for a well-formed call.
++        // Only DONTNEED has an observable effect in this implementation, so the
++        // rest are accepted as no-ops.
++        match advice as u32 {
++            MADV_NORMAL | MADV_RANDOM | MADV_SEQUENTIAL | MADV_WILLNEED | MADV_FREE => {
++                return Ok(None);
++            }
++            MADV_DONTNEED => {}
++            _ => return Err(KError::InvalidInput),
+         }
+         if addr & (memaddr::PAGE_SIZE_4K - 1) != 0 {
+             return Err(KError::InvalidInput);
+-- 
+2.53.0
+

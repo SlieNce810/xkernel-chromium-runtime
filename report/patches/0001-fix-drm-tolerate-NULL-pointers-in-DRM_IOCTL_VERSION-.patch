@@ -1,0 +1,81 @@
+From 8162e8a51139b52325582bfb8d2095c871954342 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 11:59:34 +0800
+Subject: [PATCH 1/7] fix(drm): tolerate NULL pointers in DRM_IOCTL_VERSION and
+ DRM_UNIQUE
+
+---
+ io/drmdevice/src/card0.rs | 48 ++++++++++++++++++++++++++-------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
+
+diff --git a/io/drmdevice/src/card0.rs b/io/drmdevice/src/card0.rs
+index 1430de8..e9ec7c0 100644
+--- a/io/drmdevice/src/card0.rs
++++ b/io/drmdevice/src/card0.rs
+@@ -128,20 +128,33 @@ impl DrmIoctl for DrmVersion {
+         version.version_minor = DRIVER_VERSION_MINOR;
+         version.version_patchlevel = DRIVER_VERSION_PATCHLEVEL;
+         version.name_len = DRIVER_NAME.len();
+-        version
+-            .name
+-            .write_vm_slice(DRIVER_NAME.as_bytes())
+-            .map_err(|_| VfsError::BadAddress)?;
+         version.date_len = DRIVER_DATE.len();
+-        version
+-            .date
+-            .write_vm_slice(DRIVER_DATE.as_bytes())
+-            .map_err(|_| VfsError::BadAddress)?;
+         version.desc_len = DRIVER_DESC.len();
+-        version
+-            .desc
+-            .write_vm_slice(DRIVER_DESC.as_bytes())
+-            .map_err(|_| VfsError::BadAddress)?;
++        // Fill the strings only when the caller provided a buffer.
++        // libdrm's first drmGetVersion() call passes NULL pointers / zero
++        // lengths to query the sizes; copying to a NULL pointer must not
++        // fault (mirrors Linux drm_version handling).
++        if !version.name.is_null() && version.name_len > 0 {
++            let n = core::cmp::min(DRIVER_NAME.len(), version.name_len);
++            version
++                .name
++                .write_vm_slice(&DRIVER_NAME.as_bytes()[..n])
++                .map_err(|_| VfsError::BadAddress)?;
++        }
++        if !version.date.is_null() && version.date_len > 0 {
++            let n = core::cmp::min(DRIVER_DATE.len(), version.date_len);
++            version
++                .date
++                .write_vm_slice(&DRIVER_DATE.as_bytes()[..n])
++                .map_err(|_| VfsError::BadAddress)?;
++        }
++        if !version.desc.is_null() && version.desc_len > 0 {
++            let n = core::cmp::min(DRIVER_DESC.len(), version.desc_len);
++            version
++                .desc
++                .write_vm_slice(&DRIVER_DESC.as_bytes()[..n])
++                .map_err(|_| VfsError::BadAddress)?;
++        }
+         Ok(0)
+     }
+ }
+@@ -168,10 +181,13 @@ impl DrmIoctl for DrmUnique {
+     fn handle(_dev: &Card0, unique: &mut Self) -> VfsResult<usize> {
+         let unique_str: String = format!("{}:0", DRIVER_NAME);
+         unique.unique_len = unique_str.len();
+-        unique
+-            .unique
+-            .write_vm_slice(unique_str.as_bytes())
+-            .map_err(|_| VfsError::BadAddress)?;
++        if !unique.unique.is_null() && unique.unique_len > 0 {
++            let n = core::cmp::min(unique_str.len(), unique.unique_len);
++            unique
++                .unique
++                .write_vm_slice(&unique_str.as_bytes()[..n])
++                .map_err(|_| VfsError::BadAddress)?;
++        }
+         Ok(0)
+     }
+ }
+-- 
+2.53.0
+

@@ -1,0 +1,222 @@
+From 8efe02516fcb1867e80f3f840bd3acc5b5a3e4c7 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 22:16:35 +0800
+Subject: [PATCH 2/7] fix(knet): deliver AF_UNIX SOCK_STREAM ancillary data
+
+SOCK_STREAM sockets silently dropped ancillary data, so SCM_RIGHTS file
+descriptors were never transferred. Wayland clients never received the
+compositor's shared-memory buffer fds and the graphical session could not
+start at all.
+
+Queue one ancillary payload per sendmsg on the channel and publish it with the
+first successful read of the matching message, mirroring the datagram path.
+
+Verified by fdprobe (SCM_RIGHTS across processes) and by the Weston session
+rendering its desktop.
+---
+ net/knet/src/unix/stream.rs         | 76 +++++++++++++++++++++++++++++
+ net/knet/src/unix/stream/channel.rs | 30 +++++++++++-
+ 2 files changed, 105 insertions(+), 1 deletion(-)
+
+diff --git a/net/knet/src/unix/stream.rs b/net/knet/src/unix/stream.rs
+index 79d2305..8b1f833 100644
+--- a/net/knet/src/unix/stream.rs
++++ b/net/knet/src/unix/stream.rs
+@@ -228,6 +228,10 @@ impl UnixTransportOps for StreamTransport {
+         let size = src.remaining();
+         let mut total = 0;
+         let non_blocking = self.options.nonblocking() || options.flags.nonblocking();
++        // Control messages are held back until the first byte of this message is
++        // published: a send that ends up writing nothing must not queue anything.
++        let mut ancillary = options.ancillary;
++        let mut ancillary_published = ancillary.is_empty();
+         self.options
+             .send_poller_with_nonblocking(self, non_blocking, || {
+                 if self.endpoint.tx_closed.load(Ordering::Acquire) {
+@@ -269,6 +273,15 @@ impl UnixTransportOps for StreamTransport {
+                     {
+                         return finish_send_on_error(total, KError::BrokenPipe);
+                     }
++                    // Publish the control messages *before* the bytes they belong
++                    // to become visible, so a concurrent reader can never observe
++                    // this message's data without its ancillary data.
++                    if count > 0 && !ancillary_published {
++                        chan.outgoing_ancillary
++                            .lock()
++                            .push_back(core::mem::take(&mut ancillary));
++                        ancillary_published = true;
++                    }
+                     // SAFETY: `count` is the sum of bytes written into the vacant
+                     // slices above, so it never exceeds the producer capacity that
+                     // was exposed while the channel lock excluded other producers.
+@@ -289,6 +302,7 @@ impl UnixTransportOps for StreamTransport {
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, options: RecvOptions) -> KResult<usize> {
+         let is_zero_length = dst.remaining_mut() == 0;
++        let mut ancillary_out = options.ancillary;
+         self.options
+             .recv_poller_with_nonblocking(self, options.flags.nonblocking(), || {
+                 let mut guard = self.channel.lock();
+@@ -313,6 +327,14 @@ impl UnixTransportOps for StreamTransport {
+                     count
+                 };
+                 if count > 0 {
++                    // Hand the peer's control messages to this read. Linux delivers
++                    // a message's ancillary data with the first successful receive
++                    // that consumes any of its bytes, so pop exactly one batch.
++                    if let Some(out) = ancillary_out.as_mut()
++                        && let Some(mut received) = chan.incoming_ancillary.lock().pop_front()
++                    {
++                        out.append(&mut received);
++                    }
+                     let occupied_after = occupied_before - count;
+                     if !channel::is_stream_writable(occupied_before)
+                         && channel::is_stream_writable(occupied_after)
+@@ -1279,4 +1301,58 @@ mod tests {
+         listener.endpoint.polls.readable.wake();
+         assert_eq!(listener_read.0.load(Ordering::SeqCst), 1);
+     }
++
++    #[def_test]
++    fn unix_stream_delivers_ancillary_data_with_the_next_read() {
++        use alloc::boxed::Box;
++
++        use crate::AncillaryData;
++
++        let (left, right) = StreamTransport::new_pair(1);
++
++        // One message carrying ancillary data, immediately followed by a plain
++        // one, so the delivery boundary can be observed.
++        let mut with_ancillary = SendOptions::default();
++        with_ancillary
++            .ancillary
++            .push(Box::new(42_u32) as AncillaryData);
++        assert_eq!(left.send(&b"a"[..], with_ancillary).unwrap(), 1);
++        assert_eq!(left.send(&b"b"[..], SendOptions::default()).unwrap(), 1);
++
++        // The first read sees both the byte and its control message.
++        let mut buf = [0_u8; 1];
++        let mut received: Vec<AncillaryData> = Vec::new();
++        assert_eq!(
++            right
++                .recv(
++                    &mut buf[..],
++                    RecvOptions {
++                        ancillary: Some(&mut received),
++                        ..RecvOptions::default()
++                    },
++                )
++                .unwrap(),
++            1
++        );
++        assert_eq!(buf, [b'a']);
++        assert_eq!(received.len(), 1);
++        assert_eq!(received[0].downcast_ref::<u32>(), Some(&42));
++
++        // The second read must not inherit the first message's control message.
++        let mut received_second: Vec<AncillaryData> = Vec::new();
++        assert_eq!(
++            right
++                .recv(
++                    &mut buf[..],
++                    RecvOptions {
++                        ancillary: Some(&mut received_second),
++                        ..RecvOptions::default()
++                    },
++                )
++                .unwrap(),
++            1
++        );
++        assert_eq!(buf, [b'b']);
++        assert!(received_second.is_empty());
++    }
+ }
+diff --git a/net/knet/src/unix/stream/channel.rs b/net/knet/src/unix/stream/channel.rs
+index 4e21b21..b10c148 100644
+--- a/net/knet/src/unix/stream/channel.rs
++++ b/net/knet/src/unix/stream/channel.rs
+@@ -4,17 +4,20 @@
+ 
+ //! Connected Unix stream channel state.
+ 
+-use alloc::sync::Arc;
++use alloc::{collections::VecDeque, sync::Arc, vec::Vec};
+ use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+ 
+ use kerrno::LinuxError;
+ use kpoll::{IoEvents, PollContext, PollRegisterError, PollSet};
+ use kspin::SpinNoPreempt;
++use ksync::Mutex;
+ use ringbuf::{
+     HeapCons, HeapProd, HeapRb,
+     traits::{Observer, Split},
+ };
+ 
++use crate::AncillaryData;
++
+ pub(super) const STREAM_BUF_BYTES: usize = 64 * 1024;
+ pub(super) const STREAM_WRITABLE_MAX_OCCUPIED_BYTES: usize = STREAM_BUF_BYTES / 4;
+ 
+@@ -75,6 +78,18 @@ pub(super) struct StreamEndpoint {
+     pub(super) socket_error: AtomicI32,
+ }
+ 
++/// Control-message batches travelling in one direction.
++///
++/// One entry is one `sendmsg` that carried ancillary data (e.g. `SCM_RIGHTS`
++/// file descriptors). It is handed to the peer's next successful `recvmsg`,
++/// mirroring how Linux attaches control messages to the message whose bytes
++/// that `recvmsg` consumes.
++pub(super) type AncillaryQueue = Arc<Mutex<VecDeque<Vec<AncillaryData>>>>;
++
++fn new_ancillary_queue() -> AncillaryQueue {
++    Arc::new(Mutex::new(VecDeque::new()))
++}
++
+ pub(super) fn new_duplex_channel(
+     client_endpoint: Arc<StreamEndpoint>,
+     server_endpoint: Arc<StreamEndpoint>,
+@@ -82,6 +97,11 @@ pub(super) fn new_duplex_channel(
+ ) -> (Channel, Channel) {
+     let (client_tx, server_rx) = new_ring_pair();
+     let (server_tx, client_rx) = new_ring_pair();
++    // Pair the queues the same way as the rings: what one side sends is read
++    // by the other, so `client_to_server` is the client's outgoing queue and
++    // the server's incoming queue at the same time.
++    let client_to_server = new_ancillary_queue();
++    let server_to_client = new_ancillary_queue();
+     (
+         Channel {
+             tx: client_tx,
+@@ -89,6 +109,8 @@ pub(super) fn new_duplex_channel(
+             endpoint: client_endpoint.clone(),
+             peer_endpoint: server_endpoint.clone(),
+             peer_pid: pid,
++            outgoing_ancillary: client_to_server.clone(),
++            incoming_ancillary: server_to_client.clone(),
+         },
+         Channel {
+             tx: server_tx,
+@@ -96,6 +118,8 @@ pub(super) fn new_duplex_channel(
+             endpoint: server_endpoint,
+             peer_endpoint: client_endpoint,
+             peer_pid: pid,
++            outgoing_ancillary: server_to_client,
++            incoming_ancillary: client_to_server,
+         },
+     )
+ }
+@@ -106,6 +130,10 @@ pub(super) struct Channel {
+     pub(super) endpoint: Arc<StreamEndpoint>,
+     pub(super) peer_endpoint: Arc<StreamEndpoint>,
+     pub(super) peer_pid: u32,
++    /// Control messages sent by this side that the peer has not consumed yet.
++    pub(super) outgoing_ancillary: AncillaryQueue,
++    /// Control messages sent by the peer, delivered with our next successful read.
++    pub(super) incoming_ancillary: AncillaryQueue,
+ }
+ 
+ impl Drop for Channel {
+-- 
+2.53.0
+

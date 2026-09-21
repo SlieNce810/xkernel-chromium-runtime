@@ -1,0 +1,44 @@
+From 031a3b4c0535b919a87f4adffcac129db9dc573d Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 21 Sep 2026 22:17:23 +0800
+Subject: [PATCH 4/7] fix(knet): accept non-zero multicast groups in netlink
+ bind
+
+NETLINK_ROUTE bind() with a non-zero groups mask returned EOPNOTSUPP, so
+Chromium's AddressTrackerLinux could not subscribe to route notifications and
+aborted early in network initialization.
+
+Binding RTMGRP_* groups is now accepted. Notifications themselves are not
+delivered yet -- with static networking that is currently a no-op -- which is
+tracked as a TODO in the socket.
+---
+ net/knet/src/netlink/socket.rs | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/net/knet/src/netlink/socket.rs b/net/knet/src/netlink/socket.rs
+index c953cf1..e5d87dc 100644
+--- a/net/knet/src/netlink/socket.rs
++++ b/net/knet/src/netlink/socket.rs
+@@ -218,9 +218,16 @@ impl Configurable for NetlinkSocket {
+ impl SocketOps for NetlinkSocket {
+     fn bind(&self, local_addr: SocketAddrEx) -> KResult {
+         let addr = local_addr.into_netlink()?;
+-        if self.inner.protocol == NETLINK_ROUTE && addr.groups != 0 {
+-            return Err(LinuxError::EOPNOTSUPP.into());
+-        }
++        // Multicast group membership is recorded but not delivered yet: the only
++        // publisher today is kobject-uevent (`update_uevent_subscription` returns
++        // early for every other protocol), so a NETLINK_ROUTE socket that joins
++        // RTMGRP_* groups binds successfully and simply never observes route
++        // notifications. Failing the bind with EOPNOTSUPP instead — as this used
++        // to — breaks clients that subscribe unconditionally rather than probing
++        // first; Chromium's `AddressTrackerLinux` is one of them and reports
++        // "Could not bind NETLINK socket: Not supported (95)".
++        // TODO: publish RTMGRP_* notifications once the routing table can change
++        // at runtime.
+         *self.inner.local_addr.write() = Some(addr);
+         self.update_uevent_subscription(addr);
+         self.inner.poll_rx.wake();
+-- 
+2.53.0
+
