@@ -1,0 +1,13 @@
+diff --git a/fs/filesystems/procfs/src/basic_nodes/root.rs b/fs/filesystems/procfs/src/basic_nodes/root.rs
+--- a/fs/filesystems/procfs/src/basic_nodes/root.rs
++++ b/fs/filesystems/procfs/src/basic_nodes/root.rs
+@@ -40,8 +40,8 @@
+                writeln!(
+                    info,
+-                    "processor\t: {}\ncpu cores\t: {}\narchitecture\t: {}",
++                    "processor\t: {}\nBogoMIPS\t: 0.00\nFeatures\t: fp asimd evtstrm aes pmull sha1 sha2 crc32\nCPU implementer\t: 0x41\nCPU architecture\t: 8\nCPU variant\t: 0x0\nCPU part\t: 0xd0b\nCPU revision\t: 0\ncpu cores\t: {}\narchitecture\t: {}",
+                    cpu_id.as_usize(),
+                    cpu_count,
+                    ARCH,
+                )
+                .unwrap();
