@@ -166,6 +166,7 @@ launch_chrome() {
     log "  【尝试 $tag】"
     chromium --ozone-platform=wayland --no-sandbox --disable-gpu --disable-dev-shm-usage \
         --enable-logging=stderr --v=1 \
+        --disable-crash-reporter \
         --user-data-dir=/tmp/chromium-baseline "$@" \
         file:///usr/share/html-test/index.html >> "$CHROME_LOG" 2>&1 &
     CPID=$!
@@ -196,13 +197,15 @@ launch_chrome() {
 #      → 说明本内核上 Chromium 的**所有子进程**都活不下来（GPU 那个只是第一个被发现的）
 #      → 对策：--single-process，把 renderer/utility 也并进 browser 进程
 launch_chrome "A-single-process" --single-process --no-zygote --in-process-gpu \
-    --use-gl=swiftshader --disable-gpu-sandbox --disable-features=Vulkan \
+    --use-gl=swiftshader --disable-gpu-sandbox \
+    --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions \
     --disable-background-networking --disable-component-update --disable-sync \
     --no-first-run --disable-extensions
 if ! pgrep -f "lib/chromium/chromium" >/dev/null 2>&1; then
     log "  尝试 A 未存活 → 换 B：仅 --in-process-gpu（已知能出窗口，但页面不渲染）"
     launch_chrome "B-inprocess-gpu" --in-process-gpu --use-gl=swiftshader --disable-gpu-sandbox \
-        --disable-features=Vulkan --disable-background-networking --disable-component-update
+        --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions \
+        --disable-background-networking --disable-component-update
 fi
 
 log "  ==== /root/chromium.log 共 $(wc -l < "$CHROME_LOG" 2>/dev/null) 行，尾 120 行 ===="

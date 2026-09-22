@@ -46,6 +46,19 @@ fi
 export XDG_RUNTIME_DIR=/run/user/0
 export WAYLAND_DISPLAY="${WL_SOCK:-wayland-0}"
 mkdir -p /tmp/chromium-n1b
+if [ ! -s /etc/fonts/fonts.conf ]; then
+    mkdir -p /etc/fonts /var/cache/fontconfig
+    cat > /etc/fonts/fonts.conf <<'EOF'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <dir>/usr/share/fonts</dir>
+  <dir>/usr/local/share/fonts</dir>
+  <cachedir>/var/cache/fontconfig</cachedir>
+</fontconfig>
+EOF
+    log "installed minimal fontconfig"
+fi
 
 log "launch detailed Chromium"
 chromium --ozone-platform=wayland --no-sandbox --disable-dev-shm-usage \
