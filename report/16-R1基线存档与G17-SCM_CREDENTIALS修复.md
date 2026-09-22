@@ -276,6 +276,10 @@ T490 内核提交：`8162e8a` → `8efe025` → `c6930c2` → `031a3b4` → `f8b
 |---|---|---|
 | ~~N1~~ | ~~用 G17 内核复跑 Chromium，确认 crashpad 是否不再报 `missing credentials`~~ | ✅ **已完成**：`missing credentials` **0 次**（已消除）；但 **renderer 仍未创建、browser 仍 rc=191@60s**（见 §2.7） |
 | **N1b** | 抓 191 退出的真正失败点 | 在 60 s 窗口内打开 `--vmodule=*content*=2,*mojo*=2`；并解释 zygote(pid 94/95) 为何 +10s 后消失 |
+
+### N1b 追加结果（2026-09-22）
+
+独立证据轮 `evidence/2026-09-22_t490-n1b/` 使用详细 vmodule 参数启动 Chromium。该轮发现基础镜像中的 `/etc/fonts/fonts.conf` 为空，Chromium 在 5 秒内以 `rc=0` 退出，未进入 zygote、renderer、Mojo 或 crashpad 的有效诊断路径；因此该轮不能用于解释此前的 60 秒 `rc=191`。修正版 autorun 已补回原 r4 的 `--disable-crash-reporter` 参数，后续重跑应以该脚本为准。
 | N2 | 补 B2（AF_UNIX 的 `SO_PASSCRED` 自动附带凭证） | 若后续发现仍有凭证相关报错，这是下一处 |
 | N3 | 把 P5 提上游（`openkylin/x-kernel`） | 上游 `!821` 仍未修，属真实缺口；需先 rebase 到最新 main 并跑全检 |
 | N4 | 评估**把基线 rebase 到上游 `!821`** | 上游已前进 11 个 MR，且自带 `SO_PASSCRED`/`UnixCredentials`/接收侧序列化 —— 能让 P5 更小更易合入，但需重验 |
