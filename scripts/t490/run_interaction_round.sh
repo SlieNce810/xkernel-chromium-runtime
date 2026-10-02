@@ -22,6 +22,16 @@ DRIVER_LOG="${TMP_PREFIX}-driver.log"
 EVENTS_LOG="${TMP_PREFIX}-events.jsonl"
 MANIFEST_TMP="${TMP_PREFIX}-manifest.txt"
 
+# Reuse the same known-good image and p31 runtime overlay as the validated
+# single-process baseline.  The generic t490_round defaults point at an older
+# diagnostic image that has no Weston/eudev runtime and would fail before QMP
+# could ever reach Chromium.
+BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
+PKG_TARBALL="${PKG_TARBALL:-$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz}"
+GL_VARIANT="${GL_VARIANT:-angle-swiftshader}"
+GPU_MODEL="${GPU_MODEL:-in-process}"
+INJECT_AUTOSTART="${INJECT_AUTOSTART:-1}"
+
 rm -f "$QMP_SOCKET" "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$MANIFEST_TMP"
 
 echo "TAG=$TAG DUR=$DUR IVL=$IVL QMP_SOCKET=$QMP_SOCKET OUT=$OUT" \
@@ -29,6 +39,11 @@ echo "TAG=$TAG DUR=$DUR IVL=$IVL QMP_SOCKET=$QMP_SOCKET OUT=$OUT" \
 
 PAGE_URL="file:///usr/share/html-test/interaction.html" \
 QMP_SOCKET="$QMP_SOCKET" \
+BASE_IMG="$BASE_IMG" \
+PKG_TARBALL="$PKG_TARBALL" \
+GL_VARIANT="$GL_VARIANT" \
+GPU_MODEL="$GPU_MODEL" \
+INJECT_AUTOSTART="$INJECT_AUTOSTART" \
 ASSERT_PROFILE=legacy \
 FIRST_SHOT=120 \
 SINGLE_HOLD_VALUE="$((DUR - 20))" \
