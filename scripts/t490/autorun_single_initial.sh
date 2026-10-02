@@ -124,6 +124,26 @@ env XDG_RUNTIME_DIR="$RUNTIME_DIR" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
 CHROME_PID=$!
 log "BROWSER_PID=$CHROME_PID BROWSER_START_EPOCH=$START_EPOCH"
 
+# Record whether Chromium's documented DevTools endpoint is reachable from
+# inside the guest.  This separates a browser listener problem from QEMU user
+# networking/hostfwd problems without changing the page or its test logic.
+(
+    cdp_try=0
+    while [ "$cdp_try" -lt 36 ] && [ -d "/proc/$CHROME_PID" ]; do
+        if command -v wget >/dev/null 2>&1 && \
+            wget -qO /root/single-cdp-version.json --timeout=2 \
+                http://127.0.0.1:9222/json/version 2>/dev/null; then
+            log "CDP_READY=1"
+            head -c 512 /root/single-cdp-version.json >> "$LOG" 2>/dev/null || true
+            echo >> "$LOG"
+            break
+        fi
+        cdp_try=$((cdp_try + 1))
+        sleep 5
+    done
+    [ "$cdp_try" -lt 36 ] || log "CDP_READY=0"
+) &
+
 elapsed=0
 navigation_started=0
 first_nav_epoch=0
