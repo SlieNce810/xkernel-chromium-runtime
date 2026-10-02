@@ -155,6 +155,14 @@ class QmpClient:
 
     def key(self, qcode: str) -> None:
         if self.qmp_send_key:
+            if qcode == "alt-left":
+                self.command("send-key", {"keys": [
+                    {"type": "qcode", "data": "alt"},
+                    {"type": "qcode", "data": "left"},
+                ]})
+                self._record("action", {"op": "key", "qcode": qcode,
+                                         "transport": "send-key-chord"})
+                return
             self.command("send-key", {"keys": [{"type": "qcode", "data": qcode}]})
             self._record("action", {"op": "key", "qcode": qcode, "transport": "send-key"})
             return
