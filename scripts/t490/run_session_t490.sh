@@ -24,6 +24,22 @@ TAG="${1:-run1}"
 DUR="${2:-2400}"
 IVL="${3:-120}"
 
+# Optional QMP endpoint used by the reproducible keyboard/mouse interaction
+# round.  Ordinary rendering rounds leave it unset and keep the platform
+# command line unchanged.  The path is validated because it becomes part of
+# the make-provided QEMU_ARGS value.
+QMP_ARGS=()
+if [ -n "${QMP_SOCKET:-}" ]; then
+    case "$QMP_SOCKET" in
+        *[!A-Za-z0-9_./-]*)
+            echo "!! 非法 QMP_SOCKET=$QMP_SOCKET"
+            exit 1
+            ;;
+    esac
+    rm -f "$QMP_SOCKET"
+    QMP_ARGS=(--qemu-args "-qmp unix:${QMP_SOCKET},server=on,wait=off")
+fi
+
 mkdir -p "$HOME/xk6/tmp"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
 
@@ -53,6 +69,7 @@ python3 "$HOME/xk6/scripts/run-session.py" \
   --input-devices "$PLAT_INPUT_DEVICES" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
+  "${QMP_ARGS[@]}" \
   --out "$OUT"
 SESSION_RC=$?
 echo "SESSION_RC=$SESSION_RC"
