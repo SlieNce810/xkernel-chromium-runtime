@@ -376,6 +376,10 @@ def parse_args() -> argparse.Namespace:
                         help="使用 virtio-tablet 的 QMP 绝对坐标")
     parser.add_argument("--input-target", default="auto",
                         help="input-send-event 的 QEMU display device 路由名，auto 自动探测")
+    parser.add_argument("--setup-only", action="store_true",
+                        help="只建立 QMP、配置可选端口转发并记录设备，不发送页面动作")
+    parser.add_argument("--cdp-forward-port", type=int, default=0,
+                        help="通过 QEMU user-net 将宿主端口转发到 guest Chromium 9222")
     parser.add_argument("--mouse-index", type=int, default=-1,
                         help="HMP active mouse index，-1 表示从 info mice 自动选择")
     return parser.parse_args()
@@ -390,6 +394,15 @@ def main() -> int:
                        input_target=args.input_target)
     try:
         client.connect(args.connect_timeout, mouse_index=args.mouse_index)
+        if args.cdp_forward_port:
+            response = client.hmp(
+                f"hostfwd_add net0 tcp::{args.cdp_forward_port}-:9222"
+            )
+            client._record("cdp-forward", {"port": args.cdp_forward_port,
+                                             "response": response})
+        if args.setup_only:
+            client._record("result", {"ok": True, "mode": "setup-only"})
+            return 0
         run_scenario(client, args)
         client._record("result", {"ok": True})
         return 0

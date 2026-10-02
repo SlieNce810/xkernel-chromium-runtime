@@ -35,6 +35,8 @@ QMP_INPUT_MODE="${QMP_INPUT_MODE:-qmp}"
 QMP_KEY_MODE="${QMP_KEY_MODE:-send-key}"
 QMP_INPUT_TABLET="${QMP_INPUT_TABLET:-1}"
 QMP_INPUT_TARGET="${QMP_INPUT_TARGET:-auto}"
+INPUT_DRIVER="${INPUT_DRIVER:-cdp}"
+CDP_FORWARD_PORT="${CDP_FORWARD_PORT:-61006}"
 QMP_INPUT_ARGS=()
 case "$QMP_INPUT_MODE" in
     hmp) QMP_INPUT_ARGS=(--force-hmp) ;;
@@ -57,6 +59,8 @@ case "$QMP_INPUT_TABLET" in
 esac
 
 rm -f "$QMP_SOCKET" "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$MANIFEST_TMP"
+QMP_EVENTS_LOG="${TMP_PREFIX}-qmp-events.jsonl"
+rm -f "$QMP_EVENTS_LOG"
 
 echo "TAG=$TAG DUR=$DUR IVL=$IVL QMP_SOCKET=$QMP_SOCKET OUT=$OUT" \
     | tee "$MANIFEST_TMP"
@@ -76,13 +80,40 @@ bash "$ROOT/scripts/t490/t490_round.sh" "$TAG" "$DUR" "$IVL" \
     autorun_single_initial.sh > "$ROUND_LOG" 2>&1 &
 ROUND_PID=$!
 
-python3 "$HERE/qmp_input.py" \
-    --socket "$QMP_SOCKET" \
-    --output "$EVENTS_LOG" \
-    --input-target "$QMP_INPUT_TARGET" \
-    "${QMP_INPUT_ARGS[@]}" \
-    >> "$DRIVER_LOG" 2>&1
-INPUT_RC=$?
+case "$INPUT_DRIVER" in
+    cdp)
+        python3 "$HERE/qmp_input.py" \
+            --socket "$QMP_SOCKET" \
+            --output "$QMP_EVENTS_LOG" \
+            --input-target "$QMP_INPUT_TARGET" \
+            --setup-only --cdp-forward-port "$CDP_FORWARD_PORT" \
+            >> "$DRIVER_LOG" 2>&1
+        QMP_RC=$?
+        if [ "$QMP_RC" -eq 0 ]; then
+            python3 "$HERE/cdp_input.py" \
+                --host 127.0.0.1 --port "$CDP_FORWARD_PORT" \
+                --output "$EVENTS_LOG" \
+                >> "$DRIVER_LOG" 2>&1
+            CDP_RC=$?
+        else
+            CDP_RC=1
+        fi
+        INPUT_RC=$((QMP_RC != 0 || CDP_RC != 0))
+        ;;
+    qmp)
+        python3 "$HERE/qmp_input.py" \
+            --socket "$QMP_SOCKET" \
+            --output "$EVENTS_LOG" \
+            --input-target "$QMP_INPUT_TARGET" \
+            "${QMP_INPUT_ARGS[@]}" \
+            >> "$DRIVER_LOG" 2>&1
+        INPUT_RC=$?
+        ;;
+    *)
+        echo "!! 非法 INPUT_DRIVER=$INPUT_DRIVER（允许 cdp|qmp）" | tee "$DRIVER_LOG"
+        INPUT_RC=1
+        ;;
+esac
 
 wait "$ROUND_PID"
 ROUND_RC=$?
@@ -94,6 +125,7 @@ if [ -d "$OUT" ]; then
     cp -f "$MANIFEST_TMP" "$OUT/interaction-manifest.txt"
     cp -f "$ROUND_LOG" "$OUT/round-orchestrator.log"
     cp -f "$DRIVER_LOG" "$OUT/input-driver.log"
+    [ -f "$QMP_EVENTS_LOG" ] && cp -f "$QMP_EVENTS_LOG" "$OUT/qmp-events.jsonl"
     [ -f "$EVENTS_LOG" ] && cp -f "$EVENTS_LOG" "$OUT/input-events.jsonl"
 fi
 
@@ -107,5 +139,5 @@ if [ -d "$OUT" ]; then
 fi
 
 rm -f "$QMP_SOCKET"
-rm -f "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$MANIFEST_TMP"
+rm -f "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$QMP_EVENTS_LOG" "$MANIFEST_TMP"
 [ "$INPUT_RC" -eq 0 ] && [ "$ROUND_RC" -eq 0 ]
