@@ -17,6 +17,10 @@ IMG="$HOME/x-kernel/disk.img"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
 mkdir -p "$OUT"
 
+for _ in $(seq 1 20); do
+    pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1 || break
+    sleep 1
+done
 if pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1; then
     echo "!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停"
     exit 1
@@ -24,7 +28,17 @@ fi
 [ -f "$IMG" ] || { echo "!! 镜像不存在: $IMG"; exit 1; }
 
 # 常用文件 + 调用方指定的额外文件
-FILES="/root/chromium.log /root/nnp.log /root/nnp-watch.log /root/install.log /root/install-watch.log /tmp/weston.log $EXTRA"
+# ★ 2026-09-22：把 autorun_v3.sh 实际写的那几个日志补进默认清单。
+#   历史清单只覆盖 chromium.log/nnp.log/install.log 等，而 autorun_full/v3 写的是
+#   full.log / chrome-full.log / chrome-snap.log（外加 A0 探针的 a0.log）——
+#   漏了它们会 dump 出 0 字节，然后被误判成"guest 根本没写日志"。
+FILES="/root/full.log /root/chrome-full.log /root/chrome-snap.log /root/a0.log \
+/root/chromium.log /root/nnp.log /root/nnp-watch.log /root/install.log /root/install-watch.log /tmp/weston.log $EXTRA"
+# Default multi-process diagnostics use a separate prefix so that the complete
+# Chromium and process snapshots survive the round and can be parsed after the
+# QEMU image is stopped.
+FILES="$FILES /root/mp-diag.log /root/mp-chromium.log /root/mp-weston.log \
+/root/mp-weston-stdout.log /root/mp-seatd.log /root/mp-udevd.log /root/mp-trace.*"
 
 for f in $FILES; do
     base=$(echo "$f" | tr '/' '_')
