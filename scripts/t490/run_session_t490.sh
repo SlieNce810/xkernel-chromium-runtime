@@ -37,7 +37,14 @@ if [ -n "${QMP_SOCKET:-}" ]; then
             ;;
     esac
     rm -f "$QMP_SOCKET"
-    QMP_ARGS=(--qemu-args "-qmp unix:${QMP_SOCKET},server=on,wait=off")
+    QMP_VALUE="-qmp unix:${QMP_SOCKET},server=on,wait=off ${QMP_EXTRA_ARGS:-}"
+    case "$QMP_VALUE" in
+        *[\'\"\;\|\&\`\$]*)
+            echo "!! 非法 QMP_EXTRA_ARGS"
+            exit 1
+            ;;
+    esac
+    QMP_ARGS=(--qemu-args "$QMP_VALUE")
 fi
 
 mkdir -p "$HOME/xk6/tmp"

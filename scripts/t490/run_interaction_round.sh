@@ -31,12 +31,27 @@ PKG_TARBALL="${PKG_TARBALL:-$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p
 GL_VARIANT="${GL_VARIANT:-angle-swiftshader}"
 GPU_MODEL="${GPU_MODEL:-in-process}"
 INJECT_AUTOSTART="${INJECT_AUTOSTART:-1}"
-QMP_INPUT_MODE="${QMP_INPUT_MODE:-hmp}"
+QMP_INPUT_MODE="${QMP_INPUT_MODE:-qmp}"
+QMP_KEY_MODE="${QMP_KEY_MODE:-send-key}"
+QMP_INPUT_TABLET="${QMP_INPUT_TABLET:-1}"
 QMP_INPUT_ARGS=()
 case "$QMP_INPUT_MODE" in
     hmp) QMP_INPUT_ARGS=(--force-hmp) ;;
     qmp) ;;
     *) echo "!! 非法 QMP_INPUT_MODE=$QMP_INPUT_MODE（允许 hmp|qmp）"; exit 1 ;;
+esac
+case "$QMP_KEY_MODE" in
+    hmp) ;;
+    send-key) QMP_INPUT_ARGS+=(--qmp-send-key) ;;
+    *) echo "!! 非法 QMP_KEY_MODE=$QMP_KEY_MODE（允许 hmp|send-key）"; exit 1 ;;
+esac
+case "$QMP_INPUT_TABLET" in
+    0) ;;
+    1) QMP_INPUT_ARGS+=(--absolute-pointer) ;;
+       QMP_EXTRA_ARGS="${QMP_EXTRA_ARGS:--device virtio-keyboard-pci -device virtio-mouse-pci -device virtio-tablet-pci}" ;;
+       export QMP_EXTRA_ARGS
+       ;;
+    *) echo "!! 非法 QMP_INPUT_TABLET=$QMP_INPUT_TABLET（允许 0|1）"; exit 1 ;;
 esac
 
 rm -f "$QMP_SOCKET" "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$MANIFEST_TMP"

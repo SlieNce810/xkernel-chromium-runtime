@@ -24,10 +24,13 @@ class QmpError(RuntimeError):
 
 
 class QmpClient:
-    def __init__(self, path: str, output: Path, force_hmp: bool = False) -> None:
+    def __init__(self, path: str, output: Path, force_hmp: bool = False,
+                 qmp_send_key: bool = False, absolute_pointer: bool = False) -> None:
         self.path = path
         self.output = output
         self.force_hmp = force_hmp
+        self.qmp_send_key = qmp_send_key
+        self.absolute_pointer = absolute_pointer
         self.sock: socket.socket | None = None
         self._rx = b""
         self._seq = 0
@@ -61,7 +64,7 @@ class QmpClient:
                 raise QmpError("QMP socket closed")
             self._rx += chunk
 
-    def connect(self, timeout: float, mouse_index: int = 0) -> None:
+    def connect(self, timeout: float, mouse_index: int = -1) -> None:
         deadline = time.monotonic() + timeout
         last_error: Exception | None = None
         while time.monotonic() < deadline:
@@ -83,6 +86,13 @@ class QmpClient:
                     inventory = self.hmp("info mice")
                     self._record("mouse-inventory", inventory)
                     selected = mouse_index
+                    if selected < 0 and self.absolute_pointer:
+                        entries = mice.get("return", [])
+                        if isinstance(entries, list):
+                            absolute = next((item for item in entries
+                                              if item.get("absolute") is True), None)
+                            if isinstance(absolute, dict):
+                                selected = int(absolute["index"])
                     if selected < 0:
                         entries = mice.get("return", [])
                         if isinstance(entries, list):
@@ -144,6 +154,10 @@ class QmpClient:
         self.command("input-send-event", {"events": [value]})
 
     def key(self, qcode: str) -> None:
+        if self.qmp_send_key:
+            self.command("send-key", {"keys": [{"type": "qcode", "data": qcode}]})
+            self._record("action", {"op": "key", "qcode": qcode, "transport": "send-key"})
+            return
         if self.force_hmp:
             self.hmp(f"sendkey {qcode}")
             self._record("action", {"op": "key", "qcode": qcode, "transport": "hmp"})
@@ -196,6 +210,19 @@ class QmpClient:
             self.hmp("mouse_button 0")
             self._record("action", {"op": "click", "transport": "hmp"})
 
+    def absolute_pixel(self, x: int, y: int) -> None:
+        if not self.absolute_pointer:
+            raise QmpError("absolute pointer mode is disabled")
+        x_value = max(0, min(0x7FFF, round(x * 0x7FFF / 1280)))
+        y_value = max(0, min(0x7FFF, round(y * 0x7FFF / 800)))
+        self.command("input-send-event", {"events": [
+            {"type": "abs", "data": {"axis": "x", "value": x_value}},
+            {"type": "abs", "data": {"axis": "y", "value": y_value}},
+        ]})
+        self._record("action", {"op": "absolute", "x": x, "y": y,
+                                 "qemu_x": x_value, "qemu_y": y_value,
+                                 "transport": "qmp"})
+
 
 def pause(client: QmpClient, seconds: float, reason: str) -> None:
     client._record("sleep", {"seconds": seconds, "reason": reason})
@@ -203,6 +230,9 @@ def pause(client: QmpClient, seconds: float, reason: str) -> None:
 
 
 def move_to(client: QmpClient, x: int, y: int) -> None:
+    if client.absolute_pointer:
+        client.absolute_pixel(x, y)
+        return
     # Relative virtio-mouse events have no portable absolute origin.  A large
     # negative move clamps the pointer at the top-left on QEMU's display, after
     # which the requested pixel offset is deterministic for a fresh VM.
@@ -279,6 +309,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-index", action="store_true")
     parser.add_argument("--force-hmp", action="store_true",
                         help="通过 QMP human-monitor-command 使用 HMP 输入兼容接口")
+    parser.add_argument("--qmp-send-key", action="store_true",
+                        help="用 QMP send-key 命令发送键盘事件")
+    parser.add_argument("--absolute-pointer", action="store_true",
+                        help="使用 virtio-tablet 的 QMP 绝对坐标")
     parser.add_argument("--mouse-index", type=int, default=-1,
                         help="HMP active mouse index，-1 表示从 info mice 自动选择")
     return parser.parse_args()
@@ -287,7 +321,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    client = QmpClient(args.socket, args.output, force_hmp=args.force_hmp)
+    client = QmpClient(args.socket, args.output, force_hmp=args.force_hmp,
+                       qmp_send_key=args.qmp_send_key,
+                       absolute_pointer=args.absolute_pointer)
     try:
         client.connect(args.connect_timeout, mouse_index=args.mouse_index)
         run_scenario(client, args)
