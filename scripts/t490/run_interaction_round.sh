@@ -47,10 +47,11 @@ case "$QMP_KEY_MODE" in
 esac
 case "$QMP_INPUT_TABLET" in
     0) ;;
-    1) QMP_INPUT_ARGS+=(--absolute-pointer) ;;
-       QMP_EXTRA_ARGS="${QMP_EXTRA_ARGS:--device virtio-keyboard-pci -device virtio-mouse-pci -device virtio-tablet-pci}" ;;
-       export QMP_EXTRA_ARGS
-       ;;
+    1)
+        QMP_INPUT_ARGS+=(--absolute-pointer)
+        QMP_EXTRA_ARGS="${QMP_EXTRA_ARGS:--device virtio-keyboard-pci -device virtio-mouse-pci -device virtio-tablet-pci}"
+        export QMP_EXTRA_ARGS
+        ;;
     *) echo "!! 非法 QMP_INPUT_TABLET=$QMP_INPUT_TABLET（允许 0|1）"; exit 1 ;;
 esac
 
