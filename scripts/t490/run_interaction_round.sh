@@ -34,6 +34,7 @@ INJECT_AUTOSTART="${INJECT_AUTOSTART:-1}"
 QMP_INPUT_MODE="${QMP_INPUT_MODE:-qmp}"
 QMP_KEY_MODE="${QMP_KEY_MODE:-send-key}"
 QMP_INPUT_TABLET="${QMP_INPUT_TABLET:-1}"
+QMP_INPUT_TARGET="${QMP_INPUT_TARGET:-video0}"
 QMP_INPUT_ARGS=()
 case "$QMP_INPUT_MODE" in
     hmp) QMP_INPUT_ARGS=(--force-hmp) ;;
@@ -78,6 +79,7 @@ ROUND_PID=$!
 python3 "$HERE/qmp_input.py" \
     --socket "$QMP_SOCKET" \
     --output "$EVENTS_LOG" \
+    --input-target "$QMP_INPUT_TARGET" \
     "${QMP_INPUT_ARGS[@]}" \
     >> "$DRIVER_LOG" 2>&1
 INPUT_RC=$?

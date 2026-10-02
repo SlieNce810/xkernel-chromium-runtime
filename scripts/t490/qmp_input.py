@@ -25,12 +25,14 @@ class QmpError(RuntimeError):
 
 class QmpClient:
     def __init__(self, path: str, output: Path, force_hmp: bool = False,
-                 qmp_send_key: bool = False, absolute_pointer: bool = False) -> None:
+                 qmp_send_key: bool = False, absolute_pointer: bool = False,
+                 input_target: str = "") -> None:
         self.path = path
         self.output = output
         self.force_hmp = force_hmp
         self.qmp_send_key = qmp_send_key
         self.absolute_pointer = absolute_pointer
+        self.input_target = input_target
         self.sock: socket.socket | None = None
         self._rx = b""
         self._seq = 0
@@ -76,6 +78,14 @@ class QmpClient:
                 greeting = self._read_json(deadline)
                 self._record("connected", {"socket": self.path, "greeting": greeting})
                 self.command("qmp_capabilities")
+                for console_path in ("/backend/console[0]", "/backend/console[1]"):
+                    try:
+                        qom = self.command("qom-get", {"path": console_path,
+                                                         "property": "device"})
+                        self._record("console-device", {"path": console_path, "value": qom})
+                    except QmpError as exc:
+                        self._record("console-device-error", {"path": console_path,
+                                                               "error": str(exc)})
                 # QEMU keeps a selected active mouse for HMP compatibility.
                 # Record the inventory and select the virtio mouse explicitly;
                 # this is harmless for QMP-only mode and removes an otherwise
@@ -150,8 +160,14 @@ class QmpClient:
     def hmp(self, command_line: str) -> dict[str, Any]:
         return self.command("human-monitor-command", {"command-line": command_line})
 
+    def input_events(self, events: list[dict[str, Any]]) -> None:
+        arguments: dict[str, Any] = {"events": events}
+        if self.input_target:
+            arguments["device"] = self.input_target
+        self.command("input-send-event", arguments)
+
     def event(self, value: dict[str, Any]) -> None:
-        self.command("input-send-event", {"events": [value]})
+        self.input_events([value])
 
     def key(self, qcode: str) -> None:
         if self.qmp_send_key:
@@ -223,10 +239,10 @@ class QmpClient:
             raise QmpError("absolute pointer mode is disabled")
         x_value = max(0, min(0x7FFF, round(x * 0x7FFF / 1280)))
         y_value = max(0, min(0x7FFF, round(y * 0x7FFF / 800)))
-        self.command("input-send-event", {"events": [
+        self.input_events([
             {"type": "abs", "data": {"axis": "x", "value": x_value}},
             {"type": "abs", "data": {"axis": "y", "value": y_value}},
-        ]})
+        ])
         self._record("action", {"op": "absolute", "x": x, "y": y,
                                  "qemu_x": x_value, "qemu_y": y_value,
                                  "transport": "qmp"})
@@ -321,6 +337,8 @@ def parse_args() -> argparse.Namespace:
                         help="用 QMP send-key 命令发送键盘事件")
     parser.add_argument("--absolute-pointer", action="store_true",
                         help="使用 virtio-tablet 的 QMP 绝对坐标")
+    parser.add_argument("--input-target", default="",
+                        help="input-send-event 的 QEMU display device 路由名")
     parser.add_argument("--mouse-index", type=int, default=-1,
                         help="HMP active mouse index，-1 表示从 info mice 自动选择")
     return parser.parse_args()
@@ -331,7 +349,8 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     client = QmpClient(args.socket, args.output, force_hmp=args.force_hmp,
                        qmp_send_key=args.qmp_send_key,
-                       absolute_pointer=args.absolute_pointer)
+                       absolute_pointer=args.absolute_pointer,
+                       input_target=args.input_target)
     try:
         client.connect(args.connect_timeout, mouse_index=args.mouse_index)
         run_scenario(client, args)
