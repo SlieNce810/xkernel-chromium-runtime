@@ -1,0 +1,131 @@
+{
+  "file": "shot-05-final.ppm",
+  "size": "1280x800",
+  "header_bytes": 16,
+  "raster_bytes": 3072000,
+  "profile": "official-interaction",
+  "checks": [
+    {
+      "check": "non_white_ratio",
+      "pass": true,
+      "group": "info",
+      "detail": "非白像素 189792/1024000 = 0.1853；⚠️ 参考项，不参与卡关",
+      "ratio": 0.18534
+    },
+    {
+      "check": "official_banner",
+      "pass": true,
+      "group": "core",
+      "detail": "#17456b banner {'valid': True, 'count': 74564, 'x0': 209, 'y0': 20, 'x1': 1056, 'y1': 110, 'w': 848, 'h': 91}；要求 宽≥768(=0.6·W，实测 0.95@640 / 0.66@1280) 且 高∈[40,140]（实测 84）",
+      "bbox": {
+        "valid": true,
+        "count": 74564,
+        "x0": 209,
+        "y0": 20,
+        "x1": 1056,
+        "y1": 110,
+        "w": 848,
+        "h": 91
+      },
+      "w_req": 768
+    },
+    {
+      "check": "verdict_fail_absent",
+      "pass": true,
+      "group": "core",
+      "detail": "失败色：文字 #c93c37 0 px（上限 300，实测 0）、条底 #ffebe9 0 px（上限 2000，实测 37）；出现即说明页面自检判出了「未通过」",
+      "pass_text": 2351,
+      "fail_text": 0,
+      "pass_bg": 63172,
+      "fail_bg": 0
+    },
+    {
+      "check": "interaction_no_blocks",
+      "pass": true,
+      "group": "core",
+      "detail": "banner 下方无实心色块（阈值 高≥40 且 宽≥64；实测页面最大蓝块 = 按钮 92x34）→ 检出 无。此项是跨页鉴别：若列出红/绿/黄/紫块，说明这一帧其实是 index 或 layout 页",
+      "blocks": {}
+    },
+    {
+      "check": "interaction_checks_table",
+      "pass": true,
+      "group": "viewport",
+      "detail": "自检表横线等间距签名：9 条 [222, 253, 284, 315, 346, 377, 408, 439, 470]，间距 [31, 31, 31, 31, 31, 31, 31, 31]（实测 640/1280 均为 9 条 ×29；index 只有 6 条 ×31，故本项同时承担跨页鉴别）；",
+      "run": {
+        "found": true,
+        "lines": [
+          222,
+          253,
+          284,
+          315,
+          346,
+          377,
+          408,
+          439,
+          470
+        ],
+        "count": 9,
+        "pitches": [
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31
+        ],
+        "first": 222,
+        "reason": ""
+      },
+      "all_lines": [
+        129,
+        222,
+        253,
+        284,
+        315,
+        346,
+        377,
+        408,
+        439,
+        470,
+        585,
+        602
+      ]
+    },
+    {
+      "check": "interaction_selfcheck_pass",
+      "pass": true,
+      "group": "input",
+      "detail": "结论条绿字 2351 px + 绿底 63172 px（点击「运行自检」后的实测值 1899 / 60056；未点击时 0 / 36）→ T1–T6 全通过。**本项依赖真实点击输入**",
+      "pass_text": 2351,
+      "fail_text": 0,
+      "pass_bg": 63172,
+      "fail_bg": 0
+    },
+    {
+      "check": "interaction_awaiting_input",
+      "pass": false,
+      "group": "info",
+      "detail": "未点击时结论条应为灰（绿底 63172 px ≤ 5000，实测 36）→ 页面处于「待检测」初始态",
+      "pass_text": 2351,
+      "fail_text": 0,
+      "pass_bg": 63172,
+      "fail_bg": 0
+    }
+  ],
+  "strict_set": [
+    "official_banner",
+    "verdict_fail_absent",
+    "interaction_no_blocks",
+    "interaction_checks_table"
+  ],
+  "info_set": [
+    "non_white_ratio",
+    "interaction_selfcheck_pass",
+    "interaction_awaiting_input"
+  ],
+  "viewport_in_frame": true,
+  "strict_fail_count": 0,
+  "strict_fail_names": []
+}
