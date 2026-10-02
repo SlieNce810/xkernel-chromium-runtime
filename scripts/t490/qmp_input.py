@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import socket
 import sys
 import time
@@ -79,8 +80,16 @@ class QmpClient:
                 try:
                     inventory = self.hmp("info mice")
                     self._record("mouse-inventory", inventory)
-                    self.hmp(f"mouse_set {mouse_index}")
-                    self._record("mouse-selected", {"index": mouse_index})
+                    selected = mouse_index
+                    if selected < 0:
+                        listing = str(inventory.get("return", ""))
+                        match = re.search(r"Mouse #(\d+)", listing)
+                        if match:
+                            selected = int(match.group(1))
+                    if selected < 0:
+                        raise QmpError("info mice returned no selectable mouse")
+                    self.hmp(f"mouse_set {selected}")
+                    self._record("mouse-selected", {"index": selected})
                 except QmpError as exc:
                     self._record("mouse-selection-error", {"error": str(exc)})
                 return
@@ -260,8 +269,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-index", action="store_true")
     parser.add_argument("--force-hmp", action="store_true",
                         help="通过 QMP human-monitor-command 使用 HMP 输入兼容接口")
-    parser.add_argument("--mouse-index", type=int, default=0,
-                        help="HMP active mouse index（默认 0）")
+    parser.add_argument("--mouse-index", type=int, default=-1,
+                        help="HMP active mouse index，-1 表示从 info mice 自动选择")
     return parser.parse_args()
 
 
