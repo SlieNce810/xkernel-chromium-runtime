@@ -396,7 +396,7 @@ def main() -> int:
         client.connect(args.connect_timeout, mouse_index=args.mouse_index)
         if args.cdp_forward_port:
             response = client.hmp(
-                f"hostfwd_add net0 tcp::{args.cdp_forward_port}-:9222"
+                f"hostfwd_add net0 tcp::{args.cdp_forward_port}-127.0.0.1:9222"
             )
             client._record("cdp-forward", {"port": args.cdp_forward_port,
                                              "response": response})
