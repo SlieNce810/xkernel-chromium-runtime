@@ -78,9 +78,19 @@ class QmpClient:
                 # this is harmless for QMP-only mode and removes an otherwise
                 # implicit display-routing choice from the evidence.
                 try:
+                    mice = self.command("query-mice")
+                    self._record("mouse-query", mice)
                     inventory = self.hmp("info mice")
                     self._record("mouse-inventory", inventory)
                     selected = mouse_index
+                    if selected < 0:
+                        entries = mice.get("return", [])
+                        if isinstance(entries, list):
+                            current = next((item for item in entries
+                                             if item.get("current") is True), None)
+                            chosen = current or (entries[0] if entries else None)
+                            if isinstance(chosen, dict):
+                                selected = int(chosen["index"])
                     if selected < 0:
                         listing = str(inventory.get("return", ""))
                         match = re.search(r"Mouse #(\d+)", listing)
