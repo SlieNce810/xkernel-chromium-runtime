@@ -149,10 +149,11 @@ case "$PAGE_URL" in
     *..*) echo "!! 非法 PAGE_URL（含 .. 路径回溯）: $PAGE_URL"; exit 1 ;;
 esac
 case "$PAGE_URL" in
-    file:///usr/share/html-test/*.html) ;;
-    *) echo "!! 非法 PAGE_URL=$PAGE_URL（须形如 file:///usr/share/html-test/<page>.html）"; exit 1 ;;
+    file:///usr/share/html-test/*.html|file:///usr/share/html-test/*.html\?e2e=1) ;;
+    *) echo "!! 非法 PAGE_URL=$PAGE_URL（须形如 file:///usr/share/html-test/<page>.html[?e2e=1]）"; exit 1 ;;
 esac
-PAGE_ENTRY="${PAGE_URL##*/}"
+PAGE_PATH="${PAGE_URL%%\?*}"
+PAGE_ENTRY="${PAGE_PATH##*/}"
 case "$PAGE_ENTRY" in
     *[!A-Za-z0-9._-]*|*..*) echo "!! PAGE_URL 入口名含非法字符: $PAGE_ENTRY"; exit 1 ;;
 esac

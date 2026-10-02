@@ -65,7 +65,7 @@ rm -f "$QMP_EVENTS_LOG"
 echo "TAG=$TAG DUR=$DUR IVL=$IVL QMP_SOCKET=$QMP_SOCKET OUT=$OUT" \
     | tee "$MANIFEST_TMP"
 
-PAGE_URL="file:///usr/share/html-test/interaction.html" \
+PAGE_URL="file:///usr/share/html-test/interaction.html?e2e=1" \
 QMP_SOCKET="$QMP_SOCKET" \
 BASE_IMG="$BASE_IMG" \
 PKG_TARBALL="$PKG_TARBALL" \
@@ -81,6 +81,15 @@ bash "$ROOT/scripts/t490/t490_round.sh" "$TAG" "$DUR" "$IVL" \
 ROUND_PID=$!
 
 case "$INPUT_DRIVER" in
+    page-e2e)
+        python3 "$HERE/qmp_input.py" \
+            --socket "$QMP_SOCKET" \
+            --output "$QMP_EVENTS_LOG" \
+            --input-target "$QMP_INPUT_TARGET" \
+            --setup-only \
+            >> "$DRIVER_LOG" 2>&1
+        INPUT_RC=$?
+        ;;
     cdp)
         python3 "$HERE/qmp_input.py" \
             --socket "$QMP_SOCKET" \
@@ -110,7 +119,7 @@ case "$INPUT_DRIVER" in
         INPUT_RC=$?
         ;;
     *)
-        echo "!! 非法 INPUT_DRIVER=$INPUT_DRIVER（允许 cdp|qmp）" | tee "$DRIVER_LOG"
+        echo "!! 非法 INPUT_DRIVER=$INPUT_DRIVER（允许 page-e2e|cdp|qmp）" | tee "$DRIVER_LOG"
         INPUT_RC=1
         ;;
 esac
