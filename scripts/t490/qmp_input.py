@@ -60,7 +60,7 @@ class QmpClient:
                 raise QmpError("QMP socket closed")
             self._rx += chunk
 
-    def connect(self, timeout: float) -> None:
+    def connect(self, timeout: float, mouse_index: int = 0) -> None:
         deadline = time.monotonic() + timeout
         last_error: Exception | None = None
         while time.monotonic() < deadline:
@@ -72,6 +72,17 @@ class QmpClient:
                 greeting = self._read_json(deadline)
                 self._record("connected", {"socket": self.path, "greeting": greeting})
                 self.command("qmp_capabilities")
+                # QEMU keeps a selected active mouse for HMP compatibility.
+                # Record the inventory and select the virtio mouse explicitly;
+                # this is harmless for QMP-only mode and removes an otherwise
+                # implicit display-routing choice from the evidence.
+                try:
+                    inventory = self.hmp("info mice")
+                    self._record("mouse-inventory", inventory)
+                    self.hmp(f"mouse_set {mouse_index}")
+                    self._record("mouse-selected", {"index": mouse_index})
+                except QmpError as exc:
+                    self._record("mouse-selection-error", {"error": str(exc)})
                 return
             except (OSError, QmpError) as exc:
                 last_error = exc
@@ -249,6 +260,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-index", action="store_true")
     parser.add_argument("--force-hmp", action="store_true",
                         help="通过 QMP human-monitor-command 使用 HMP 输入兼容接口")
+    parser.add_argument("--mouse-index", type=int, default=0,
+                        help="HMP active mouse index（默认 0）")
     return parser.parse_args()
 
 
@@ -257,7 +270,7 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     client = QmpClient(args.socket, args.output, force_hmp=args.force_hmp)
     try:
-        client.connect(args.connect_timeout)
+        client.connect(args.connect_timeout, mouse_index=args.mouse_index)
         run_scenario(client, args)
         client._record("result", {"ok": True})
         return 0
