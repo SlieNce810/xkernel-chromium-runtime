@@ -114,7 +114,7 @@ log "WESTON_SOCKET=$WAYLAND_DISPLAY"
 
 rm -rf /root/single-initial-profile 2>/dev/null || true
 export VK_ICD_FILENAMES=${VK_ICD_FILENAMES:-/usr/lib/chromium/vk_swiftshader_icd.json}
-CHROME_ARGS="--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-zygote --single-process --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --window-size=1280,800 --start-fullscreen --kiosk --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --remote-allow-origins=* --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2 --user-data-dir=/root/single-initial-profile"
+CHROME_ARGS="--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-zygote --single-process --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --window-size=1280,800 --start-fullscreen --kiosk --remote-debugging-port=9222 --remote-debugging-address=10.0.2.15 --remote-allow-origins=* --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2 --user-data-dir=/root/single-initial-profile"
 log "CHROME_ARGS=$CHROME_ARGS"
 log "SINGLE_MODE=single-process,no-zygote,in-process-gpu"
 
@@ -132,10 +132,11 @@ log "BROWSER_PID=$CHROME_PID BROWSER_START_EPOCH=$START_EPOCH"
     while [ "$cdp_try" -lt 36 ] && [ -d "/proc/$CHROME_PID" ]; do
         if command -v wget >/dev/null 2>&1 && \
             wget -qO /root/single-cdp-version.json --timeout=2 \
-                http://127.0.0.1:9222/json/version 2>/dev/null; then
+                http://10.0.2.15:9222/json/version 2>/dev/null; then
             log "CDP_READY=1"
             head -c 512 /root/single-cdp-version.json >> "$LOG" 2>/dev/null || true
             echo >> "$LOG"
+            grep -i ':2406' /proc/net/tcp >> "$LOG" 2>/dev/null || true
             break
         fi
         cdp_try=$((cdp_try + 1))
