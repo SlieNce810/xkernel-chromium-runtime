@@ -31,6 +31,13 @@ PKG_TARBALL="${PKG_TARBALL:-$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p
 GL_VARIANT="${GL_VARIANT:-angle-swiftshader}"
 GPU_MODEL="${GPU_MODEL:-in-process}"
 INJECT_AUTOSTART="${INJECT_AUTOSTART:-1}"
+QMP_INPUT_MODE="${QMP_INPUT_MODE:-hmp}"
+QMP_INPUT_ARGS=()
+case "$QMP_INPUT_MODE" in
+    hmp) QMP_INPUT_ARGS=(--force-hmp) ;;
+    qmp) ;;
+    *) echo "!! 非法 QMP_INPUT_MODE=$QMP_INPUT_MODE（允许 hmp|qmp）"; exit 1 ;;
+esac
 
 rm -f "$QMP_SOCKET" "$ROUND_LOG" "$DRIVER_LOG" "$EVENTS_LOG" "$MANIFEST_TMP"
 
@@ -55,6 +62,7 @@ ROUND_PID=$!
 python3 "$HERE/qmp_input.py" \
     --socket "$QMP_SOCKET" \
     --output "$EVENTS_LOG" \
+    "${QMP_INPUT_ARGS[@]}" \
     >> "$DRIVER_LOG" 2>&1
 INPUT_RC=$?
 

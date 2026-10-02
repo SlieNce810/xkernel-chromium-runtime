@@ -23,9 +23,10 @@ class QmpError(RuntimeError):
 
 
 class QmpClient:
-    def __init__(self, path: str, output: Path) -> None:
+    def __init__(self, path: str, output: Path, force_hmp: bool = False) -> None:
         self.path = path
         self.output = output
+        self.force_hmp = force_hmp
         self.sock: socket.socket | None = None
         self._rx = b""
         self._seq = 0
@@ -113,6 +114,10 @@ class QmpClient:
         self.command("input-send-event", {"events": [value]})
 
     def key(self, qcode: str) -> None:
+        if self.force_hmp:
+            self.hmp(f"sendkey {qcode}")
+            self._record("action", {"op": "key", "qcode": qcode, "transport": "hmp"})
+            return
         value = {"type": "key", "data": {"down": True,
                                              "key": {"type": "qcode", "data": qcode}}}
         try:
@@ -125,6 +130,13 @@ class QmpClient:
             self._record("action", {"op": "key", "qcode": qcode, "transport": "hmp"})
 
     def relative(self, axis: str, value: int) -> None:
+        if self.force_hmp:
+            dx = value if axis == "x" else 0
+            dy = value if axis == "y" else 0
+            self.hmp(f"mouse_move {dx} {dy}")
+            self._record("action", {"op": "relative", "axis": axis, "value": value,
+                                     "transport": "hmp"})
+            return
         event = {"type": "rel", "data": {"axis": axis, "value": value}}
         try:
             self.event(event)
@@ -140,6 +152,11 @@ class QmpClient:
                                      "transport": "hmp"})
 
     def click(self) -> None:
+        if self.force_hmp:
+            self.hmp("mouse_button 1")
+            self.hmp("mouse_button 0")
+            self._record("action", {"op": "click", "transport": "hmp"})
+            return
         try:
             self.event({"type": "btn", "data": {"button": "left", "down": True}})
             self.event({"type": "btn", "data": {"button": "left", "down": False}})
@@ -230,13 +247,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--back-wait", type=float, default=8.0)
     parser.add_argument("--key-delay", type=float, default=0.08)
     parser.add_argument("--skip-index", action="store_true")
+    parser.add_argument("--force-hmp", action="store_true",
+                        help="通过 QMP human-monitor-command 使用 HMP 输入兼容接口")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    client = QmpClient(args.socket, args.output)
+    client = QmpClient(args.socket, args.output, force_hmp=args.force_hmp)
     try:
         client.connect(args.connect_timeout)
         run_scenario(client, args)
