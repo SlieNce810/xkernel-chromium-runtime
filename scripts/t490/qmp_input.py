@@ -26,13 +26,14 @@ class QmpError(RuntimeError):
 class QmpClient:
     def __init__(self, path: str, output: Path, force_hmp: bool = False,
                  qmp_send_key: bool = False, absolute_pointer: bool = False,
-                 input_target: str = "") -> None:
+                 input_target: str = "auto") -> None:
         self.path = path
         self.output = output
         self.force_hmp = force_hmp
         self.qmp_send_key = qmp_send_key
         self.absolute_pointer = absolute_pointer
         self.input_target = input_target
+        self.input_target_candidates: list[str] = []
         self.sock: socket.socket | None = None
         self._rx = b""
         self._seq = 0
@@ -83,6 +84,22 @@ class QmpClient:
                         qom = self.command("qom-get", {"path": console_path,
                                                          "property": "device"})
                         self._record("console-device", {"path": console_path, "value": qom})
+                        device_path = qom.get("return")
+                        if isinstance(device_path, str):
+                            for prop in ("type", "id", "canonical-path"):
+                                try:
+                                    detail = self.command("qom-get", {"path": device_path,
+                                                                        "property": prop})
+                                    self._record("console-device-property",
+                                                 {"path": device_path, "property": prop,
+                                                  "value": detail})
+                                    value = detail.get("return")
+                                    if isinstance(value, str):
+                                        self.input_target_candidates.append(value)
+                                except QmpError as exc:
+                                    self._record("console-device-property-error",
+                                                 {"path": device_path, "property": prop,
+                                                  "error": str(exc)})
                     except QmpError as exc:
                         self._record("console-device-error", {"path": console_path,
                                                                "error": str(exc)})
@@ -161,10 +178,30 @@ class QmpClient:
         return self.command("human-monitor-command", {"command-line": command_line})
 
     def input_events(self, events: list[dict[str, Any]]) -> None:
-        arguments: dict[str, Any] = {"events": events}
-        if self.input_target:
-            arguments["device"] = self.input_target
-        self.command("input-send-event", arguments)
+        if self.input_target == "auto":
+            candidates = list(self.input_target_candidates)
+            candidates.extend(["virtio-gpu", "virtio-gpu-pci", "display0", "video0", ""])
+        else:
+            candidates = [self.input_target]
+        seen: set[str] = set()
+        last_error: QmpError | None = None
+        for target in candidates:
+            if target in seen:
+                continue
+            seen.add(target)
+            arguments: dict[str, Any] = {"events": events}
+            if target:
+                arguments["device"] = target
+            try:
+                self.command("input-send-event", arguments)
+                if self.input_target == "auto":
+                    self.input_target = target
+                    self._record("input-target-selected", {"target": target})
+                return
+            except QmpError as exc:
+                last_error = exc
+                self._record("input-target-error", {"target": target, "error": str(exc)})
+        raise last_error or QmpError("no input-send-event target")
 
     def event(self, value: dict[str, Any]) -> None:
         self.input_events([value])
@@ -337,8 +374,8 @@ def parse_args() -> argparse.Namespace:
                         help="用 QMP send-key 命令发送键盘事件")
     parser.add_argument("--absolute-pointer", action="store_true",
                         help="使用 virtio-tablet 的 QMP 绝对坐标")
-    parser.add_argument("--input-target", default="",
-                        help="input-send-event 的 QEMU display device 路由名")
+    parser.add_argument("--input-target", default="auto",
+                        help="input-send-event 的 QEMU display device 路由名，auto 自动探测")
     parser.add_argument("--mouse-index", type=int, default=-1,
                         help="HMP active mouse index，-1 表示从 info mice 自动选择")
     return parser.parse_args()
