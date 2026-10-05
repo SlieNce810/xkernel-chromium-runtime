@@ -108,8 +108,12 @@
 - **autorun 版本差异**：`scripts/t490/autorun_single_initial.sh` 于 **2026-10-02 22:29** 加入 CDP 支持（`--remote-debugging-port=9222` + CDP_READY 逻辑），晚于 r5（14:44）。⇒ 现在重跑单进程轮得到的配置与 r5 归档不同：`FIRST_NAV_ELAPSED` 60 s（新）/ 75 s（r5 旧版）/ 90 s（CDP 轮）。
 
 **待办（按顺序）**
-0. **推送归档（外发，需单独确认）**：本地领先 `main` **35 个提交**（分支 `codex/initial-round-single-process`，含 10-05 的 8 个归档提交）。按用户决定"两个分支都推"：先 `push -u origin codex/initial-round-single-process`，再 `git branch -f main HEAD` + `push origin main`（线性后代可 FF）。318 MB 的 `agentos-disk.img.xz` 走 GitHub Release 附件（本机无 `gh`，走 PAT+curl 或网页手动上传）。
-  已完成的归档前置：`.git` 319.82 MiB → **18 MiB**（gc）、evidence 保真修复（`evidence/** -text` + renormalize，384 个文件）、T490 scripts +81 / evidence +257 目录、patches 0014–0018。
+0. ✅ **推送归档已完成（2026-10-06 凌晨）**：
+   ① **主仓库 → GitHub**：`main` 由 `3225912` 前进到 **`cd93f9c`**（45 提交），并新增分支 `codex/initial-round-single-process`。
+   ② **内核源码 → Gitee 备份**：`https://gitee.com/mofan0810/x-kernel` 新增分支 **`t490-chromium-runtime`**（=`2a1b101`，含 `39d1788` 之后全部 14 个提交）+ 4 个 tag。
+   ⚠️ 该仓库是 openkylin/x-kernel 的**完整 fork**（146 refs），其 `main` 与上游同步在 `cea097d`；
+   T490 的 `origin/main` 引用停在 9 月的 `39d1788` ⇒ **本地 main 与远端 main 非 FF，绝不能推 main**（强推会削掉上游 13 天的新提交）。推新分支是唯一安全做法。
+   仍待办：318 MB `agentos-disk.img.xz` 走 GitHub Release 附件（本机无 `gh`，用户网页手动上传）；T490 直接推 Gitee 需先配凭据（无 SSH 私钥、无 `.git-credentials`），当前只能本机中转。
 1. 按 report/45 逐项手动执行：先修 §1 口径，再 A→H；B1/E1 复跑各约 25/45 min（TCG 禁并发）。
 2. 补 C3 layout 滚动轮，把 6/6 结论条证据落入同一目录。
 3. 缺口清单收敛为 8 条（含 virtio-input）。
