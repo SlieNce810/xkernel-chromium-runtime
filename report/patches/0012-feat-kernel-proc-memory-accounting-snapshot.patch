@@ -1,0 +1,1451 @@
+diff --git a/core/ksyscall/src/task/rusage.rs b/core/ksyscall/src/task/rusage.rs
+index 79c827b..493a608 100644
+--- a/core/ksyscall/src/task/rusage.rs
++++ b/core/ksyscall/src/task/rusage.rs
+@@ -3,6 +3,11 @@
+ // See LICENSES for license details.
+ 
+ //! Process and thread resource-usage syscalls.
++//!
++//! `ru_maxrss` is sourced from the current address-space high-water snapshot.
++//! Process-lifetime exec preservation, child fault totals, and Linux major/minor
++//! fault classification remain separate lifecycle work; unsupported fields stay
++//! zero rather than being inferred from unrelated counters.
+ 
+ use kerrno::{KError, KResult};
+ use kprocess::{Process, Thread};
+@@ -14,12 +19,27 @@ use posix_types::{TimeSpanLike, UserPtr};
+ struct Rusage {
+     utime: TimeSpan,
+     stime: TimeSpan,
++    maxrss: i64,
+ }
+ 
+ impl Rusage {
+     fn from_thread(thread: &Thread) -> Self {
+         let (utime, stime) = thread.sample_cpu_time();
+-        Self { utime, stime }
++        let maxrss = thread
++            .process()
++            .address_space()
++            .ok()
++            .map(|address_space| {
++                address_space.with_mapping_owner(|mapping| {
++                    mapping.aspace().memory_usage().peak_resident_kib() as i64
++                })
++            })
++            .unwrap_or(0);
++        Self {
++            utime,
++            stime,
++            maxrss,
++        }
+     }
+ 
+     #[cfg(unittest)]
+@@ -27,6 +47,7 @@ impl Rusage {
+         Self {
+             utime: self.utime.saturating_add(other.utime),
+             stime: self.stime.saturating_add(other.stime),
++            maxrss: self.maxrss.max(other.maxrss),
+         }
+     }
+ }
+@@ -36,7 +57,7 @@ impl From<Rusage> for rusage {
+         Self {
+             ru_utime: __kernel_old_timeval::from_time_span(value.utime),
+             ru_stime: __kernel_old_timeval::from_time_span(value.stime),
+-            ru_maxrss: 0,
++            ru_maxrss: value.maxrss,
+             ru_ixrss: 0,
+             ru_idrss: 0,
+             ru_isrss: 0,
+@@ -57,14 +78,31 @@ impl From<Rusage> for rusage {
+ fn self_rusage() -> Rusage {
+     let process = kprocess::current_user_process();
+     let (utime, stime) = process.process_cpu_times();
+-    Rusage { utime, stime }
++    let maxrss = process
++        .address_space()
++        .ok()
++        .map(|address_space| {
++            address_space.with_mapping_owner(|mapping| {
++                mapping.aspace().memory_usage().peak_resident_kib() as i64
++            })
++        })
++        .unwrap_or(0);
++    Rusage {
++        utime,
++        stime,
++        maxrss,
++    }
+ }
+ 
+ fn children_rusage(process: &Process) -> Rusage {
+     // Linux reports only waited-for children here. Live or merely zombie-but-not-reaped
+     // children must not contribute until the parent successfully reaps them.
+     let (utime, stime) = process.child_time();
+-    Rusage { utime, stime }
++    Rusage {
++        utime,
++        stime,
++        maxrss: 0,
++    }
+ }
+ 
+ /// Returns resource usage information for the current process, its children, or the current
+@@ -98,16 +136,19 @@ mod tests {
+         let a = Rusage {
+             utime: TimeSpan::new(1, 500_000_000),
+             stime: TimeSpan::new(2, 0),
++            maxrss: 32,
+         };
+         let b = Rusage {
+             utime: TimeSpan::new(0, 500_000_000),
+             stime: TimeSpan::new(3, 0),
++            maxrss: 64,
+         };
+ 
+         let c = a.collate(b);
+ 
+         assert_eq!(c.utime, TimeSpan::new(2, 0));
+         assert_eq!(c.stime, TimeSpan::new(5, 0));
++        assert_eq!(c.maxrss, 64);
+     }
+ 
+     #[def_test]
+@@ -115,6 +156,7 @@ mod tests {
+         let a = Rusage {
+             utime: TimeSpan::new(7, 0),
+             stime: TimeSpan::new(8, 0),
++            maxrss: 16,
+         };
+ 
+         let c = a.collate(Rusage::default());
+@@ -128,10 +170,12 @@ mod tests {
+         let a = Rusage {
+             utime: TimeSpan::new(0, 600_000_000),
+             stime: TimeSpan::new(0, 0),
++            maxrss: 1,
+         };
+         let b = Rusage {
+             utime: TimeSpan::new(0, 600_000_000),
+             stime: TimeSpan::new(0, 0),
++            maxrss: 2,
+         };
+ 
+         let c = a.collate(b);
+diff --git a/fs/filesystems/procfs/docs/design.md b/fs/filesystems/procfs/docs/design.md
+new file mode 100644
+index 0000000..6223745
+--- /dev/null
++++ b/fs/filesystems/procfs/docs/design.md
+@@ -0,0 +1,56 @@
++# procfs — Design
++
++## Purpose and scope
++
++`procfs` exposes process, thread, device, and kernel-state snapshots through a
++read-only virtual filesystem. Per-task files are created from published
++`kprocess` identities and weak task references; procfs does not own process or
++MM state.
++
++## Architecture
++
++```text
++published Process / Thread
++          │ resolve a live task
++          ▼
++     procfs task node ─── TaskStat / Process facade
++          │                    │
++          └── format bytes ◄── MM snapshot under LiveAddressSpace
++```
++
++`task_nodes/root.rs` owns `/proc/<pid>` and `/proc/<pid>/task/<tid>` entries.
++The `status` file reports the target task's state and group thread count, then
++formats current `VmSize`/`VmRSS` when the target has a live mm. `statm` formats
++the seven Linux page-count fields from `TaskStat`: size, resident, shared, text,
++zero library, data, and zero dirty-text. A target without an mm yields seven
++zeroes.
++
++`maps` and status/statm use separate snapshots. The numeric memory snapshot is
++copied while a `LiveAddressSpace` capability and MM lock are held; procfs
++formats the returned values after the snapshot. It never reads mapped user
++page contents to report these counters.
++
++## Execution context and lifecycle
++
++Node lookup/read runs in ordinary filesystem task context and may acquire
++sleepable process/MM locks. A node closure stores a `WeakKtaskRef`; each read
++upgrades it and returns `ESRCH` when the task has exited and been reclaimed.
++Directory lookup follows existing `ENOENT` behavior for an unavailable target.
++
++## Compatibility decisions
++
++- `statm` uses base pages; status memory sizes use KiB.
++- `State` describes the selected task. `Threads` is the current process group
++  count.
++- RSS is the MM snapshot's anon/file/shmem category total. Shared is file plus
++  shmem resident pages; physical page mapcount is not used as the definition.
++- The current status implementation intentionally adds the selected
++  `State`/`Threads`/`VmSize`/`VmRSS` subset; full Linux status expansion remains
++  separate.
++
++## Concurrency and failure behavior
++
++The weak task upgrade protects against stale identity access. Procfs does not
++hold process membership locks while acquiring the MM lock. Snapshot failures
++propagate through existing VFS errors; no mapping read or backend I/O is started
++by a status/statm read.
+diff --git a/fs/filesystems/procfs/docs/security.md b/fs/filesystems/procfs/docs/security.md
+new file mode 100644
+index 0000000..ae3f28b
+--- /dev/null
++++ b/fs/filesystems/procfs/docs/security.md
+@@ -0,0 +1,39 @@
++# procfs — Security and Reliability
++
++## Trust model and boundaries
++
++Procfs reads kernel-owned task metadata and address-space accounting. User input
++is limited to path components and existing command files such as
++`oom_score_adj`; status/statm use no user pointers. The memory snapshot exposes
++numeric sizes and backing categories, never mapped page contents.
++
++## Memory and lifecycle invariants
++
++- A per-task closure upgrades its weak task reference for each read and cannot
++  dereference a reclaimed task.
++- A live MM capability is held only while taking the snapshot, then dropped
++  before formatting or returning bytes.
++- The MM lock serializes VMA/PTE accounting changes with snapshot reads.
++- An address space without a live mm produces seven zero statm fields; status
++  omits its memory block.
++
++## Failure handling
++
++Task lookup/read races use the existing ENOENT/ESRCH VFS mappings. Invalid or
++unsupported file operations return typed VFS errors; statm/status do not turn a
++failed snapshot into guessed numbers.
++
++## Privacy and known limitations
++
++The current procfs implementation does not provide the full Linux hidepid and
++ptrace-based authorization model. This change adds only numeric memory usage to
++the existing procfs task view and does not expand mapped-content access. Full
++status fields and authorization parity are out of scope.
++
++## Audit checklist
++
++- Check that new nodes are registered in both task-directory paths as intended.
++- Keep procfs reads outside process-domain/member spinlocks before taking MM locks.
++- Confirm statm fields remain in Linux order and units.
++- Confirm no status/statm path reads or faults user memory.
++- Keep no-mm and exited-task outcomes distinct.
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+index 8b86c6d..70aab9e 100644
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -30,6 +30,7 @@ use kvfs::{
+     SimpleFile, SimpleFileOperation, SimpleFs, SimpleFsNode, VfsError, VfsFile, VfsInode,
+     VfsResult,
+ };
++use memaddr::PAGE_SIZE_4K;
+ 
+ #[cfg(feature = "tee")]
+ use super::tee;
+@@ -79,27 +80,67 @@ impl SimpleDirOps for ProcessTaskDir {
+     }
+ }
+ 
+-fn task_status(task: &KtaskRef) -> String {
++fn task_status(task: &KtaskRef) -> VfsResult<Vec<u8>> {
+     let thread = task.as_thread();
+-    format_task_status(&task.name(), thread.process().pid(), thread.tid() as u64)
++    let stat = TaskStat::from_thread(task).map_err(|_| VfsError::NoSuchProcess)?;
++    Ok(format_task_status(&task.name(), thread.process().pid(), thread.tid(), &stat).into_bytes())
+ }
+ 
+-#[rustfmt::skip]
+-fn format_task_status(name: &str, tgid: u32, pid: u64) -> String {
++fn task_state_name(state: char) -> &'static str {
++    match state {
++        'R' => "running",
++        'S' => "sleeping",
++        'D' => "disk sleep",
++        'T' => "stopped",
++        't' => "tracing stop",
++        'X' => "dead",
++        'Z' => "zombie",
++        _ => "unknown",
++    }
++}
++
++fn format_task_status(name: &str, tgid: u32, pid: u32, stat: &TaskStat) -> String {
++    let mut output = format!(
++        "Name:\t{name}\nState:\t{} ({})\nTgid:\t{tgid}\nPid:\t{pid}\nThreads:\t{}\n\
++         Uid:\t0 0 0 0\nGid:\t0 0 0 0\n",
++        stat.state,
++        task_state_name(stat.state),
++        stat.num_threads,
++    );
++    if stat.has_mm {
++        let vm_size_kib = stat.vsize / 1024;
++        let vm_rss_kib = (stat.rss.max(0) as u64).saturating_mul(PAGE_SIZE_4K as u64) / 1024;
++        let vm_hwm_kib = stat.peak_rss.saturating_mul(PAGE_SIZE_4K as u64) / 1024;
++        output.push_str(&format!(
++            "VmSize:\t{vm_size_kib} kB\nVmRSS:\t{vm_rss_kib} kB\nVmHWM:\t{vm_hwm_kib} kB\n"
++        ));
++    }
++    output.push_str(
++        "Cpus_allowed:\t1\nCpus_allowed_list:\t0\nMems_allowed:\t1\nMems_allowed_list:\t0\n",
++    );
++    output
++}
++
++fn task_statm(task: &KtaskRef) -> VfsResult<Vec<u8>> {
++    let stat = TaskStat::from_thread(task).map_err(|_| VfsError::NoSuchProcess)?;
++    Ok(format_task_statm(&stat))
++}
++
++fn format_task_statm(stat: &TaskStat) -> Vec<u8> {
++    if !stat.has_mm {
++        return b"0 0 0 0 0 0 0\n".to_vec();
++    }
++    let page_size = PAGE_SIZE_4K as u64;
++    let rss_pages = stat.rss.max(0) as u64;
+     format!(
+-        "Name:\t{}\n\
+-        Tgid:\t{}\n\
+-        Pid:\t{}\n\
+-        Uid:\t0 0 0 0\n\
+-        Gid:\t0 0 0 0\n\
+-        Cpus_allowed:\t1\n\
+-        Cpus_allowed_list:\t0\n\
+-        Mems_allowed:\t1\n\
+-        Mems_allowed_list:\t0\n",
+-        name,
+-        tgid,
+-        pid
++        "{} {} {} {} 0 {} 0\n",
++        stat.vsize / page_size,
++        rss_pages,
++        stat.shared_pages,
++        stat.text_pages,
++        stat.data_pages,
+     )
++    .into_bytes()
+ }
+ 
+ fn format_oom_score_adj(value: i32) -> Vec<u8> {
+@@ -600,6 +641,7 @@ impl SimpleDirOps for ThreadDir {
+         Ok(Box::new(
+             [
+                 "stat",
++                "statm",
+                 "status",
+                 "oom_score_adj",
+                 "task",
+@@ -633,13 +675,23 @@ impl SimpleDirOps for ThreadDir {
+                     }
+                 }),
+             ),
++            "statm" => lookup.file(
++                name,
++                SimpleFile::new_regular(fs.clone(), {
++                    let task_weak = task_weak.clone();
++                    move || {
++                        let task = upgrade_task(&task_weak)?;
++                        task_statm(&task)
++                    }
++                }),
++            ),
+             "status" => lookup.file(
+                 name,
+                 SimpleFile::new_regular(fs.clone(), {
+                     let task_weak = task_weak.clone();
+                     move || {
+                         let task = upgrade_task(&task_weak)?;
+-                        Ok(task_status(&task))
++                        task_status(&task)
+                     }
+                 }),
+             ),
+@@ -906,9 +958,10 @@ mod tests {
+     use unittest::{assert_eq, def_test};
+ 
+     use super::{
+-        MapsEntry, PROC_MAPS_ADDR_WIDTH, PROC_MAPS_PATH_COLUMN, format_oom_score_adj,
+-        format_task_status, maps_permissions, namespace_inode, namespace_link_target,
+-        parse_oom_score_adj_input, render_maps_line, special_mapping_name,
++        MapsEntry, PAGE_SIZE_4K, PROC_MAPS_ADDR_WIDTH, PROC_MAPS_PATH_COLUMN, TaskStat,
++        format_oom_score_adj, format_task_statm, format_task_status, maps_permissions,
++        namespace_inode, namespace_link_target, parse_oom_score_adj_input, render_maps_line,
++        special_mapping_name,
+     };
+ 
+     #[def_test]
+@@ -930,11 +983,47 @@ mod tests {
+ 
+     #[def_test]
+     fn test_task_status_includes_process_name() {
+-        let status = format_task_status("test-bin", 12, 34);
++        let stat = TaskStat {
++            state: 'R',
++            num_threads: 3,
++            has_mm: true,
++            vsize: PAGE_SIZE_4K as u64 * 2,
++            rss: 1,
++            peak_rss: 1,
++            ..Default::default()
++        };
++        let status = format_task_status("test-bin", 12, 34, &stat);
+ 
+         assert!(status.contains("Name:\ttest-bin\n"));
++        assert!(status.contains("State:\tR (running)\n"));
+         assert!(status.contains("Tgid:\t12\n"));
+         assert!(status.contains("Pid:\t34\n"));
++        assert!(status.contains("Threads:\t3\n"));
++        assert!(status.contains("VmSize:\t8 kB\n"));
++        assert!(status.contains("VmRSS:\t4 kB\n"));
++        assert!(status.contains("VmHWM:\t4 kB\n"));
++    }
++
++    #[def_test]
++    fn test_task_statm_formats_linux_field_order_and_page_units() {
++        let stat = TaskStat {
++            has_mm: true,
++            vsize: PAGE_SIZE_4K as u64 * 8,
++            rss: 5,
++            shared_pages: 2,
++            text_pages: 3,
++            data_pages: 4,
++            ..Default::default()
++        };
++        assert_eq!(format_task_statm(&stat), b"8 5 2 3 0 4 0\n".to_vec());
++    }
++
++    #[def_test]
++    fn test_task_statm_without_mm_reports_seven_zeroes() {
++        assert_eq!(
++            format_task_statm(&TaskStat::default()),
++            b"0 0 0 0 0 0 0\n".to_vec()
++        );
+     }
+ 
+     #[def_test]
+diff --git a/mm/memspace/docs/design.md b/mm/memspace/docs/design.md
+index 54d1559..c831a0e 100644
+--- a/mm/memspace/docs/design.md
++++ b/mm/memspace/docs/design.md
+@@ -268,3 +268,18 @@ dirty tracking.
+ - `PageTableMut::finish()` 是释放 detached frames 前的 TLB finalization boundary。
+ - `VmAreaSet` 清空后，VMA metadata 和 runtime references 一起释放。
+ - File/anon object view guards 随 runtime/object 引用释放并注销 view。
++
++## 内存使用快照
++
++`MmMemoryUsage` 是只读、按 4 KiB base page 计数的当前 MM 快照。`virtual_pages`
++来自 VMA 范围长度；驻留 anon/file/shmem 计数只由 present user PTE 构成，过滤
++device 映射。统计按 VMA backing owner 分类：匿名私有和 FilePrivate 已物化的
++匿名帧计为 anon，FileShared 计为 file，AnonymousShared 计为 shmem。FilePrivate
++不能仅凭源文件路径算作 file，因为当前 fault runtime 会把文件内容复制进 anon
++frame。
++
++MM 锁保护 VMA、PTE 与 resident category 变更；`memory_usage()` 仅复制计数，不
++触发 fault、I/O 或 page walk。map/fault/unmap、madvise 和 backing invalidation
++在对应的 PTE 成功变更边界更新类别。procfs 将 statm 转换为页数，将 status RSS
++转换为 KiB。精确 ELF text/data layout 与跨 exec 的 peak resource accounting
++属于 process/kexec 和 kprocess 的后续阶段。
+diff --git a/mm/memspace/docs/security.md b/mm/memspace/docs/security.md
+index 112a166..0945bad 100644
+--- a/mm/memspace/docs/security.md
++++ b/mm/memspace/docs/security.md
+@@ -153,3 +153,5 @@
+ - [ ] Unsupported Linux semantics 是否显式返回错误而不是静默降级。
+ - [ ] 新增地址空间 observer 是否只持有 `MmPin` 或普通 `Arc`，不误用
+   `MmUserHandle` 延长用户映射生命周期。
++- [ ] RSS 统计是否只观察当前 VMA 覆盖的 present user PTE，且排除 device
++  映射；是否在 MM 锁保护下和每个成功 PTE 变更保持同步。
+diff --git a/mm/memspace/src/aspace.rs b/mm/memspace/src/aspace.rs
+index 7d55dae..f2bdf03 100644
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -47,6 +47,7 @@ use crate::{
+     backend::{FaultCompletionResult, map_paging_err, pages_in},
+     cpu_residency::{MmCpuResidency, MmCpuResidencyRef},
+     lifetime::{MmUserHandle, MmUserLifetime},
++    stats::{MmMemoryUsage, ResidentPages},
+     vma::VmRuntimeRef,
+ };
+ 
+@@ -228,6 +229,8 @@ pub struct MmSpace {
+     range: VirtAddrRange,
+     vmas: VmAreaSet,
+     pgtbl: PageTable,
++    resident_pages: ResidentPages,
++    peak_resident_pages: u64,
+     cpu_residency: MmCpuResidencyRef,
+     #[cfg(target_arch = "aarch64")]
+     user_asid_context: Option<Arc<Aarch64UserAsidContext>>,
+@@ -327,27 +330,48 @@ impl MmSpace {
+     }
+ 
+     fn zap_present_ranges(&mut self, ranges: Vec<(VirtAddrRange, PageSize)>) -> KResult<()> {
+-        let mut modify = self.pgtbl.modify();
+-        let mut result = Ok(());
+-        'outer: for (range, page_size) in ranges {
+-            let iter = match pages_in(range, page_size) {
+-                Ok(iter) => iter,
+-                Err(err) => {
+-                    result = Err(err);
+-                    break;
++        let mut accounting = Vec::new();
++        for (range, _) in &ranges {
++            for vma in self.vmas.collect_overlapping(*range) {
++                let overlap =
++                    VirtAddrRange::new(range.start.max(vma.start()), range.end.min(vma.end()));
++                if !overlap.is_empty() {
++                    let before = self.resident_pages_in_range(&vma, overlap)?;
++                    accounting.push((vma, overlap, before));
+                 }
+-            };
+-            for vaddr in iter {
+-                match modify.unmap(vaddr) {
+-                    Ok(_) | Err(PagingError::NotMapped) => {}
++            }
++        }
++
++        let result = {
++            let mut modify = self.pgtbl.modify();
++            let mut result = Ok(());
++            'outer: for (range, page_size) in ranges {
++                let iter = match pages_in(range, page_size) {
++                    Ok(iter) => iter,
+                     Err(err) => {
+-                        result = Err(map_paging_err(err));
+-                        break 'outer;
++                        result = Err(err);
++                        break;
++                    }
++                };
++                for vaddr in iter {
++                    match modify.unmap(vaddr) {
++                        Ok(_) | Err(PagingError::NotMapped) => {}
++                        Err(err) => {
++                            result = Err(map_paging_err(err));
++                            break 'outer;
++                        }
+                     }
+                 }
+             }
++            modify.finish();
++            result
++        };
++
++        for (vma, overlap, before) in accounting {
++            let after = self.resident_pages_in_range(&vma, overlap)?;
++            self.resident_pages.reconcile(before, after);
++            self.update_peak_resident_pages();
+         }
+-        modify.finish();
+         result
+     }
+ 
+@@ -435,12 +459,16 @@ impl MmSpace {
+ 
+     fn install_runtime_mapping(&mut self, mut vma: VmArea, runtime: VmRuntimeRef) -> KResult {
+         runtime.map(vma.range(), vma.flags(), &mut self.pgtbl.modify())?;
++        let range = vma.range();
++        let resident = self.resident_pages_in_range(&vma, range)?;
+         vma.set_runtime(runtime.register_object_views(
+             self.mm_id,
+             self.deferred_invalidate_handle(),
+             &vma,
+         ));
+         self.vmas.insert(vma);
++        self.resident_pages.add_assign(resident);
++        self.update_peak_resident_pages();
+         Ok(())
+     }
+ 
+@@ -452,16 +480,31 @@ impl MmSpace {
+             .map(|vma| {
+                 let overlap = VirtAddrRange::new(start.max(vma.start()), range.end.min(vma.end()));
+                 let runtime = vma.runtime().cloned().ok_or(KError::BadAddress)?;
+-                Ok((overlap, runtime))
++                Ok((vma.clone(), overlap, runtime))
+             })
+             .collect::<KResult<Vec<_>>>()?;
+-        {
++        let before = operations
++            .iter()
++            .map(|(vma, overlap, _)| self.resident_pages_in_range(vma, *overlap))
++            .collect::<KResult<Vec<_>>>()?;
++        let unmap_result = {
+             let mut modify = self.pgtbl.modify();
+-            for (overlap, runtime) in &operations {
+-                runtime.unmap(*overlap, &mut modify)?;
++            let mut result = Ok(());
++            for (_, overlap, runtime) in &operations {
++                if let Err(err) = runtime.unmap(*overlap, &mut modify) {
++                    result = Err(err);
++                    break;
++                }
+             }
+             modify.finish();
++            result
++        };
++        for ((vma, overlap, _), before) in operations.iter().zip(before) {
++            let after = self.resident_pages_in_range(vma, *overlap)?;
++            self.resident_pages.reconcile(before, after);
++            self.update_peak_resident_pages();
+         }
++        unmap_result?;
+         self.vmas.unmap(start, size);
+         Ok(())
+     }
+@@ -482,12 +525,12 @@ impl MmSpace {
+         if self.vmas.overlaps(VirtAddrRange::new(current_end, new_end)) {
+             return Err(KError::AlreadyExists);
+         }
+-        runtime.map(
+-            VirtAddrRange::from_start_size(current_end, additional),
+-            vma.flags(),
+-            &mut self.pgtbl.modify(),
+-        )?;
++        let extension = VirtAddrRange::new(current_end, new_end);
++        runtime.map(extension, vma.flags(), &mut self.pgtbl.modify())?;
++        let resident = self.resident_pages_in_range(vma, extension)?;
+         self.vmas.extend(start, additional);
++        self.resident_pages.add_assign(resident);
++        self.update_peak_resident_pages();
+         Ok(())
+     }
+ 
+@@ -542,6 +585,7 @@ impl MmSpace {
+             modify.finish();
+         }
+         self.vmas.clear();
++        self.resident_pages = ResidentPages::default();
+     }
+ 
+     /// Returns the address space base.
+@@ -704,6 +748,8 @@ impl MmSpace {
+             range: VirtAddrRange::from_start_size(base, size),
+             vmas: VmAreaSet::new(),
+             pgtbl,
++            resident_pages: ResidentPages::default(),
++            peak_resident_pages: 0,
+             cpu_residency,
+             #[cfg(target_arch = "aarch64")]
+             user_asid_context,
+@@ -811,6 +857,86 @@ impl MmSpace {
+         self.vmas.find(vaddr)
+     }
+ 
++    /// Returns the current Linux-shaped memory snapshot for this address space.
++    ///
++    /// The caller must hold the owning address-space mutex so VMA and resident
++    /// page categories are read from one stable MM state.
++    pub fn memory_usage(&self) -> MmMemoryUsage {
++        let virtual_pages = self.vmas.iter().fold(0u64, |total, vma| {
++            total.saturating_add((vma.size() / PAGE_SIZE_4K) as u64)
++        });
++        MmMemoryUsage::new(
++            virtual_pages,
++            self.resident_pages.anon,
++            self.resident_pages.file,
++            self.resident_pages.shmem,
++            self.peak_resident_pages,
++        )
++    }
++
++    fn update_peak_resident_pages(&mut self) {
++        self.peak_resident_pages = self
++            .peak_resident_pages
++            .max(self.resident_pages.anon)
++            .max(
++                self.resident_pages
++                    .anon
++                    .saturating_add(self.resident_pages.file),
++            )
++            .max(
++                self.resident_pages
++                    .anon
++                    .saturating_add(self.resident_pages.file)
++                    .saturating_add(self.resident_pages.shmem),
++            );
++    }
++
++    fn resident_pages_in_range(
++        &self,
++        vma: &VmArea,
++        range: VirtAddrRange,
++    ) -> KResult<ResidentPages> {
++        let category = match vma.backing().kind() {
++            VmBackingKind::AnonymousPrivate { .. } | VmBackingKind::FilePrivate { .. } => 0,
++            VmBackingKind::FileShared { .. } => 1,
++            VmBackingKind::AnonymousShared { .. } => 2,
++            VmBackingKind::Linear => return Ok(ResidentPages::default()),
++        };
++        let start = range.start.as_usize();
++        let end = range.end.as_usize();
++        if start >= end {
++            return Ok(ResidentPages::default());
++        }
++
++        let mut resident = ResidentPages::default();
++        self.pgtbl
++            .visit_present_in_range(range.start, range.end, |base, page_size, flags| {
++                if !flags.contains(MappingFlags::USER) || flags.contains(MappingFlags::DEVICE) {
++                    return;
++                }
++                let leaf_start = base.as_usize();
++                let Some(leaf_end) = leaf_start.checked_add(page_size as usize) else {
++                    return;
++                };
++                let overlap_start = leaf_start.max(start);
++                let overlap_end = leaf_end.min(end);
++                if overlap_end <= overlap_start {
++                    return;
++                }
++                let pages = overlap_end
++                    .saturating_sub(overlap_start)
++                    .div_ceil(PAGE_SIZE_4K) as u64;
++                match category {
++                    0 => resident.anon = resident.anon.saturating_add(pages),
++                    1 => resident.file = resident.file.saturating_add(pages),
++                    2 => resident.shmem = resident.shmem.saturating_add(pages),
++                    _ => unreachable!(),
++                }
++            })
++            .map_err(map_paging_err)?;
++        Ok(resident)
++    }
++
+     fn runtime_for_vma(&self, vma: &VmArea) -> Option<VmRuntimeRef> {
+         let runtime = vma.runtime()?.clone();
+         if runtime.backing_info() != vma.backing() {
+@@ -1117,7 +1243,8 @@ impl MmSpace {
+         for vma in overlapped_vmas {
+             let range = VirtAddrRange::new(cursor.max(vma.start()), vma.end().min(end));
+             for vaddr in pages_in(range, vma.backing().page_size())? {
+-                let outcome = vma.handle_fault(self, FaultContext::new(vaddr, access_flags));
++                let outcome =
++                    self.handle_fault_for_vma(&vma, FaultContext::new(vaddr, access_flags));
+                 Self::page_fault_outcome_to_error(outcome)?;
+             }
+             cursor = vma.end();
+@@ -1264,19 +1391,41 @@ impl MmSpace {
+         let range = VirtAddrRange::from_start_size(start, size);
+         let overlapped_vmas = self.covering_vmas_in_range(range)?;
+         let mut handled = false;
+-        let mut pgtbl = self.pgtbl.modify();
++        let mut operations = Vec::new();
+         for vma in overlapped_vmas {
+             let overlap = VirtAddrRange::new(start.max(vma.start()), range.end.min(vma.end()));
+             if overlap.is_empty() {
+                 continue;
+             }
+-            let Some(runtime) = vma.runtime() else {
++            let Some(runtime) = vma.runtime().cloned() else {
+                 continue;
+             };
+-            handled |= runtime.madvise_dontneed(&vma, overlap, &mut pgtbl)?;
++            let before = self.resident_pages_in_range(&vma, overlap)?;
++            operations.push((vma, overlap, runtime, before));
++        }
++
++        let result = {
++            let mut pgtbl = self.pgtbl.modify();
++            let mut result = Ok(());
++            for (vma, overlap, runtime, _) in &operations {
++                match runtime.madvise_dontneed(vma, *overlap, &mut pgtbl) {
++                    Ok(was_handled) => handled |= was_handled,
++                    Err(err) => {
++                        result = Err(err);
++                        break;
++                    }
++                }
++            }
++            pgtbl.finish();
++            result
++        };
++
++        for (vma, overlap, _, before) in operations {
++            let after = self.resident_pages_in_range(&vma, overlap)?;
++            self.resident_pages.reconcile(before, after);
++            self.update_peak_resident_pages();
+         }
+-        pgtbl.finish();
+-        drop(pgtbl);
++        result?;
+         if handled {
+             self.drain_pending_invalidations();
+         }
+@@ -1440,6 +1589,40 @@ impl MmSpace {
+         }
+     }
+ 
++    fn handle_fault_for_vma(&mut self, vma: &VmArea, ctx: FaultContext) -> PageFaultOutcome {
++        let fault_start = ctx.address().align_down(vma.backing().page_size());
++        let fault_range =
++            VirtAddrRange::from_start_size(fault_start, vma.backing().page_size() as usize);
++        let before = match self.resident_pages_in_range(vma, fault_range) {
++            Ok(before) => before,
++            Err(err) => {
++                warn!(
++                    "Failed to snapshot resident pages before fault at {:?}: {err}",
++                    ctx.address()
++                );
++                return PageFaultOutcome::Failed;
++            }
++        };
++
++        let outcome = vma.handle_fault(self, ctx);
++        if outcome.is_resolved() {
++            match self.resident_pages_in_range(vma, fault_range) {
++                Ok(after) => {
++                    self.resident_pages.reconcile(before, after);
++                    self.update_peak_resident_pages();
++                }
++                Err(err) => {
++                    warn!(
++                        "Failed to snapshot resident pages after fault at {:?}: {err}",
++                        fault_start
++                    );
++                    return PageFaultOutcome::Failed;
++                }
++            }
++        }
++        outcome
++    }
++
+     fn finish_file_backend_fault(
+         &mut self,
+         vaddr: VirtAddr,
+@@ -1565,7 +1748,7 @@ impl MmSpace {
+         if !vma.allows_fault(access_flags) {
+             return PageFaultOutcome::AccessDenied;
+         }
+-        vma.handle_fault(self, input.into_context())
++        self.handle_fault_for_vma(&vma, input.into_context())
+     }
+ 
+     /// Compatibility wrapper for callers that still pass raw fault fields.
+@@ -1868,6 +2051,75 @@ mod tests {
+         );
+     }
+ 
++    #[def_test]
++    fn memory_usage_distinguishes_virtual_and_resident_pages() {
++        let start = VirtAddr::from_usize(0x4000);
++        let flags = MappingFlags::USER | MappingFlags::READ | MappingFlags::WRITE;
++        let mut aspace =
++            MmSpace::new_empty_user(start, PAGE_SIZE_4K * 4).expect("allocate user address space");
++        aspace
++            .map(
++                start,
++                PAGE_SIZE_4K * 2,
++                flags,
++                false,
++                VmRuntimeRef::new_anon_private(start, PageSize::Size4K),
++            )
++            .expect("map lazy anonymous pages");
++
++        let before_fault = aspace.memory_usage();
++        assert_eq!(before_fault.virtual_pages(), 2);
++        assert_eq!(before_fault.resident_pages(), 0);
++        assert_eq!(before_fault.anon_pages(), 0);
++
++        assert!(
++            aspace
++                .handle_page_fault(start, PageFaultFlags::WRITE | PageFaultFlags::USER)
++                .is_resolved()
++        );
++        let after_fault = aspace.memory_usage();
++        assert_eq!(after_fault.virtual_pages(), 2);
++        assert_eq!(after_fault.resident_pages(), 1);
++        assert_eq!(after_fault.anon_pages(), 1);
++        assert_eq!(after_fault.shared_pages(), 0);
++
++        aspace
++            .unmap(start, PAGE_SIZE_4K)
++            .expect("unmap resident page");
++        let after_unmap = aspace.memory_usage();
++        assert_eq!(after_unmap.virtual_pages(), 1);
++        assert_eq!(after_unmap.resident_pages(), 0);
++    }
++
++    #[def_test]
++    fn memory_usage_counts_anonymous_shared_pages_as_shared() {
++        let start = VirtAddr::from_usize(0x4000);
++        let flags =
++            MappingFlags::USER | MappingFlags::READ | MappingFlags::WRITE | MappingFlags::SHARED;
++        let mut aspace =
++            MmSpace::new_empty_user(start, PAGE_SIZE_4K * 2).expect("allocate user address space");
++        aspace
++            .map(
++                start,
++                PAGE_SIZE_4K,
++                flags,
++                false,
++                VmRuntimeRef::new_anon_shared(start, PAGE_SIZE_4K, PageSize::Size4K)
++                    .expect("create shared anonymous backing"),
++            )
++            .expect("map shared anonymous page");
++
++        assert!(
++            aspace
++                .handle_page_fault(start, PageFaultFlags::WRITE | PageFaultFlags::USER)
++                .is_resolved()
++        );
++        let usage = aspace.memory_usage();
++        assert_eq!(usage.resident_pages(), 1);
++        assert_eq!(usage.shmem_pages(), 1);
++        assert_eq!(usage.shared_pages(), 1);
++    }
++
+     #[def_test]
+     fn test_mmap_resolve_addr_honors_fixed_and_no_replace_policies() {
+         let mut aspace = new_test_aspace();
+diff --git a/mm/memspace/src/lib.rs b/mm/memspace/src/lib.rs
+index 193e15e..f3efe70 100644
+--- a/mm/memspace/src/lib.rs
++++ b/mm/memspace/src/lib.rs
+@@ -18,6 +18,7 @@ mod cpu_residency;
+ mod fault;
+ mod iomap;
+ mod lifetime;
++mod stats;
+ mod vma;
+ 
+ use kaddr_layout::{KERNEL_ASPACE_BASE, KERNEL_ASPACE_SIZE};
+@@ -42,6 +43,7 @@ pub use self::{
+         register_device_region, register_fixed_device_region,
+     },
+     lifetime::MmObserver,
++    stats::MmMemoryUsage,
+     vma::{
+         FileMappingInfo, ForkCloneTarget, MsyncPolicy, MsyncRuntimeResult, VmArea, VmAreaSet,
+         VmBackingInfo, VmBackingKind, VmInheritance, VmMayPerm, VmPerm, VmRuntimeOps, VmRuntimeRef,
+diff --git a/mm/memspace/src/stats.rs b/mm/memspace/src/stats.rs
+new file mode 100644
+index 0000000..fb9183d
+--- /dev/null
++++ b/mm/memspace/src/stats.rs
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: Apache-2.0
++// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
++// See LICENSES for license details.
++
++//! Current per-address-space memory usage snapshots.
++
++use memaddr::PAGE_SIZE_4K;
++
++/// Linux-compatible current memory usage measured in 4 KiB base pages.
++///
++/// The RSS categories describe the page backing installed in this address
++/// space. In particular, a private file mapping that has been copied into an
++/// anonymous frame is accounted as anonymous memory.
++#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
++pub struct MmMemoryUsage {
++    virtual_pages: u64,
++    anon_pages: u64,
++    file_pages: u64,
++    shmem_pages: u64,
++    peak_resident_pages: u64,
++}
++
++impl MmMemoryUsage {
++    pub(crate) const fn new(
++        virtual_pages: u64,
++        anon_pages: u64,
++        file_pages: u64,
++        shmem_pages: u64,
++        peak_resident_pages: u64,
++    ) -> Self {
++        Self {
++            virtual_pages,
++            anon_pages,
++            file_pages,
++            shmem_pages,
++            peak_resident_pages,
++        }
++    }
++
++    /// Returns total virtual address space in base pages.
++    pub const fn virtual_pages(self) -> u64 {
++        self.virtual_pages
++    }
++
++    /// Returns resident anonymous pages.
++    pub const fn anon_pages(self) -> u64 {
++        self.anon_pages
++    }
++
++    /// Returns resident file-backed pages.
++    pub const fn file_pages(self) -> u64 {
++        self.file_pages
++    }
++
++    /// Returns resident shared-memory pages.
++    pub const fn shmem_pages(self) -> u64 {
++        self.shmem_pages
++    }
++
++    /// Returns total resident pages.
++    pub const fn resident_pages(self) -> u64 {
++        self.anon_pages
++            .saturating_add(self.file_pages)
++            .saturating_add(self.shmem_pages)
++    }
++
++    /// Returns resident file and shared-memory pages for `/proc/<pid>/statm`.
++    pub const fn shared_pages(self) -> u64 {
++        self.file_pages.saturating_add(self.shmem_pages)
++    }
++
++    /// Returns the resident high-water mark for this address space.
++    pub const fn peak_resident_pages(self) -> u64 {
++        let current = self.resident_pages();
++        if self.peak_resident_pages > current {
++            self.peak_resident_pages
++        } else {
++            current
++        }
++    }
++
++    /// Returns the resident high-water mark in KiB.
++    pub const fn peak_resident_kib(self) -> u64 {
++        self.peak_resident_pages()
++            .saturating_mul(PAGE_SIZE_4K as u64)
++            / 1024
++    }
++
++    /// Returns total virtual size in bytes.
++    pub const fn virtual_bytes(self) -> u64 {
++        self.virtual_pages.saturating_mul(PAGE_SIZE_4K as u64)
++    }
++
++    /// Returns resident set size in KiB.
++    pub const fn resident_kib(self) -> u64 {
++        self.resident_pages().saturating_mul(PAGE_SIZE_4K as u64) / 1024
++    }
++}
++
++/// Resident page deltas classified by the page's installed backing.
++#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
++pub(crate) struct ResidentPages {
++    pub(crate) anon: u64,
++    pub(crate) file: u64,
++    pub(crate) shmem: u64,
++}
++
++impl ResidentPages {
++    pub(crate) fn add_assign(&mut self, other: Self) {
++        self.anon = self.anon.saturating_add(other.anon);
++        self.file = self.file.saturating_add(other.file);
++        self.shmem = self.shmem.saturating_add(other.shmem);
++    }
++
++    pub(crate) fn reconcile(&mut self, before: Self, after: Self) {
++        Self::apply_delta(&mut self.anon, before.anon, after.anon);
++        Self::apply_delta(&mut self.file, before.file, after.file);
++        Self::apply_delta(&mut self.shmem, before.shmem, after.shmem);
++    }
++
++    fn apply_delta(current: &mut u64, before: u64, after: u64) {
++        if after >= before {
++            *current = current.saturating_add(after - before);
++        } else {
++            debug_assert!(*current >= before - after);
++            *current = current.saturating_sub(before - after);
++        }
++    }
++}
+diff --git a/mm/page_table/docs/design.md b/mm/page_table/docs/design.md
+index d35cb17..1f23d78 100644
+--- a/mm/page_table/docs/design.md
++++ b/mm/page_table/docs/design.md
+@@ -326,3 +326,13 @@ traversal adapt to either layout.
+   `TlbFlushReceipt`, providing an explicit flush-before-free ordering point.
+ - **`PageTableMut::drop`** calls `finish()` automatically as a fallback when
+   explicit finalization is omitted.
++
++## Sparse present-leaf range traversal
++
++`PageTable64::visit_present_in_range()` is a read-only observer for rare
++address-space accounting and diagnostics. It descends only through present
++table entries, visits only leaves intersecting the supplied interval, and
++reports a huge leaf once with its base address and page size. Consumers convert huge
++leaves to base-page counts as needed. The visitor does not allocate, mutate
++PTEs, flush TLBs, interpret user/device policy, or read mapped page contents.
++The owner must keep the page table stable for the whole traversal.
+diff --git a/mm/page_table/docs/security.md b/mm/page_table/docs/security.md
+index dddf095..f920bad 100644
+--- a/mm/page_table/docs/security.md
++++ b/mm/page_table/docs/security.md
+@@ -313,3 +313,5 @@ When modifying this module, verify that:
+ - [ ] Changes to `walk_page_table!` preserve both three-level and four-level traversal.
+ - [ ] SMP TLB shootdown paths are tested with `feature = "smp"`.
+ - [ ] `map`/`remap` cannot bypass `paddr_is_valid` / `vaddr_is_valid` checks.
++- [ ] `visit_present_in_range()` is called while the owner prevents concurrent
++  PTE mutation, and consumers exclude mappings outside their user-memory policy.
+diff --git a/mm/page_table/src/table64.rs b/mm/page_table/src/table64.rs
+index 4223a4f..71b8623 100644
+--- a/mm/page_table/src/table64.rs
++++ b/mm/page_table/src/table64.rs
+@@ -269,6 +269,113 @@ impl<M: PagingMetaData, PTE: PageTableEntry, H: PagingHandler> PageTable64<M, PT
+         Ok(PteSnapshot::from_entry(entry, size))
+     }
+ 
++    /// Visits present leaf mappings intersecting a virtual-address interval.
++    ///
++    /// The walk skips absent page-table branches, so its cost follows the
++    /// populated page-table tree rather than the size of a sparse virtual
++    /// interval. A huge leaf intersecting the interval is reported once with
++    /// its full base address and page size; callers that need a clipped count
++    /// must intersect that leaf with their own range.
++    ///
++    /// This read-only interface is intended for infrequent address-space
++    /// accounting and diagnostics. The caller must keep the page table
++    /// externally stable for the duration of the walk.
++    pub fn visit_present_in_range(
++        &self,
++        start: M::VirtAddr,
++        end: M::VirtAddr,
++        mut visit: impl FnMut(M::VirtAddr, PageSize, PagingFlags),
++    ) -> PtResult<()> {
++        let start: usize = start.into();
++        let end: usize = end.into();
++        if start >= end {
++            return Ok(());
++        }
++        if !M::vaddr_is_valid(start) || !M::vaddr_is_valid(end - 1) {
++            return Err(PtError::InvalidAddress);
++        }
++
++        let root_bits = 12usize + 9usize * M::LEVELS;
++        let root_size = 1usize
++            .checked_shl(root_bits as u32)
++            .ok_or(PtError::InvalidAddress)?;
++        let mut range_start = start;
++        while range_start < end {
++            let root_base = range_start & !(root_size - 1);
++            let root_end = root_base.checked_add(root_size).unwrap_or(usize::MAX);
++            let range_end = end.min(root_end);
++            if range_end <= range_start {
++                return Err(PtError::InvalidAddress);
++            }
++            self.visit_present_table(
++                self.root_paddr,
++                M::LEVELS,
++                root_base,
++                range_start,
++                range_end,
++                &mut visit,
++            )?;
++            range_start = range_end;
++        }
++        Ok(())
++    }
++
++    fn visit_present_table(
++        &self,
++        table_paddr: PhysAddr,
++        level: usize,
++        table_base: usize,
++        range_start: usize,
++        range_end: usize,
++        visit: &mut impl FnMut(M::VirtAddr, PageSize, PagingFlags),
++    ) -> PtResult<()> {
++        let entry_bits = 12usize + 9usize * (level - 1);
++        let entry_size = 1usize
++            .checked_shl(entry_bits as u32)
++            .ok_or(PtError::InvalidAddress)?;
++
++        for (index, entry) in self.table_of(table_paddr).iter().enumerate() {
++            if !entry.is_present() {
++                continue;
++            }
++
++            let entry_base = table_base
++                .checked_add(
++                    index
++                        .checked_mul(entry_size)
++                        .ok_or(PtError::InvalidAddress)?,
++                )
++                .ok_or(PtError::InvalidAddress)?;
++            let entry_end = entry_base
++                .checked_add(entry_size)
++                .ok_or(PtError::InvalidAddress)?;
++            if entry_end <= range_start || entry_base >= range_end {
++                continue;
++            }
++
++            if level == 1 || entry.is_huge() {
++                let page_size = match level {
++                    1 => PageSize::Size4K,
++                    2 => PageSize::Size2M,
++                    3 => PageSize::Size1G,
++                    _ => return Err(PtError::MappedToHugePage),
++                };
++                visit(M::VirtAddr::from(entry_base), page_size, entry.flags());
++            } else {
++                self.visit_present_table(
++                    entry.paddr(),
++                    level - 1,
++                    entry_base,
++                    range_start,
++                    range_end,
++                    visit,
++                )?;
++            }
++        }
++
++        Ok(())
++    }
++
+     /// Creates a mutable mapping view that tracks TLB flushes.
+     ///
+     /// The returned [`PageTableMut`] borrows `&mut self`, ensuring exclusive
+@@ -1155,6 +1262,59 @@ mod tests {
+         assert_eq!(snapshot.flags(), PagingFlags::READ | PagingFlags::WRITE);
+     }
+ 
++    #[def_test]
++    fn visit_present_in_range_skips_holes_and_reports_huge_leaf_once() {
++        let mut table = TestPageTable::try_new().expect("test page table");
++        table
++            .modify()
++            .map(
++                vaddr(0x4000),
++                paddr(0x20_0000),
++                PageSize::Size4K,
++                PagingFlags::READ | PagingFlags::USER,
++            )
++            .expect("map small page");
++        table
++            .modify()
++            .map(
++                vaddr(0x20_0000),
++                paddr(0x40_0000),
++                PageSize::Size2M,
++                PagingFlags::READ | PagingFlags::USER,
++            )
++            .expect("map huge page");
++
++        let mut small_pages = 0;
++        table
++            .visit_present_in_range(vaddr(0x4000), vaddr(0x6000), |base, size, flags| {
++                assert_eq!(base, vaddr(0x4000));
++                assert_eq!(size, PageSize::Size4K);
++                assert!(flags.contains(PagingFlags::USER));
++                small_pages += 1;
++            })
++            .expect("walk small range");
++        assert_eq!(small_pages, 1);
++
++        let mut huge_pages = 0;
++        table
++            .visit_present_in_range(vaddr(0x20_1000), vaddr(0x20_3000), |base, size, flags| {
++                assert_eq!(base, vaddr(0x20_0000));
++                assert_eq!(size, PageSize::Size2M);
++                assert!(flags.contains(PagingFlags::USER));
++                huge_pages += 1;
++            })
++            .expect("walk subrange of huge mapping");
++        assert_eq!(huge_pages, 1);
++
++        let mut hole_pages = 0;
++        table
++            .visit_present_in_range(vaddr(0x80_0000), vaddr(0x82_0000), |_, _, _| {
++                hole_pages += 1;
++            })
++            .expect("walk empty range");
++        assert_eq!(hole_pages, 0);
++    }
++
+     #[def_test]
+     fn replace_if_same_commits_only_matching_snapshot() {
+         let mut table = TestPageTable::try_new().expect("test page table");
+diff --git a/process/kprocess/docs/design.md b/process/kprocess/docs/design.md
+index 8a8dcdf..9a63848 100644
+--- a/process/kprocess/docs/design.md
++++ b/process/kprocess/docs/design.md
+@@ -85,6 +85,18 @@ retains init identity; orphan reparenting reserves an init relation slot.
+ - `TaskStat`, `system_view`, nice/scheduler and CPU-accounting APIs provide
+   procfs/scheduler snapshots rather than owning hardware scheduling policy.
+ 
++`TaskStat::from_thread()` also snapshots current `MmMemoryUsage` while holding a
++`LiveAddressSpace` capability and the MM mutex. It exposes current virtual bytes,
++resident base pages, and backing-category counts for procfs formatting. It does
++not retain the MM handle after the snapshot. Exec VMA metadata is used to derive
++the main executable's code/data bounds and the user stack/heap anchors used by
++the statm formatter.
++
++The current `statm.text` adapter counts executable VMAs belonging to the
++process executable path. `statm.data` counts private writable VMAs, which is an
++X-Kernel approximation of Linux `data_vm + stack_vm`; it does not yet carry
++per-ELF-segment data/stack accounting through every exec path.
++
+ CPU accounting uses `Inactive`, `Kernel`, and `User` states, following Linux
+ generic vtime. Switch-out settles the interval; switch-in starts kernel time.
+ User transitions are marked at `UserContext::run` boundaries before IRQ dispatch.
+diff --git a/process/kprocess/docs/security.md b/process/kprocess/docs/security.md
+index 6011587..29fef2a 100644
+--- a/process/kprocess/docs/security.md
++++ b/process/kprocess/docs/security.md
+@@ -124,6 +124,11 @@ user-input validation. No crash-recovery mechanism is provided.
+ 
+ ## Privacy, limitations and verification
+ 
++Procfs memory counters reveal address-space sizes and resident page totals, not
++mapped page contents. `TaskStat::from_thread()` holds the live-MM capability
++only while copying numeric counters and VMA metadata; it does not fault pages in
++or retain the mapping owner.
++
+ Executable paths, command lines, IDs, user addresses, credentials and CPU stats
+ can be exposed through procfs/signal/pidfd consumers. Those consumers own access
+ policy; this crate supplies snapshots and does not redact them. Debug/signal
+diff --git a/process/kprocess/src/stat.rs b/process/kprocess/src/stat.rs
+index e4f3af3..ddbad0b 100644
+--- a/process/kprocess/src/stat.rs
++++ b/process/kprocess/src/stat.rs
+@@ -4,15 +4,18 @@
+ 
+ use alloc::{borrow::ToOwned, fmt, string::String};
+ 
++use kaddr_layout::{USER_HEAP_BASE, USER_STACK_TOP};
+ use kerrno::KResult;
++use khal::paging::MappingFlags;
+ use ktask::{TaskInner, TaskState};
++use memaddr::PAGE_SIZE_4K;
+ 
+ use crate::AsThread;
+ 
+ /// Represents the `/proc/[pid]/stat` file.
+ #[derive(Default)]
+ pub struct TaskStat {
+-    /// Process ID.
++    /// Thread ID reported in the first field of `/proc/[pid]/stat`.
+     pub pid: u32,
+     /// Filename of the executable (limited to 16 chars).
+     pub comm: String,
+@@ -60,6 +63,16 @@ pub struct TaskStat {
+     pub vsize: u64,
+     /// Resident set size.
+     pub rss: i64,
++    /// Resident set high-water mark in base pages for the current mm.
++    pub peak_rss: u64,
++    /// Whether the task currently has a live user address space.
++    pub has_mm: bool,
++    /// Resident file and shared-memory pages.
++    pub shared_pages: u64,
++    /// Main executable code pages for `/proc/[pid]/statm`.
++    pub text_pages: u64,
++    /// Private writable and stack pages for `/proc/[pid]/statm`.
++    pub data_pages: u64,
+     /// Soft limit for RSS.
+     pub rsslim: u64,
+     /// Address above which program text can run.
+@@ -134,7 +147,7 @@ impl TaskStat {
+         let thread = task.as_thread();
+         let proc = thread.process();
+ 
+-        let pid = proc.pid();
++        let pid = thread.tid();
+         let comm = task.name();
+         let comm = comm[..comm.len().min(16)].to_owned();
+         let state = match task.state() {
+@@ -146,6 +159,56 @@ impl TaskStat {
+         let pgrp = proc.group().pgid();
+         let session = proc.group().session().sid();
+         let nice = thread.nice();
++        let exe_path = proc.exe_path().unwrap_or_default();
++        let mut has_mm = false;
++        let mut vsize = 0;
++        let mut rss = 0;
++        let mut peak_rss = 0;
++        let mut shared_pages = 0;
++        let mut text_pages = 0;
++        let mut data_pages = 0u64;
++        let mut start_code = 0u64;
++        let mut end_code = 0u64;
++        let mut start_data = 0u64;
++        let mut end_data = 0u64;
++        if let Ok(address_space) = proc.address_space() {
++            let address_space = address_space.lock();
++            let memory = address_space.memory_usage();
++            has_mm = true;
++            vsize = memory.virtual_bytes();
++            rss = memory.resident_pages().min(i64::MAX as u64) as i64;
++            peak_rss = memory.peak_resident_pages();
++            shared_pages = memory.shared_pages();
++
++            for vma in address_space.vmas() {
++                let start = vma.start().as_usize() as u64;
++                let end = vma.end().as_usize() as u64;
++                let flags = vma.flags();
++                let is_executable_file = vma
++                    .file_mapping()
++                    .and_then(|mapping| mapping.path.as_deref())
++                    == Some(exe_path.as_str());
++
++                if is_executable_file && flags.contains(MappingFlags::EXECUTE) {
++                    if start_code == 0 || start < start_code {
++                        start_code = start;
++                    }
++                    end_code = end_code.max(end);
++                }
++                if is_executable_file && flags.contains(MappingFlags::WRITE) {
++                    if start_data == 0 || start < start_data {
++                        start_data = start;
++                    }
++                    end_data = end_data.max(end);
++                }
++                if flags.contains(MappingFlags::WRITE) && !flags.contains(MappingFlags::SHARED) {
++                    data_pages = data_pages.saturating_add((vma.size() / PAGE_SIZE_4K) as u64);
++                }
++            }
++            text_pages = end_code
++                .saturating_sub(start_code)
++                .div_ceil(PAGE_SIZE_4K as u64);
++        }
+         Ok(Self {
+             pid,
+             comm: comm.to_owned(),
+@@ -156,6 +219,19 @@ impl TaskStat {
+             priority: nice.proc_stat_priority(),
+             nice: nice.as_i32(),
+             num_threads: proc.thread_count() as u32,
++            vsize,
++            rss,
++            peak_rss,
++            has_mm,
++            shared_pages,
++            text_pages,
++            data_pages,
++            start_code,
++            end_code,
++            start_data,
++            end_data,
++            start_stack: if has_mm { USER_STACK_TOP as u64 } else { 0 },
++            start_brk: if has_mm { USER_HEAP_BASE as u64 } else { 0 },
+             exit_signal: proc.exit_signal().map_or(0, |signo| signo as u8),
+             exit_code: proc.exit_code(),
+             ..Default::default()
+@@ -190,6 +266,11 @@ impl fmt::Display for TaskStat {
+             starttime,
+             vsize,
+             rss,
++            peak_rss: _,
++            has_mm: _,
++            shared_pages: _,
++            text_pages: _,
++            data_pages: _,
+             rsslim,
+             start_code,
+             end_code,

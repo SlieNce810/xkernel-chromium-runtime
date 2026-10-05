@@ -1,0 +1,31 @@
+diff --git a/posix/net/src/io.rs b/posix/net/src/io.rs
+--- a/posix/net/src/io.rs
++++ b/posix/net/src/io.rs
+@@
+-        MSG_CTRUNC, MSG_DONTWAIT, MSG_ERRQUEUE, MSG_PEEK, MSG_TRUNC, SCM_CREDENTIALS, SCM_RIGHTS,
++        MSG_CMSG_CLOEXEC, MSG_CTRUNC, MSG_DONTWAIT, MSG_ERRQUEUE, MSG_PEEK, MSG_TRUNC,
++        SCM_CREDENTIALS, SCM_RIGHTS,
+@@
+ fn push_socket_cmsg(
+     resources: &kresources::ProcessResources,
+     builder: &mut CMsgBuilder<'_>,
+     ancillary: SocketAncillary,
++    close_on_exec: bool,
+ ) -> KResult<bool> {
+@@
+-                let fd = resources.add_file(f, false)?;
++                let fd = resources.add_file(f, close_on_exec)?;
+@@
+ fn recv_impl(
+@@
+-    let mut recv_flags = RecvFlags::empty();
++    let cmsg_cloexec = flags & MSG_CMSG_CLOEXEC != 0;
++    let mut recv_flags = RecvFlags::empty();
+@@
+-            let push_result = push_socket_cmsg(resources.as_ref(), &mut builder, ancillary);
++            let push_result = push_socket_cmsg(
++                resources.as_ref(),
++                &mut builder,
++                ancillary,
++                cmsg_cloexec,
++            );

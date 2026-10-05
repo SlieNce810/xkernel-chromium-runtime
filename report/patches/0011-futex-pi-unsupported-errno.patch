@@ -1,0 +1,43 @@
+diff --git a/core/ksyscall/src/sync/futex.rs b/core/ksyscall/src/sync/futex.rs
+index 86c61e1..b9b123b 100644
+--- a/core/ksyscall/src/sync/futex.rs
++++ b/core/ksyscall/src/sync/futex.rs
+@@ -11,9 +11,10 @@ use kfutex::{FutexKey, FutexWakeOp, global_table};
+ use kprocess::{AsThread, current_user_mm_id, current_user_process_address_space};
+ use ktime_types::TimeSpan;
+ use linux_raw_sys::general::{
+-    FUTEX_CLOCK_REALTIME, FUTEX_CMD_MASK, FUTEX_CMP_REQUEUE, FUTEX_PRIVATE_FLAG, FUTEX_REQUEUE,
+-    FUTEX_WAIT, FUTEX_WAIT_BITSET, FUTEX_WAKE, FUTEX_WAKE_BITSET, FUTEX_WAKE_OP, robust_list_head,
+-    timespec,
++    FUTEX_CLOCK_REALTIME, FUTEX_CMD_MASK, FUTEX_CMP_REQUEUE, FUTEX_CMP_REQUEUE_PI,
++    FUTEX_LOCK_PI, FUTEX_LOCK_PI2, FUTEX_PRIVATE_FLAG, FUTEX_REQUEUE, FUTEX_TRYLOCK_PI,
++    FUTEX_UNLOCK_PI, FUTEX_WAIT, FUTEX_WAIT_BITSET, FUTEX_WAIT_REQUEUE_PI, FUTEX_WAKE,
++    FUTEX_WAKE_BITSET, FUTEX_WAKE_OP, robust_list_head, timespec,
+ };
+ use osvm::VirtPtr;
+ use posix_types::{TimeSpanLike, UserConstPtr, UserPtr};
+@@ -126,6 +127,24 @@ pub fn sys_futex(
+     let command = futex_op & (FUTEX_CMD_MASK as u32);
+     let is_private = futex_op & FUTEX_PRIVATE_FLAG != 0;
+     let is_realtime = futex_op & FUTEX_CLOCK_REALTIME != 0;
++
++    // Priority-inheritance futexes are not implemented. Report the feature as
++    // unsupported (EOPNOTSUPP) instead of treating these known commands as an
++    // unknown syscall (ENOSYS). musl probes FUTEX_LOCK_PI to implement
++    // pthread_mutexattr_setprotocol(), and callers such as PulseAudio rely on
++    // ENOTSUP to fall back to a normal mutex.
++    if matches!(
++        command,
++        FUTEX_LOCK_PI
++            | FUTEX_UNLOCK_PI
++            | FUTEX_TRYLOCK_PI
++            | FUTEX_WAIT_REQUEUE_PI
++            | FUTEX_CMP_REQUEUE_PI
++            | FUTEX_LOCK_PI2
++    ) {
++        return Err(KError::OperationNotSupported);
++    }
++
+     if is_realtime && !matches!(command, FUTEX_WAIT | FUTEX_WAIT_BITSET) {
+         return Err(KError::Unsupported);
+     }

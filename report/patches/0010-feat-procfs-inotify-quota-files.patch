@@ -1,0 +1,63 @@
+From c2eabd524461c79631d7b737f4c8fa09bd24e96e Mon Sep 17 00:00:00 2001
+From: mo <mo@t490>
+Date: Tue, 22 Sep 2026 10:48:35 +0800
+Subject: [PATCH] feat(procfs): expose /proc/sys/fs/inotify quota files
+
+Chromium's file_path_watcher_inotify.cc reads max_user_watches before
+creating any inotify instance, and logs
+
+    Failed to read /proc/sys/fs/inotify/max_user_watches
+
+when the procfs node is absent. The procfs sys tree only carried
+kernel/pid_max, so the whole fs/ subtree was missing.
+
+Add fs/inotify/{max_queued_events,max_user_instances,max_user_watches}
+as read-only quota values matching the Linux defaults (16384 / 128 /
+65536). This is an interface-existence fix: the inotify syscalls
+themselves are still unimplemented and are deliberately not part of
+this change.
+---
+ fs/filesystems/procfs/src/basic_nodes/root.rs | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/fs/filesystems/procfs/src/basic_nodes/root.rs b/fs/filesystems/procfs/src/basic_nodes/root.rs
+index 1fac4a4..b7c4b3b 100644
+--- a/fs/filesystems/procfs/src/basic_nodes/root.rs
++++ b/fs/filesystems/procfs/src/basic_nodes/root.rs
+@@ -87,6 +87,33 @@ pub(crate) fn add_root_entries(root: &mut DirMapping, fs: Arc<SimpleFs>) {
+             SimpleDir::new_maker(fs.clone(), Arc::new(kernel))
+         });
+ 
++        sys.add("fs", {
++            let mut sys_fs = DirMapping::new();
++
++            sys_fs.add("inotify", {
++                let mut inotify = DirMapping::new();
++                // Chromium 的 file_path_watcher_inotify.cc 读 max_user_watches
++                // 决定 watch 配额；缺失时报 "Failed to read
++                // /proc/sys/fs/inotify/max_user_watches"，watch 功能整体降级。
++                // 取值照 Linux 默认（fs/inotify 的初始值），仅只读暴露。
++                inotify.add(
++                    "max_queued_events",
++                    SimpleFile::new_regular(fs.clone(), || Ok("16384\n")),
++                );
++                inotify.add(
++                    "max_user_instances",
++                    SimpleFile::new_regular(fs.clone(), || Ok("128\n")),
++                );
++                inotify.add(
++                    "max_user_watches",
++                    SimpleFile::new_regular(fs.clone(), || Ok("65536\n")),
++                );
++                SimpleDir::new_maker(fs.clone(), Arc::new(inotify))
++            });
++
++            SimpleDir::new_maker(fs.clone(), Arc::new(sys_fs))
++        });
++
+         SimpleDir::new_maker(fs.clone(), Arc::new(sys))
+     });
+ }
+-- 
+2.53.0
+
