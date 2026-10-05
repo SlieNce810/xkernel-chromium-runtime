@@ -34,4 +34,13 @@ Validate changed scripts with their safest mode first (`--help`, `--dry-run`, or
 
 ## Changes and Review
 
-This checkout has no Git metadata, so no local commit-message history can be enforced. If version control is added, use concise imperative subjects such as `scripts: add DRM probe`, and keep each commit scoped to one change. Reviews should state the Linux/WSL2 host used, commands run, affected evidence directory, results, and screenshots for visual behavior. Never commit credentials, SSH keys, or machine-specific secrets.
+This repository is under Git version control (initialised 2026-09-21). The remote is `git@github.com:SlieNce810/xkernel-chromium-runtime.git`; use the SSH endpoint — the HTTPS one fails on this Windows host with `CRYPT_E_REVOCATION_OFFLINE` from the schannel backend.
+
+Use concise imperative subjects such as `scripts: add DRM probe`, and keep each commit scoped to one change. Reviews should state the Linux/WSL2 host used, commands run, affected evidence directory, results, and screenshots for visual behavior. Never commit credentials, SSH keys, or machine-specific secrets.
+
+### Large binaries
+
+Kept out of history, see `.gitignore`:
+
+- `agentos-disk.img.xz` (318 MB) exceeds GitHub's 100 MB per-file limit and is distributed as a GitHub Release asset instead.
+- `evidence/**/*.ppm` are raw QEMU framebuffer dumps (about 2.4 MB each) and are not human-readable verdicts. Their SHA-256 manifests (`evidence/_ppm-sha256-*.txt`) are committed in their place; the originals stay on the T490 host under `~/xk6/evidence`.

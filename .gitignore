@@ -26,3 +26,19 @@ desktop.ini
 # ── 本地临时文件 ────────────────────────────────────────────────────────────
 *.orig
 *.rej
+
+# ── 大体积二进制：不入 git 历史 ─────────────────────────────────────────────
+# agentos 磁盘镜像 318 MB，超过 GitHub 单文件 100 MB 硬限，push 必被拒。
+# 归档通道：GitHub Release 附件（tag v0.3-archives）；镜像可由构建脚本 +
+# 基线镜像复现。
+/agentos-disk.img.xz
+*.xz
+# testpages.tar.xz 仅 6.5 KB，是 guest 测试页的打包产物，需要入库。
+!/testpages.tar.xz
+
+# ── 证据里的 ppm 原始帧缓冲 ─────────────────────────────────────────────────
+# ppm 是 QEMU screendump 的原始帧缓冲中间产物（单张约 2.4 MB），不是人类
+# 可读判据；本机 evidence 的 1.7 GB 里 ppm 独占 1.69 GB。仓库只保留
+# json/txt/log/csv/png，以及 ppm 的 sha256 清单（evidence/_ppm-sha256-*.txt）。
+# 需要原图时从 T490 的 ~/xk6/evidence 取。
+evidence/**/*.ppm
