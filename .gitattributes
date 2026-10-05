@@ -22,6 +22,7 @@
 *.xz    binary
 
 # ── 证据目录里的原始日志/截图不得被改写（比赛要求证据不可编辑）──────────────
-evidence/**/*.log   -text
-evidence/**/*.ppm   -text
-evidence/**/*.png   -text
+# 必须覆盖整个 evidence/，不能只列 .log/.ppm/.png：timestamps.csv、*.txt、
+# *.json 同样是证据本体（如 timestamps.csv 直接由 T490 上的运行脚本产出）。
+# 若被 text=auto 规范成 LF，clone 出来的字节与原证据不符，SHA-256 校验会失败。
+evidence/**   -text
