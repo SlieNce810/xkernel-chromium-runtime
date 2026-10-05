@@ -1,0 +1,60 @@
+########## A. 宿主 x86_64：编译并运行（标准头文件基准）
+== A. 标准头文件事实 ==
+header                     : <drm/drm_mode.h>
+sizeof(drm_mode_get_plane) = 32
+offsets: plane_id=0 crtc_id=4 fb_id=8 possible_crtcs=12 gamma_size=16 count_format_types=20 format_type_ptr=24
+DRM_IOCTL_MODE_GETPLANE    = 0xC02064B6  (_IOC_DIR=3 TYPE=0x64 NR=0xB6 SIZE=32)
+
+== B. 用 x-kernel 公式复算 ==
+sizeof(标准 7 字段)        = 32
+sizeof(内核 10 字段)       = 48
+x-kernel iowr(标准 32B)    = 0xC02064B6
+x-kernel iowr(HEAD 7 字段) = 0xC02064B6
+x-kernel iowr(10 字段 48B) = 0xC03064B6
+
+== C. 判定 ==
+标准头文件编码          = 0xC02064B6
+  vs HEAD 32B 复算 : 一致 ✓（HEAD 内核本可命中 libdrm 的请求）
+  vs 48B 复算      : 不一致 ✗（当前内核即 48B 形态 ⇒ libdrm 请求落空 ⇒ errno=95）
+
+结论：原始 7 字段布局正确；p3 的 48B 扩展是回归
+
+########## B. aarch64 交叉编译（musl-cross 标准头）
+交叉编译 OK —— 4 条静态断言全部通过（含 get_plane==32）
+abi_probe_a64: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), static-pie linked, with debug_info, not stripped
+
+########## C. 标准头文件里的结构体原文（宿主 /usr/include/drm/drm_mode.h）
+struct drm_mode_get_plane {
+	/**
+	 * @plane_id: Object ID of the plane whose information should be
+	 * retrieved. Set by caller.
+	 */
+	__u32 plane_id;
+
+	/** @crtc_id: Object ID of the current CRTC. */
+	__u32 crtc_id;
+	/** @fb_id: Object ID of the current fb. */
+	__u32 fb_id;
+
+	/**
+	 * @possible_crtcs: Bitmask of CRTC's compatible with the plane. CRTC's
+	 * are created and they receive an index, which corresponds to their
+	 * position in the bitmask. Bit N corresponds to
+	 * :ref:`CRTC index<crtc_index>` N.
+	 */
+	__u32 possible_crtcs;
+	/** @gamma_size: Never used. */
+	__u32 gamma_size;
+
+	/** @count_format_types: Number of formats. */
+	__u32 count_format_types;
+	/**
+	 * @format_type_ptr: Pointer to ``__u32`` array of formats that are
+	 * supported by the plane. These formats do not require modifiers.
+	 */
+	__u64 format_type_ptr;
+};
+
+########## D. 两侧头文件指纹
+651a780c0494bd73f1ee4176e8ae29336a604614f9b036ef938761e9e5ffde95  /usr/include/drm/drm_mode.h
+4464ce6c971b8753963778f3e3f911c59dcc8e75e67e526f5094c2f8392e2200  /home/mo/musl/aarch64-linux-musl-cross/aarch64-linux-musl/include/drm/drm_mode.h

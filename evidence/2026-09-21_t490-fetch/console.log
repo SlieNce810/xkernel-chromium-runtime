@@ -1,0 +1,185 @@
+### [2026-09-21 14:10:01] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 4g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.48s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 4g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff8000007dc9f0
+[boot] kruntime primary start cpu=0 boot_info=0xffff8000007dc9f0
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-21 06:10:03.006947632 UTC
+
+[37m[  0.851755 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-21T05:43:45.428636316Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = 8162e8a51139b52325582bfb8d2095c871954342
+git_dirty = true
+build_id = 168955e59a0872cf0a3d3679d8a6d232741505d0c8aac5c752eba63ff18ffb34
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[xk6-diag] ===== /dev listing =====
+total 0
+crw-rw-rw-    1 root     root        5,   1 Jan  1  1970 console
+crw-rw-rw-    1 root     root       10, 1024 Jan  1  1970 cpu_dma_latency
+drwxr-xr-x    2 root     root             0 Jan  1  1970 dri
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 fb0
+crw-rw-rw-    1 root     root        1,   7 Jan  1  1970 full
+drwxr-xr-x    2 root     root             0 Jan  1  1970 input
+srwxr-xr-x    1 root     root             0 Jan  1  1970 log
+brw-rw-rw-    1 root     root        7,   0 Jan  1  1970 loop0
+brw-rw-rw-    1 root     root        7,   1 Jan  1  1970 loop1
+brw-rw-rw-    1 root     root        7,  10 Jan  1  1970 loop10
+brw-rw-rw-    1 root     root        7,  11 Jan  1  1970 loop11
+brw-rw-rw-    1 root     root        7,  12 Jan  1  1970 loop12
+brw-rw-rw-    1 root     root        7,  13 Jan  1  1970 loop13
+brw-rw-rw-    1 root     root        7,  14 Jan  1  1970 loop14
+brw-rw-rw-    1 root     root        7,  15 Jan  1  1970 loop15
+brw-rw-rw-    1 root     root        7,   2 Jan  1  1970 loop2
+brw-rw-rw-    1 root     root        7,   3 Jan  1  1970 loop3
+brw-rw-rw-    1 root     root        7,   4 Jan  1  1970 loop4
+brw-rw-rw-    1 root     root        7,   5 Jan  1  1970 loop5
+brw-rw-rw-    1 root     root        7,   6 Jan  1  1970 loop6
+brw-rw-rw-    1 root     root        7,   7 Jan  1  1970 loop7
+brw-rw-rw-    1 root     root        7,   8 Jan  1  1970 loop8
+brw-rw-rw-    1 root     root        7,   9 Jan  1  1970 loop9
+crw-rw-rw-    1 root     root        1,   3 Jan  1  1970 null
+crw-rw-rw-    1 root     root        5,   2 Jan  1  1970 ptmx
+drwxr-xr-x    2 root     root             0 Jan  1  1970 pts
+crw-rw-rw-    1 root     root        1,   8 Jan  1  1970 random
+crw-rw-rw-    1 root     root      250,   0 Jan  1  1970 rtc0
+drwxr-xr-x    2 root     root             0 Jan  1  1970 serial
+drwxrwxrwt    2 root     root             0 Jan  1  1970 shm
+crw-rw-rw-    1 root     root        5,   0 Jan  1  1970 tty
+crw-rw-rw-    1 root     root        1,   9 Jan  1  1970 urandom
+brw-rw-rw-    1 root     root      254,   0 Jan  1  1970 vda
+crw-rw-rw-    1 root     root        1,   5 Jan  1  1970 zero
+[xk6-diag] ===== /dev/dri =====
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 [1;35mcard0[m
+[xk6-diag] ===== /dev/input =====
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 [1;35mevent0[m
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 [1;35mmice[m
+[xk6-diag] launching autorun in background
+[autostart] x-kernel uapp startup hook triggered
+Mon Sep 21 06:10:04 UTC 2026
+[autostart] starting hello
+[fetch] start alpine=3.23.4
+hello from x-kernel rust uapp-hello
+[autostart] starting oci-smoke
+[fetch] repos: https://mirrors.cernet.edu.cn/alpine/v3.23/main https://mirrors.cernet.edu.cn/alpine/v3.23/community https://dl-cdn.alpinelinux.org/alpine/v3.23/main https://dl-cdn.alpinelinux.org/alpine/v3.23/community 
+[fetch] resolv: # SLIRP default DNS server # See https://wiki.qemu.org/Documentation/Networking#User_Networking_(SLIRP) nameserver 10.0.2.3 
+OCI_SMOKE_PASS pid=16
+kylin-x:~# [6n[fetch] ifaces: 1: lo    inet 127.0.0.1/8 scope host dynamic lo|2: eth0    inet 10.0.2.15/24 scope global dynamic eth0|
+[fetch] ===== evprobe: evdev 设备归类 =====
+=== evprobe: evdev 输入设备枚举 ===
+[EV] /dev/input/event0
+[EV]   EVIOCGNAME  rc=21 name="QEMU Virtio Keyboard"
+[EV]   EVIOCGID    bustype=BUS_VIRTUAL(0x0006) vendor=0x0627 product=0x0001 version=0x0001
+[EV]   EV  types:  SYN=0 KEY=1 REL=0 ABS=0 MSC=0 SW=0 REP=0
+[EV]   key bits:  BTN_LEFT=0 BTN_RIGHT=0 BTN_MIDDLE=0 BTN_TOUCH=0 KEY_A=1 KEY_Z=1 KEY_SPACE=1
+[EVSUM] node=/dev/input/event0 minor=1 class=KEYBOARD (rel=0 abs=0 btn=0 kbdkeys=1)
+[EV] /dev/input/event1 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event2 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event3 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event4 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event5 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event6 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event7 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event8 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event9 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event10 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event11 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event12 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event13 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event14 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event15 open -> -1 errno=2 (No such file or directory)
+
+[EV] 共找到 1 个 evdev 节点
+[EVMAP] 建议的 udev 伪造（可用次设备号）：keyboard=c13:1  pointer=c13:-1
+[EVMAP] 警告：未识别出指针节点（鼠标/平板）
+[fetch] ---- evprobe 汇总行 ----
+[EVSUM] node=/dev/input/event0 minor=1 class=KEYBOARD (rel=0 abs=0 btn=0 kbdkeys=1)
+[EVMAP] 建议的 udev 伪造（可用次设备号）：keyboard=c13:1  pointer=c13:-1
+[EVMAP] 警告：未识别出指针节点（鼠标/平板）
+[fetch] 输入节点实况: total 0|crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0|crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice|
+[fetch] ===== 网络探测 =====
+[fetch] probe via wget: bytes=0
+[fetch] NET_VERDICT=UNREACHABLE  (bytes='0') —— 需转宿主侧跨架构预装方案
+[fetch] 进入 watcher（每 30s 写 /root/fetch-watch.log 并 sync）

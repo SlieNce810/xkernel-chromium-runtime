@@ -1,0 +1,450 @@
+### [2026-09-21 15:48:39] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 4g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.45s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 4g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff8000007dc9f0
+[boot] kruntime primary start cpu=0 boot_info=0xffff8000007dc9f0
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-21 07:48:41.010923728 UTC
+
+[37m[  0.868509 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-21T07:38:49.181463279Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = 8162e8a51139b52325582bfb8d2095c871954342
+git_dirty = true
+build_id = 629d299b2410399128730b8c83779e00b8897c21b2a0b7b5803627be31f116c7
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[xk6-diag] ===== /dev listing =====
+total 0
+crw-rw-rw-    1 root     root        5,   1 Jan  1  1970 console
+crw-rw-rw-    1 root     root       10, 1024 Jan  1  1970 cpu_dma_latency
+drwxr-xr-x    2 root     root             0 Jan  1  1970 dri
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 fb0
+crw-rw-rw-    1 root     root        1,   7 Jan  1  1970 full
+drwxr-xr-x    2 root     root             0 Jan  1  1970 input
+srwxr-xr-x    1 root     root             0 Jan  1  1970 log
+brw-rw-rw-    1 root     root        7,   0 Jan  1  1970 loop0
+brw-rw-rw-    1 root     root        7,   1 Jan  1  1970 loop1
+brw-rw-rw-    1 root     root        7,  10 Jan  1  1970 loop10
+brw-rw-rw-    1 root     root        7,  11 Jan  1  1970 loop11
+brw-rw-rw-    1 root     root        7,  12 Jan  1  1970 loop12
+brw-rw-rw-    1 root     root        7,  13 Jan  1  1970 loop13
+brw-rw-rw-    1 root     root        7,  14 Jan  1  1970 loop14
+brw-rw-rw-    1 root     root        7,  15 Jan  1  1970 loop15
+brw-rw-rw-    1 root     root        7,   2 Jan  1  1970 loop2
+brw-rw-rw-    1 root     root        7,   3 Jan  1  1970 loop3
+brw-rw-rw-    1 root     root        7,   4 Jan  1  1970 loop4
+brw-rw-rw-    1 root     root        7,   5 Jan  1  1970 loop5
+brw-rw-rw-    1 root     root        7,   6 Jan  1  1970 loop6
+brw-rw-rw-    1 root     root        7,   7 Jan  1  1970 loop7
+brw-rw-rw-    1 root     root        7,   8 Jan  1  1970 loop8
+brw-rw-rw-    1 root     root        7,   9 Jan  1  1970 loop9
+crw-rw-rw-    1 root     root        1,   3 Jan  1  1970 null
+crw-rw-rw-    1 root     root        5,   2 Jan  1  1970 ptmx
+drwxr-xr-x    2 root     root             0 Jan  1  1970 pts
+crw-rw-rw-    1 root     root        1,   8 Jan  1  1970 random
+crw-rw-rw-    1 root     root      250,   0 Jan  1  1970 rtc0
+drwxr-xr-x    2 root     root             0 Jan  1  1970 serial
+drwxrwxrwt    2 root     root             0 Jan  1  1970 shm
+crw-rw-rw-    1 root     root        5,   0 Jan  1  1970 tty
+crw-rw-rw-    1 root     root        1,   9 Jan  1  1970 urandom
+brw-rw-rw-    1 root     root      254,   0 Jan  1  1970 vda
+crw-rw-rw-    1 root     root        1,   5 Jan  1  1970 zero
+[xk6-diag] ===== /dev/dri =====
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 [1;35mcard0[m
+[xk6-diag] ===== /dev/input =====
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 [1;35mevent0[m
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 [1;35mmice[m
+[xk6-diag] launching autorun in background
+[autostart] x-kernel uapp startup hook triggered
+Mon Sep 21 07:48:42 UTC 2026
+[autostart] starting hello
+[inst] start  alpine=3.23.4
+hello from x-kernel rust uapp-hello
+[autostart] starting oci-smoke
+[inst] df before: /dev/vda                  3.9G      1.4G      2.3G  37% /
+[inst] ===== 1. 解包 /pkgs.tar.gz =====
+OCI_SMOKE_PASS pid=17
+kylin-x:~# [6n[inst] chromium 已就位（249957096 字节），跳过解包
+[inst] ===== 2. 关键文件实体校验（Size 必须非 0）=====
+[inst]   -rwxr-xr-x 1 1000 1000 249957096 Sep 21 06:59 /usr/lib/chromium/chromium
+[inst]   lrwxrwxrwx 1 root root 16 Sep 21 06:58 /usr/bin/chromium -> chromium-browser
+[inst]   -rw-r--r-- 1 1000 1000 2664 Sep 21 07:00 /etc/fonts/fonts.conf
+[inst]   -rw-r--r-- 1 1000 1000 147528 Sep 21 07:00 /usr/share/fonts/opensans/OpenSans-Regular.ttf
+[inst]   /usr/lib/chromium 体积: 291.1M
+[inst]   chromium --version: Chromium 149.0.7827.53 Alpine Linux
+[inst]   fonts.conf 头 2 行: <?xml version="1.0"?> <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"> 
+[inst] df after: /dev/vda                  3.9G      1.4G      2.3G  37% /
+[inst] ===== 3. fc-cache =====
+[inst] fc-list 计数: 75
+[inst] ===== 4. 输入设备 =====
+[inst]   已写 /run/udev/data/c13:1 → ID_INPUT_KEYBOARD（evprobe 实测结论）
+[inst]   /dev/input 实况: total 0|crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0|crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice|
+[inst] ===== 探针 /p2probe =====
+=== p2probe: sched tid 解析 + netlink 多播组 bind ===
+[ENV] pid=75 tid=75
+[SCHED] sched_getparam(pid=0) -> 0 errno=0 (No error information) prio=0
+[SCHED_PID0] SCHED_PID0=PASS  (主线程按 pid=0 查询（对照，补丁前后都应通过）)
+[SCHED] sched_getscheduler(pid=0) -> 0 errno=0 (No error information)
+[SCHED_PID0_POLICY] SCHED_PID0_POLICY=PASS  (主线程查询策略)
+[SCHED] 子线程: gettid=77 getpid=75 (tid != pid ⇒ 这是本项的关键)
+[SCHED] raw sched_getparam(tid=77) -> 0 errno=0 (No error information) prio=0
+[SCHED_THREAD_TID] SCHED_THREAD_TID=PASS  (子线程按**自己的 tid** 查询（补丁前应为 ESRCH=3）)
+[SCHED] raw sched_getscheduler(tid=77) -> 0 errno=0 (No error information)
+[SCHED_THREAD_TID_POLICY] SCHED_THREAD_TID_POLICY=PASS  (子线程按 tid 查询策略)
+[SCHED] pthread_getschedparam(pthread_self()) -> rc=0 errno=0 (No error information) policy=0 prio=0
+[SCHED_PTHREAD_GETSCHEDPARAM] SCHED_PTHREAD_GETSCHEDPARAM=PASS  (musl pthread_getschedparam —— Chromium/absl 实际走的路径)
+[NETLINK] groups=0 对照: bind(fd=3, nl_groups=0x0) -> 0 errno=0 (No error information)
+[NETLINK_BIND_NO_GROUPS] NETLINK_BIND_NO_GROUPS=PASS  (不带多播组的 bind（对照，补丁前后都应通过）)
+[NETLINK] groups!=0 目标: bind(fd=3, nl_groups=0xd) -> 0 errno=0 (No error information)
+[NETLINK_BIND_GROUPS] NETLINK_BIND_GROUPS=PASS  (带 RTMGRP 多播组的 bind —— Chromium AddressTrackerLinux 的用法（补丁前应为 EOPNOTSUPP=95）)
+
+[RESULT] fail=0
+[RESULT] ALL_PASS — P2 两处修复均生效
+[inst] ----- /p2probe 判定行 -----
+[RESULT] fail=0
+[RESULT] ALL_PASS — P2 两处修复均生效
+[inst] ===== 5. weston（libseat-shim + 伪造 sysfs + card0）=====
+[inst]   seatd pid=92 socket=yes
+[inst]   weston pid=99 （等待 0s）
+[inst]   wayland socket = NONE
+[inst]   /run/user/0 实况: total 0|
+[inst]   界标:
+[libseat-shim] open_seat(listener=0x84f410, userdata=0x248d20)
+[libseat-shim]   enable_seat=0x8277a0 (will call delayed)
+[libseat-shim] open_seat -> fake seat (returning)
+[libseat-shim] get_fd -> 11
+[libseat-shim] open(/dev/dri/card0) -> fd=13 OK
+[libseat-shim] (thread) calling enable_seat
+[libseat-shim] (thread) enable_seat returned
+[inst] ===== 6. Chromium =====
+[inst]   WAYLAND_DISPLAY=wayland-0
+[inst]   【尝试 A-single-process】
+[inst]     pid=122
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+
+### [2026-09-21 15:49:24] MONITOR: screendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-ch[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chil[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at004[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s.p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s.pp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-01-at0045s.ppm[K
+(qemu) 
+### [2026-09-21 15:49:28] screendump OK (3072016 bytes)
+[37m[ 49.394189 1:122 ksyscall::dispatch:855] [33mUnimplemented syscall: landlock_create_ruleset (tid=122)[m
+[m[inst]     [A-single-process] 已退出 rc=191（存活约 35s）
+[inst]     [A-single-process] browser=[] renderer=[]
+[inst]     [A-single-process] FATAL 行: 0
+[inst]   尝试 A 未存活 → 换 B：仅 --in-process-gpu（已知能出窗口，但页面不渲染）
+[inst]   【尝试 B-inprocess-gpu】
+[inst]     pid=179
+[37m[ 89.927000 3:179 knet::unix::dgram:250] [33mUDP message truncated: 40 -> 4 bytes[m
+[m[37m[ 89.932679 3:179 ksyscall::dispatch:855] [33mUnimplemented syscall: landlock_create_ruleset (tid=179)[m
+[m[inst]     [B-inprocess-gpu] 仍在运行（90s）✓
+[inst]     [B-inprocess-gpu] browser=[179 ] renderer=[]
+[inst]     [B-inprocess-gpu] FATAL 行: 0
+[inst]   ==== /root/chromium.log 共 351 行，尾 120 行 ====
+[179:179:0921/075047.051407:WARNING:ui/base/idle/idle_linux.cc:111] None of the known D-Bus ScreenSaver services could be used.
+[179:179:0921/075047.175855:VERBOSE1:extensions/browser/extension_registrar.cc:547] AddComponentExtension Google Hangouts
+[179:179:0921/075047.398179:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:136] GetSegmentResult: segment=OPTIMIZATION_TARGET_SEGMENTATION_DEVICE_SWITCHER ignoring DB score, executing model.
+[179:179:0921/075047.398905:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_DEVICE_SWITCHER server segment info not available
+[179:179:0921/075047.403892:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_DEVICE_SWITCHER failed to get database model score, trying default model.
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.242: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.243: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.267: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.267: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.273: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:179): GdkPixbuf-CRITICAL **: 07:50:48.274: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+[179:197:0921/075049.120483:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075049.152249:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:179:0921/075050.339831:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT does not have a segment info.
+[179:179:0921/075050.342004:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT failed to get score from database, executing server model.
+[179:179:0921/075050.342789:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT server segment info not available
+[179:179:0921/075050.343567:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.344397:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT has expired or unavailable result.
+[179:179:0921/075050.345285:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT failed to get database model score, trying default model.
+[179:179:0921/075050.347225:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT signal collection not met
+[179:179:0921/075050.350661:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER does not have a segment info.
+[179:179:0921/075050.352754:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER failed to get score from database, executing server model.
+[179:179:0921/075050.353612:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER server segment info not available
+[179:179:0921/075050.354333:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.355195:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER has expired or unavailable result.
+[179:179:0921/075050.356049:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER failed to get database model score, trying default model.
+[179:179:0921/075050.356932:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER signal collection not met
+[179:179:0921/075050.358421:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER does not have a segment info.
+[179:179:0921/075050.359219:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER failed to get score from database, executing server model.
+[179:179:0921/075050.359914:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER server segment info not available
+[179:179:0921/075050.360634:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.361476:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER has expired or unavailable result.
+[179:179:0921/075050.364120:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER failed to get database model score, trying default model.
+[179:179:0921/075050.415812:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=CROSS_DEVICE_USER_SEGMENT does not have a segment info.
+[179:179:0921/075050.417269:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=CROSS_DEVICE_USER_SEGMENT failed to get score from database, executing server model.
+[179:179:0921/075050.437798:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=CROSS_DEVICE_USER_SEGMENT server segment info not available
+[179:179:0921/075050.438111:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=CROSS_DEVICE_USER_SEGMENT failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.440334:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=CROSS_DEVICE_USER_SEGMENT has expired or unavailable result.
+[179:179:0921/075050.440810:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=CROSS_DEVICE_USER_SEGMENT failed to get database model score, trying default model.
+[179:179:0921/075050.441244:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=CROSS_DEVICE_USER_SEGMENT signal collection not met
+[179:179:0921/075050.441595:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=RESUME_HEAVY_USER_SEGMENT does not have a segment info.
+[179:179:0921/075050.441824:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=RESUME_HEAVY_USER_SEGMENT failed to get score from database, executing server model.
+[179:179:0921/075050.442029:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=RESUME_HEAVY_USER_SEGMENT server segment info not available
+[179:179:0921/075050.442258:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=RESUME_HEAVY_USER_SEGMENT failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.442514:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=RESUME_HEAVY_USER_SEGMENT has expired or unavailable result.
+[179:179:0921/075050.442983:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=RESUME_HEAVY_USER_SEGMENT failed to get database model score, trying default model.
+[179:179:0921/075050.443434:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=RESUME_HEAVY_USER_SEGMENT signal collection not met
+[179:179:0921/075050.465060:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=PASSWORD_MANAGER_USER does not have a segment info.
+[179:179:0921/075050.465508:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=PASSWORD_MANAGER_USER failed to get score from database, executing server model.
+[179:197:0921/075050.465317:VERBOSE1:components/segmentation_platform/internal/database/ukm_database_backend.cc:352] Output from SQL query SELECT IFNULL(COUNT(metric_value),0)FROM uma_metrics WHERE metric_hash='1A94D82447638877' AND profile_id=? AND type=? AND metric_value IN(1)AND event_timestamp BETWEEN ? AND ? Bind values: 0:3420764064 1:2 2:2026-09-14 07:50:50.365642 UTC 3:2026-09-21 07:50:50.365642 UTC  Result: 0.000000,
+[179:197:0921/075050.468759:VERBOSE1:components/segmentation_platform/internal/database/ukm_database_backend.cc:352] Output from SQL query SELECT IFNULL(COUNT(metric_value),0)FROM uma_metrics WHERE metric_hash='8A5076C9026398BD' AND profile_id=? AND type=? AND event_timestamp BETWEEN ? AND ? Bind values: 0:3420764064 1:1 2:2026-09-14 07:50:50.365642 UTC 3:2026-09-21 07:50:50.365642 UTC  Result: 0.000000,
+[179:179:0921/075050.466007:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=PASSWORD_MANAGER_USER server segment info not available
+[179:179:0921/075050.469908:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=PASSWORD_MANAGER_USER failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.470269:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=PASSWORD_MANAGER_USER has expired or unavailable result.
+[179:179:0921/075050.470618:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=PASSWORD_MANAGER_USER failed to get database model score, trying default model.
+[179:179:0921/075050.475114:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=PASSWORD_MANAGER_USER signal collection not met
+[179:179:0921/075050.475871:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:226] GetCachedModelScore: segment=CHROME_USER_ENGAGEMENT does not have a segment info.
+[179:179:0921/075050.476441:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:172] OnGotModelScore: segment=CHROME_USER_ENGAGEMENT failed to get score from database, executing server model.
+[179:179:0921/075050.476779:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:277] ExecuteModelAndGetScore: segment=CHROME_USER_ENGAGEMENT server segment info not available
+[179:179:0921/075050.477248:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:201] OnGotModelScore: segment=CHROME_USER_ENGAGEMENT failed to get score from executing server model, getting score from default model from db.
+[179:179:0921/075050.477777:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:240] GetCachedModelScore: segment=CHROME_USER_ENGAGEMENT has expired or unavailable result.
+[179:179:0921/075050.478277:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:210] OnGotModelScore: segment=CHROME_USER_ENGAGEMENT failed to get database model score, trying default model.
+[179:179:0921/075050.479108:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=CHROME_USER_ENGAGEMENT signal collection not met
+[179:197:0921/075050.565452:VERBOSE1:components/segmentation_platform/internal/database/ukm_database_backend.cc:352] Output from SQL query SELECT COALESCE((SELECT metric_value FROM uma_metrics WHERE metric_hash='ED7CFEC70BF9942D' AND profile_id=? AND type=? AND event_timestamp BETWEEN ? AND ? ORDER BY event_timestamp DESC,id DESC LIMIT 1),0.000000) Bind values: 0:3420764064 1:3 2:2026-09-14 07:50:50.365642 UTC 3:2026-09-21 07:50:50.365642 UTC  Result: 0.000000,
+[179:179:0921/075050.929028:VERBOSE1:components/segmentation_platform/internal/execution/model_executor_impl.cc:189] Segmentation model input:  feature 0: 0 feature 1: 0 feature 2: 0 feature 3: 0 for segment OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER
+[179:179:0921/075050.988261:VERBOSE1:components/segmentation_platform/internal/execution/model_executor_impl.cc:218] Segmentation model result:  output 0: 0 for segment OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER
+[179:179:0921/075050.992557:VERBOSE1:components/segmentation_platform/internal/execution/model_executor_impl.cc:276] Model: OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER version: 3 execution status: 0, output size: 1
+[179:179:0921/075051.002305:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:29] ComputeDiscreteMapping: segment=: result=0, rank=0
+[179:179:0921/075051.003597:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:359] OnModelExecuted: Default model executed successfully. Result: PredictionResult: timestamp: 13434450650997084 result 0: 0 for segment OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER
+[179:179:0921/075051.005914:VERBOSE1:components/segmentation_platform/internal/database/segment_info_database.cc:208] SaveSegmentResult: saving: PredictionResult: timestamp: 13434450650997084 result 0: 0 for segment id: OPTIMIZATION_TARGET_SEGMENTATION_SHOPPING_USER
+[179:179:0921/075051.059881:VERBOSE1:components/segmentation_platform/internal/database/cached_result_writer.cc:30] CachedResultWriter updating prefs with new result: PredictionResult: timestamp: 13434450650997084 result 0: 0 for segmentation key: shopping_user
+[179:179:0921/075053.284581:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1408] AddKeepAlive(Default, kExtensionUpdater). keep_alives=[kWaitingForFirstBrowserWindow (1), kExtensionUpdater (1), kProfilePickerView (1)]
+[179:197:0921/075053.316181:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/extensions_crx_cache/metadata.json": No such file or directory (2)
+[179:179:0921/075053.353187:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1469] RemoveKeepAlive(Default, kExtensionUpdater). keep_alives=[kWaitingForFirstBrowserWindow (1), kProfilePickerView (1)]
+[179:179:0921/075053.686093:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[179:179:0921/075053.686942:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[179:179:0921/075053.728810:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[179:197:0921/075054.017218:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075054.051786:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075058.691717:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075058.710782:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075102.863514:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075102.880111:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:197:0921/075106.843387:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075106.849589:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075110.884942:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075110.910054:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075114.918536:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075114.935732:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075119.490380:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075119.551313:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:197:0921/075123.631831:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075123.647781:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075127.935244:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075127.944556:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075131.921098:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075131.937479:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:198:0921/075135.994039:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075136.014237:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[179:197:0921/075141.140333:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/Default/Media Cache": No such file or directory (2)
+[179:179:0921/075141.165601:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[inst]   ==== 关键错误行 ====
+3:[122:122:0921/074929.944732:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+9:[122:140:0921/074932.103937:ERROR:base/files/file_path_watcher_inotify.cc:338] inotify_init() failed: Function not implemented (38)
+11:[122:141:0921/074932.289698:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+12:[122:122:0921/074932.606751:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:278] Failed to initialize drm render node handle.
+15:[122:122:0921/074934.605393:ERROR:content/browser/browser_main_loop.cc:274] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+26:[122:141:0921/074938.588117:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+27:[122:141:0921/074938.619409:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+28:[122:141:0921/074938.623098:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+29:[122:141:0921/074938.623935:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+31:[122:158:0921/074939.319947:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:331] Failed to find drm render node path.
+32:[122:158:0921/074939.323718:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:456] Failed to initialize drm render node handle.
+34:[0921/074939.615359:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+40:[179:179:0921/075009.927492:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+48:[179:197:0921/075011.441830:ERROR:base/files/file_path_watcher_inotify.cc:338] inotify_init() failed: Function not implemented (38)
+50:[179:199:0921/075011.473753:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+51:[179:179:0921/075011.643359:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:278] Failed to initialize drm render node handle.
+54:[179:179:0921/075012.844899:ERROR:content/browser/browser_main_loop.cc:274] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+65:[179:199:0921/075015.640238:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+66:[179:199:0921/075015.678717:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+67:[179:199:0921/075015.680477:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+68:[179:199:0921/075015.681011:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+70:[179:214:0921/075016.312004:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:331] Failed to find drm render node path.
+71:[179:214:0921/075016.315743:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:456] Failed to initialize drm render node handle.
+75:[179:199:0921/075016.849049:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+78:[0921/075017.736132:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+85:[179:199:0921/075021.816563:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+115:[179:199:0921/075027.942508:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+156:[179:179:0921/075037.357785:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+157:[179:199:0921/075037.361539:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+159:[179:179:0921/075037.368340:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+161:[179:199:0921/075037.373424:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+162:[179:179:0921/075037.401861:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+163:[179:179:0921/075037.767513:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+164:[179:179:0921/075038.119957:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+167:[179:179:0921/075039.746972:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+169:[179:199:0921/075041.764520:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+170:[179:199:0921/075041.769280:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+171:[179:179:0921/075041.866394:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+172:[179:179:0921/075041.924220:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+174:[179:199:0921/075041.926941:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+177:[179:179:0921/075043.485729:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+178:[179:179:0921/075043.486804:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+180:[179:179:0921/075043.506607:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+182:[179:199:0921/075043.508596:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+186:[179:179:0921/075043.700198:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+188:[179:179:0921/075044.726309:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Session.TotalDuration
+189:[179:179:0921/075044.727188:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Commerce.PriceDrops.ActiveTabNavigationComplete.IsProductDetailPage
+190:[179:179:0921/075044.727641:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing Autofill_PolledCreditCardSuggestions
+191:[179:179:0921/075044.727963:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing IOS.ParcelTracking.Tracked.AutoTrack
+192:[179:179:0921/075044.728341:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Omnibox.SuggestionUsed.ClientSummarizedResultType
+193:[179:179:0921/075044.739671:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing MetadataWriter
+194:[179:179:0921/075044.740106:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Sync.DeviceCount2
+195:[179:179:0921/075044.743942:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Sync.DeviceCount2.Phone
+196:[179:179:0921/075044.744256:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Sync.DeviceCount2.Desktop
+197:[179:179:0921/075044.744530:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Sync.DeviceCount2.Tablet
+198:[179:179:0921/075044.744834:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing MobileBookmarkManagerOpen
+199:[179:179:0921/075044.745059:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing NewTabPage.MostVisited.Clicked
+200:[179:179:0921/075044.745274:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing TabGroup.Created.OpenInNewTab
+201:[179:179:0921/075044.745556:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing Android.HistoryPage.OpenItem
+202:[179:179:0921/075044.745767:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:54] Segmentation platform started observing MobileMenuRecentTabs
+203:[179:179:0921/075044.745983:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.ManagePasswordsReferrer
+204:[179:179:0921/075044.746333:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.ProfileStore.TotalAccountsHiRes3.WithScheme.Https
+205:[179:179:0921/075044.746567:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.FillingAssistance
+206:[179:179:0921/075044.747221:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.SavedPasswordIsGenerated
+207:[179:179:0921/075044.747504:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.SaveUIDismissalReason
+208:[179:179:0921/075044.747997:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing PasswordManager.SaveUIDismissalReason
+209:[179:179:0921/075044.748300:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing IOS.CredentialExtension.IsEnabled.Startup
+210:[179:179:0921/075044.751447:VERBOSE1:components/segmentation_platform/internal/signals/signal_filter_processor.cc:61] Segmentation platform started observing Session.TotalDuration
+224:[179:179:0921/075045.315174:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+227:[179:199:0921/075045.326037:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+231:[179:179:0921/075047.050661:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+251:[179:179:0921/075049.152249:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+259:[179:179:0921/075050.347225:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_CHROME_LOW_USER_ENGAGEMENT signal collection not met
+266:[179:179:0921/075050.356932:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=OPTIMIZATION_TARGET_SEGMENTATION_SEARCH_USER signal collection not met
+279:[179:179:0921/075050.441244:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=CROSS_DEVICE_USER_SEGMENT signal collection not met
+286:[179:179:0921/075050.443434:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=RESUME_HEAVY_USER_SEGMENT signal collection not met
+295:[179:179:0921/075050.475114:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=PASSWORD_MANAGER_USER signal collection not met
+302:[179:179:0921/075050.479108:VERBOSE1:components/segmentation_platform/internal/selection/segment_result_provider.cc:295] ExecuteModelAndGetScore: segment=CHROME_USER_ENGAGEMENT signal collection not met
+318:[179:179:0921/075054.051786:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+321:[179:179:0921/075058.710782:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+324:[179:179:0921/075102.880111:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+327:[179:179:0921/075106.849589:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+330:[179:179:0921/075110.910054:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+333:[179:179:0921/075114.935732:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+336:[179:179:0921/075119.551313:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+339:[179:179:0921/075123.647781:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+342:[179:179:0921/075127.944556:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+345:[179:179:0921/075131.937479:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+348:[179:179:0921/075136.014237:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+351:[179:179:0921/075141.165601:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+[inst]   ==== 进程确认 ====
+  133 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=channel=Alpine Linux --annotation=lsb-release=Alpine Linux v3.23 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=149.0.7827.53 --initial-client-fd=4 --shared-client-connection
+  179 root      0:00 /usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --no-sandbox --disable-gpu --disable-dev-shm-usage --enable-logging=stderr --v=1 --user-data-dir=/tmp/chromium-baseline --in-process-gpu --use-gl=swiftshader --disable-gpu-sandbox --disable-features=Vulkan --disable-background-networking --disable-component-update file:///usr/share/html-test/index.html
+  189 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=channel=Alpine Linux --annotation=lsb-release=Alpine Linux v3.23 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=149.0.7827.53 --initial-client-fd=5 --shared-client-connection
+[inst] 进入 watcher（每 30s，含 sync）
+
+### [2026-09-21 15:51:54] MONITOR: screendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-ch[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chil[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at019[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s.p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s.pp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-child/screenshots/shot-02-at0195s.ppm[K
+(qemu) 
+### [2026-09-21 15:51:58] screendump OK (3072016 bytes)

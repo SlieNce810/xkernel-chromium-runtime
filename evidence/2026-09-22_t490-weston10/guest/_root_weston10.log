@@ -1,0 +1,47 @@
+Tue Sep 22 14:48:51 UTC 2026 ===== A. weston_sim：复现 Weston 的 plane 创建逻辑 =====
+Tue Sep 22 14:48:52 UTC 2026 weston_sim rc=3
+  [SIM] driver='simpledrm' 1.0.0
+  [SIM] drmModeGetPlaneResources OK count_planes=1
+  [SIM] ===== plane id=64 =====
+  [SIM] drmModeGetPlane OK: crtc_id=16 possible_crtcs=0x1 count_formats=2
+  [SIM]   formats: 0x34325258('XR24') 0x34325241('AR24')
+  [SIM] drmModeObjectGetProperties OK count_props=12
+  [SIM]   [prop 0] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 1] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 2] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 3] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 4] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 5] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 6] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 7] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 8] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 9] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 10] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM]   [prop 11] drmModeGetProperty FAILED（Weston 遇到会 continue）
+  [SIM] ★ "type" 属性不存在 ⇒ plane->type 取默认值 4(COUNT) ⇒ 静默丢弃
+  [SIM]   IN_FORMATS 属性值=0 ⇒ 走 fallback（用 kplane->formats，不致命）
+  [SIM_SUM] planes=1 dropped_by_weston=1 verdict=SIM_PLANE_DROPPED
+Tue Sep 22 14:48:52 UTC 2026 ===== B. 带 ioctl 跟踪跑一轮 Weston（只观测）=====
+Tue Sep 22 14:48:54 UTC 2026 seatd alive=yes socket=yes
+Tue Sep 22 14:48:58 UTC 2026 weston alive=no
+Tue Sep 22 14:48:58 UTC 2026 --- weston 日志尾部 ---
+Date: 2026-09-22 UTC
+[14:48:54.761] weston 14.0.2
+               https://wayland.freedesktop.org
+               Bug reports to: https://gitlab.freedesktop.org/wayland/weston/issues/
+               Build: 14.0.2
+[14:48:54.765] Command line: weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0 --continue-without-input --idle-time=0 --debug --log=/root/weston10-weston.log
+[14:48:54.765] OS: Linux, 10.0.0, 10.0.0, aarch64
+[14:48:54.766] Flight recorder: enabled
+[14:48:54.783] Starting with no config file.
+[14:48:54.810] Output repaint window is 7 ms maximum.
+[14:48:54.818] Loading module '/usr/lib/libweston-14/drm-backend.so'
+[14:48:54.954] initializing drm backend
+[14:48:54.959] Trying libseat launcher...
+[14:48:54.998] [libseat/libseat.c:62] Seat opened with backend 'seatd'
+[14:48:54.998] [libseat/backend/seatd.c:212] Enabling seat
+[14:48:54.999] libseat: session control granted
+Tue Sep 22 14:48:58 UTC 2026 --- ioctl 跟踪（DRM 请求序列；最后 30 条）---
+Tue Sep 22 14:48:58 UTC 2026 --- ioctl 跟踪里失败的请求 ---
+Tue Sep 22 14:48:59 UTC 2026 [WESTON10_SUM] sim=done iocspy=done
+Tue Sep 22 14:48:59 UTC 2026 weston10 收尾

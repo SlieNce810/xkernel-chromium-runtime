@@ -1,0 +1,119 @@
+{
+  "file": "shot-07-at0316s.ppm",
+  "size": "1280x800",
+  "header_bytes": 16,
+  "raster_bytes": 3072000,
+  "size_check": {
+    "pass": true,
+    "expected": "1280x800",
+    "got": "1280x800"
+  },
+  "profile": "legacy",
+  "checks": [
+    {
+      "check": "non_white_ratio",
+      "pass": true,
+      "group": "info",
+      "detail": "非白像素 125704/1024000 = 0.1228（阈值 0.05）；⚠️ 参考项：Weston 纯色桌面实测也能 PASS，故不参与卡关",
+      "ratio": 0.12276
+    },
+    {
+      "check": "banner_c8102e",
+      "pass": false,
+      "group": "core",
+      "detail": "#c8102e 色条 None；要求 宽≥448(=max(240,0.35·W)) 且 高∈[32,240](=[0.04H,0.3H])",
+      "bbox": null,
+      "w_req": 448,
+      "h_band": [
+        32,
+        240
+      ]
+    },
+    {
+      "check": "swatches_3channels",
+      "pass": false,
+      "group": "core",
+      "detail": "120x72 级纯色块（CSS 固定尺寸，绝对像素带）：red ✗ None；green ✗ None；blue ✗ None",
+      "blobs": {
+        "red": null,
+        "green": null,
+        "blue": null
+      }
+    },
+    {
+      "check": "swatches_left_to_right",
+      "pass": false,
+      "group": "core",
+      "detail": "水平顺序应为 红→绿→蓝。未检出三个形状合理的纯色块，顺序判据不适用"
+    },
+    {
+      "check": "swatches_same_row",
+      "pass": false,
+      "group": "core",
+      "detail": "三色块应在同一水平带（y 中心差 ≤8px）。未检出三个形状合理的纯色块，顺序判据不适用"
+    },
+    {
+      "check": "checkerboard_24px",
+      "pass": false,
+      "group": "viewport",
+      "detail": "黑白棋盘（暗块长≈亮块间距≈行高，尺度无关）：{'found': False, 'candidate_rows': 0}",
+      "checker": {
+        "found": false,
+        "candidate_rows": 0
+      }
+    },
+    {
+      "check": "table_borders",
+      "pass": false,
+      "group": "viewport",
+      "detail": "长横线 0 条 []（长度阈值 358=max(160,0.28·W)），长竖线 0 条 []（高度阈值 40）；要求各 ≥4",
+      "lines": {
+        "h_lines": [],
+        "v_lines": [],
+        "h_count": 0,
+        "v_count": 0,
+        "min_h_len": 358,
+        "min_v_len": 40
+      }
+    },
+    {
+      "check": "js_executed_green_text",
+      "pass": false,
+      "group": "core",
+      "detail": "#0b6b2f 绿字像素 0（阈值 15；文字像素量，不随屏宽变）→ 未检出绿字：JS 未执行 / 页面未渲染到首屏",
+      "count": 0,
+      "bbox": null
+    },
+    {
+      "check": "primary_color_area",
+      "pass": false,
+      "group": "info",
+      "detail": "高饱和原色像素占比 0.0000（阈值 0.01）；⚠️ 参考项：#c8102e 的 banner 自身即满足该谓词，故不参与卡关",
+      "ratio": 0.0
+    }
+  ],
+  "strict_set": [
+    "banner_c8102e",
+    "swatches_3channels",
+    "swatches_left_to_right",
+    "swatches_same_row",
+    "checkerboard_24px",
+    "table_borders",
+    "js_executed_green_text"
+  ],
+  "info_set": [
+    "non_white_ratio",
+    "primary_color_area"
+  ],
+  "viewport_in_frame": true,
+  "strict_fail_count": 7,
+  "strict_fail_names": [
+    "banner_c8102e",
+    "swatches_3channels",
+    "swatches_left_to_right",
+    "swatches_same_row",
+    "checkerboard_24px",
+    "table_borders",
+    "js_executed_green_text"
+  ]
+}

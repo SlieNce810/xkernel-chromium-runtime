@@ -1,0 +1,32 @@
+{"kind": "rx", "ts": 1790951007.2878482, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1790951007.2879906, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-interaction-single-r17.sock"}}
+{"kind": "tx", "ts": 1790951007.2880888, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1790951007.2890372, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1790951007.2891474, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1790951007.2918253, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1790951007.2919006, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1790951007.2920167, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1790951007.3042643, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1790951007.3043845, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1790951007.304474, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1790951007.3055792, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1790951007.3056629, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1790951007.305729, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1790951007.30655, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1790951007.3066328, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1790951007.3066998, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1790951007.3073854, "value": {"error": {"class": "DeviceNotFound", "desc": "Device '/backend/console[1]' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1790951007.3074656, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device '/backend/console[1]' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1790951007.3075278, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1790951007.3078942, "value": {"id": 7, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1790951007.3079844, "value": {"id": 7, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1790951007.308054, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1790951007.3086658, "value": {"id": 8, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1790951007.3087351, "value": {"id": 8, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1790951007.308818, "value": {"arguments": {"command-line": "mouse_set 2"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1790951007.309412, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1790951007.3095036, "value": {"index": 2}}
+{"kind": "tx", "ts": 1790951007.3095913, "value": {"arguments": {"command-line": "hostfwd_add net0 tcp::61006-:9222"}, "execute": "human-monitor-command", "id": 10}}
+{"kind": "rx", "ts": 1790951007.3103673, "value": {"id": 10, "return": ""}}
+{"kind": "cdp-forward", "ts": 1790951007.3104367, "value": {"port": 61006, "response": {"id": 10, "return": ""}}}
+{"kind": "result", "ts": 1790951007.3104901, "value": {"mode": "setup-only", "ok": true}}

@@ -1,0 +1,118 @@
+==================================================================
+round_assert  tag=x11-render-probe
+证据目录      /home/mo/xk6/evidence/2026-09-22_t490-x11-render-probe
+时间          2026-09-22T15:53:39+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 8
+PNG 张数 : 0
+  1280x800 3072016 shot-01-at0045s.ppm
+  1280x800 3072016 shot-02-at0075s.ppm
+  1280x800 3072016 shot-03-at0105s.ppm
+  1280x800 3072016 shot-04-at0135s.ppm
+  1280x800 3072016 shot-05-at0166s.ppm
+  1280x800 3072016 shot-06-at0196s.ppm
+  1280x800 3072016 shot-07-at0226s.ppm
+  1280x800 3072016 shot-08-final.ppm
+尺寸集合     : 1280x800 
+字节数集合   : 3072016 
+众数尺寸     : 1280x800（用于逐张判据的 --expect-size）
+→ 尺寸一致性通过（集合单元素 1280x800）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+/root/full.log                           (缺失/空)
+/root/chrome-full.log                    (缺失/空)
+/root/chrome-snap.log                    (缺失/空)
+/root/a0.log                             (缺失/空)
+/root/chromium.log                       (缺失/空)
+/root/nnp.log                            (缺失/空)
+/root/nnp-watch.log                      (缺失/空)
+/root/install.log                            2465 bytes     29 lines
+/root/install-watch.log                      3680 bytes     33 lines
+/tmp/weston.log                          (缺失/空)
+/root/full.log                           (缺失/空)
+/root/chrome-full.log                    (缺失/空)
+/root/chrome-snap.log                    (缺失/空)
+/root/a0.log                             (缺失/空)
+--- /root 目录 ---
+  16385   40700 (2)      0      0    4096 22-Sep-2026 15:49 .
+      2   40775 (2)   1000   1000    4096 21-Sep-2026 14:49 ..
+  16388  100755 (1)      0      0    3197 22-Sep-2026 15:49 autorun.sh
+  16389  100664 (1)      0      0   11140 21-Sep-2026 10:08 bootstrap.sh
+  16390  100664 (1)      0      0    5149 21-Sep-2026 10:08 index.html
+    813  100644 (1)      0      0    8314 21-Sep-2026 11:49 autorun.log
+     23  100644 (1)      0      0    1389 20-Sep-2026 13:41 weston-drm.log
+   1942  100644 (1)      0      0     687 20-Sep-2026 13:41 weston-fbdev.log
+     28  100644 (1)      0      0    1347 21-Sep-2026 11:49 weston-fail-seatd-card0.log
+     30  100644 (1)      0      0    1356 21-Sep-2026 11:49 weston-fail-seatd-abspath.log
+     26  100644 (1)      0      0     998 21-Sep-2026 10:17 weston-fail-builtin-abspath.log
+     32  100644 (1)      0      0     938 21-Sep-2026 10:33 weston-fail-ldpreload-shim.log
+    417  100644 (1)      0      0     938 21-Sep-2026 11:45 weston-fail-shim-fakesysfs.log
+    629  100644 (1)      0      0    2865 21-Sep-2026 11:49 weston-fail-shim-card0.log
+  49227  100644 (1)      0      0    2465 21-Sep-2026 15:03 install.log
+  49228  100644 (1)      0      0    3680 21-Sep-2026 15:04 install-watch.log
+ 131073   40700 (2)      0      0    4096 21-Sep-2026 15:01 .config
+    824  100644 (1)      0      0     917 22-Sep-2026 15:50 x11-render.log
+   1939  100644 (1)      0      0   17806 22-Sep-2026 15:50 x11-chrome.log
+
+OUT=/home/mo/xk6/evidence/2026-09-22_t490-x11-render-probe/guest
+total 16
+drwxrwxr-x 2 mo mo 4096 Sep 22 15:53 .
+drwxrwxr-x 4 mo mo 4096 Sep 22 15:53 ..
+-rw-rw-r-- 1 mo mo 3680 Sep 22 15:53 _root_install-watch.log
+-rw-rw-r-- 1 mo mo 2465 Sep 22 15:53 _root_install.log
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-01-at0045s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-02-at0075s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-03-at0105s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-04-at0135s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-05-at0166s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-06-at0196s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-07-at0226s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-08-final: 严格集未通过 
+判定张数     : 8
+严格集未通过 : 8
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 7
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+==================================================================
+SUMMARY_END tag=x11-render-probe  ppm=8  严格集未通过=8  尺寸不符=0  心跳=0/7
+==================================================================

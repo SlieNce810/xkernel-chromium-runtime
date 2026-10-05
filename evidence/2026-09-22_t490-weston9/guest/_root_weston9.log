@@ -1,0 +1,62 @@
+Tue Sep 22 14:38:11 UTC 2026 ===== A. 前提（无 shim + 内核投射 + seatd）=====
+Tue Sep 22 14:38:11 UTC 2026 LD_PRELOAD=[<空>]  （本轮必须为空；shim 已拆）
+Tue Sep 22 14:38:11 UTC 2026 /sys/class/drm      : card0 
+Tue Sep 22 14:38:11 UTC 2026 card0/uevent        : MAJOR=226|MINOR=0|DEVNAME=dri/card0|DEVTYPE=drm_minor|
+Tue Sep 22 14:38:13 UTC 2026 seatd pid=19 alive=yes socket=yes
+Tue Sep 22 14:38:13 UTC 2026 ===== B. 启动 Weston（无 shim，真实 libudev/libseat）=====
+Tue Sep 22 14:38:13 UTC 2026 weston pid=25
+Tue Sep 22 14:38:14 UTC 2026 启动后：weston_alive=no wayland_socket=no（等待 4×0.2s）
+Tue Sep 22 14:38:14 UTC 2026 --- weston 日志尾部 ---
+[14:38:13.795] Loading module '/usr/lib/libweston-14/drm-backend.so'
+[14:38:13.888] initializing drm backend
+[14:38:13.891] Trying libseat launcher...
+[14:38:13.912] [libseat/libseat.c:62] Seat opened with backend 'seatd'
+[14:38:13.913] [libseat/backend/seatd.c:212] Enabling seat
+[14:38:13.914] libseat: session control granted
+[14:38:13.936] using /dev/dri/card0
+[14:38:13.940] DRM: does not support atomic modesetting
+[14:38:13.940] DRM: supports GBM modifiers
+[14:38:13.940] DRM: does not support Atomic async page flip
+[14:38:13.940] DRM: supports picture aspect ratio
+[14:38:13.947] Using Pixman renderer
+[14:38:14.156] warning: no input devices found, but none required as per configuration.
+[14:38:14.163] DRM: head 'Virtual-1' found, connector 48 is connected, EDID make 'unknown', model 'unknown', serial ''
+               Supported EOTF modes: SDR
+               Supported colorimetry modes: default
+[14:38:14.167] Registered plugin API 'weston_drm_output_api_v1' of size 40
+[14:38:14.167] Registered plugin API 'weston_drm_virtual_output_api_v2' of size 48
+[14:38:14.169] Color manager: no-op
+                 protocol support: no
+[14:38:14.185] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.
+[14:38:14.186] Output 'Virtual-1' using color profile: stock sRGB color profile
+[14:38:14.187] Failed to find primary plane for output Virtual-1
+[14:38:14.188] Enabling output "Virtual-1" failed.
+[14:38:14.191] Error: cannot enable output 'Virtual-1' without heads.
+Tue Sep 22 14:38:15 UTC 2026 分层判据：L1(设备发现)=yes  L2(plane 关卡)=FAIL  L3(output)=yes
+Tue Sep 22 14:38:15 UTC 2026 --- 与 plane/output 相关的全部行 ---
+[14:38:13.746] Flight recorder: enabled
+[14:38:13.787] Output repaint window is 7 ms maximum.
+[14:38:13.940] DRM: does not support atomic modesetting
+[14:38:14.163] DRM: head 'Virtual-1' found, connector 48 is connected, EDID make 'unknown', model 'unknown', serial ''
+               Supported EOTF modes: SDR
+               Supported colorimetry modes: default
+[14:38:14.167] Registered plugin API 'weston_drm_output_api_v1' of size 40
+[14:38:14.167] Registered plugin API 'weston_drm_virtual_output_api_v2' of size 48
+[14:38:14.185] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.
+[14:38:14.186] Output 'Virtual-1' using color profile: stock sRGB color profile
+[14:38:14.187] Failed to find primary plane for output Virtual-1
+[14:38:14.188] Enabling output "Virtual-1" failed.
+[14:38:14.191] Error: cannot enable output 'Virtual-1' without heads.
+Tue Sep 22 14:38:18 UTC 2026 weston-simple-shm pid=43 存活=no
+Assertion failed: display->display (../clients/simple-shm.c: create_display: 585)
+Tue Sep 22 14:38:19 UTC 2026 [WESTON_SUM] L1=yes L2=FAIL L3=yes L4=no verdict=DIAG
+Tue Sep 22 14:38:19 UTC 2026 +0s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:38:49 UTC 2026 +30s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:39:20 UTC 2026 +60s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:39:50 UTC 2026 +90s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:40:20 UTC 2026 +120s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:40:51 UTC 2026 +150s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:41:21 UTC 2026 +180s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:41:52 UTC 2026 +210s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:42:22 UTC 2026 +240s weston_alive=no socket=no log_lines=35
+Tue Sep 22 14:42:52 UTC 2026 +270s weston_alive=no socket=no log_lines=35

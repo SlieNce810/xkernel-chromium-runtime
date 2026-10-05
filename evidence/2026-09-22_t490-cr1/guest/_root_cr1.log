@@ -1,0 +1,87 @@
+Tue Sep 22 15:24:06 UTC 2026 ===== A. 环境自证 =====
+Tue Sep 22 15:24:06 UTC 2026 kernel: Linux 10.0.0 aarch64
+Tue Sep 22 15:24:06 UTC 2026 入口页: file:///usr/share/html-test/index.html
+total 40
+drwxr-xr-x    2 root     root          4096 Sep 22 12:02 .
+drwxr-xr-x   46 root     root          4096 Sep 22 12:02 ..
+-rw-r--r--    1 root     root          5730 Sep 22 15:24 index.html
+-rw-r--r--    1 root     root         10991 Sep 22 15:24 interaction.html
+-rw-r--r--    1 root     root         11444 Sep 22 15:24 layout.html
+Tue Sep 22 15:24:06 UTC 2026 字体目录: 100dpi 75dpi cyrillic encodings misc 
+Tue Sep 22 15:24:17 UTC 2026 fc-list 数量: 113
+/usr/share/fonts/noto/NotoSansSymbols-Black.ttf: Noto Sans Symbols,Noto Sans Symbols Black:style=Black,Regular
+/usr/share/fonts/opensans/OpenSans-CondensedSemiBold.ttf: Open Sans,Open Sans Condensed SemiBold:style=Condensed SemiBold,Regular
+/usr/share/fonts/misc/5x7.pcf.gz: Misc Fixed:style=Regular
+Chromium 142.0.7444.59 Alpine Linux
+Tue Sep 22 15:24:32 UTC 2026 ===== B. Weston（无 shim）=====
+Tue Sep 22 15:24:38 UTC 2026 weston_alive=yes  socket=[/run/user/0/wayland-1]
+  [15:24:32.725] using /dev/dri/card0
+  [15:24:32.984] DRM: output Virtual-1 uses shadow framebuffer.
+  [15:24:32.990] Output 'Virtual-1' enabled with head(s) Virtual-1
+Tue Sep 22 15:24:39 UTC 2026 ===== C. Chromium（Wayland/Ozone，软件渲染，kiosk）=====
+Tue Sep 22 15:24:39 UTC 2026 chromium pid=48
+Tue Sep 22 15:24:39 UTC 2026   +0s chromium_alive=yes（Weston: 49 行）
+Tue Sep 22 15:24:55 UTC 2026   +15s chromium_alive=yes（Weston: 49 行）
+Tue Sep 22 15:25:11 UTC 2026   +30s chromium_alive=yes（Weston: 49 行）
+Tue Sep 22 15:25:27 UTC 2026   +45s chromium_alive=yes（Weston: 49 行）
+Tue Sep 22 15:25:45 UTC 2026   +60s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:26:03 UTC 2026   +75s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:26:21 UTC 2026   +90s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:26:38 UTC 2026   +105s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:26:54 UTC 2026   +120s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:27:10 UTC 2026   +135s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:27:26 UTC 2026   +150s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:27:42 UTC 2026   +165s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:27:58 UTC 2026   +180s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:28:14 UTC 2026   +195s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:28:30 UTC 2026   +210s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:28:46 UTC 2026   +225s chromium_alive=no（Weston: 49 行）
+Tue Sep 22 15:29:01 UTC 2026 ===== D. 分层事实 =====
+Tue Sep 22 15:29:02 UTC 2026 --- Weston 日志里与 client/surface/commit 相关的行 ---
+[15:24:32.984] DRM: output Virtual-1 uses shadow framebuffer.
+               arbitrary surface rotation: yes
+Tue Sep 22 15:29:02 UTC 2026 --- Chromium 日志关键行 ---
+[48:48:0922/152518.463874:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:48:0922/152519.400163:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:74:0922/152519.403706:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[48:48:0922/152519.404595:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:48:0922/152519.406680:WARNING:ui/ozone/platform/wayland/host/org_gnome_mutter_idle_monitor.cc:87] org.gnome.Mutter.IdleMonitor D-Bus service does not exist
+[48:74:0922/152520.008244:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[48:74:0922/152520.012505:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[91:97:0922/152520.337909:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 29: Protocol not available (92)
+[91:97:0922/152520.446601:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 31: Protocol not available (92)
+[48:48:0922/152520.667869:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:48:0922/152520.695424:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:74:0922/152520.719191:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[48:48:0922/152520.720273:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:48:0922/152520.731486:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[48:48:0922/152520.740303:WARNING:content/browser/gpu/gpu_process_host.cc:1441] The GPU process has crashed 2 time(s)
+[91:97:0922/152521.102904:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 27: Protocol not available (92)
+[48:48:0922/152521.197799:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:74:0922/152521.199475:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[48:48:0922/152521.242186:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+[48:48:0922/152521.244251:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[48:48:0922/152521.245047:WARNING:dbus/property.cc:174] GetAll request failed for: org.freedesktop.UPower.Device
+[48:48:0922/152521.270321:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:48:0922/152521.316757:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[48:48:0922/152521.318799:WARNING:content/browser/gpu/gpu_process_host.cc:1441] The GPU process has crashed 3 time(s)
+[48:48:0922/152522.717565:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:74:0922/152522.718818:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[48:48:0922/152522.745814:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[48:48:0922/152522.746128:WARNING:content/browser/gpu/gpu_process_host.cc:1441] The GPU process has crashed 4 time(s)
+[48:48:0922/152523.522484:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[48:74:0922/152523.526277:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[48:48:0922/152523.548932:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[48:48:0922/152523.549332:WARNING:content/browser/gpu/gpu_process_host.cc:1441] The GPU process has crashed 5 time(s)
+[48:48:0922/152523.930715:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[91:97:0922/152524.021451:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 27: Protocol not available (92)
+[48:48:0922/152524.128454:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[48:48:0922/152524.128864:WARNING:content/browser/gpu/gpu_process_host.cc:1441] The GPU process has crashed 6 time(s)
+[48:48:0922/152524.129487:FATAL:content/browser/gpu/gpu_data_manager_impl_private.cc:415] GPU process isn't usable. Goodbye.
+[0922/152524.167824:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[91:97:0922/152528.490850:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 29: Protocol not available (92)
+[91:97:0922/152528.937674:ERROR:net/socket/tcp_socket_posix.cc:88] Failed to set TCP_KEEPIDLE on fd: 31: Protocol not available (92)
+Tue Sep 22 15:29:03 UTC 2026 --- Chromium 进程类型直方图（是否有 renderer/gpu 子进程）---
+Tue Sep 22 15:29:05 UTC 2026 --- 收尾前 screendump 前先让画面稳定 30s ---
+Tue Sep 22 15:29:35 UTC 2026 [CR1_SUM] weston_alive=yes chromium_alive=no socket=/run/user/0/wayland-1
+Tue Sep 22 15:29:35 UTC 2026 chromium1 收尾

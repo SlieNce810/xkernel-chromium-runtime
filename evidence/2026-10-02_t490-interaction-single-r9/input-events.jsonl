@@ -1,0 +1,23 @@
+{"kind": "rx", "ts": 1790945529.159662, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1790945529.1597967, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-interaction-single-r9.sock"}}
+{"kind": "tx", "ts": 1790945529.1598632, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1790945529.1603608, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1790945529.1604888, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1790945529.1611931, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1790945529.1612868, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1790945529.1613765, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1790945529.1618936, "value": {"error": {"class": "DeviceNotFound", "desc": "Device '/backend/console[1]' not found"}, "id": 3}}
+{"kind": "console-device-error", "ts": 1790945529.1620152, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device '/backend/console[1]' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1790945529.1621313, "value": {"execute": "query-mice", "id": 4}}
+{"kind": "rx", "ts": 1790945529.1625595, "value": {"id": 4, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1790945529.1626832, "value": {"id": 4, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1790945529.1627793, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 5}}
+{"kind": "rx", "ts": 1790945529.1634207, "value": {"id": 5, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1790945529.1635365, "value": {"id": 5, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1790945529.1635952, "value": {"arguments": {"command-line": "mouse_set 3"}, "execute": "human-monitor-command", "id": 6}}
+{"kind": "rx", "ts": 1790945529.164205, "value": {"id": 6, "return": ""}}
+{"kind": "mouse-selected", "ts": 1790945529.1643221, "value": {"index": 3}}
+{"kind": "sleep", "ts": 1790945529.1643662, "value": {"reason": "wait for Weston and Chromium", "seconds": 90.0}}
+{"kind": "tx", "ts": 1790945619.1645641, "value": {"arguments": {"device": "video0", "events": [{"data": {"axis": "x", "value": 7168}, "type": "abs"}, {"data": {"axis": "y", "value": 7536}, "type": "abs"}]}, "execute": "input-send-event", "id": 7}}
+{"kind": "rx", "ts": 1790945619.1654909, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'video0' not found"}, "id": 7}}
+{"kind": "result", "ts": 1790945619.16559, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'video0' not found\"}", "ok": false}}

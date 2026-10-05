@@ -1,0 +1,102 @@
+Tue Sep 22 05:03:25 UTC 2026 start  alpine=3.23.4  uname=Linux kylin-x 10.0.0 10.0.0 aarch64 Linux
+Tue Sep 22 05:03:26 UTC 2026 ===== 0. 静态事实 =====
+Tue Sep 22 05:03:26 UTC 2026 ----- 0.1 /proc/cpuinfo 全文 -----
+processor	: 0
+BogoMIPS	: 0.00
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture	: 8
+CPU variant	: 0x0
+CPU part	: 0xd0b
+CPU revision	: 0
+cpu cores	: 4
+architecture	: aarch64
+
+processor	: 1
+BogoMIPS	: 0.00
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture	: 8
+CPU variant	: 0x0
+CPU part	: 0xd0b
+CPU revision	: 0
+cpu cores	: 4
+architecture	: aarch64
+
+processor	: 2
+BogoMIPS	: 0.00
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture	: 8
+CPU variant	: 0x0
+CPU part	: 0xd0b
+CPU revision	: 0
+cpu cores	: 4
+architecture	: aarch64
+
+processor	: 3
+BogoMIPS	: 0.00
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture	: 8
+CPU variant	: 0x0
+CPU part	: 0xd0b
+CPU revision	: 0
+cpu cores	: 4
+architecture	: aarch64
+Tue Sep 22 05:03:26 UTC 2026 ----- 0.2 /proc/sys/fs/inotify -----
+Tue Sep 22 05:03:26 UTC 2026   目录存在: max_queued_events max_user_instances max_user_watches 
+Tue Sep 22 05:03:26 UTC 2026   max_queued_events = 16384
+Tue Sep 22 05:03:27 UTC 2026   max_user_instances = 128
+Tue Sep 22 05:03:27 UTC 2026   max_user_watches = 65536
+Tue Sep 22 05:03:27 UTC 2026 ----- 0.3 CPU 拓扑与 cache（cpuinfo 库的其它读点）-----
+Tue Sep 22 05:03:27 UTC 2026   /sys/devices/system/cpu/possible = cat: can't open '/sys/devices/system/cpu/possible': No such file or directory
+Tue Sep 22 05:03:27 UTC 2026   /sys/devices/system/cpu/present = cat: can't open '/sys/devices/system/cpu/present': No such file or directory
+Tue Sep 22 05:03:28 UTC 2026   /sys/devices/system/cpu/online = cat: can't open '/sys/devices/system/cpu/online': No such file or directory
+Tue Sep 22 05:03:28 UTC 2026   /sys/devices/system/cpu/kernel_max = cat: can't open '/sys/devices/system/cpu/kernel_max': No such file or directory
+Tue Sep 22 05:03:28 UTC 2026   cpu0 目录: ls: /sys/devices/system/cpu/: No such file or directory 
+Tue Sep 22 05:03:28 UTC 2026   cpu0/topology: ls: /sys/devices/system/cpu/cpu0/topology: No such file or directory 
+Tue Sep 22 05:03:28 UTC 2026   cpu0/cache: ls: /sys/devices/system/cpu/cpu0/cache: No such file or directory 
+Tue Sep 22 05:03:29 UTC 2026   cpu0/cpufreq: ls: /sys/devices/system/cpu/cpu0/cpufreq: No such file or directory 
+Tue Sep 22 05:03:29 UTC 2026 ----- 0.4 进程自述 -----
+Tue Sep 22 05:03:29 UTC 2026   /proc/self/status 关键行:
+Name:	busybox
+Pid:	57
+Tue Sep 22 05:03:29 UTC 2026 ===== 0.5 物化 /sys/devices/system/cpu（sysfs 垫片）=====
+Tue Sep 22 05:03:32 UTC 2026   possible=0-3 present=0-3 kernel_max=3
+Tue Sep 22 05:03:32 UTC 2026   cpu0/cache/index2: size=512K shared_cpu_list=0
+Tue Sep 22 05:03:32 UTC 2026   /sys/devices/system/cpu 目录: cpu0 cpu1 cpu2 cpu3 kernel_max online possible present 
+Tue Sep 22 05:03:32 UTC 2026 ===== 1. 解包 /pkgs.tar.gz =====
+Tue Sep 22 05:03:33 UTC 2026   chromium 已就位（249957096 字节），跳过解包
+Tue Sep 22 05:03:33 UTC 2026 ===== 2. 关键文件实体校验 =====
+Tue Sep 22 05:03:33 UTC 2026   -rwxr-xr-x 1 1000 1000 249957096 Sep 21 06:59 /usr/lib/chromium/chromium
+Tue Sep 22 05:03:33 UTC 2026   lrwxrwxrwx 1 root root 16 Sep 21 06:58 /usr/bin/chromium -> chromium-browser
+Tue Sep 22 05:03:34 UTC 2026   -rw-r--r-- 1 1000 1000 2664 Sep 21 07:00 /etc/fonts/fonts.conf
+Tue Sep 22 05:03:34 UTC 2026   -rw-r--r-- 1 1000 1000 147528 Sep 21 07:00 /usr/share/fonts/opensans/OpenSans-Regular.ttf
+Tue Sep 22 05:03:48 UTC 2026   CHROME_SHA256: d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641
+Tue Sep 22 05:03:57 UTC 2026   chromium --version: Chromium 149.0.7827.53 Alpine Linux
+Tue Sep 22 05:03:57 UTC 2026 ===== 3. fc-cache =====
+Tue Sep 22 05:04:09 UTC 2026   fc-list 计数: 75
+Tue Sep 22 05:04:10 UTC 2026 ===== 4. 输入设备 =====
+Tue Sep 22 05:04:10 UTC 2026   /dev/input 实况: total 0|crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0|crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice|
+Tue Sep 22 05:04:10 UTC 2026 ===== 5. weston =====
+Tue Sep 22 05:04:16 UTC 2026   seatd pid=147
+Tue Sep 22 05:04:19 UTC 2026   weston pid=153 （等待 1s）
+Tue Sep 22 05:04:20 UTC 2026   wayland socket = wayland-0
+Tue Sep 22 05:04:21 UTC 2026   weston 输出模式行: 29:[05:04:17.545] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.|30:[05:04:17.546] Output 'Virtual-1' using color profile: stock sRGB color profile|34:[05:04:17.588] Output 'Virtual-1' enabled with head(s) Virtual-1|
+Tue Sep 22 05:04:22 UTC 2026 ===== 6. Chromium（Ozone 三元组定标）=====
+Tue Sep 22 05:04:22 UTC 2026 VARIANT oz=wayland gl=angle-vulkan gpu=separate win=80
+Tue Sep 22 05:04:22 UTC 2026   GPU_FLAG=[]  GL_EXTRA=[--use-gl=angle --use-angle=vulkan]  GL_ENV=[VK_ICD_FILENAMES=/usr/lib/chromium/vk_swiftshader_icd.json VK_DRIVER_FILES=/usr/lib/chromium/vk_swiftshader_icd.json]
+Tue Sep 22 05:04:22 UTC 2026   FROZEN_ARGS=--ozone-platform=wayland --no-sandbox --disable-dev-shm-usage  --use-gl=angle --use-angle=vulkan --disable-gpu-sandbox --disable-crash-reporter --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --disable-background-networking --disable-component-update --disable-sync --disable-extensions --no-first-run --no-default-browser-check --mute-audio --disable-audio-output --enable-logging=stderr --v=1
+Tue Sep 22 05:04:23 UTC 2026   【启动】env VK_ICD_FILENAMES=/usr/lib/chromium/vk_swiftshader_icd.json VK_DRIVER_FILES=/usr/lib/chromium/vk_swiftshader_icd.json chromium --ozone-platform=wayland --no-sandbox --disable-dev-shm-usage  --use-gl=angle --use-angle=vulkan --disable-gpu-sandbox --disable-crash-reporter --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --disable-background-networking --disable-component-update --disable-sync --disable-extensions --no-first-run --no-default-browser-check --mute-audio --disable-audio-output --enable-logging=stderr --v=1 file:///usr/share/html-test/index.html
+Tue Sep 22 05:04:23 UTC 2026   browser 主 pid=188
+Tue Sep 22 05:04:58 UTC 2026   wall=32s renderer=0 进程表: Tue Sep 22 05:04:55 UTC 2026 [t20] pid=188 st=R type=(browser/none)|Tue Sep 22 05:04:55 UTC 2026 [t20] pid=201 st=S type=crashpad-handler|Tue Sep 22 05:04:55 UTC 2026 [t20] pid=205 st=S type=crashpad-handler|
+Tue Sep 22 05:05:33 UTC 2026   wall=64s renderer=0 进程表: Tue Sep 22 05:05:27 UTC 2026 [t35] pid=188 st=R type=(browser/none)|Tue Sep 22 05:05:27 UTC 2026 [t35] pid=205 st=S type=crashpad-handler|Tue Sep 22 05:05:27 UTC 2026 [t35] pid=263 st=S type=utility|
+Tue Sep 22 05:05:45 UTC 2026  观察窗结束：墙钟 82s（j 计到 45，共 9 次快照）
+Tue Sep 22 05:05:46 UTC 2026 ===== 6.1/6.2 已在宿主侧 round_assert.sh 完成（guest 不再重复计算）=====
+Tue Sep 22 05:05:47 UTC 2026   renderer 出现次数(guest 现值): 0
+Tue Sep 22 05:05:47 UTC 2026   gpu-process 出现次数(guest 现值): 3
+Tue Sep 22 05:05:48 UTC 2026   browser 仍在: yes
+Tue Sep 22 05:05:49 UTC 2026 ===== 6.9 A0 探针本轮跳过（RUN_A0=0）=====
+Tue Sep 22 05:05:50 UTC 2026   chromium-stderr 行数 166；快照行数 32
+Tue Sep 22 05:05:50 UTC 2026   browser 存活 → 保持运行供外部 screendump

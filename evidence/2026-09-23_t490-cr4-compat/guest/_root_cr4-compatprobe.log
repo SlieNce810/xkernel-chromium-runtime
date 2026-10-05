@@ -1,0 +1,36 @@
+[CP] pid=22 tid=22
+[CP] socketpair(AF_UNIX,STREAM)             rc=0     errno=0   -                            PASS
+[CP] getsockopt(SO_PEERCRED)                rc=0 len=12 pid=22 uid=0 gid=0
+[CP]   -> peer pid matches                  rc=22    errno=0   -                            PASS
+[CP] getsockopt(SO_SNDBUF)                  rc=0 sbuf=65536
+[CP]   -> SO_SNDBUF readable                rc=0     errno=0   -                            PASS
+[CP] sendmsg(MSG_NOSIGNAL) on unix          rc=1     errno=0   -                            PASS
+[CP] recv() after MSG_NOSIGNAL send         rc=1     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,SEQPACKET)          rc=0     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,DGRAM)              rc=0     errno=0   -                            PASS
+[CP] socketpair(STREAM|CLOEXEC|NB)          rc=0     errno=0   -                            PASS
+[CP] memfd_create + ftruncate               rc=0     errno=0   -                            PASS
+[CP] shm_open + ftruncate + mmap(MAP_SHARED) rc=0     errno=0   -                            PASS
+[CP] open(/dev/shm/.xk6probe)               rc=3     errno=0   -                            PASS
+[CP] eventfd write+read                     rc=8     errno=0   -                            PASS
+[CP] timerfd_create(CLOCK_MONOTONIC)        rc=3     errno=0   -                            PASS
+[CP] epoll_ctl(ADD, pipe read end)          rc=0     errno=0   -                            PASS
+[CP] epoll_wait sees readable pipe          rc=1     errno=0   -                            PASS
+[CP] signalfd(SIGCHLD)                      rc=3     errno=0   -                            PASS
+[CP] getrandom(16)                          rc=16    errno=0   -                            PASS
+[CP] madvise(aligned, DONTNEED)             rc=0     errno=0   -                            PASS
+[CP] madvise(misaligned) expect EINVAL      rc=-1    errno=22  Invalid argument             PASS
+[CP] madvise(HOLE in middle)                rc=0 errno=0 (-)
+[CP]   -> Linux tolerates gap (expect 0)    rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_NORMAL)                   rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_WILLNEED)                 rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_FREE)                     rc=0     errno=0   -                            PASS
+[CP] sendmsg(SEQPACKET, SCM_CREDENTIALS)    rc=1 errno=0
+[CP]   -> send accepted                     rc=1     errno=0   -                            PASS
+[CP]   SCM_CREDENTIALS pid=22 uid=0 gid=0
+[CP] recvmsg delivers SCM_CREDENTIALS       rc=1     errno=0   -                            PASS
+[CP] prctl(PR_SET_PDEATHSIG,SIGKILL)        rc=-1    errno=22  Invalid argument             FAIL
+[CP] child writes to inherited pipe fd      rc=0     errno=0   -                            PASS
+[CPSUM] pass=26 fail=1
+[RESULT] fail=1
+[RESULT] HAD_FAILURE

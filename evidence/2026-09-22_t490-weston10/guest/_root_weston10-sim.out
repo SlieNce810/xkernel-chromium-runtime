@@ -1,0 +1,26 @@
+==== weston_sim: 复现 Weston 14 的 plane 创建逻辑（真实 libdrm）====
+[SIM] driver='simpledrm' 1.0.0
+[SIM] drmModeGetPlaneResources OK count_planes=1
+
+[SIM] ===== plane id=64 =====
+[SIM] drmModeGetPlane OK: crtc_id=16 possible_crtcs=0x1 count_formats=2
+[SIM]   formats: 0x34325258('XR24') 0x34325241('AR24')
+[SIM] drmModeObjectGetProperties OK count_props=12
+[SIM]   [prop 0] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 1] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 2] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 3] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 4] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 5] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 6] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 7] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 8] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 9] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 10] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM]   [prop 11] drmModeGetProperty FAILED（Weston 遇到会 continue）
+[SIM] ★ "type" 属性不存在 ⇒ plane->type 取默认值 4(COUNT) ⇒ 静默丢弃
+[SIM]   IN_FORMATS 属性值=0 ⇒ 走 fallback（用 kplane->formats，不致命）
+
+[SIM_SUM] planes=1 dropped_by_weston=1 verdict=SIM_PLANE_DROPPED
+[PROBE_EXIT] 3 verdict=SIM_PLANE_DROPPED
+==== weston_sim done ====

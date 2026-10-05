@@ -1,0 +1,363 @@
+Tue Sep 22 11:10:53 UTC 2026 ================ autorun_x11 start ================
+Tue Sep 22 11:10:53 UTC 2026 PAGE_URL=file:///usr/share/html-test/index.html
+Tue Sep 22 11:10:53 UTC 2026 uname: Linux kylin-x 10.0.0 10.0.0 aarch64 Linux
+Tue Sep 22 11:10:53 UTC 2026 id: uid=0(root) gid=0(root)
+Tue Sep 22 11:10:53 UTC 2026 ===== /dev/dri | /dev/fb0 | /dev/input =====
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 /dev/fb0
+
+/dev/dri/:
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+
+/dev/input/:
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice
+Tue Sep 22 11:10:54 UTC 2026 ===== tty 设备（Xorg 找 VT/console 用）=====
+Tue Sep 22 11:10:54 UTC 2026   OK   /dev/console -> crw-rw-rw- 5, 1
+Tue Sep 22 11:10:54 UTC 2026   OK   /dev/tty -> crw-rw-rw- 5, 0
+Tue Sep 22 11:10:54 UTC 2026   MISS /dev/tty0
+Tue Sep 22 11:10:54 UTC 2026   MISS /dev/tty1
+Tue Sep 22 11:10:54 UTC 2026   MISS /dev/ttyAMA0
+Tue Sep 22 11:10:54 UTC 2026 ===== 关键组件存在性 =====
+Tue Sep 22 11:10:55 UTC 2026   OK   /usr/bin/Xorg (275 B)
+Tue Sep 22 11:10:55 UTC 2026   OK   /usr/libexec/Xorg (1989808 B)
+Tue Sep 22 11:10:55 UTC 2026   OK   /usr/libexec/Xorg.wrap (67600 B)
+Tue Sep 22 11:10:55 UTC 2026   OK   /usr/bin/jwm (264288 B)
+Tue Sep 22 11:10:55 UTC 2026   OK   /usr/bin/xset (67312 B)
+Tue Sep 22 11:10:56 UTC 2026   OK   /usr/bin/xauth (68112 B)
+Tue Sep 22 11:10:56 UTC 2026   OK   /usr/bin/chromium (16 B)
+Tue Sep 22 11:10:56 UTC 2026   OK   /usr/lib/xorg/modules/drivers/modesetting_drv.so (135640 B)
+Tue Sep 22 11:10:56 UTC 2026   OK   /usr/lib/xorg/modules/input/libinput_drv.so (133168 B)
+Tue Sep 22 11:10:56 UTC 2026   OK   /usr/lib/xorg/modules/extensions/libglx.so (277304 B)
+Tue Sep 22 11:10:57 UTC 2026 ===== /proc/devices 中 drm/fb =====
+Tue Sep 22 11:10:57 UTC 2026   (无 drm/fb 条目)
+Tue Sep 22 11:10:57 UTC 2026 ===== libdrm 枚举依赖的 sysfs 路径（只读逐级探测）=====
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/dev/char/226:0
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/dev/char/226:0/device
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/dev/char/226:0/device/drm
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/dev/char/226:0/device/drm/card0
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/dev/char/226:0/subsystem
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/class/drm
+Tue Sep 22 11:10:57 UTC 2026   MISS /sys/bus/platform/devices
+Tue Sep 22 11:10:58 UTC 2026   MISS /sys/bus/pci/devices
+Tue Sep 22 11:10:58 UTC 2026   MISS /sys/devices
+Tue Sep 22 11:10:58 UTC 2026   /sys 是否可读: class fs 
+Tue Sep 22 11:10:58 UTC 2026 ===== DRM connector status（只读，不写伪 sysfs）=====
+Tue Sep 22 11:10:58 UTC 2026   /sys/class/drm 不存在
+Tue Sep 22 11:10:59 UTC 2026 /dev/shm remount size=512m 成功
+Tue Sep 22 11:10:59 UTC 2026 dev/shm: none 0 0 0 0% /dev/shm
+Filesystem                Size      Used Available Use% Mounted on
+none                         0         0         0   0% /dev/shm
+/dev/vda                  1.9G    925.8M    917.6M  50% /
+none                         0         0         0   0% /tmp
+Tue Sep 22 11:11:00 UTC 2026 kiosk home: drwxr-xr-x 6 kiosk kiosk 4096 Sep 21 04:32 /home/kiosk
+Tue Sep 22 11:11:00 UTC 2026 ===== /drmdumbprobe 输出 =====
+==== drmdumbprobe: CREATE_DUMB bpp 接受度 ====
+ioctl 编码自证（十六进制，应与 libdrm 编译期常量一致）:
+  VERSION     = 0xc0406400
+  GETRESOURCES= 0xc04064a0
+  CREATE_DUMB = 0xc02064b2
+sizeof: version=64 card_res=64 create_dumb=32
+
+open(/dev/dri/card0, O_RDWR) -> 3 errno=0 (No error information)
+对照1 VERSION -> rc=0 errno=0 (No error information)  driver='simpledrm' 1.0.0
+对照2 GETRESOURCES -> rc=0 errno=0 (No error information)  fbs=0 crtcs=1 conns=1 encs=1
+
+---- CREATE_DUMB 矩阵（尺寸取 Xorg 实测 Virtual-1 模式 1280x800）----
+CREATE_DUMB 32bpp (XRGB8888)       1280x800 bpp=32 -> rc=0 errno=0 (No error information)  handle=1 pitch=5120 size=4096000
+CREATE_DUMB 24bpp (RGB888 前缓冲) 1280x800 bpp=24 -> rc=-1 errno=22 (Invalid argument)
+CREATE_DUMB 16bpp (对照)         1280x800 bpp=16 -> rc=-1 errno=22 (Invalid argument)
+
+---- 边界对照（用于确认 EINVAL 语义一致，非 bpp 专有）----
+CREATE_DUMB width=0                0x800 bpp=32 -> rc=-1 errno=22 (Invalid argument)
+CREATE_DUMB height=0               1280x0 bpp=32 -> rc=-1 errno=22 (Invalid argument)
+
+==== drmdumbprobe done ====
+xauth:  file /run/x11/auth does not exist
+Tue Sep 22 11:11:01 UTC 2026 xauth: /run/x11/auth 存在=yes
+Tue Sep 22 11:11:01 UTC 2026 --- Xorg try[keeptty]: args=[-keeptty] ---
+Tue Sep 22 11:11:15 UTC 2026   -> Xorg 在 ~2s 退出（rc=1），从未达到可用状态
+Tue Sep 22 11:11:16 UTC 2026 ---- xorg.log tail(-30) ----
+[    17.732] (II) modeset(0): Up to 1 crtcs needed for screen.
+[    17.742] (II) modeset(0): Allocated crtc nr. 0 to this screen.
+[    17.746] (II) modeset(0): EDID for output Virtual-1
+[    17.749] (II) modeset(0): Printing probed modes for output Virtual-1
+[    17.752] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+[    17.753] (II) modeset(0): Output Virtual-1 connected
+[    17.758] (II) modeset(0): Using sloppy heuristic for initial modes
+[    17.758] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    17.759] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    17.760] (==) modeset(0): DPI set to (96, 96)
+[    17.760] (II) Loading sub module "fb"
+[    17.760] (II) LoadModule: "fb"
+[    17.760] (II) Module "fb" already built-in
+[    17.761] (II) Loading sub module "shadow"
+[    17.761] (II) LoadModule: "shadow"
+[    17.767] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    17.774] (II) Module shadow: vendor="X.Org Foundation"
+[    17.774] 	compiled for 1.21.1.19, module version = 1.1.0
+[    17.775] 	ABI class: X.Org ANSI C Emulation, version 0.4
+[    17.781] (EE) 
+Fatal server error:
+[    17.782] (EE) AddScreen/ScreenInit failed for driver 0
+[    17.783] (EE) 
+[    17.783] (EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+[    17.783] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    17.784] (EE) 
+[    17.790] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:16 UTC 2026 ---- xorg stderr tail(-30) ----
+
+X.Org X Server 1.21.1.19
+X Protocol Version 11, Revision 0
+Current Operating System: Linux kylin-x 10.0.0 10.0.0 aarch64
+Kernel command line: 
+ 
+Current version of pixman: 0.46.4
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:11:02 2026
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:17 UTC 2026 生成 /root/xorg-plain.conf（15 行）
+Tue Sep 22 11:11:17 UTC 2026 --- Xorg try[conf-plain]: args=[-config /root/xorg-plain.conf -keeptty] ---
+Tue Sep 22 11:11:22 UTC 2026   -> Xorg 在 ~2s 退出（rc=1），从未达到可用状态
+Tue Sep 22 11:11:22 UTC 2026 ---- xorg.log tail(-30) ----
+[    29.046] (II) modeset(0): Up to 1 crtcs needed for screen.
+[    29.051] (II) modeset(0): Allocated crtc nr. 0 to this screen.
+[    29.053] (II) modeset(0): EDID for output Virtual-1
+[    29.055] (II) modeset(0): Printing probed modes for output Virtual-1
+[    29.056] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+[    29.057] (II) modeset(0): Output Virtual-1 connected
+[    29.058] (II) modeset(0): Using sloppy heuristic for initial modes
+[    29.058] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    29.060] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    29.060] (==) modeset(0): DPI set to (96, 96)
+[    29.060] (II) Loading sub module "fb"
+[    29.061] (II) LoadModule: "fb"
+[    29.061] (II) Module "fb" already built-in
+[    29.061] (II) Loading sub module "shadow"
+[    29.061] (II) LoadModule: "shadow"
+[    29.068] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    29.071] (II) Module shadow: vendor="X.Org Foundation"
+[    29.072] 	compiled for 1.21.1.19, module version = 1.1.0
+[    29.072] 	ABI class: X.Org ANSI C Emulation, version 0.4
+[    29.075] (EE) 
+Fatal server error:
+[    29.076] (EE) AddScreen/ScreenInit failed for driver 0
+[    29.077] (EE) 
+[    29.077] (EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+[    29.078] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    29.078] (EE) 
+[    29.082] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:22 UTC 2026 ---- xorg stderr tail(-30) ----
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+
+X.Org X Server 1.21.1.19
+X Protocol Version 11, Revision 0
+Current Operating System: Linux kylin-x 10.0.0 10.0.0 aarch64
+Kernel command line: 
+ 
+Current version of pixman: 0.46.4
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:11:18 2026
+(++) Using config file: "/root/xorg-plain.conf"
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:23 UTC 2026 生成 /root/xorg-noshadow.conf（17 行）
+Tue Sep 22 11:11:24 UTC 2026 --- Xorg try[conf-noshadow-32bpp]: args=[-config /root/xorg-noshadow.conf -keeptty] ---
+Tue Sep 22 11:11:28 UTC 2026   -> Xorg 在 ~2s 退出（rc=1），从未达到可用状态
+Tue Sep 22 11:11:28 UTC 2026 ---- xorg.log tail(-30) ----
+[    35.623] (II) modeset(0): Up to 1 crtcs needed for screen.
+[    35.627] (II) modeset(0): Allocated crtc nr. 0 to this screen.
+[    35.631] (II) modeset(0): EDID for output Virtual-1
+[    35.632] (II) modeset(0): Printing probed modes for output Virtual-1
+[    35.633] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+[    35.634] (II) modeset(0): Output Virtual-1 connected
+[    35.635] (II) modeset(0): Using sloppy heuristic for initial modes
+[    35.636] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    35.637] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    35.637] (==) modeset(0): DPI set to (96, 96)
+[    35.638] (II) Loading sub module "fb"
+[    35.638] (II) LoadModule: "fb"
+[    35.638] (II) Module "fb" already built-in
+[    35.638] (II) Loading sub module "shadow"
+[    35.638] (II) LoadModule: "shadow"
+[    35.645] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    35.648] (II) Module shadow: vendor="X.Org Foundation"
+[    35.648] 	compiled for 1.21.1.19, module version = 1.1.0
+[    35.648] 	ABI class: X.Org ANSI C Emulation, version 0.4
+[    35.651] (EE) 
+Fatal server error:
+[    35.652] (EE) AddScreen/ScreenInit failed for driver 0
+[    35.653] (EE) 
+[    35.653] (EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+[    35.654] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    35.654] (EE) 
+[    35.657] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:29 UTC 2026 ---- xorg stderr tail(-30) ----
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+
+X.Org X Server 1.21.1.19
+X Protocol Version 11, Revision 0
+Current Operating System: Linux kylin-x 10.0.0 10.0.0 aarch64
+Kernel command line: 
+ 
+Current version of pixman: 0.46.4
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:11:24 2026
+(++) Using config file: "/root/xorg-noshadow.conf"
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:30 UTC 2026 STAGE=x11-xorg-failed
+Tue Sep 22 11:11:30 UTC 2026 ===== 三个变体全部失败：归拢 Xorg 日志 =====
+Tue Sep 22 11:11:30 UTC 2026 ---- xorg.log tail(-45) ----
+[    35.604] (WW) VGA arbiter: cannot open kernel arbiter, no multi-card support
+[    35.615] (II) modeset(0): Using 24bpp hw front buffer with 32bpp shadow
+[    35.615] (II) modeset(0): Creating default Display subsection in Screen section
+	"screen0" for depth/fbbpp 24/32
+[    35.615] (==) modeset(0): Depth 24, (==) framebuffer bpp 32
+[    35.616] (DB) xf86MergeOutputClassOptions unsupported bus type 0
+[    35.616] (**) modeset(0): Option "kmsdev" "/dev/dri/card0"
+[    35.617] (**) modeset(0): Option "ShadowFB" "false"
+[    35.617] (**) modeset(0): Option "AccelMethod" "none"
+[    35.618] (==) modeset(0): RGB weight 888
+[    35.618] (==) modeset(0): Default visual is TrueColor
+[    35.618] (**) modeset(0): Cannot use glamor with 24bpp packed fb
+[    35.619] (II) modeset(0): ShadowFB: preferred YES, enabled FORCE
+[    35.619] (II) modeset(0): Double-buffered shadow updates: off
+[    35.622] (II) modeset(0): Output Virtual-1 has no monitor section
+[    35.623] (II) modeset(0): Up to 1 crtcs needed for screen.
+[    35.627] (II) modeset(0): Allocated crtc nr. 0 to this screen.
+[    35.631] (II) modeset(0): EDID for output Virtual-1
+[    35.632] (II) modeset(0): Printing probed modes for output Virtual-1
+[    35.633] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+[    35.634] (II) modeset(0): Output Virtual-1 connected
+[    35.635] (II) modeset(0): Using sloppy heuristic for initial modes
+[    35.636] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    35.637] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    35.637] (==) modeset(0): DPI set to (96, 96)
+[    35.638] (II) Loading sub module "fb"
+[    35.638] (II) LoadModule: "fb"
+[    35.638] (II) Module "fb" already built-in
+[    35.638] (II) Loading sub module "shadow"
+[    35.638] (II) LoadModule: "shadow"
+[    35.645] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    35.648] (II) Module shadow: vendor="X.Org Foundation"
+[    35.648] 	compiled for 1.21.1.19, module version = 1.1.0
+[    35.648] 	ABI class: X.Org ANSI C Emulation, version 0.4
+[    35.651] (EE) 
+Fatal server error:
+[    35.652] (EE) AddScreen/ScreenInit failed for driver 0
+[    35.653] (EE) 
+[    35.653] (EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+[    35.654] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    35.654] (EE) 
+[    35.657] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:31 UTC 2026 ---- xorg stderr tail(-45) ----
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:11:18 2026
+(++) Using config file: "/root/xorg-plain.conf"
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+
+X.Org X Server 1.21.1.19
+X Protocol Version 11, Revision 0
+Current Operating System: Linux kylin-x 10.0.0 10.0.0 aarch64
+Kernel command line: 
+ 
+Current version of pixman: 0.46.4
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:11:24 2026
+(++) Using config file: "/root/xorg-noshadow.conf"
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:11:31 UTC 2026 STAGE=x11-session-skipped
+Tue Sep 22 11:11:31 UTC 2026 Xorg 未就绪，跳过 jwm / chromium（本轮不会有图形证据）

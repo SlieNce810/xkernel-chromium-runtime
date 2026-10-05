@@ -1,0 +1,64 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-09-30T00:22:19.346
+hostname         : mo-ThinkPad-T490
+os               : Linux-7.0.0-31-generic-x86_64-with-glibc2.43
+guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+git_cwd          : /home/mo/x-kernel
+os_pretty        : Ubuntu 26.04.1 LTS
+machine          : x86_64
+host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+cpu_logical      : 8
+mem_total        : 14.7 GiB
+qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+git_describe     : basic-baseline-20260922-dirty
+git_commit       : c2eabd524461c79631d7b737f4c8fa09bd24e96e
+disk_free        : 358.1 GiB (/home/mo/x-kernel)
+
+--- 本次会话 ---
+out_dir          : /home/mo/xk6/evidence/2026-09-30_t490-mp-nettrace-tz-r1-20260930
+cwd              : /home/mo/x-kernel
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+duration_sec     : 150.0
+interval_sec     : 20.0
+actual_sec       : 153.4
+screendumps      : 7 / 7 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt (含字面 qemu-system-aarch64 命令行)
+
+--- 赛题第七节 平台合规 ---
+platform_check   : PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+detail_file      : platform-compliance.txt
+guest_arch       : aarch64 (七(一)1)
+accel            : 无 -accel（纯 TCG，七(一)2）
+device_combo     : virtio-gpu-pci + virtio-input(keyboard/mouse) + virtio-blk + virtio-net (七(一)3)
+evidence_shots   : QEMU monitor screendump（七(一)3 唯一认可的截图方式）
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+/proc/375/task/435/status" result=Ok(86)[m
+[m[37m[152.074562 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/438/status" result=Ok(86)[m
+[m[37m[152.076286 1:440 posix_net::io:429] [33mMP_RECVMSG tid=440 fd=5 flags=0x40 result=Ok(360)[m
+[m[37m[152.109646 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/439/status" result=Ok(86)[m
+[m[37m[152.123445 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/440/status" result=Ok(86)[m
+[m[37m[152.134247 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/445/status" result=Ok(86)[m
+[m[37m[152.168601 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/472/status" result=Ok(86)[m
+[m[37m[152.177469 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task" result=Ok(86)[m
+[m[37m[152.207634 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/375/status" result=Ok(86)[m
+[m[37m[152.220025 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/434/status" result=Ok(86)[m
+[m[37m[152.229462 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/435/status" result=Ok(86)[m
+[m[37m[152.238611 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/438/status" result=Ok(86)[m
+[m[37m[152.250670 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/439/status" result=Ok(86)[m
+[m[37m[152.259884 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/440/status" result=Ok(86)[m
+[m[37m[152.286872 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/445/status" result=Ok(86)[m
+[m[37m[152.325584 1:226 posix_fs::open:67] [33mMP_OPEN tid=226 path="/proc/375/task/472/status" result=Ok(86)[m
+[mQEMU: Terminated
+

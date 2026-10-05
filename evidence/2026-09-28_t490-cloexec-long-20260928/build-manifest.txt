@@ -1,0 +1,115 @@
+++ date -Is
++ echo '### 本轮指纹（归档时间 2026-09-28T21:05:43+08:00）'
+### 本轮指纹（归档时间 2026-09-28T21:05:43+08:00）
++ echo 'ROUND_TAG    cloexec-long-20260928  DUR=340 IVL=60'
+ROUND_TAG    cloexec-long-20260928  DUR=340 IVL=60
++ echo 'AUTORUN      autorun_mp_diag.sh'
+AUTORUN      autorun_mp_diag.sh
++ echo '--- 内核 ---'
+--- 内核 ---
++ echo 'KERNEL_BIN   /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin'
+KERNEL_BIN   /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
++ sha256sum /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
+b38ed2e4d85267f4c1fbb64bd104006a6fdc4e8b3abef454bdae9a72c673c11f  /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
++ echo '--- 基础镜像 ---'
+--- 基础镜像 ---
++ echo 'BASE_IMG     /home/mo/x-kernel/images/agentos-weston.img'
+BASE_IMG     /home/mo/x-kernel/images/agentos-weston.img
++ sha256sum /home/mo/x-kernel/images/agentos-weston.img
+bb25e0b298d619a62df06b0ab044750c0885adc2d34602eb0c5875a022aaee09  /home/mo/x-kernel/images/agentos-weston.img
++ echo '--- 页面集 ---'
+--- 页面集 ---
++ echo 'PAGE_DIR     /home/mo/xk6/scripts/testpage   PAGE_URL=file:///usr/share/html-test/index.html'
+PAGE_DIR     /home/mo/xk6/scripts/testpage   PAGE_URL=file:///usr/share/html-test/index.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/index.html
+831cf28f3748940b450d1da325aa39a2dcaea2fee15b0532bf4111144d176b38  /home/mo/xk6/scripts/testpage/index.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/interaction.html
+58130daa4a2f426fd16b8bde93d964713f20e147da8af1537ab2d8b506d2fd58  /home/mo/xk6/scripts/testpage/interaction.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/layout.html
+a1b04f9aba81b4b7818be2e7a858d482d471bd0d625dee257f605b2129b8fc4c  /home/mo/xk6/scripts/testpage/layout.html
++ echo '--- 关键脚本 ---'
+--- 关键脚本 ---
++ sha256sum /home/mo/xk6/scripts/t490/autorun_mp_diag.sh /home/mo/xk6/scripts/t490/t490_round.sh /home/mo/xk6/scripts/t490/run_session_t490.sh /home/mo/xk6/scripts/t490/round_assert.sh /home/mo/xk6/scripts/t490/ppm_assert.py
+e277bb1609fca7a4762c86b1c21fc6a5d9de466975b8fc8c463516c8f1c6cce8  /home/mo/xk6/scripts/t490/autorun_mp_diag.sh
+ec94ea63e90bfb4c06ae5eadf59352c952d0c0e211ec9a51b8ad4f9dfdcee487  /home/mo/xk6/scripts/t490/t490_round.sh
+64afe6abf34ca4af8903c5c848ad32bb4a4df47d9562a62ae4110bff345428d8  /home/mo/xk6/scripts/t490/run_session_t490.sh
+ba762cf4450b50111d880054ef2bd5b691be08e974cf2478e73d35981902288d  /home/mo/xk6/scripts/t490/round_assert.sh
+597a3e0d28a7c244b3ef315fe1acadc3586d0092447256dc2e87208c184a1f54  /home/mo/xk6/scripts/t490/ppm_assert.py
++ echo '--- 源码状态 ---'
+--- 源码状态 ---
++ cd /home/mo/x-kernel
++ git rev-parse HEAD
+c2eabd524461c79631d7b737f4c8fa09bd24e96e
++ git status --porcelain
+ M Cargo.lock
+ M core/ksyscall/src/dispatch.rs
+ M core/ksyscall/src/sync/futex.rs
+ M drivers/contracts/kclass/src/generic.rs
+ M drivers/integration/kdriver/src/driver_registry/virtio/mod.rs
+ M fs/boot/Cargo.toml
+ M fs/boot/src/lib.rs
+ M fs/filesystems/devfs/src/lib.rs
+ M fs/filesystems/devfs/src/nodes/dri.rs
+ M fs/filesystems/devfs/src/nodes/event.rs
+ M io/drmdevice/src/drm.rs
+ M io/inputdev/src/lib.rs
+ M net/knet/src/netlink/mod.rs
+ M net/knet/src/netlink/socket.rs
+ M net/knet/src/socket/mod.rs
+ M net/knet/src/unix/dgram.rs
+ M net/knet/src/unix/stream.rs
+ M net/knet/src/unix/stream/channel.rs
+ M posix/fs/Cargo.toml
+ M posix/fs/src/fd_ops.rs
+ M posix/fs/src/io.rs
+ M posix/fs/src/lib.rs
+ M posix/net/src/cmsg.rs
+ M posix/net/src/io.rs
+ M posix/net/src/socket.rs
+ M process/kfd_objects/src/lib.rs
+?? fs/boot/src/input_uevent.rs
+?? posix/fs/src/inotify.rs
+?? process/kfd_objects/src/inotify.rs
++ echo '--- 平台参数（单一真源 platform.env 的实际取值）---'
+--- 平台参数（单一真源 platform.env 的实际取值）---
++ '[' -f /home/mo/xk6/scripts/t490/platform.env ']'
++ . /home/mo/xk6/scripts/t490/platform.env
+++ PLAT_ARCH=aarch64
+++ PLAT_HAL=kplat-aarch64
+++ PLAT_DEFCONFIG=platforms/kplat-aarch64/qemu_defconfig
+++ PLAT_KCONFIG_SYMBOLS_YES='ARCH_AARCH64=y MACHINE_AARCH64_QEMU=y KFEAT_DRIVER_VIRTIO_GPU=y KFEAT_DRIVER_VIRTIO_INPUT=y KFEAT_VIRTIO_BUS_PCI=y'
+++ PLAT_KCONFIG_ARCH_LINE='^ARCH="aarch64"$'
+++ PLAT_KCONFIG_FORBIDDEN='^ARCH_\(RISCV64\|X86_64\|LOONGARCH64\)=y'
+++ PLAT_QEMU_BIN_NAME=qemu-system-aarch64
+++ PLAT_QEMU_MIN_MAJOR=8
+++ PLAT_ACCEL=n
+++ PLAT_MACHINE=virt,gic-version=3
+++ PLAT_CPU_TCG=cortex-a76
+++ PLAT_GRAPHIC=y
+++ PLAT_MEM=2g
+++ PLAT_SMP=4
+++ PLAT_VSOCK=n
+++ PLAT_INPUT_DEVICES='virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_REQUIRED_DEVICES='virtio-gpu-pci virtio-blk-pci virtio-net-pci virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_FORBIDDEN_ACCEL='kvm hvf'
+++ PLAT_MAKE_ARGS='GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-keyboard-pci
++++ for d in $PLAT_INPUT_DEVICES
++++ sed 's/ *$//'
++++ printf -- '-device %s ' virtio-mouse-pci
+++ PLAT_QEMU_ARGS='-device virtio-keyboard-pci -device virtio-mouse-pci'
+++ PLAT_REPEAT_MIN=5
+++ PLAT_STAT=median
+++ PLAT_EVIDENCE_FILES='env.txt console.log cmd.txt timestamps.csv manifest.txt platform-compliance.txt'
+++ PLAT_SCREENSHOT_PREFIX=screenshots/
+++ PLAT_REF_XKERNEL=https://gitee.com/openkylin/x-kernel
+++ PLAT_REF_WAYLAND=https://wayland.freedesktop.org/
+++ PLAT_REF_XORG_WIKI=https://www.x.org/wiki/
+++ PLAT_REF_XORG_DOC=https://xorg.freedesktop.org/archive/current/doc/
+++ PLAT_REF_OZONE=https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
++ echo 'PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n

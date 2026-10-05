@@ -1,0 +1,46 @@
+Tue Sep 22 14:32:28 UTC 2026 ===== A. 内核 sysfs 投射自证 =====
+Tue Sep 22 14:32:28 UTC 2026 LD_PRELOAD=[<空>]（本轮不得有任何 shim）
+Tue Sep 22 14:32:28 UTC 2026 /sys/class       : drm graphics 
+Tue Sep 22 14:32:28 UTC 2026 /sys/class/drm   : card0 
+Tue Sep 22 14:32:29 UTC 2026 /sys/class/drm/card0 : dev subsystem uevent 
+Tue Sep 22 14:32:29 UTC 2026 card0/dev   = [226:0]
+Tue Sep 22 14:32:29 UTC 2026 card0/uevent= [MAJOR=226|MINOR=0|DEVNAME=dri/card0|DEVTYPE=drm_minor|]
+Tue Sep 22 14:32:29 UTC 2026 card0/subsystem -> /sys/class/drm
+Tue Sep 22 14:32:29 UTC 2026 /sys/dev/char    : 226:0 
+Tue Sep 22 14:32:30 UTC 2026 /sys/dev/char/226:0 -> /sys/class/drm/card0
+Tue Sep 22 14:32:30 UTC 2026 ===== B. 真实 libudev（无 shim）=====
+Tue Sep 22 14:32:31 UTC 2026 udevprobe rc=0
+  [UDEV] udev_new() OK
+  [UDEV] by-name OK: syspath=/sys/class/drm/card0 sysname=card0
+  [UDEV]   subsystem=drm devtype=drm_minor
+  [UDEV]   devnode=/dev/dri/card0  devnum=226:0
+  [UDEV]   sysattr uevent=(present)
+  [UDEV]   prop DEVNAME=/dev/dri/card0 DEVTYPE=drm_minor
+  [UDEV] by-syspath OK: devnode=/dev/dri/card0
+  [UDEV] enumerate: scan_devices rc=0
+  [UDEV]   entry[0]=/sys/class/drm/card0
+  [UDEV] udev_device_new_from_devnum('c',226:0) FAILED  （需要 /sys/dev/char/226:0 链接）
+  [UDEV] monitor_new_from_netlink OK
+  [UDEV_EXIT] 0 verdict=UDEV_OK
+Tue Sep 22 14:32:31 UTC 2026 ===== C. 真实 seatd 启动（SEATD_VTBOUND=0）=====
+Tue Sep 22 14:32:34 UTC 2026 seatd pid=45 alive=yes socket=yes
+Tue Sep 22 14:32:34 UTC 2026 seatd -h: Usage: seatd [options]    -h		Show this help message   -n <fd>	FD to notify readiness on   -u <user>	User to own the seatd socket   -g <group>	Group t
+00:00:00.029 [INFO] [seatd/seat.c:50] Created seat seat0
+00:00:00.040 [INFO] [seatd/seatd.c:194] seatd started
+Tue Sep 22 14:32:34 UTC 2026 ===== D. 真实 libseat → seatd → DRM FD =====
+Tue Sep 22 14:32:35 UTC 2026 seatprobe rc=0
+  [SEAT] libseat_open_seat OK（已与 seatd 建立连接）
+  [SEAT] enable_seat 回调触发（座位可用）
+  [SEAT] libseat_open_device OK: device_id=1 fd=4
+  [SEAT] fstat: type=char rdev=226:0
+  [SEAT] ioctl(DRM VERSION) OK → fd 真实可用（driver version 1.0.0）
+  [SEAT] libseat_close_device rc=0 errno=11
+  [SEAT] libseat_close_seat rc=0
+  [SEAT_EXIT] 0 verdict=SEAT_OK
+Tue Sep 22 14:32:35 UTC 2026 ===== E. 汇总（机器行）=====
+Tue Sep 22 14:32:35 UTC 2026 --- /root/std3-udevprobe.out ---
+[UDEV_EXIT] 0 verdict=UDEV_OK
+Tue Sep 22 14:32:36 UTC 2026 --- /root/std3-seatprobe.out ---
+[SEAT_EXIT] 0 verdict=SEAT_OK
+Tue Sep 22 14:32:36 UTC 2026 STD3_DONE
+Tue Sep 22 14:33:37 UTC 2026 std3 收尾（seatd 已停）

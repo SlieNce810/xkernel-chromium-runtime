@@ -1,0 +1,55 @@
+# 阶段 0 实际执行的命令（按时间序，全部为只读核查 + 本地/远端脚本改动）
+# 主机：Windows 工作副本 E:\02_competition\中电杯  ←→  T490 mo@10.249.63.140（通过 ssh/scp）
+# 说明：只记录"改变了状态或产生了证据"的命令；纯查看类命令见 stage0-summary.md 的引用。
+
+## 0. 现场勘察（只读）
+ssh mo@10.249.63.140 'cd ~/x-kernel && git rev-parse HEAD && git status --porcelain && git diff'
+ssh mo@10.249.63.140 'ls -la ~/x-kernel ~/x-kernel/images ~/xk6 ~/xk6/scripts/t490'
+ssh mo@10.249.63.140 'pgrep -a qemu'                     # 确认无残留会话
+
+## 1. 状态快照（0.1）
+ssh mo@10.249.63.140 'sha256sum ~/x-kernel/xkernel_aarch64-qemu.bin \
+    ~/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+    ~/x-kernel/images/agentos-weston.img ~/x-kernel/images/agentos-disk.img ~/x-kernel/disk.img'
+ssh mo@10.249.63.140 'cd ~/x-kernel && tar czf - io/drmdevice/src/{consts.rs,drm.rs,card0.rs} \
+    auto.conf autoconf.h .config' > src-snapshot.tar.gz
+debugfs -R "dump /lib/apk/db/installed /tmp/apk-installed.txt" ~/x-kernel/images/agentos-weston.img
+# → 产出：source-state.txt / hashes-and-images.txt / src-snapshot/ / guest-apk-installed.txt / guest-pkg-versions.txt
+
+## 2. 官方三页核验（0.2）
+python3 - <<'PY'   # 本机 managed python：解包 testpages.tar.xz 并与 scripts/testpage/ 逐页对照
+import tarfile, hashlib, os
+...（脚本见 pages-verification.txt 的输出说明）
+PY
+# → 产出：pages-verification.txt（官方包/仓库两处 raw+norm sha256 与判定）
+
+## 3. ABI 对照（阶段 1.1）
+scp scripts/t490/abi_probe.c mo@10.249.63.140:/tmp/abi_probe.c
+ssh mo@10.249.63.140 'cd /tmp && gcc -O0 -Wall -o abi_probe_host abi_probe.c && ./abi_probe_host'
+ssh mo@10.249.63.140 'cd /tmp && ~/musl/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc \
+    -O0 -Wall -static -o abi_probe_a64 abi_probe.c && file abi_probe_a64'
+# → 产出：abi-baseline.txt（sizeof/偏移/请求值/两侧头文件 sha256）
+
+## 4. 脚本对账（G0）
+# 双侧 sha256 列表（归一化后比较）：
+find scripts -type f -not -path "*/__pycache__/*" -exec sha256sum {} +
+ssh mo@10.249.63.140 "cd ~/xk6/scripts && find . -type f -not -path '*/__pycache__/*' -exec sha256sum {} +"
+# → 产出：scripts-drift.txt（MISMATCH 4 / 仅本地 71 / 仅远端 4）
+
+## 5. 脚本修正（0.3 / 0.4）与推送
+# 本地编辑：t490_round.sh / run_session_t490.sh / round_assert.sh / drmplaneprobe.c（+ 新增 abi_probe.c）
+scp scripts/t490/{t490_round.sh,drmplaneprobe.c,run_session_t490.sh,round_assert.sh,abi_probe.c,ppm_assert.py} \
+    mo@10.249.63.140:~/xk6/scripts/t490/
+# 推送后双侧 sha256 一致（见 stage0-summary.md §5）
+
+## 6. 安全预检（0.5）
+ssh mo@10.249.63.140 'bash -n t490_round.sh; bash -n run_session_t490.sh; bash -n round_assert.sh'
+ssh mo@10.249.63.140 '~/musl/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc -static -O2 \
+    -Wall -Wextra -o /tmp/drmplaneprobe drmplaneprobe.c'
+# flock 正负样本 / /proc 探测自测 / 注入器在 32MB 合成 ext4 上的正负样本 / ppm_assert 负对照
+# → 产出：precheck-0.5.txt
+
+## 7. 证据回传与归档
+tar czf - 2026-09-22_t490-{weston6,weston7,weston8,planeprobe,propbefore,propafter} \
+    --exclude=screenshots --exclude='*.ppm' --exclude='*.png'   # 拉取历史轮日志到本地
+tar czf stage0-ev.tgz 2026-09-22_t490-stage0-freeze              # 本证据包镜像到远端 ~/xk6/evidence/

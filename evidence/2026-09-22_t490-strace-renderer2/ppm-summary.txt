@@ -1,0 +1,57 @@
+==================================================================
+round_assert  tag=strace-renderer2
+证据目录      /home/mo/xk6/evidence/2026-09-22_t490-strace-renderer2
+时间          2026-09-22T16:06:20+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 3
+PNG 张数 : 0
+  1280x800 3072016 shot-01-at0045s.ppm
+  1280x800 3072016 shot-02-at0075s.ppm
+  1280x800 3072016 shot-03-at0105s.ppm
+尺寸集合     : 1280x800 
+字节数集合   : 3072016 
+众数尺寸     : 1280x800（用于逐张判据的 --expect-size）
+→ 尺寸一致性通过（集合单元素 1280x800）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停
+total 8
+drwxrwxr-x 2 mo mo 4096 Sep 22 16:06 .
+drwxrwxr-x 4 mo mo 4096 Sep 22 16:06 ..
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-01-at0045s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-02-at0075s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-03-at0105s: 严格集未通过 
+判定张数     : 3
+严格集未通过 : 3
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 2
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+  [40:89:0922/080543.399039:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+==================================================================
+SUMMARY_END tag=strace-renderer2  ppm=3  严格集未通过=3  尺寸不符=0  心跳=0/2
+==================================================================

@@ -1,0 +1,63 @@
+Tue Sep 22 15:01:14 UTC 2026 kernel: Linux 10.0.0 aarch64
+Tue Sep 22 15:01:14 UTC 2026 ===== proptwostage + iocspy =====
+Tue Sep 22 15:01:15 UTC 2026 ---- 关键行（[STAGE] 判定 + 每个属性的 req/rc）----
+[STAGE] sizeof(std drm_mode_get_property)=64  REQ_GETPROPERTY=0xffffffffc04064a8
+[STAGE] OBJ_GETPROPERTIES r1=0 r2=0 count_props=12
+[STAGE] prop[0] id=0x100 call#1 rc=0 errno=0 name="type" flags=0xc count_values=3 count_enum_blobs=3
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=24B enum buf=108B]
+[STAGE]   enum[0]: value=0 name=""
+[STAGE]   enum[1]: value=0 name=""
+[STAGE]   values[0..3]: 12297829382473034410 12297829382473034410 12297829382473034410
+[STAGE] prop[1] id=0x101 call#1 rc=0 errno=0 name="FB_ID" flags=0x80000040 count_values=0 count_enum_blobs=0
+[STAGE] prop[2] id=0x102 call#1 rc=0 errno=0 name="CRTC_ID" flags=0x80000040 count_values=0 count_enum_blobs=0
+[STAGE] prop[3] id=0x103 call#1 rc=0 errno=0 name="SRC_X" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[4] id=0x104 call#1 rc=0 errno=0 name="SRC_Y" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[5] id=0x105 call#1 rc=0 errno=0 name="SRC_W" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[6] id=0x106 call#1 rc=0 errno=0 name="SRC_H" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[7] id=0x107 call#1 rc=0 errno=0 name="CRTC_X" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[8] id=0x108 call#1 rc=0 errno=0 name="CRTC_Y" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[9] id=0x109 call#1 rc=0 errno=0 name="CRTC_W" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[10] id=0x10a call#1 rc=0 errno=0 name="CRTC_H" flags=0x80000002 count_values=2 count_enum_blobs=0
+[STAGE]   call#2 rc=0 errno=0(No error information)  [values buf=16B enum buf=0B]
+[STAGE] prop[11] id=0x10b call#1 rc=0 errno=0 name="IN_FORMATS" flags=0x14 count_values=0 count_enum_blobs=0
+[STAGE] ==== 对照：真实 libdrm drmModeGetProperty ====
+[STAGE]   libdrm prop 0x100 FAILED errno=95
+[STAGE]   libdrm prop 0x101 FAILED errno=95
+[STAGE]   libdrm prop 0x102 FAILED errno=95
+[STAGE] libdrm 结果：OK=0 FAILED=12（共 12 个属性）
+[STAGE_SUM] props=12 call1_fail=0 call2_fail=0 verdict=TWOSTAGE_OK
+Tue Sep 22 15:01:15 UTC 2026 ---- ioctl 请求值分布（去重计数）----
+     21 req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0
+     12 req=0xc04064aa dir=3 size=64 type=0x64 nr=0xaa -> rc=-1
+      2 req=0xc02064b9 dir=3 size=32 type=0x64 nr=0xb9 -> rc=0
+Tue Sep 22 15:01:16 UTC 2026 ---- nr=0xa8（GETPROPERTY）的逐条请求 ----
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+[IOC] req=0xc04064a8 dir=3 size=64 type=0x64 nr=0xa8 -> rc=0 errno=0(ok)
+Tue Sep 22 15:01:16 UTC 2026 PROP3_DONE
+Tue Sep 22 15:02:05 UTC 2026 prop3 收尾

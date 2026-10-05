@@ -1,0 +1,46 @@
+Tue Sep 22 15:18:48 UTC 2026 seatd alive=yes
+Tue Sep 22 15:18:48 UTC 2026 ===== A. Weston（无 shim）=====
+Tue Sep 22 15:18:54 UTC 2026 weston_alive=yes
+  [15:18:49.244] using /dev/dri/card0
+  [15:18:49.470] DRM: output Virtual-1 uses shadow framebuffer.
+  [15:18:49.471] Output Virtual-1 (crtc 16) video modes:
+  [15:18:49.476] Output 'Virtual-1' enabled with head(s) Virtual-1
+Tue Sep 22 15:18:55 UTC 2026 ===== B. 动态发现 socket =====
+Tue Sep 22 15:18:55 UTC 2026 socket = [/run/user/0/wayland-1]
+total 8
+drwx------    2 root     root          4096 Sep 22 15:18 .
+drwxr-xr-x    4 root     root          4096 Sep 22 12:03 ..
+-rw-r--r--    1 root     root             0 Sep 22 12:03 .wtest
+srwxr-xr-x    1 root     root             0 Sep 22 15:18 wayland-1
+-rw-r-----    1 root     root             0 Sep 22 15:18 wayland-1.lock
+Tue Sep 22 15:18:55 UTC 2026 ===== C. 外部客户端（走文件 socket，不设 WAYLAND_SOCKET）=====
+Tue Sep 22 15:18:55 UTC 2026 以 XDG_RUNTIME_DIR=/run/user/0 WAYLAND_DISPLAY=wayland-1 启动客户端
+Tue Sep 22 15:19:24 UTC 2026 weston-simple-shm rc=124（0 或 124=仍在跑为成功；非 0 且很快退出=失败）
+!! HUNG 25s -> kill -9
+Tue Sep 22 15:19:24 UTC 2026 EXTERNAL_CLIENT_FAIL
+Tue Sep 22 15:19:24 UTC 2026 ===== D. Chromium 最小连通性（阶段4 入口）=====
+Tue Sep 22 15:20:09 UTC 2026 chromium rc=124
+[83:83:0922/151941.262853:ERROR:content/app/content_main_runner_impl.cc:429] Failed to initialize cpuinfo
+[85:85:0922/151941.262986:ERROR:content/app/content_main_runner_impl.cc:429] Failed to initialize cpuinfo
+[64:64:0922/151944.395553:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+[64:98:0922/151944.933477:ERROR:base/files/file_path_watcher_inotify.cc:339] inotify_init() failed: Function not implemented (38)
+[64:100:0922/151945.063271:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[64:64:0922/151947.126672:ERROR:content/browser/browser_main_loop.cc:288] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+[64:100:0922/151949.897724:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/151949.916826:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[64:100:0922/151949.937631:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[64:100:0922/151954.740945:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152002.221671:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152002.225905:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:64:0922/152007.038611:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[64:100:0922/152007.041637:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152007.042261:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152007.043708:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152007.044848:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152007.045443:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:100:0922/152007.045829:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[64:64:0922/152007.054250:ERROR:content/browser/gpu/gpu_process_host.cc:993] GPU process launch failed: error_code=1002
+[15:18:49.244] using /dev/dri/card0
+[15:18:49.476] Output 'Virtual-1' enabled with head(s) Virtual-1
+Tue Sep 22 15:20:09 UTC 2026 [WESTON13_SUM] socket=[/run/user/0/wayland-1] weston_alive=yes
+Tue Sep 22 15:22:18 UTC 2026 weston13 收尾

@@ -1,0 +1,13 @@
+==== drmstdprobe: 标准 libdrm 客户端（阶段1.2）====
+[STD] 头文件侧: sizeof(drm_mode_get_plane)=32  DRM_IOCTL_MODE_GETPLANE=0xc02064b6
+[STD] libdrm 实际加载: /usr/lib/libdrm.so.2
+[STD] open(/dev/dri/card0) ok fd=3
+[STD] drmGetVersion OK driver='simpledrm' 1.0.0
+[STD] drmModeGetResources OK: crtcs=1 connectors=1 encoders=1 fbs=0
+[STD]   crtc[0]=16
+[STD]   connector[0]=48
+[STD] drmModeGetPlaneResources OK: count_planes=1
+[STD] drmModeGetPlane(plane_id=64) FAILED errno=95(Not supported)  ← ★ 标准客户端失败点
+[STD_EXIT] 3 verdict=STD_FAIL
+[PROBE_EXIT] 3 verdict=STD_FAIL
+==== drmstdprobe done ====

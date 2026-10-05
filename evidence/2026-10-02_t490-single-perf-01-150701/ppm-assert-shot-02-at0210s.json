@@ -1,0 +1,181 @@
+{
+  "file": "shot-02-at0210s.ppm",
+  "size": "1280x800",
+  "header_bytes": 16,
+  "raster_bytes": 3072000,
+  "size_check": {
+    "pass": true,
+    "expected": "1280x800",
+    "got": "1280x800"
+  },
+  "profile": "official-index",
+  "checks": [
+    {
+      "check": "non_white_ratio",
+      "pass": true,
+      "group": "info",
+      "detail": "非白像素 166217/1024000 = 0.1623；⚠️ 参考项，不参与卡关",
+      "ratio": 0.16232
+    },
+    {
+      "check": "official_banner",
+      "pass": true,
+      "group": "core",
+      "detail": "#17456b banner {'valid': True, 'count': 71267, 'x0': 209, 'y0': 20, 'x1': 1056, 'y1': 110, 'w': 848, 'h': 91}；要求 宽≥768(=0.6·W，实测 0.95@640 / 0.66@1280) 且 高∈[40,140]（实测 84）",
+      "bbox": {
+        "valid": true,
+        "count": 71267,
+        "x0": 209,
+        "y0": 20,
+        "x1": 1056,
+        "y1": 110,
+        "w": 848,
+        "h": 91
+      },
+      "w_req": 768
+    },
+    {
+      "check": "verdict_fail_absent",
+      "pass": true,
+      "group": "core",
+      "detail": "失败色：文字 #c93c37 0 px（上限 300，实测 0）、条底 #ffebe9 12 px（上限 2000，实测 37）；出现即说明页面自检判出了「未通过」",
+      "pass_text": 0,
+      "fail_text": 0,
+      "pass_bg": 20,
+      "fail_bg": 12
+    },
+    {
+      "check": "index_blocks_shape",
+      "pass": true,
+      "group": "core",
+      "detail": "四色块形状（实测 131x64@640 / 192x64@1280）：red 191x64@(226,209)；green 192x64@(433,209)；yellow 191x64@(641,209)；purple 192x64@(848,209)",
+      "blobs": {
+        "red": {
+          "valid": true,
+          "count": 12054,
+          "x0": 226,
+          "y0": 209,
+          "x1": 416,
+          "y1": 272,
+          "w": 191,
+          "h": 64
+        },
+        "green": {
+          "valid": true,
+          "count": 13570,
+          "x0": 433,
+          "y0": 209,
+          "x1": 624,
+          "y1": 272,
+          "w": 192,
+          "h": 64
+        },
+        "yellow": {
+          "valid": true,
+          "count": 12654,
+          "x0": 641,
+          "y0": 209,
+          "x1": 831,
+          "y1": 272,
+          "w": 191,
+          "h": 64
+        },
+        "purple": {
+          "valid": true,
+          "count": 12058,
+          "x0": 848,
+          "y0": 209,
+          "x1": 1039,
+          "y1": 272,
+          "w": 192,
+          "h": 64
+        }
+      }
+    },
+    {
+      "check": "index_blocks_same_row",
+      "pass": true,
+      "group": "core",
+      "detail": "四色块同一水平带（y0 极差 ≤4px，实测四块 y 完全相同）：red 191x64@(226,209)；green 192x64@(433,209)；yellow 191x64@(641,209)；purple 192x64@(848,209)"
+    },
+    {
+      "check": "index_blocks_equal_width",
+      "pass": true,
+      "group": "core",
+      "detail": "四色块等宽（极差 ≤ max(4, 5%)，实测 131/131/132/131）：[191, 192, 191, 192]"
+    },
+    {
+      "check": "index_blocks_order",
+      "pass": true,
+      "group": "core",
+      "detail": "水平顺序 红→绿→黄→紫（实测 x0 = 226/433/641/848）"
+    },
+    {
+      "check": "index_table_rules",
+      "pass": true,
+      "group": "viewport",
+      "detail": "表格横线等间距签名：6 条 [353, 386, 419, 452, 485, 518]，间距 [33, 33, 33, 33, 33]（实测 640 为 5 条 ×31，1280 为 6 条 ×31）；",
+      "run": {
+        "found": true,
+        "lines": [
+          353,
+          386,
+          419,
+          452,
+          485,
+          518
+        ],
+        "count": 6,
+        "pitches": [
+          33,
+          33,
+          33,
+          33,
+          33
+        ],
+        "first": 353,
+        "reason": ""
+      },
+      "all_lines": [
+        129,
+        287,
+        304,
+        353,
+        386,
+        419,
+        452,
+        485,
+        518,
+        533,
+        550,
+        775
+      ]
+    },
+    {
+      "check": "index_is_static",
+      "pass": true,
+      "group": "info",
+      "detail": "index 是纯静态页（无脚本）：结论条绿字 0 px / 绿底 20 px，两者都应为噪声级（实测 0 / 0）。此项**反向**保护：若这里变成大数，说明判据串页了（把交互页当 index 判）",
+      "pass_text": 0,
+      "fail_text": 0,
+      "pass_bg": 20,
+      "fail_bg": 12
+    }
+  ],
+  "strict_set": [
+    "official_banner",
+    "verdict_fail_absent",
+    "index_blocks_shape",
+    "index_blocks_same_row",
+    "index_blocks_equal_width",
+    "index_blocks_order",
+    "index_table_rules"
+  ],
+  "info_set": [
+    "non_white_ratio",
+    "index_is_static"
+  ],
+  "viewport_in_frame": true,
+  "strict_fail_count": 0,
+  "strict_fail_names": []
+}

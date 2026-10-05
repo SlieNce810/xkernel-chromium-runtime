@@ -1,0 +1,110 @@
+Wed Sep 23 02:03:35 UTC 2026 ===== A. ABI/runtime facts =====
+Wed Sep 23 02:03:35 UTC 2026 kernel: Linux 10.0.0 aarch64
+Wed Sep 23 02:03:35 UTC 2026 /sys/devices/system/cpu/possible=0-3
+Wed Sep 23 02:03:35 UTC 2026 /sys/devices/system/cpu/present=0-3
+Wed Sep 23 02:03:35 UTC 2026 /sys/devices/system/cpu/online=0-3
+Wed Sep 23 02:03:36 UTC 2026 /sys/devices/system/cpu/kernel_max=3
+Wed Sep 23 02:03:36 UTC 2026 pages: 831cf28f3748940b450d1da325aa39a2dcaea2fee15b0532bf4111144d176b38  /usr/share/html-test/index.html;58130daa4a2f426fd16b8bde93d964713f20e147da8af1537ab2d8b506d2fd58  /usr/share/html-test/interaction.html;a1b04f9aba81b4b7818be2e7a858d482d471bd0d625dee257f605b2129b8fc4c  /usr/share/html-test/layout.html;
+Wed Sep 23 02:03:36 UTC 2026 ===== B. 标准兼容探针（含 SOCK_SEQPACKET + SCM_CREDENTIALS）=====
+[CP] pid=22 tid=22
+[CP] socketpair(AF_UNIX,STREAM)             rc=0     errno=0   -                            PASS
+[CP] getsockopt(SO_PEERCRED)                rc=0 len=12 pid=22 uid=0 gid=0
+[CP]   -> peer pid matches                  rc=22    errno=0   -                            PASS
+[CP] getsockopt(SO_SNDBUF)                  rc=0 sbuf=65536
+[CP]   -> SO_SNDBUF readable                rc=0     errno=0   -                            PASS
+[CP] sendmsg(MSG_NOSIGNAL) on unix          rc=1     errno=0   -                            PASS
+[CP] recv() after MSG_NOSIGNAL send         rc=1     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,SEQPACKET)          rc=0     errno=0   -                            PASS
+[CP] socketpair(AF_UNIX,DGRAM)              rc=0     errno=0   -                            PASS
+[CP] socketpair(STREAM|CLOEXEC|NB)          rc=0     errno=0   -                            PASS
+[CP] memfd_create + ftruncate               rc=0     errno=0   -                            PASS
+[CP] shm_open + ftruncate + mmap(MAP_SHARED) rc=0     errno=0   -                            PASS
+[CP] open(/dev/shm/.xk6probe)               rc=3     errno=0   -                            PASS
+[CP] eventfd write+read                     rc=8     errno=0   -                            PASS
+[CP] timerfd_create(CLOCK_MONOTONIC)        rc=3     errno=0   -                            PASS
+[CP] epoll_ctl(ADD, pipe read end)          rc=0     errno=0   -                            PASS
+[CP] epoll_wait sees readable pipe          rc=1     errno=0   -                            PASS
+[CP] signalfd(SIGCHLD)                      rc=3     errno=0   -                            PASS
+[CP] getrandom(16)                          rc=16    errno=0   -                            PASS
+[CP] madvise(aligned, DONTNEED)             rc=0     errno=0   -                            PASS
+[CP] madvise(misaligned) expect EINVAL      rc=-1    errno=22  Invalid argument             PASS
+[CP] madvise(HOLE in middle)                rc=0 errno=0 (-)
+[CP]   -> Linux tolerates gap (expect 0)    rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_NORMAL)                   rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_WILLNEED)                 rc=0     errno=0   -                            PASS
+[CP] madvise(MADV_FREE)                     rc=0     errno=0   -                            PASS
+[CP] sendmsg(SEQPACKET, SCM_CREDENTIALS)    rc=1 errno=0
+[CP]   -> send accepted                     rc=1     errno=0   -                            PASS
+[CP]   SCM_CREDENTIALS pid=22 uid=0 gid=0
+[CP] recvmsg delivers SCM_CREDENTIALS       rc=1     errno=0   -                            PASS
+[CP] prctl(PR_SET_PDEATHSIG,SIGKILL)        rc=-1    errno=22  Invalid argument             FAIL
+[CP] child writes to inherited pipe fd      rc=0     errno=0   -                            PASS
+Wed Sep 23 02:03:36 UTC 2026 [COMPATPROBE_EXIT] rc=1
+Wed Sep 23 02:03:38 UTC 2026 ===== C. Weston（真实 DRM/seatd，无 shim）=====
+Wed Sep 23 02:03:44 UTC 2026 weston_alive=yes socket=[/run/user/0/wayland-1]
+[weston] [02:03:38.837] using /dev/dri/card0
+[weston] [02:03:39.014] warning: no input devices found, but none required as per configuration.
+[weston] [02:03:39.072] DRM: output Virtual-1 uses shadow framebuffer.
+[weston] [02:03:39.077] Output 'Virtual-1' enabled with head(s) Virtual-1
+Wed Sep 23 02:03:45 UTC 2026 ===== Chromium case=nozygote profile=/root/cr4-nozygote-profile =====
+Wed Sep 23 02:03:45 UTC 2026 CASE_START name=nozygote pid=46
+Wed Sep 23 02:03:45 UTC 2026 CASE_ALIVE name=nozygote elapsed=0s
+Wed Sep 23 02:03:46 UTC 2026 PROC pid=46 cmd=/usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-nozygote-profile --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:04:01 UTC 2026 CASE_ALIVE name=nozygote elapsed=15s
+Wed Sep 23 02:04:02 UTC 2026 PROC pid=46 cmd=/usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-nozygote-profile --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:04:18 UTC 2026 CASE_ALIVE name=nozygote elapsed=30s
+Wed Sep 23 02:04:19 UTC 2026 PROC pid=108 cmd=/proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --crashpad-handler-pid=0 --enable-crash-reporter=,Alpine Linux --user-data-dir=/root/cr4-nozygote-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,256760153286794023,14810037942801904225,524288 --field-trial-handle=3,i,17082973276394194211,12317747949271609363,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 
+Wed Sep 23 02:04:19 UTC 2026 PROC pid=116 cmd=/proc/self/exe --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --no-sandbox --disable-dev-shm-usage --crashpad-handler-pid=0 --enable-crash-reporter=,Alpine Linux --user-data-dir=/root/cr4-nozygote-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,5745995336083200859,7591328905137867798,524288 --field-trial-handle=3,i,17082973276394194211,12317747949271609363,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708990060038890 --enable-logging=stderr --v=1 
+Wed Sep 23 02:04:20 UTC 2026 PROC pid=46 cmd=/usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-nozygote-profile --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:04:36 UTC 2026 CASE_ALIVE name=nozygote elapsed=45s
+Wed Sep 23 02:04:36 UTC 2026 PROC pid=116 cmd=/proc/self/exe --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --no-sandbox --disable-dev-shm-usage --crashpad-handler-pid=0 --enable-crash-reporter=,Alpine Linux --user-data-dir=/root/cr4-nozygote-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,5745995336083200859,7591328905137867798,524288 --field-trial-handle=3,i,17082973276394194211,12317747949271609363,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708990060038890 --enable-logging=stderr --v=1 
+Wed Sep 23 02:04:37 UTC 2026 PROC pid=46 cmd=/usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-nozygote-profile --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:07:32 UTC 2026 [CR4_EXIT] case=nozygote wait_rc=132
+[46:46:0923/020400.828010:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+[46:74:0923/020401.132538:ERROR:base/files/file_path_watcher_inotify.cc:339] inotify_init() failed: Function not implemented (38)
+[46:76:0923/020401.204839:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[46:46:0923/020403.518974:ERROR:content/browser/browser_main_loop.cc:288] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+[46:76:0923/020406.540901:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[46:76:0923/020406.549374:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[46:76:0923/020406.570562:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[46:78:0923/020407.434259:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MSM::InitializeMaybeAsync([this=0x2c000eb480])
+[46:78:0923/020407.453700:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MDM::MediaDevicesManager()
+[46:78:0923/020407.457162:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MSM::MediaStreamManager([this=0x2c000eb480]))
+[46:76:0923/020420.434610:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+MESA-LOADER: failed to retrieve device information
+[46:76:0923/020432.842965:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[46:76:0923/020432.851969:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[46:46:0923/020433.789391:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:170] Server doesn't support zcr_alpha_compositing_v1.
+[46:46:0923/020433.789783:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:185] Server doesn't support overlay_prioritizer.
+[46:46:0923/020433.790031:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:200] Server doesn't support wp_content_type_v1
+[46:46:0923/020433.790324:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:214] Server doesn't support wp_color_management_surface_v1.
+[0923/020437.840195:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[174:174:0923/020501.589264:WARNING:chrome/app/chrome_main_delegate.cc:285] process type 'renderer' should be created through the zygote.
+[175:175:0923/020504.272299:WARNING:chrome/app/chrome_main_delegate.cc:285] process type 'renderer' should be created through the zygote.
+Wed Sep 23 02:07:55 UTC 2026 ===== Chromium case=single profile=/root/cr4-single-profile =====
+Wed Sep 23 02:07:55 UTC 2026 CASE_START name=single pid=205
+Wed Sep 23 02:07:55 UTC 2026 CASE_ALIVE name=single elapsed=0s
+Wed Sep 23 02:07:59 UTC 2026 PROC pid=205 cmd=chromium --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-single-profile --single-process --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:08:21 UTC 2026 CASE_ALIVE name=single elapsed=15s
+Wed Sep 23 02:08:23 UTC 2026 PROC pid=205 cmd=/usr/lib/chromium/chromium --user-data-dir=/root/.config/chromium --ozone-platform-hint=auto --ozone-platform=wayland --in-process-gpu --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --user-data-dir=/root/cr4-single-profile --single-process --no-zygote file:///usr/share/html-test/index.html 
+Wed Sep 23 02:09:03 UTC 2026 [CR4_EXIT] case=single wait_rc=134
+[205:205:0923/020812.742294:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+[205:234:0923/020813.099715:ERROR:base/files/file_path_watcher_inotify.cc:339] inotify_init() failed: Function not implemented (38)
+[205:235:0923/020813.265798:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[205:205:0923/020814.795133:ERROR:content/browser/browser_main_loop.cc:288] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+[205:235:0923/020823.285774:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[205:235:0923/020823.305715:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[205:235:0923/020823.313221:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[0923/020826.715294:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+Wed Sep 23 02:09:12 UTC 2026 ===== D. 收尾 =====
+[02:03:39.072] DRM: output Virtual-1 uses shadow framebuffer.
+               arbitrary surface rotation: yes
+[02:03:39.087] Loading module '/usr/lib/weston/desktop-shell.so'
+[02:03:39.149] launching '/usr/libexec/weston-desktop-shell'
+Wed Sep 23 02:09:13 UTC 2026 [CR4_SUM] socket=/run/user/0/wayland-1 weston_alive=yes
+Wed Sep 23 02:09:13 UTC 2026 cr4 cleanup complete

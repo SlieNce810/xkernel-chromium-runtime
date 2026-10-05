@@ -1,0 +1,103 @@
+{"kind": "rx", "ts": 1790944593.5181081, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1790944593.5182452, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-interaction-single-r8.sock"}}
+{"kind": "tx", "ts": 1790944593.5183408, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1790944593.5189366, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1790944593.5190597, "value": {"execute": "query-mice", "id": 2}}
+{"kind": "rx", "ts": 1790944593.519644, "value": {"id": 2, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1790944593.5197687, "value": {"id": 2, "return": [{"absolute": true, "current": false, "index": 3, "name": "QEMU Virtio Tablet"}, {"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1790944593.5198495, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 3}}
+{"kind": "rx", "ts": 1790944593.5230896, "value": {"id": 3, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1790944593.5232043, "value": {"id": 3, "return": "  Mouse #3: QEMU Virtio Tablet (absolute)\r\n* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1790944593.5233357, "value": {"arguments": {"command-line": "mouse_set 3"}, "execute": "human-monitor-command", "id": 4}}
+{"kind": "rx", "ts": 1790944593.5245988, "value": {"id": 4, "return": ""}}
+{"kind": "mouse-selected", "ts": 1790944593.5247416, "value": {"index": 3}}
+{"kind": "sleep", "ts": 1790944593.524841, "value": {"reason": "wait for Weston and Chromium", "seconds": 90.0}}
+{"kind": "tx", "ts": 1790944683.5250711, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 7168}, "type": "abs"}, {"data": {"axis": "y", "value": 7536}, "type": "abs"}]}, "execute": "input-send-event", "id": 5}}
+{"kind": "rx", "ts": 1790944683.5258498, "value": {"id": 5, "return": {}}}
+{"kind": "action", "ts": 1790944683.525937, "value": {"op": "absolute", "qemu_x": 7168, "qemu_y": 7536, "transport": "qmp", "x": 280, "y": 184}}
+{"kind": "tx", "ts": 1790944683.5260441, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 6}}
+{"kind": "rx", "ts": 1790944683.526648, "value": {"id": 6, "return": {}}}
+{"kind": "tx", "ts": 1790944683.5267444, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 7}}
+{"kind": "rx", "ts": 1790944683.527287, "value": {"id": 7, "return": {}}}
+{"kind": "action", "ts": 1790944683.5273714, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1790944683.527443, "value": {"name": "run-selftest", "x": 280, "y": 184}}
+{"kind": "sleep", "ts": 1790944683.5274818, "value": {"reason": "T4 timer and Promise completion", "seconds": 2.0}}
+{"kind": "tx", "ts": 1790944685.527693, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 8704}, "type": "abs"}, {"data": {"axis": "y", "value": 26910}, "type": "abs"}]}, "execute": "input-send-event", "id": 8}}
+{"kind": "rx", "ts": 1790944685.5285974, "value": {"id": 8, "return": {}}}
+{"kind": "action", "ts": 1790944685.5286868, "value": {"op": "absolute", "qemu_x": 8704, "qemu_y": 26910, "transport": "qmp", "x": 340, "y": 657}}
+{"kind": "tx", "ts": 1790944685.5287719, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 9}}
+{"kind": "rx", "ts": 1790944685.5294244, "value": {"id": 9, "return": {}}}
+{"kind": "tx", "ts": 1790944685.529512, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 10}}
+{"kind": "rx", "ts": 1790944685.530113, "value": {"id": 10, "return": {}}}
+{"kind": "action", "ts": 1790944685.5301867, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1790944685.530234, "value": {"name": "focus-text-input", "x": 340, "y": 657}}
+{"kind": "tx", "ts": 1790944685.5302904, "value": {"arguments": {"keys": [{"data": "h", "type": "qcode"}]}, "execute": "send-key", "id": 11}}
+{"kind": "rx", "ts": 1790944685.5307524, "value": {"id": 11, "return": {}}}
+{"kind": "action", "ts": 1790944685.530827, "value": {"op": "key", "qcode": "h", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944685.6110318, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 12}}
+{"kind": "rx", "ts": 1790944685.611479, "value": {"id": 12, "return": {}}}
+{"kind": "action", "ts": 1790944685.6115534, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944685.6917498, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 13}}
+{"kind": "rx", "ts": 1790944685.6922274, "value": {"id": 13, "return": {}}}
+{"kind": "action", "ts": 1790944685.6923244, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944685.772549, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 14}}
+{"kind": "rx", "ts": 1790944685.7730002, "value": {"id": 14, "return": {}}}
+{"kind": "action", "ts": 1790944685.7730665, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944685.8532753, "value": {"arguments": {"keys": [{"data": "o", "type": "qcode"}]}, "execute": "send-key", "id": 15}}
+{"kind": "rx", "ts": 1790944685.853717, "value": {"id": 15, "return": {}}}
+{"kind": "action", "ts": 1790944685.8537831, "value": {"op": "key", "qcode": "o", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944685.9340608, "value": {"arguments": {"keys": [{"data": "spc", "type": "qcode"}]}, "execute": "send-key", "id": 16}}
+{"kind": "rx", "ts": 1790944685.934609, "value": {"id": 16, "return": {}}}
+{"kind": "action", "ts": 1790944685.93469, "value": {"op": "key", "qcode": "spc", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.014861, "value": {"arguments": {"keys": [{"data": "x", "type": "qcode"}]}, "execute": "send-key", "id": 17}}
+{"kind": "rx", "ts": 1790944686.0152957, "value": {"id": 17, "return": {}}}
+{"kind": "action", "ts": 1790944686.015362, "value": {"op": "key", "qcode": "x", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.0955417, "value": {"arguments": {"keys": [{"data": "minus", "type": "qcode"}]}, "execute": "send-key", "id": 18}}
+{"kind": "rx", "ts": 1790944686.096107, "value": {"id": 18, "return": {}}}
+{"kind": "action", "ts": 1790944686.0961623, "value": {"op": "key", "qcode": "minus", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.176312, "value": {"arguments": {"keys": [{"data": "k", "type": "qcode"}]}, "execute": "send-key", "id": 19}}
+{"kind": "rx", "ts": 1790944686.176731, "value": {"id": 19, "return": {}}}
+{"kind": "action", "ts": 1790944686.1767986, "value": {"op": "key", "qcode": "k", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.2570007, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 20}}
+{"kind": "rx", "ts": 1790944686.2574286, "value": {"id": 20, "return": {}}}
+{"kind": "action", "ts": 1790944686.257498, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.3376482, "value": {"arguments": {"keys": [{"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 21}}
+{"kind": "rx", "ts": 1790944686.33811, "value": {"id": 21, "return": {}}}
+{"kind": "action", "ts": 1790944686.3381763, "value": {"op": "key", "qcode": "r", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.4183326, "value": {"arguments": {"keys": [{"data": "n", "type": "qcode"}]}, "execute": "send-key", "id": 22}}
+{"kind": "rx", "ts": 1790944686.4187555, "value": {"id": 22, "return": {}}}
+{"kind": "action", "ts": 1790944686.418827, "value": {"op": "key", "qcode": "n", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.4990606, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 23}}
+{"kind": "rx", "ts": 1790944686.4995804, "value": {"id": 23, "return": {}}}
+{"kind": "action", "ts": 1790944686.499656, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944686.5798213, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 24}}
+{"kind": "rx", "ts": 1790944686.5802622, "value": {"id": 24, "return": {}}}
+{"kind": "action", "ts": 1790944686.5803287, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "sleep", "ts": 1790944686.660442, "value": {"reason": "input echo update", "seconds": 1.0}}
+{"kind": "tx", "ts": 1790944687.6606681, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 7398}, "type": "abs"}, {"data": {"axis": "y", "value": 31579}, "type": "abs"}]}, "execute": "input-send-event", "id": 25}}
+{"kind": "rx", "ts": 1790944687.6614318, "value": {"id": 25, "return": {}}}
+{"kind": "action", "ts": 1790944687.6615076, "value": {"op": "absolute", "qemu_x": 7398, "qemu_y": 31579, "transport": "qmp", "x": 289, "y": 771}}
+{"kind": "tx", "ts": 1790944687.6615615, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 26}}
+{"kind": "rx", "ts": 1790944687.6621351, "value": {"id": 26, "return": {}}}
+{"kind": "tx", "ts": 1790944687.662222, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 27}}
+{"kind": "rx", "ts": 1790944687.6628485, "value": {"id": 27, "return": {}}}
+{"kind": "action", "ts": 1790944687.6629198, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1790944687.6629732, "value": {"name": "real-click-plus-one", "x": 289, "y": 771}}
+{"kind": "sleep", "ts": 1790944687.66303, "value": {"reason": "capture interaction state", "seconds": 25.0}}
+{"kind": "tx", "ts": 1790944712.6633232, "value": {"arguments": {"keys": [{"data": "tab", "type": "qcode"}]}, "execute": "send-key", "id": 28}}
+{"kind": "rx", "ts": 1790944712.6640513, "value": {"id": 28, "return": {}}}
+{"kind": "action", "ts": 1790944712.664146, "value": {"op": "key", "qcode": "tab", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944712.6642547, "value": {"arguments": {"keys": [{"data": "ret", "type": "qcode"}]}, "execute": "send-key", "id": 29}}
+{"kind": "rx", "ts": 1790944712.6648595, "value": {"id": 29, "return": {}}}
+{"kind": "action", "ts": 1790944712.6649418, "value": {"op": "key", "qcode": "ret", "transport": "send-key"}}
+{"kind": "sleep", "ts": 1790944712.66502, "value": {"reason": "layout navigation and load listener", "seconds": 8.0}}
+{"kind": "tx", "ts": 1790944720.6652565, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 30}}
+{"kind": "rx", "ts": 1790944720.6659422, "value": {"id": 30, "return": {}}}
+{"kind": "action", "ts": 1790944720.6660292, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1790944720.6661556, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 31}}
+{"kind": "rx", "ts": 1790944720.666844, "value": {"id": 31, "return": {}}}
+{"kind": "action", "ts": 1790944720.6669223, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "sleep", "ts": 1790944720.6669788, "value": {"reason": "CSS verdict after scrolling", "seconds": 18.0}}
+{"kind": "tx", "ts": 1790944738.6672423, "value": {"arguments": {"keys": [{"data": "alt-left", "type": "qcode"}]}, "execute": "send-key", "id": 32}}
+{"kind": "rx", "ts": 1790944738.6680243, "value": {"error": {"class": "GenericError", "desc": "Parameter 'data' does not accept value 'alt-left'"}, "id": 32}}
+{"kind": "result", "ts": 1790944738.6681347, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Parameter 'data' does not accept value 'alt-left'\"}", "ok": false}}

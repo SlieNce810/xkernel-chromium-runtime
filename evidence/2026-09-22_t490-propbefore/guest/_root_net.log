@@ -1,0 +1,41 @@
+--- 接口 ---
+ifconfig: /proc/net/dev: No such file or directory
+ifconfig: ioctl 0x8912 failed: Not a tty
+--- 路由 ---
+127.0.0.1 dev lo scope host  src 127.0.0.1 
+10.0.2.15 dev lo scope host  src 10.0.2.15 
+10.0.2.0/24 dev eth0 scope link  src 10.0.2.15 
+127.0.0.0/8 dev lo scope host  src 127.0.0.1 
+default via 10.0.2.2 dev eth0  src 10.0.2.15 
+--- DNS ---
+nameserver 10.0.2.3
+--- apk 源 ---
+http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/main
+http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/community
+--- 网关 ping (10.0.2.2) ---
+
+--- 10.0.2.2 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 2.655/21.677/40.699 ms
+--- DNS 解析 (dl-cdn / tuna) ---
+Server:		10.0.2.3
+Address:	10.0.2.3:53
+
+Non-authoritative answer:
+mirrors.tuna.tsinghua.edu.cn	canonical name = bfdmirrors.s.tuna.tsinghua.edu.cn
+Name:	bfdmirrors.s.tuna.tsinghua.edu.cn
+Address: 101.6.15.130
+
+--- HTTP 探测（tuna mirror 根）---
+wget_main_rc=0
+wget_community_rc=0
+--- apk update（120s 上限）---
+fetch http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/main/aarch64/APKINDEX.tar.gz
+fetch http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/community/aarch64/APKINDEX.tar.gz
+v3.22.6-2-gae7e358ab5f [http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/main]
+v3.22.5-142-g17748e49b18 [http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.22/community]
+OK: 26178 distinct packages available
+apk_update_rc=0
+--- 关键包能否解析（不安装，只看索引）---
+weston-14.0.2-r1
+apk_search_rc=0

@@ -1,0 +1,120 @@
+Tue Sep 22 11:02:38 UTC 2026 ================ autorun_x11 start ================
+Tue Sep 22 11:02:38 UTC 2026 PAGE_URL=file:///usr/share/html-test/index.html
+Tue Sep 22 11:02:38 UTC 2026 uname: Linux kylin-x 10.0.0 10.0.0 aarch64 Linux
+Tue Sep 22 11:02:38 UTC 2026 id: uid=0(root) gid=0(root)
+Tue Sep 22 11:02:38 UTC 2026 ===== /dev/dri | /dev/fb0 | /dev/input =====
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 /dev/fb0
+
+/dev/dri/:
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+
+/dev/input/:
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice
+Tue Sep 22 11:02:39 UTC 2026 ===== tty 设备（Xorg 找 VT/console 用）=====
+Tue Sep 22 11:02:39 UTC 2026   OK   /dev/console -> crw-rw-rw- 5, 1
+Tue Sep 22 11:02:39 UTC 2026   OK   /dev/tty -> crw-rw-rw- 5, 0
+Tue Sep 22 11:02:39 UTC 2026   MISS /dev/tty0
+Tue Sep 22 11:02:39 UTC 2026   MISS /dev/tty1
+Tue Sep 22 11:02:39 UTC 2026   MISS /dev/ttyAMA0
+Tue Sep 22 11:02:39 UTC 2026 ===== 关键组件存在性 =====
+Tue Sep 22 11:02:40 UTC 2026   OK   /usr/bin/Xorg (275 B)
+Tue Sep 22 11:02:40 UTC 2026   OK   /usr/libexec/Xorg (1989808 B)
+Tue Sep 22 11:02:40 UTC 2026   OK   /usr/libexec/Xorg.wrap (67600 B)
+Tue Sep 22 11:02:40 UTC 2026   OK   /usr/bin/jwm (264288 B)
+Tue Sep 22 11:02:41 UTC 2026   OK   /usr/bin/xset (67312 B)
+Tue Sep 22 11:02:41 UTC 2026   OK   /usr/bin/xauth (68112 B)
+Tue Sep 22 11:02:41 UTC 2026   OK   /usr/bin/chromium (16 B)
+Tue Sep 22 11:02:41 UTC 2026   OK   /usr/lib/xorg/modules/drivers/modesetting_drv.so (135640 B)
+Tue Sep 22 11:02:41 UTC 2026   OK   /usr/lib/xorg/modules/input/libinput_drv.so (133168 B)
+Tue Sep 22 11:02:42 UTC 2026   OK   /usr/lib/xorg/modules/extensions/libglx.so (277304 B)
+Tue Sep 22 11:02:42 UTC 2026 ===== /proc/devices 中 drm/fb =====
+Tue Sep 22 11:02:42 UTC 2026   (无 drm/fb 条目)
+Tue Sep 22 11:02:42 UTC 2026 ===== libdrm 枚举依赖的 sysfs 路径（只读逐级探测）=====
+Tue Sep 22 11:02:42 UTC 2026   MISS /sys/dev/char/226:0
+Tue Sep 22 11:02:42 UTC 2026   MISS /sys/dev/char/226:0/device
+Tue Sep 22 11:02:42 UTC 2026   MISS /sys/dev/char/226:0/device/drm
+Tue Sep 22 11:02:42 UTC 2026   MISS /sys/dev/char/226:0/device/drm/card0
+Tue Sep 22 11:02:42 UTC 2026   MISS /sys/dev/char/226:0/subsystem
+Tue Sep 22 11:02:43 UTC 2026   MISS /sys/class/drm
+Tue Sep 22 11:02:43 UTC 2026   MISS /sys/bus/platform/devices
+Tue Sep 22 11:02:43 UTC 2026   MISS /sys/bus/pci/devices
+Tue Sep 22 11:02:43 UTC 2026   MISS /sys/devices
+Tue Sep 22 11:02:43 UTC 2026   /sys 是否可读: class fs 
+Tue Sep 22 11:02:43 UTC 2026 ===== DRM connector status（只读，不写伪 sysfs）=====
+Tue Sep 22 11:02:43 UTC 2026   /sys/class/drm 不存在
+Tue Sep 22 11:02:44 UTC 2026 /dev/shm remount size=512m 成功
+Tue Sep 22 11:02:45 UTC 2026 dev/shm: none 0 0 0 0% /dev/shm
+Filesystem                Size      Used Available Use% Mounted on
+none                         0         0         0   0% /dev/shm
+/dev/vda                  1.9G    925.7M    917.7M  50% /
+none                         0         0         0   0% /tmp
+Tue Sep 22 11:02:45 UTC 2026 kiosk home: drwxr-xr-x 6 kiosk kiosk 4096 Sep 21 04:32 /home/kiosk
+Tue Sep 22 11:02:45 UTC 2026 (未注入 /drmprobe —— 本轮不做 DRM 通路 errno 级取证)
+xauth:  file /run/x11/auth does not exist
+Tue Sep 22 11:02:46 UTC 2026 xauth: /run/x11/auth 存在=yes
+Tue Sep 22 11:02:46 UTC 2026 --- Xorg try[keeptty]: args=[-keeptty] ---
+Tue Sep 22 11:02:47 UTC 2026   -> socket 出现（1s），进入 6s settle 复核
+Tue Sep 22 11:02:54 UTC 2026   -> settle 复核通过：进程存活 + socket 仍在
+Tue Sep 22 11:02:54 UTC 2026 STAGE=x11-xorg-up
+Tue Sep 22 11:02:54 UTC 2026 Xorg UP on :0 (pid )
+xset:  unable to open display ":0"
+Tue Sep 22 11:02:55 UTC 2026 !! xset 失败（不致命）
+Tue Sep 22 11:02:55 UTC 2026 ===== 成功路径也留档：xorg.log 尾部 25 行（modeset 证据）=====
+Tue Sep 22 11:02:56 UTC 2026 ---- xorg.log tail(-25) ----
+[    18.837] (II) modeset(0): Output Virtual-1 connected
+[    18.841] (II) modeset(0): Using sloppy heuristic for initial modes
+[    18.841] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    18.843] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    18.843] (==) modeset(0): DPI set to (96, 96)
+[    18.843] (II) Loading sub module "fb"
+[    18.843] (II) LoadModule: "fb"
+[    18.844] (II) Module "fb" already built-in
+[    18.844] (II) Loading sub module "shadow"
+[    18.844] (II) LoadModule: "shadow"
+[    18.851] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    18.859] (II) Module shadow: vendor="X.Org Foundation"
+[    18.859] 	compiled for 1.21.1.19, module version = 1.1.0
+[    18.859] 	ABI class: X.Org ANSI C Emulation, version 0.4
+[    18.866] (EE) 
+Fatal server error:
+[    18.867] (EE) AddScreen/ScreenInit failed for driver 0
+[    18.868] (EE) 
+[    18.868] (EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+[    18.868] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    18.869] (EE) 
+[    18.875] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:02:56 UTC 2026 ---- xorg stderr tail(-25) ----
+
+X.Org X Server 1.21.1.19
+X Protocol Version 11, Revision 0
+Current Operating System: Linux kylin-x 10.0.0 10.0.0 aarch64
+Kernel command line: 
+ 
+Current version of pixman: 0.46.4
+	Before reporting problems, check http://wiki.x.org
+	to make sure that you have the latest version.
+Markers: (--) probed, (**) from config file, (==) default setting,
+	(++) from command line, (!!) notice, (II) informational,
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+(++) Log file: "/root/xorg.log", Time: Tue Sep 22 11:02:47 2026
+(==) Using system config directory "/usr/share/X11/xorg.conf.d"
+(EE) 
+Fatal server error:
+(EE) AddScreen/ScreenInit failed for driver 0
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/root/xorg.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 11:02:56 UTC 2026 ===== 当前 DRM 状态（Xorg 起来后）=====
+Tue Sep 22 11:02:57 UTC 2026 STAGE=x11-session-skipped
+Tue Sep 22 11:02:57 UTC 2026 Xorg 未就绪，跳过 jwm / chromium（本轮不会有图形证据）

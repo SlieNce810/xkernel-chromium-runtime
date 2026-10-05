@@ -1,0 +1,140 @@
+==================================================================
+round_assert  tag=ozone-c0-nogpu-r2
+证据目录      /home/mo/xk6/evidence/2026-09-22_t490-ozone-c0-nogpu-r2
+时间          2026-09-22T12:35:27+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 6
+PNG 张数 : 0
+  640x480 921615 shot-01-at0045s.ppm
+  1280x800 3072016 shot-02-at0075s.ppm
+  1280x800 3072016 shot-03-at0105s.ppm
+  1280x800 3072016 shot-04-at0135s.ppm
+  1280x800 3072016 shot-05-at0165s.ppm
+  1280x800 3072016 shot-06-final.ppm
+尺寸集合     : 1280x800 640x480 
+字节数集合   : 3072016 921615 
+!! 本轮内截图尺寸不一致 → 该轮证据不得用于跨轮像素比较（疑 weston 模式中途变化或截图中断）
+众数尺寸     : 1280x800（用于逐张判据的 --expect-size）
+→ 尺寸不一致（有异于众数的帧，通常是 weston 设模式之前的首帧）；
+   仍按众数 1280x800 逐张判定，非众数帧只记'尺寸不符'、不计入渲染失败
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+/root/full.log                               6853 bytes     94 lines
+/root/chrome-full.log                       24696 bytes    156 lines
+/root/chrome-snap.log                        1359 bytes     20 lines
+/root/a0.log                             (缺失/空)
+/root/chromium.log                       (缺失/空)
+/root/nnp.log                            (缺失/空)
+/root/nnp-watch.log                      (缺失/空)
+/root/install.log                            2465 bytes     29 lines
+/root/install-watch.log                      3680 bytes     33 lines
+/tmp/weston.log                          (缺失/空)
+/root/full.log                               6853 bytes     94 lines
+/root/chrome-full.log                       24696 bytes    156 lines
+/root/chrome-snap.log                        1359 bytes     20 lines
+/root/a0.log                             (缺失/空)
+--- /root 目录 ---
+  16385   40700 (2)      0      0    4096 22-Sep-2026 12:33 .
+      2   40775 (2)   1000   1000    4096 21-Sep-2026 14:49 ..
+  16388  100755 (1)      0      0   20726 22-Sep-2026 12:32 autorun.sh
+  16389  100664 (1)      0      0   11140 21-Sep-2026 10:08 bootstrap.sh
+  16390  100664 (1)      0      0    5149 21-Sep-2026 10:08 index.html
+    813  100644 (1)      0      0    8314 21-Sep-2026 11:49 autorun.log
+     23  100644 (1)      0      0    1389 20-Sep-2026 13:41 weston-drm.log
+   1942  100644 (1)      0      0     687 20-Sep-2026 13:41 weston-fbdev.log
+     28  100644 (1)      0      0    1347 21-Sep-2026 11:49 weston-fail-seatd-card0.log
+     30  100644 (1)      0      0    1356 21-Sep-2026 11:49 weston-fail-seatd-abspath.log
+     26  100644 (1)      0      0     998 21-Sep-2026 10:17 weston-fail-builtin-abspath.log
+     32  100644 (1)      0      0     938 21-Sep-2026 10:33 weston-fail-ldpreload-shim.log
+    417  100644 (1)      0      0     938 21-Sep-2026 11:45 weston-fail-shim-fakesysfs.log
+    629  100644 (1)      0      0    2865 21-Sep-2026 11:49 weston-fail-shim-card0.log
+  49227  100644 (1)      0      0    2465 21-Sep-2026 15:03 install.log
+  49228  100644 (1)      0      0    3680 21-Sep-2026 15:04 install-watch.log
+ 131073   40700 (2)      0      0    4096 21-Sep-2026 15:01 .config
+    824  100644 (1)      0      0    6853 22-Sep-2026 12:34 full.log
+   1939  100644 (1)      0      0   24696 22-Sep-2026 12:34 chrome-full.log
+   3904  100644 (1)      0      0    1359 22-Sep-2026 12:34 chrome-snap.log
+
+OUT=/home/mo/xk6/evidence/2026-09-22_t490-ozone-c0-nogpu-r2/guest
+total 56
+drwxrwxr-x 2 mo mo  4096 Sep 22 12:35 .
+drwxrwxr-x 4 mo mo  4096 Sep 22 12:35 ..
+-rw-rw-r-- 1 mo mo 24696 Sep 22 12:35 _root_chrome-full.log
+-rw-rw-r-- 1 mo mo  1359 Sep 22 12:35 _root_chrome-snap.log
+-rw-rw-r-- 1 mo mo  6853 Sep 22 12:35 _root_full.log
+-rw-rw-r-- 1 mo mo  3680 Sep 22 12:35 _root_install-watch.log
+-rw-rw-r-- 1 mo mo  2465 Sep 22 12:35 _root_install.log
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-01-at0045s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-02-at0075s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-03-at0105s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-04-at0135s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-05-at0165s: 严格集未通过 
+严格集 0/7 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'checkerboard_24px', 'table_borders', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'primary_color_area']；其中未通过 ['primary_color_area']
+  shot-06-final: 严格集未通过 
+判定张数     : 6
+严格集未通过 : 6
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+FAIL diff: 尺寸不同 640x480 vs 1280x800
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 5
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+  [full] VARIANT oz=wayland gl=none gpu=in-process win=95
+  [m[full]   wall=31s renderer=0 进程表: Tue Sep 22 04:33:55 UTC 2026 [t15] pid=188 st=R type=(browser/none)|Tue Sep 22 04:33:56 UTC 2026 [t15] pid=198 st=S type=crashpad-handler|Tue Sep 22 04:33:57 UTC 2026 [t15] pid=205 st=S type=crashpad-handler|
+        7 type=(browser/none)
+  (qemu) 7:[218:218:0922/043338.727576:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  9:[215:215:0922/043339.096317:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  112:[188:261:0922/043421.081420:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+  173:7:[218:218:0922/043338.727576:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  174:9:[215:215:0922/043339.096317:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  176:173:7:[218:218:0922/043338.727576:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  180:112:[188:261:0922/043421.081420:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+  182:--- ERROR/FATAL 计数 ---
+  185:--- FATAL 行 ---
+  186:182:--- ERROR/FATAL 计数 ---
+  187:185:--- FATAL 行 ---
+  188:186:182:--- ERROR/FATAL 计数 ---
+### _root_full.log
+  Tue Sep 22 04:33:21 UTC 2026 VARIANT oz=wayland gl=none gpu=in-process win=95
+  Tue Sep 22 04:33:59 UTC 2026   wall=31s renderer=0 进程表: Tue Sep 22 04:33:55 UTC 2026 [t15] pid=188 st=R type=(browser/none)|Tue Sep 22 04:33:56 UTC 2026 [t15] pid=198 st=S type=crashpad-handler|Tue Sep 22 04:33:57 UTC 2026 [t15] pid=205 st=S type=crashpad-handler|
+  Tue Sep 22 04:34:40 UTC 2026   wall=69s renderer=0 进程表: Tue Sep 22 04:34:34 UTC 2026 [t30] pid=188 st=R type=(browser/none)|Tue Sep 22 04:34:35 UTC 2026 [t30] pid=198 st=S type=crashpad-handler|Tue Sep 22 04:34:37 UTC 2026 [t30] pid=205 st=S type=crashpad-handler|Tue Sep 22 04:34:38 UTC 2026 [t30] pid=319 st=S type=utility|
+### _root_chrome-full.log
+  [218:218:0922/043338.727576:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  [215:215:0922/043339.096317:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+  [188:261:0922/043421.081420:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+       11 type=crashpad-handler
+        6 type=(browser/none)
+        3 type=utility
+
+==================================================================
+SUMMARY_END tag=ozone-c0-nogpu-r2  ppm=6  严格集未通过=6  尺寸不符=0  心跳=0/5
+==================================================================

@@ -1,0 +1,649 @@
+### [2026-09-30 10:39:28] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.19s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff8000007f3a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff8000007f3a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-30 02:39:28.006170080 UTC
+
+[37m[  0.860542 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-30T01:17:02.240249867Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = c2eabd524461c79631d7b737f4c8fa09bd24e96e
+git_dirty = true
+build_id = e2678220032ccdb1893c9c72ef3c724325f8afa976f308be4640f5df5bcd7eb7
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Wed Sep 30 02:39:29 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1790735969
+[mpdiag] MP_AUTORUN_START_MONO_MS=1671\n
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=1
+[mpdiag] GL_MODE=angle
+[mpdiag] NET_MODE=normal
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] STRACE_PATH=missing
+[mpdiag] STRACE_FILE=missing
+[37m[  3.040901 1:19 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  3.964616 2:21 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event0 dev=13:64[m
+[m[37m[  3.966584 2:21 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=1[m
+[m[37m[  3.969262 2:21 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event1 dev=13:65[m
+[m[37m[  3.969906 2:21 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=2[m
+[m[37m[  4.094497 1:19 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  4.143695 1:19 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  4.204250 3:23 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  4.204938 3:23 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  4.205848 3:23 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[  4.221004 0:24 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  4.221361 0:24 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  4.221623 0:24 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[ 14.445911 2:30 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[37m[ 14.463510 1:28 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 14.471079 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa4c020[m
+[m[37m[ 14.471389 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 14.471747 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 14.472124 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 14.472746 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa4c010[m
+[m[37m[ 14.473253 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa4c018[m
+[m[37m[ 14.473589 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa4c028[m
+[m[37m[ 14.473924 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa4c090[m
+[m[37m[ 14.474555 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa4c098[m
+[m[37m[ 14.474857 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa4c0a0[m
+[m[37m[ 14.475161 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa4c030[m
+[m[37m[ 14.475490 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa4c0b0[m
+[m[37m[ 14.475799 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa4c0a8[m
+[m[37m[ 14.476099 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa4c0c0[m
+[m[37m[ 14.476409 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa4c0d0[m
+[m[37m[ 14.476771 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa4c0d8[m
+[m[37m[ 14.477263 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa4c138[m
+[m[37m[ 14.477688 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa4c140[m
+[m[37m[ 14.480289 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 14.509889 1:28 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 14.511897 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa56020[m
+[m[37m[ 14.512138 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 14.512325 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 14.512546 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 14.512771 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa56010[m
+[m[37m[ 14.512949 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa56018[m
+[m[37m[ 14.513133 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa56028[m
+[m[37m[ 14.513293 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa56090[m
+[m[37m[ 14.513549 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa56098[m
+[m[37m[ 14.513760 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa560a0[m
+[m[37m[ 14.514221 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa56030[m
+[m[37m[ 14.514725 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa560b0[m
+[m[37m[ 14.515167 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa560a8[m
+[m[37m[ 14.515383 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa560c0[m
+[m[37m[ 14.515605 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa560d0[m
+[m[37m[ 14.515827 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa560d8[m
+[m[37m[ 14.516067 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa56138[m
+[m[37m[ 14.516300 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa56140[m
+[m[37m[ 14.517073 2:30 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 14.810433 2:30 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=30 alive=yes
+[mpdiag] LD_PRELOAD_AFTER=/wayland_damage_shim_v3.so
+[wayland-damage-shim] loaded pid=43
+[wayland-damage-shim] loaded pid=43
+ls: /wayland_damage_shim.so: No such file or directory
+[wayland-damage-shim] loaded pid=44
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile
+[wayland-damage-shim] loaded pid=47
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1790735998
+[wayland-damage-shim] loaded pid=49
+[mpdiag] MP_BROWSER_START_MONO_MS=31113\n
+[mpdiag] STRACE_SKIPPED=unavailable
+[mpdiag] browser_pid=50
+[wayland-damage-shim] loaded pid=52
+[wayland-damage-shim] loaded pid=54
+[wayland-damage-shim] loaded pid=56
+[wayland-damage-shim] loaded pid=58
+[wayland-damage-shim] loaded pid=60
+[wayland-damage-shim] loaded pid=62
+[wayland-damage-shim] loaded pid=64
+[wayland-damage-shim] loaded pid=66
+[wayland-damage-shim] loaded pid=68
+[wayland-damage-shim] loaded pid=70
+[wayland-damage-shim] loaded pid=72
+[wayland-damage-shim] loaded pid=73
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=0s
+[wayland-damage-shim] loaded pid=74
+[wayland-damage-shim] loaded pid=75
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    75 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=77
+[wayland-damage-shim] loaded pid=50
+[wayland-damage-shim] loaded pid=81
+[wayland-damage-shim] loaded pid=83
+[wayland-damage-shim] loaded pid=79
+[wayland-damage-shim] loaded pid=85
+[wayland-damage-shim] loaded pid=87
+[wayland-damage-shim] loaded pid=91
+[wayland-damage-shim] loaded pid=93
+[wayland-damage-shim] loaded pid=96
+[wayland-damage-shim] loaded pid=99
+[wayland-damage-shim] loaded pid=89
+[wayland-damage-shim] loaded pid=102
+
+### [2026-09-30 10:40:13] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) [wayland-damage-shim] loaded pid=104
+[wayland-damage-shim] loaded pid=106
+[wayland-damage-shim] loaded pid=108
+[wayland-damage-shim] loaded pid=109
+s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-d[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-da[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dama[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damag[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at004[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at0045[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-01-at0045s[K
+
+
+
+
+
+
+
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   112 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=114
+### [2026-09-30 10:40:16] screendump OK (3072016 bytes)
+[wayland-damage-shim] loaded pid=97
+[wayland-damage-shim] loaded pid=100
+[37m[ 50.598699 3:97 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 51[m
+[m[37m[ 50.599412 3:97 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 64[m
+[m[37m[ 50.649499 1:100 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 51[m
+[m[37m[ 50.649815 1:100 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 64[m
+[m[37m[ 50.718354 3:50 ksyscall::dispatch:869] [33mUnimplemented syscall: landlock_create_ruleset (tid=50)[m
+[m[wayland-damage-shim] loaded pid=126
+[wayland-damage-shim] loaded pid=128
+[wayland-damage-shim] loaded pid=130
+[wayland-damage-shim] loaded pid=132
+[wayland-damage-shim] loaded pid=134
+[wayland-damage-shim] loaded pid=136
+[wayland-damage-shim] loaded pid=138
+[wayland-damage-shim] loaded pid=140
+[wayland-damage-shim] loaded pid=142
+[wayland-damage-shim] loaded pid=144
+[wayland-damage-shim] loaded pid=146
+[wayland-damage-shim] loaded pid=148
+[wayland-damage-shim] wl_display_connect name=<null> pid=50
+[wayland-damage-shim] loaded pid=150
+[wayland-damage-shim] loaded pid=153
+[wayland-damage-shim] flags class=wl_display opcode=1 pid=50
+[wayland-damage-shim] array_flags class=wl_display opcode=1 pid=50
+[wayland-damage-shim] flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] flags class=zxdg_output_manager_v1 opcode=1 pid=50
+[wayland-damage-shim] array_flags class=zxdg_output_manager_v1 opcode=1 pid=50
+[wayland-damage-shim] flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_shm opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_shm opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] array_flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] array_flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] array_flags class=wl_shm_pool opcode=2 pid=50
+[wayland-damage-shim] loaded pid=158
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] loaded pid=159
+[wayland-damage-shim] flags class=wl_compositor opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_compositor opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_data_device_manager opcode=1 pid=50
+[wayland-damage-shim] array_flags class=wl_data_device_manager opcode=1 pid=50
+[wayland-damage-shim] flags class=wl_compositor opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_compositor opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_display opcode=0 pid=50
+[wayland-damage-shim] flags class=wl_seat opcode=1 pid=50
+[wayland-damage-shim] array_flags class=wl_seat opcode=1 pid=50
+[wayland-damage-shim] flags class=wl_registry opcode=0 pid=50
+[wayland-damage-shim] array_flags class=wl_registry opcode=0 pid=50
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=10
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=10s
+[wayland-damage-shim] loaded pid=160
+[wayland-damage-shim] loaded pid=161
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   161 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=163
+[37m[ 61.288480 3:118 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[wayland-damage-shim] loaded pid=178
+[wayland-damage-shim] loaded pid=180
+[wayland-damage-shim] loaded pid=182
+[wayland-damage-shim] loaded pid=184
+[wayland-damage-shim] loaded pid=186
+[wayland-damage-shim] loaded pid=188
+[wayland-damage-shim] loaded pid=190
+[wayland-damage-shim] loaded pid=195
+[wayland-damage-shim] loaded pid=197
+[wayland-damage-shim] loaded pid=200
+[wayland-damage-shim] loaded pid=202
+[wayland-damage-shim] loaded pid=204
+[wayland-damage-shim] loaded pid=206
+[wayland-damage-shim] loaded pid=208
+[wayland-damage-shim] loaded pid=210
+[wayland-damage-shim] loaded pid=212
+[wayland-damage-shim] loaded pid=214
+[wayland-damage-shim] loaded pid=215
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=15
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=15s
+[wayland-damage-shim] loaded pid=216
+[wayland-damage-shim] loaded pid=217
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   175 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader --use-gl=angle --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,15619493675432043666,8781908987464687386,524288 --field-trial-handle=3,i,3355730870478677208,11924185004353785109,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   217 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=219
+[wayland-damage-shim] loaded pid=175
+[wayland-damage-shim] loaded pid=234
+[wayland-damage-shim] loaded pid=236
+[wayland-damage-shim] loaded pid=239
+[wayland-damage-shim] loaded pid=241
+[wayland-damage-shim] loaded pid=243
+[wayland-damage-shim] loaded pid=245
+[wayland-damage-shim] loaded pid=247
+[wayland-damage-shim] loaded pid=249
+[wayland-damage-shim] loaded pid=251
+[wayland-damage-shim] loaded pid=253
+[wayland-damage-shim] loaded pid=255
+[wayland-damage-shim] loaded pid=257
+[wayland-damage-shim] loaded pid=259
+[wayland-damage-shim] loaded pid=261
+[wayland-damage-shim] loaded pid=263
+[wayland-damage-shim] loaded pid=265
+[wayland-damage-shim] loaded pid=267
+[wayland-damage-shim] loaded pid=268
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=20
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=20s
+[wayland-damage-shim] loaded pid=269
+[wayland-damage-shim] loaded pid=270
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   175 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader --use-gl=angle --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,15619493675432043666,8781908987464687386,524288 --field-trial-handle=3,i,3355730870478677208,11924185004353785109,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   220 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   270 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=272
+[wayland-damage-shim] loaded pid=278
+[wayland-damage-shim] loaded pid=280
+[wayland-damage-shim] loaded pid=282
+[wayland-damage-shim] loaded pid=284
+[wayland-damage-shim] loaded pid=286
+[wayland-damage-shim] loaded pid=290
+[wayland-damage-shim] loaded pid=298
+[wayland-damage-shim] loaded pid=300
+[wayland-damage-shim] loaded pid=302
+[wayland-damage-shim] loaded pid=304
+[wayland-damage-shim] loaded pid=306
+[wayland-damage-shim] loaded pid=310
+[wayland-damage-shim] loaded pid=312
+[wayland-damage-shim] loaded pid=314
+[wayland-damage-shim] loaded pid=316
+[wayland-damage-shim] loaded pid=318
+[wayland-damage-shim] loaded pid=320
+[wayland-damage-shim] loaded pid=323
+[wayland-damage-shim] loaded pid=322
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=25
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=25s
+[wayland-damage-shim] loaded pid=326
+[wayland-damage-shim] loaded pid=325
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   273 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   274 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   324 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   326 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=329
+
+### [2026-09-30 10:41:13] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at0105s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-d[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-da[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dama[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damag[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at010[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at0105[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-02-at0105s[K
+
+### [2026-09-30 10:41:16] screendump OK (3072016 bytes)
+[wayland-damage-shim] loaded pid=337
+[wayland-damage-shim] loaded pid=340
+[wayland-damage-shim] loaded pid=343
+[wayland-damage-shim] loaded pid=348
+[wayland-damage-shim] loaded pid=353
+[wayland-damage-shim] loaded pid=366
+[wayland-damage-shim] loaded pid=369
+[wayland-damage-shim] loaded pid=372
+[wayland-damage-shim] loaded pid=375
+[wayland-damage-shim] loaded pid=377
+[wayland-damage-shim] loaded pid=381
+[wayland-damage-shim] loaded pid=383
+[wayland-damage-shim] loaded pid=386
+[wayland-damage-shim] loaded pid=388
+[wayland-damage-shim] loaded pid=390
+[wayland-damage-shim] loaded pid=392
+[wayland-damage-shim] loaded pid=394
+[wayland-damage-shim] loaded pid=396
+[wayland-damage-shim] loaded pid=398
+[wayland-damage-shim] loaded pid=400
+[wayland-damage-shim] loaded pid=401
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=30
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=30s
+[wayland-damage-shim] loaded pid=403
+[wayland-damage-shim] loaded pid=402
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    79 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS    89 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[37m[131.751033 1:121 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[mpdiag] PS    97 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   100 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   274 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[wayland-damage-shim] loaded pid=362
+[mpdiag] PS   328 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   331 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   333 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   362 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader --use-gl=angle --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,7469479667302735076,9504960553327930615,524288 --field-trial-handle=3,i,3355730870478677208,11924185004353785109,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708996619331833 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2,*renderer*=2,*child_process*=2,*site_instance*=2,*render_frame_host*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   403 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[wayland-damage-shim] loaded pid=408
+[wayland-damage-shim] loaded pid=419
+[wayland-damage-shim] loaded pid=421
+[wayland-damage-shim] loaded pid=423
+[wayland-damage-shim] loaded pid=427
+[mpdiag] MP_BROWSER_EXIT_EPOCH_MS=1790736121
+[mpdiag] MP_BROWSER_EXIT_RC=0
+[mpdiag] MP_RSS_MAX_KB=0
+[mpdiag] MP_RENDERER_SEEN=0
+[mpdiag] MP_RENDERER_MAX_STREAK=0
+[mpdiag] MP_GATE=0
+[wayland-damage-shim] loaded pid=429
+[mpdiag] CHROMIUM_LOG_BYTES=49801
+[wayland-damage-shim] loaded pid=430
+
+### [2026-09-30 10:42:13] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at0165s.ppm
+(qemu) [wayland-damage-shim] loaded pid=432
+[wayland-damage-shim] loaded pid=432
+s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-d[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-da[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dama[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damag[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at016[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at0165[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-03-at0165s[K
+
+
+
+
+9
+e
+9
+7
+0
+4
+
+
+
+
+
+
+
+
+
+
+.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+
+
+
+0
+
+
+0
+
+
+0
+
+
+
+
+0
+
+0
+
+0
+
+0
+
+
+
+0
+.
+
+
+
+
+
+
+ST
+
+
+
+
+
+
+)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+.
+
+
+
+
+
+
+
+
+.
+
+.
+D
+
+
+
+
+
+
+
+
+
+
+
+s
+
+
+
+
+
+s
+
+
+
+s
+
+
+
+
+
+
+
+
+
+
+
+
+s
+
+
+
+
+
+
+
+
+
+s
+
+s
+
+
+
+[wayland-damage-shim] loaded pid=433
+### [2026-09-30 10:42:17] screendump OK (3072016 bytes)
+[wayland-damage-shim] loaded pid=434
+
+### [2026-09-30 10:42:28] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-final.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-d[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-da[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-dama[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damag[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-f[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-fi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-fin[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-fina[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-final[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-final.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-damage-shim-v4-r1/screenshots/shot-04-final.p[K
+
+### [2026-09-30 10:42:31] screendump OK (3072016 bytes)
+
+### [2026-09-30 10:42:31] stopping session...
+QEMU: Terminated
+### [2026-09-30 10:42:31] SESSION END (exit=0)

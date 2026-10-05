@@ -1,0 +1,64 @@
+Wed Sep 23 03:13:17 UTC 2026 ===== A. official page set and unshimmed environment =====
+Wed Sep 23 03:13:17 UTC 2026 kernel: Linux 10.0.0 aarch64
+Wed Sep 23 03:13:17 UTC 2026 LD_PRELOAD=<unset>
+Wed Sep 23 03:13:17 UTC 2026 pages: 831cf28f3748940b450d1da325aa39a2dcaea2fee15b0532bf4111144d176b38  /usr/share/html-test/index.html;58130daa4a2f426fd16b8bde93d964713f20e147da8af1537ab2d8b506d2fd58  /usr/share/html-test/interaction.html;a1b04f9aba81b4b7818be2e7a858d482d471bd0d625dee257f605b2129b8fc4c  /usr/share/html-test/layout.html;
+Wed Sep 23 03:13:18 UTC 2026 eudev overlay extraction complete
+Wed Sep 23 03:13:18 UTC 2026 ===== B. pathname AF_UNIX SOCK_SEQPACKET control probe =====
+[SEQPACKET] socket/bind/listen/connect/accept + one control roundtrip PASS
+[SEQPACKET_EXIT] 0 verdict=PATH_SOCKET_OK
+Wed Sep 23 03:13:18 UTC 2026 [SEQPACKETPROBE_EXIT] rc=0
+Wed Sep 23 03:13:18 UTC 2026 ===== C. standard eudev service and coldplug =====
+Wed Sep 23 03:13:19 UTC 2026 udevd_start_rc=0
+Wed Sep 23 03:13:20 UTC 2026 udevadm_trigger_rc=0
+Wed Sep 23 03:13:22 UTC 2026 udevadm_settle_rc=0
+Wed Sep 23 03:13:22 UTC 2026 MISSING_UDEV_DATA /run/udev/data/c13:64
+Wed Sep 23 03:13:22 UTC 2026 MISSING_UDEV_DATA /run/udev/data/c13:65
+Wed Sep 23 03:13:22 UTC 2026 ===== D. libudev input enumeration =====
+==== inputudevprobe: guest libudev input coldplug view ====
+[INPUT_UDEV] event_count=0
+[INPUT_UDEV_EXIT] 3 verdict=INPUT_UDEV_FAIL
+Wed Sep 23 03:13:23 UTC 2026 [INPUT_UDEVPROBE_EXIT] rc=3
+Wed Sep 23 03:13:24 UTC 2026 ===== E. actual evdev node capabilities =====
+total 0
+crw-rw-rw-    1 root     root       13,  64 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,  65 Jan  1  1970 event1
+=== evprobe: evdev 输入设备枚举 ===
+[EV] /dev/input/event0
+[EV]   EVIOCGNAME  rc=21 name="QEMU Virtio Keyboard"
+[EV]   EVIOCGID    bustype=BUS_VIRTUAL(0x0006) vendor=0x0627 product=0x0001 version=0x0001
+[EV]   EV  types:  SYN=0 KEY=1 REL=0 ABS=0 MSC=0 SW=0 REP=0
+[EV]   key bits:  BTN_LEFT=0 BTN_RIGHT=0 BTN_MIDDLE=0 BTN_TOUCH=0 KEY_A=1 KEY_Z=1 KEY_SPACE=1
+[EVSUM] node=/dev/input/event0 minor=1 class=KEYBOARD (rel=0 abs=0 btn=0 kbdkeys=1)
+[EV] /dev/input/event1
+[EV]   EVIOCGNAME  rc=18 name="QEMU Virtio Mouse"
+[EV]   EVIOCGID    bustype=BUS_VIRTUAL(0x0006) vendor=0x0627 product=0x0002 version=0x0002
+[EV]   EV  types:  SYN=0 KEY=1 REL=1 ABS=0 MSC=0 SW=0 REP=0
+[EV]   key bits:  BTN_LEFT=1 BTN_RIGHT=1 BTN_MIDDLE=1 BTN_TOUCH=1 KEY_A=0 KEY_Z=0 KEY_SPACE=0
+[EVSUM] node=/dev/input/event1 minor=2 class=MOUSE (rel=1 abs=0 btn=1 kbdkeys=0)
+[EV] /dev/input/event2 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event3 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event4 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event5 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event6 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event7 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event8 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event9 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event10 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event11 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event12 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event13 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event14 open -> -1 errno=2 (No such file or directory)
+[EV] /dev/input/event15 open -> -1 errno=2 (No such file or directory)
+
+[EV] 共找到 2 个 evdev 节点
+[EVMAP] 建议的 udev 伪造（可用次设备号）：keyboard=c13:1  pointer=c13:2
+Wed Sep 23 03:13:25 UTC 2026 [EVPROBE_EXIT] rc=0
+Wed Sep 23 03:13:25 UTC 2026 ===== F. Weston DRM + libinput; input is required =====
+Wed Sep 23 03:13:37 UTC 2026 weston_alive=no socket=[missing]
+[03:13:27.210] Command line: weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0 --idle-time=0 --debug --log=/root/input3-weston.log
+[03:13:27.393] using /dev/dri/card0
+[03:13:27.571] warning: no input devices on entering Weston. Possible causes:
+	- no permissions to read /dev/input/event*
+[03:13:27.571] failed to create input devices
+Wed Sep 23 03:13:37 UTC 2026 [INPUT2_CHROMIUM_SKIP] missing Weston socket or Chromium binary
+Wed Sep 23 03:13:52 UTC 2026 [INPUT2_SUM] socket=missing

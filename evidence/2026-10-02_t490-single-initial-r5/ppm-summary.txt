@@ -1,0 +1,92 @@
+==================================================================
+round_assert  tag=single-initial-r5
+证据目录      /home/mo/xk6/evidence/2026-10-02_t490-single-initial-r5
+时间          2026-10-02T14:57:02+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 10
+PNG 张数 : 0
+  1280x800 3072016 shot-01-at0180s.ppm
+  1280x800 3072016 shot-02-at0240s.ppm
+  1280x800 3072016 shot-03-at0300s.ppm
+  1280x800 3072016 shot-04-at0360s.ppm
+  1280x800 3072016 shot-05-at0420s.ppm
+  1280x800 3072016 shot-06-at0480s.ppm
+  1280x800 3072016 shot-07-at0540s.ppm
+  1280x800 3072016 shot-08-at0600s.ppm
+  1280x800 3072016 shot-09-at0660s.ppm
+  1280x800 3072016 shot-10-final.ppm
+尺寸集合     : 1280x800 
+字节数集合   : 3072016 
+众数尺寸     : 1280x800（用于逐张判据的 --expect-size）
+→ 尺寸一致性通过（集合单元素 1280x800）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停
+total 8
+drwxrwxr-x 2 mo mo 4096 Oct  2 14:57 .
+drwxrwxr-x 4 mo mo 4096 Oct  2 14:57 ..
+
+--- ③.5 探针必验项（PROBE_EXIT / PLANESUM / PROBE_ABI）---
+  (guest 目录下无 _root_*.log / *.out —— 无探针输出可判)
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+严格集 7/7 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'index_blocks_shape', 'index_blocks_same_row', 'index_blocks_equal_width', 'index_blocks_order', 'index_table_rules']
+参考项（不卡关）：['non_white_ratio', 'index_is_static']
+判定张数     : 10
+严格集未通过 : 0
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 9
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+  [single] CHROME_ARGS=--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-zygote --single-process --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2 --user-data-dir=/root/single-initial-profile
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+--- ⑧ X11 启动链判定摘录 ---
+  !! 缺 guest/_root_autorun-x11.log ⇒ /etc/profile.d/99-autostart.sh 钩子
+     未生效或 /root/autorun.sh 未执行（整轮「静默空跑」的典型特征）
+  (缺 guest/_root_xorg.log ⇒ Xorg 未产出自己的日志)
+
+==================================================================
+SUMMARY_END tag=single-initial-r5  ppm=10  严格集未通过=0  尺寸不符=0  心跳=0/9  探针必验失败=0
+==================================================================
+GATE  strict_fail=0  probe_fail=0
+GATE: PASS

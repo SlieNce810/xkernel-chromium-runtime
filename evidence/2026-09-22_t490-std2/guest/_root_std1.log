@@ -1,0 +1,67 @@
+Tue Sep 22 14:24:48 UTC 2026 ===== A. 环境自证 =====
+Tue Sep 22 14:24:48 UTC 2026 kernel: Linux 10.0.0 aarch64
+Tue Sep 22 14:24:48 UTC 2026 dri: card0 
+Tue Sep 22 14:24:48 UTC 2026 ld-musl-aarch64.so.1: OK
+lrwxrwxrwx    1 root     root            17 Sep 21 04:28 /usr/lib/libdrm.so.2 -> libdrm.so.2.124.0
+-rwxr-xr-x    1 root     root        132952 Dec  6  2024 /usr/lib/libdrm.so.2.124.0
+Tue Sep 22 14:24:48 UTC 2026 ===== B. 手写 ioctl 探针（标准 32B 布局，静态）=====
+Tue Sep 22 14:24:50 UTC 2026 drmplaneprobe rc=0
+[PROBE_ABI] plane=32(ex 32) plane_res=16(ex 16) get_property=64(ex 64) obj_props=32(ex 32)
+[PROBE_ABI] OK —— 与标准 uapi 一致（GETPLANE 请求值应为 0xC02064B6）
+[PRES] 第一段 count_planes=1 rc=0 errno=0
+[PRES] 第二段 rc=0 errno=0 count_planes=1 ids=64 
+[PRES] 两段式判定: OK
+[PLANE] GETPLANE rc=0 errno=0 crtc_id=16 fb_id=0 possible_crtcs=0x1 gamma_size=0 count_formats=2
+[PLANESUM] planes=1 pres_ok=1 getplane_ok=1 getplane_fail=0 objprops_fail=0 getprop_fail=0 type_attr=FOUND type_is_primary=YES in_formats_blob=4096 verdict=PLANE_OK
+[PROBE_EXIT] 0 verdict=PLANE_OK
+Tue Sep 22 14:24:50 UTC 2026 ===== C. 标准 libdrm 客户端（动态链接 guest 的 libdrm）=====
+Tue Sep 22 14:24:51 UTC 2026 drmstdprobe rc=0
+  ==== drmstdprobe: 标准 libdrm 客户端（阶段1.2）====
+  [STD] 头文件侧: sizeof(drm_mode_get_plane)=32  DRM_IOCTL_MODE_GETPLANE=0xc02064b6
+  [STD] libdrm 实际加载: /usr/lib/libdrm.so.2
+  [STD] open(/dev/dri/card0) ok fd=3
+  [STD] drmGetVersion OK driver='simpledrm' 1.0.0
+  [STD] drmModeGetResources OK: crtcs=1 connectors=1 encoders=1 fbs=0
+  [STD]   crtc[0]=16
+  [STD]   connector[0]=48
+  [STD] drmModeGetPlaneResources OK: count_planes=1
+  [STD] drmModeGetPlane(plane_id=64) OK: crtc_id=16 fb_id=0 possible_crtcs=0x1 gamma_size=0 count_formats=2
+  [STD]   formats: 0x34325258 0x34325241
+  [STD_EXIT] 0 verdict=STD_OK
+  [PROBE_EXIT] 0 verdict=STD_OK
+  ==== drmstdprobe done ====
+Tue Sep 22 14:24:51 UTC 2026 ===== D. 同一调用 + ioctl 观测器（LD_PRELOAD=iocspy.so）=====
+Tue Sep 22 14:24:52 UTC 2026 iocspy+drmstdprobe rc=0
+  [STD] 头文件侧: sizeof(drm_mode_get_plane)=32  DRM_IOCTL_MODE_GETPLANE=0xc02064b6
+  [STD] libdrm 实际加载: /usr/lib/libdrm.so.2
+  [STD] open(/dev/dri/card0) ok fd=3
+  [IOC] req=0xc0406400 dir=3 size=64 type=0x64 nr=0x00 -> rc=0 errno=0(ok)
+  [IOC] req=0xc0406400 dir=3 size=64 type=0x64 nr=0x00 -> rc=0 errno=0(ok)
+  [STD] drmGetVersion OK driver='simpledrm' 1.0.0
+  [IOC] req=0xc04064a0 dir=3 size=64 type=0x64 nr=0xa0 -> rc=0 errno=0(ok)
+  [IOC] req=0xc04064a0 dir=3 size=64 type=0x64 nr=0xa0 -> rc=0 errno=0(ok)
+  [STD] drmModeGetResources OK: crtcs=1 connectors=1 encoders=1 fbs=0
+  [STD]   crtc[0]=16
+  [STD]   connector[0]=48
+  [IOC] req=0xc01064b5 dir=3 size=16 type=0x64 nr=0xb5 -> rc=0 errno=0(ok)
+  [IOC] req=0xc01064b5 dir=3 size=16 type=0x64 nr=0xb5 -> rc=0 errno=0(ok)
+  [STD] drmModeGetPlaneResources OK: count_planes=1
+  [IOC] req=0xc02064b6 dir=3 size=32 type=0x64 nr=0xb6 -> rc=0 errno=0(ok)
+  [IOC] req=0xc02064b6 dir=3 size=32 type=0x64 nr=0xb6 -> rc=0 errno=0(ok)
+  [STD] drmModeGetPlane(plane_id=64) OK: crtc_id=16 fb_id=0 possible_crtcs=0x1 gamma_size=0 count_formats=2
+  [STD]   formats: 0x34325258 0x34325241
+  [STD_EXIT] 0 verdict=STD_OK
+Tue Sep 22 14:24:53 UTC 2026 ===== E. 汇总（机器行）=====
+Tue Sep 22 14:24:53 UTC 2026 --- /root/std1-planeprobe.out ---
+[PROBE_ABI] plane=32(ex 32) plane_res=16(ex 16) get_property=64(ex 64) obj_props=32(ex 32)
+[PROBE_ABI] OK —— 与标准 uapi 一致（GETPLANE 请求值应为 0xC02064B6）
+[PLANESUM] planes=1 pres_ok=1 getplane_ok=1 getplane_fail=0 objprops_fail=0 getprop_fail=0 type_attr=FOUND type_is_primary=YES in_formats_blob=4096 verdict=PLANE_OK
+[PROBE_EXIT] 0 verdict=PLANE_OK
+Tue Sep 22 14:24:53 UTC 2026 --- /root/std2-drmstdprobe.out ---
+[STD_EXIT] 0 verdict=STD_OK
+[PROBE_EXIT] 0 verdict=STD_OK
+Tue Sep 22 14:24:53 UTC 2026 --- /root/std3-iocspy.out ---
+[STD_EXIT] 0 verdict=STD_OK
+[PROBE_EXIT] 0 verdict=STD_OK
+Tue Sep 22 14:24:54 UTC 2026 STD1_DONE winner=none（本轮只取证，不启动 Weston）
+Tue Sep 22 14:25:54 UTC 2026 std1 收尾（保持会话存活供 screendump）

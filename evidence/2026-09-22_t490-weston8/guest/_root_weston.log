@@ -1,0 +1,107 @@
+===== weston-7.log =====
+Date: 2026-09-22 UTC
+[13:22:44.914] weston 14.0.2
+               https://wayland.freedesktop.org
+               Bug reports to: https://gitlab.freedesktop.org/wayland/weston/issues/
+               Build: 14.0.2
+[13:22:44.919] Command line: weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0 --continue-without-input --idle-time=0 --debug --log=/root/weston-7.log
+[13:22:44.919] OS: Linux, 10.0.0, 10.0.0, aarch64
+[13:22:44.919] Flight recorder: enabled
+[13:22:44.935] Starting with no config file.
+[13:22:44.963] Output repaint window is 7 ms maximum.
+[13:22:44.971] Loading module '/usr/lib/libweston-14/drm-backend.so'
+[13:22:45.068] initializing drm backend
+[13:22:45.071] Trying libseat launcher...
+[13:22:45.078] libseat: session control granted
+[13:22:45.084] using /dev/dri/card0
+[13:22:45.086] DRM: does not support atomic modesetting
+[13:22:45.086] DRM: supports GBM modifiers
+[13:22:45.087] DRM: does not support Atomic async page flip
+[13:22:45.087] DRM: supports picture aspect ratio
+[13:22:45.092] Using Pixman renderer
+[13:22:45.293] warning: no input devices found, but none required as per configuration.
+[13:22:45.299] DRM: head 'Virtual-1' found, connector 48 is connected, EDID make 'unknown', model 'unknown', serial ''
+               Supported EOTF modes: SDR
+               Supported colorimetry modes: default
+[13:22:45.303] Registered plugin API 'weston_drm_output_api_v1' of size 40
+[13:22:45.303] Registered plugin API 'weston_drm_virtual_output_api_v2' of size 48
+[13:22:45.306] Color manager: no-op
+                 protocol support: no
+[13:22:45.322] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.
+[13:22:45.323] Output 'Virtual-1' using color profile: stock sRGB color profile
+[13:22:45.325] Failed to find primary plane for output Virtual-1
+[13:22:45.326] Enabling output "Virtual-1" failed.
+[13:22:45.329] Error: cannot enable output 'Virtual-1' without heads.
+===== weston-7-stdout.log (shim) =====
+WARNING: debug protocol has been enabled. This is a potential denial-of-service attack vector and information leak.
+[libseat-shim] set_log_handler(0x82aeb4) -> 0
+[libseat-shim] set_log_level(3) -> 0
+[libseat-shim] open_seat(listener=0x853410, userdata=0x24cd90)
+[libseat-shim]   enable_seat=0x82c048 (will call delayed)
+[libseat-shim] open_seat -> fake seat (returning)
+[udev-shim] udev_new -> fake ctx
+[udev-shim] device_new_from_subsystem_sysname(subsystem='drm', sysname='card0') -> fake dev
+[udev-shim]   get_devnode -> /dev/dri/card0
+[udev-shim]   get_sysnum -> 0
+[libseat-shim] open(/dev/dri/card0) -> fd=13 OK, device_id=1
+[udev-shim] udev_new -> fake ctx
+[udev-shim] device_new_from_syspath('/sys/devices/virtual/dmi/id') -> fake dev
+[udev-shim]   get_property_value('MODALIAS') -> NULL
+[udev-shim] device_unref(0x44090) -> NULL
+[udev-shim] udev_unref(0x44088) -> NULL
+[libseat-shim] (thread) calling enable_seat
+[libseat-shim] (thread) enable_seat returned
+[udev-shim] monitor_new_from_netlink('udev') -> fake monitor
+[udev-shim] enumerate_new -> fake enum（空列表）
+[udev-shim]   enumerate_add_match_subsystem('input')
+[udev-shim]   enumerate_scan_devices -> 0（无设备）
+[udev-shim]   enumerate_get_list_entry -> NULL（空）
+[udev-shim] enumerate_unref(0x44094)
+[udev-shim]   get_syspath -> /sys/devices/fake/drm/card0
+[udev-shim] monitor_new_from_netlink('udev') -> fake monitor
+[udev-shim] device_unref(0x4408c) -> NULL
+[udev-shim] udev_unref(0x44088) -> NULL
+[udev-shim] udev_unref(0x44088) -> NULL
+[libseat-shim] close_device(1) -> 0
+[libseat-shim] set_log_handler(0) -> 0
+[libseat-shim] close_seat(0x230b8) -> 0
+===== plane2.out =====
+==== drmplaneprobe: plane 属性面（Weston 'Failed to find primary plane' 根因定位）====
+sizeof: plane_res=16 plane=48 obj_props=32 get_property=64 get_blob=16
+[SELF] VERSION rc=0 errno=0 driver='simpledrm' 1.0.0
+[CAP] ADDFB2_MODIFIERS rc=0 errno=0 value=1  => Weston 会解析 IN_FORMATS blob
+[PRES] 第一段 count_planes=1 rc=0 errno=0
+[PRES] 第二段 rc=0 errno=0 count_planes=1 ids=64 
+
+---- plane[0] id=64 ----
+[PLANE] GETPLANE rc=0 errno=0 crtc_id=16 fb_id=0 possible_crtcs=0x1 gamma_size=0 count_formats=2
+[PLANE] formats: 0x34325258('XR24') 0x34325241('AR24')
+[PLANE] weston 判据复现: possible_crtcs&1=1  crtc_id(非0)=16
+[PLANE] OBJ_GETPROPERTIES 第一段 count_props=12 rc=0 errno=0
+[PLANE] OBJ_GETPROPERTIES 第二段 rc=0 errno=0 count_props=12
+[PLANE] ---- 逐属性解析（Weston 就是靠 name 匹配 'type'）----
+[PROP] i= 0 prop_id=0x100 val=1    rc=0 errno=0 name="type" flags=0xc[IMMUTABLE|ENUM]
+[PROP] i= 1 prop_id=0x101 val=0    rc=0 errno=0 name="FB_ID" flags=0x80000040[OBJECT|ATOMIC]
+[PROP] i= 2 prop_id=0x102 val=0    rc=0 errno=0 name="CRTC_ID" flags=0x80000040[OBJECT|ATOMIC]
+[PROP] i= 3 prop_id=0x103 val=0    rc=0 errno=0 name="SRC_X" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 4 prop_id=0x104 val=0    rc=0 errno=0 name="SRC_Y" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 5 prop_id=0x105 val=0    rc=0 errno=0 name="SRC_W" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 6 prop_id=0x106 val=0    rc=0 errno=0 name="SRC_H" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 7 prop_id=0x107 val=0    rc=0 errno=0 name="CRTC_X" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 8 prop_id=0x108 val=0    rc=0 errno=0 name="CRTC_Y" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i= 9 prop_id=0x109 val=0    rc=0 errno=0 name="CRTC_W" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i=10 prop_id=0x10a val=0    rc=0 errno=0 name="CRTC_H" flags=0x80000002[RANGE|ATOMIC]
+[PROP] i=11 prop_id=0x10b val=4096 rc=0 errno=0 name="IN_FORMATS" flags=0x14[IMMUTABLE|BLOB]
+
+[BLOB] IN_FORMATS blob_id=4096 rc=0 errno=0 length=56
+[BLOB] header: version=1 flags=0 count_formats=2 formats_off=24 count_mods=1 mods_off=32
+[BLOB] formats 区: 0x34325258 0x34325241 
+[BLOB] modifier 区前 24 字节（mainline: formats u64, modifier u64, offset u32, pad u32）:
+        03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[ITER] ---- 复现 libdrm 迭代器输出（fmt × modifier 组合）----
+[ITER] fmt_idx=0 fmt=0x34325258('XR24') | mod_idx=0 mask=0x3 hit=1 mod=0x0
+[ITER] fmt_idx=1 fmt=0x34325241('AR24') | mod_idx=0 mask=0x3 hit=1 mod=0x0
+[ITER] 判定：若某个 (fmt) 的 mod 值重复出现，libdrm 侧会把它当作重复 modifier ⇒ Weston 的 add_modifier 返回 -1 ⇒ plane 创建失败
+
+[PLANESUM] planes=1 type_attr=FOUND type_is_primary=YES in_formats_blob=4096 verdict=PLANE_OK
+==== drmplaneprobe done ====

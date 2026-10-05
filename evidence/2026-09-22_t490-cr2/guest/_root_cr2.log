@@ -1,0 +1,89 @@
+Tue Sep 22 15:32:36 UTC 2026 ===== A. Weston（无 shim）=====
+Tue Sep 22 15:32:43 UTC 2026 weston_alive=yes socket=[/run/user/0/wayland-1]
+Tue Sep 22 15:32:43 UTC 2026 ===== B. Chromium（--in-process-gpu）=====
+Tue Sep 22 15:32:43 UTC 2026 chromium pid=25
+Tue Sep 22 15:32:43 UTC 2026   +0s chromium_alive=yes weston_log_lines=49
+Tue Sep 22 15:32:59 UTC 2026   +15s chromium_alive=yes weston_log_lines=49
+Tue Sep 22 15:33:15 UTC 2026   +30s chromium_alive=yes weston_log_lines=49
+Tue Sep 22 15:33:31 UTC 2026   +45s chromium_alive=yes weston_log_lines=49
+Tue Sep 22 15:33:47 UTC 2026   +60s chromium_alive=yes weston_log_lines=49
+Tue Sep 22 15:34:04 UTC 2026   +75s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:34:22 UTC 2026   +90s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:34:41 UTC 2026   +105s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:35:00 UTC 2026   +120s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:35:18 UTC 2026   +135s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:35:34 UTC 2026   +150s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:35:49 UTC 2026   +165s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:36:05 UTC 2026   +180s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:36:20 UTC 2026   +195s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:36:36 UTC 2026   +210s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:36:51 UTC 2026   +225s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:37:07 UTC 2026   +240s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:37:22 UTC 2026   +255s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:37:38 UTC 2026   +270s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:37:53 UTC 2026   +285s chromium_alive=no weston_log_lines=49
+Tue Sep 22 15:38:09 UTC 2026 ===== C. 分层事实 =====
+Tue Sep 22 15:38:09 UTC 2026 chromium_alive=no
+Tue Sep 22 15:38:09 UTC 2026 --- Weston 日志尾部（是否出现客户端 surface/commit）---
+               Supported EOTF modes: SDR
+               Supported colorimetry modes: default
+[15:32:37.395] Registered plugin API 'weston_drm_output_api_v1' of size 40
+[15:32:37.395] Registered plugin API 'weston_drm_virtual_output_api_v2' of size 48
+[15:32:37.397] Color manager: no-op
+                 protocol support: no
+[15:32:37.414] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.
+[15:32:37.414] Output 'Virtual-1' using color profile: stock sRGB color profile
+[15:32:37.442] DRM: output Virtual-1 uses shadow framebuffer.
+[15:32:37.442] Output Virtual-1 (crtc 16) video modes:
+               current@60.0, current, 70.6 MHz
+[15:32:37.448] Output 'Virtual-1' enabled with head(s) Virtual-1
+[15:32:37.448] Compositor capabilities:
+               arbitrary surface rotation: yes
+               screen capture uses y-flip: no
+               cursor planes: yes
+               arbitrary resolutions: no
+               view mask clipping: yes
+               explicit sync: no
+               color operations: no
+               presentation clock: CLOCK_MONOTONIC, id 1
+               presentation clock resolution: 0.000001000 s
+[15:32:37.457] Loading module '/usr/lib/weston/desktop-shell.so'
+[15:32:37.485] launching '/usr/libexec/weston-keyboard'
+[15:32:37.518] launching '/usr/libexec/weston-desktop-shell'
+Tue Sep 22 15:38:09 UTC 2026 --- Weston 里 client/surface 相关行 ---
+[15:32:37.442] DRM: output Virtual-1 uses shadow framebuffer.
+               arbitrary surface rotation: yes
+[15:32:37.457] Loading module '/usr/lib/weston/desktop-shell.so'
+[15:32:37.518] launching '/usr/libexec/weston-desktop-shell'
+Tue Sep 22 15:38:10 UTC 2026 --- Chromium 关键行（末尾 25）---
+MESA-LOADER: failed to retrieve device information
+failed to get driver name for fd 73
+MESA-LOADER: failed to retrieve device information
+failed to get driver name for fd 73
+MESA-LOADER: failed to retrieve device information
+failed to get driver name for fd 73
+MESA-LOADER: failed to retrieve device information
+failed to get driver name for fd 73
+[75:75:0922/153338.027586:INFO:content/child/child_thread_impl.cc:909] ChildThreadImpl::EnsureConnected()
+[25:52:0922/153339.443961:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153339.461220:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:25:0922/153340.667125:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:170] Server doesn't support zcr_alpha_compositing_v1.
+[25:25:0922/153340.667797:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:185] Server doesn't support overlay_prioritizer.
+[25:25:0922/153340.668316:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:200] Server doesn't support wp_content_type_v1
+[25:25:0922/153340.668554:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:214] Server doesn't support wp_color_management_surface_v1.
+[25:25:0922/153341.372870:WARNING:ui/ozone/platform/wayland/host/wayland_connection.cc:408] text-input-v3 not available.
+[0922/153343.783346:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[25:25:0922/153348.738462:ERROR:dbus/object_proxy.cc:573] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[25:52:0922/153348.741739:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153348.743424:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153348.745584:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153348.746082:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153348.746469:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:52:0922/153348.746951:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[25:25:0922/153348.748721:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+Tue Sep 22 15:38:10 UTC 2026 --- 是否再出现 GPU FATAL ---
+0
+Tue Sep 22 15:38:10 UTC 2026 --- 导航/渲染相关 ---
+Tue Sep 22 15:38:11 UTC 2026 [CR2_SUM] chromium_alive=no weston_alive=yes socket=/run/user/0/wayland-1
+Tue Sep 22 15:38:11 UTC 2026 --- 收尾前保持 60s 供 screendump ---
+Tue Sep 22 15:39:11 UTC 2026 chromium2 收尾

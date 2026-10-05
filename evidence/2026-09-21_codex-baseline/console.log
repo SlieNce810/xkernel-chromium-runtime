@@ -1,0 +1,40 @@
+### [2026-09-21 12:52:59] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+   Compiling strum v0.26.3
+   Compiling clap v4.6.2
+   Compiling thiserror v1.0.69
+   Compiling serde v1.0.229
+   Compiling kernel-image-metadata v0.3.0-dev (/home/mo/x-kernel/boot/kernel-image-metadata)
+   Compiling kaddr_layout v0.3.0-dev (/home/mo/x-kernel/mm/kaddr_layout)
+error[E0658]: use of unstable library feature `cfg_select`
+  --> /home/mo/x-kernel/mm/kaddr_layout/src/lib.rs:54:1
+   |
+54 | cfg_select! {
+   | ^^^^^^^^^^
+   |
+   = note: see issue #115585 <https://github.com/rust-lang/rust/issues/115585> for more information
+   = help: add `#![feature(cfg_select)]` to the crate attributes to enable
+   = note: this compiler was built on 2026-02-11; consider upgrading it if it is out of date
+
+error[E0658]: use of unstable library feature `cfg_select`
+   --> /home/mo/x-kernel/mm/kaddr_layout/src/lib.rs:188:1
+    |
+188 | cfg_select! {
+    | ^^^^^^^^^^
+    |
+    = note: see issue #115585 <https://github.com/rust-lang/rust/issues/115585> for more information
+    = help: add `#![feature(cfg_select)]` to the crate attributes to enable
+    = note: this compiler was built on 2026-02-11; consider upgrading it if it is out of date
+
+   Compiling ratatui v0.26.3
+For more information about this error, try `rustc --explain E0658`.
+error: could not compile `kaddr_layout` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+make: *** [Makefile:172：run] 错误 101
+
+### [2026-09-21 12:53:07] 子进程已退出（elapsed=8.3s）
+
+### [2026-09-21 12:53:07] stopping session...
+### [2026-09-21 12:53:07] SESSION END (exit=2)

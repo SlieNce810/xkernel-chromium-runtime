@@ -1,0 +1,99 @@
+Tue Sep 22 10:46:15 UTC 2026 ================ autorun_x11 start ================
+Tue Sep 22 10:46:15 UTC 2026 PAGE_URL=file:///usr/share/html-test/index.html
+Tue Sep 22 10:46:15 UTC 2026 uname: Linux kylin-x 10.0.0 10.0.0 aarch64 Linux
+Tue Sep 22 10:46:15 UTC 2026 id: uid=0(root) gid=0(root)
+Tue Sep 22 10:46:15 UTC 2026 ===== /dev/dri | /dev/fb0 | /dev/input =====
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 /dev/fb0
+
+/dev/dri/:
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+
+/dev/input/:
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice
+Tue Sep 22 10:46:16 UTC 2026 ===== tty 设备（Xorg 找 VT/console 用）=====
+Tue Sep 22 10:46:16 UTC 2026   OK   /dev/console -> crw-rw-rw- 5, 1
+Tue Sep 22 10:46:16 UTC 2026   OK   /dev/tty -> crw-rw-rw- 5, 0
+Tue Sep 22 10:46:16 UTC 2026   MISS /dev/tty0
+Tue Sep 22 10:46:16 UTC 2026   MISS /dev/tty1
+Tue Sep 22 10:46:16 UTC 2026   MISS /dev/ttyAMA0
+Tue Sep 22 10:46:16 UTC 2026 ===== 关键组件存在性 =====
+Tue Sep 22 10:46:17 UTC 2026   OK   /usr/bin/Xorg (275 B)
+Tue Sep 22 10:46:17 UTC 2026   OK   /usr/libexec/Xorg (1989808 B)
+Tue Sep 22 10:46:17 UTC 2026   OK   /usr/libexec/Xorg.wrap (67600 B)
+Tue Sep 22 10:46:17 UTC 2026   OK   /usr/bin/jwm (264288 B)
+Tue Sep 22 10:46:17 UTC 2026   OK   /usr/bin/xset (67312 B)
+Tue Sep 22 10:46:18 UTC 2026   OK   /usr/bin/xauth (68112 B)
+Tue Sep 22 10:46:18 UTC 2026   OK   /usr/bin/chromium (16 B)
+Tue Sep 22 10:46:18 UTC 2026   OK   /usr/lib/xorg/modules/drivers/modesetting_drv.so (135640 B)
+Tue Sep 22 10:46:18 UTC 2026   OK   /usr/lib/xorg/modules/input/libinput_drv.so (133168 B)
+Tue Sep 22 10:46:18 UTC 2026   OK   /usr/lib/xorg/modules/extensions/libglx.so (277304 B)
+Tue Sep 22 10:46:18 UTC 2026 ===== /proc/devices 中 drm/fb =====
+Tue Sep 22 10:46:19 UTC 2026   (无 drm/fb 条目)
+Tue Sep 22 10:46:19 UTC 2026 ===== DRM connector status（只读，不写伪 sysfs）=====
+Tue Sep 22 10:46:19 UTC 2026   /sys/class/drm 不存在
+Tue Sep 22 10:46:19 UTC 2026 /dev/shm 已存在
+Filesystem                Size      Used Available Use% Mounted on
+none                         0         0         0   0% /dev/shm
+/dev/vda                  1.9G    925.7M    917.7M  50% /
+none                         0         0         0   0% /tmp
+Tue Sep 22 10:46:20 UTC 2026 kiosk home: drwxr-xr-x 6 kiosk kiosk 4096 Sep 21 04:32 /home/kiosk
+xauth:  file /run/x11/auth does not exist
+Tue Sep 22 10:46:21 UTC 2026 xauth: /run/x11/auth 存在=yes
+Tue Sep 22 10:46:21 UTC 2026 --- Xorg try[keeptty]: args=[-keeptty] ---
+Tue Sep 22 10:46:22 UTC 2026   -> socket /tmp/.X11-unix/X0 出现（1s）
+Tue Sep 22 10:46:22 UTC 2026 STAGE=x11-xorg-up
+Tue Sep 22 10:46:23 UTC 2026 Xorg UP on :0 (pid )
+xset:  unable to open display ":0"
+Tue Sep 22 10:46:29 UTC 2026 !! xset 失败（不致命）
+Tue Sep 22 10:46:29 UTC 2026 ===== xorg.log 关键行（modeset/DRM/output/分辨率）=====
+[    15.544] (II) Module glx: vendor="X.Org Foundation"
+[    15.547] (==) Matched modesetting as autoconfigured driver 0
+[    15.548] (II) LoadModule: "modesetting"
+[    15.551] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[    15.571] (II) Module modesetting: vendor="X.Org Foundation"
+[    15.573] (II) LoadModule: "fbdev"
+[    15.587] (WW) Warning, couldn't open module fbdev
+[    15.587] (EE) Failed to load module "fbdev" (module does not exist, 0)
+[    15.588] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[    15.590] (WW) Falling back to old probe method for modesetting
+[    15.596] (II) modeset(0): using default device
+[    15.598] (WW) VGA arbiter: cannot open kernel arbiter, no multi-card support
+[    15.614] (II) modeset(0): Using 24bpp hw front buffer with 32bpp shadow
+[    15.614] (II) modeset(0): Creating default Display subsection in Screen section
+	"Default Screen Section" for depth/fbbpp 24/32
+[    15.615] (==) modeset(0): Depth 24, (==) framebuffer bpp 32
+[    15.615] (DB) xf86MergeOutputClassOptions unsupported bus type 0
+[    15.615] (==) modeset(0): RGB weight 888
+[    15.616] (==) modeset(0): Default visual is TrueColor
+[    15.616] (**) modeset(0): Cannot use glamor with 24bpp packed fb
+[    15.616] (II) modeset(0): ShadowFB: preferred YES, enabled FORCE
+[    15.617] (II) modeset(0): Double-buffered shadow updates: off
+[    15.623] (II) modeset(0): Output Virtual-1 has no monitor section
+[    15.638] (II) modeset(0): EDID for output Virtual-1
+[    15.646] (II) modeset(0): Printing probed modes for output Virtual-1
+[    15.649] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+[    15.650] (II) modeset(0): Output Virtual-1 connected
+[    15.654] (II) modeset(0): Using sloppy heuristic for initial modes
+[    15.654] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+[    15.655] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+[    15.655] (==) modeset(0): DPI set to (96, 96)
+[    15.655] (II) Loading sub module "fb"
+[    15.656] (II) LoadModule: "fb"
+[    15.656] (II) Module "fb" already built-in
+[    15.656] (II) Loading sub module "shadow"
+[    15.656] (II) LoadModule: "shadow"
+[    15.662] (II) Loading /usr/lib/xorg/modules/libshadow.so
+[    15.669] (II) Module shadow: vendor="X.Org Foundation"
+[    15.676] (EE) 
+[    15.677] (EE) AddScreen/ScreenInit failed for driver 0
+[    15.677] (EE) 
+[    15.678] (EE) 
+[    15.678] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+[    15.679] (EE) 
+[    15.684] (EE) Server terminated with error (1). Closing log file.
+Tue Sep 22 10:46:30 UTC 2026 ===== 当前 DRM 状态（Xorg 起来后）=====
+Tue Sep 22 10:46:30 UTC 2026 STAGE=x11-session-skipped
+Tue Sep 22 10:46:30 UTC 2026 Xorg 未就绪，跳过 jwm / chromium（本轮不会有图形证据）

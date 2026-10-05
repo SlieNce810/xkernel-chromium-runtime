@@ -1,0 +1,386 @@
+### [2026-09-21 15:11:56] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 4g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.53s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 4g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff8000007dc9f0
+[boot] kruntime primary start cpu=0 boot_info=0xffff8000007dc9f0
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-21 07:11:58.006693600 UTC
+
+[37m[  0.850869 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-21T05:43:45.428636316Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = 8162e8a51139b52325582bfb8d2095c871954342
+git_dirty = true
+build_id = 168955e59a0872cf0a3d3679d8a6d232741505d0c8aac5c752eba63ff18ffb34
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[xk6-diag] ===== /dev listing =====
+total 0
+crw-rw-rw-    1 root     root        5,   1 Jan  1  1970 console
+crw-rw-rw-    1 root     root       10, 1024 Jan  1  1970 cpu_dma_latency
+drwxr-xr-x    2 root     root             0 Jan  1  1970 dri
+crw-rw-rw-    1 root     root       29,   0 Jan  1  1970 fb0
+crw-rw-rw-    1 root     root        1,   7 Jan  1  1970 full
+drwxr-xr-x    2 root     root             0 Jan  1  1970 input
+srwxr-xr-x    1 root     root             0 Jan  1  1970 log
+brw-rw-rw-    1 root     root        7,   0 Jan  1  1970 loop0
+brw-rw-rw-    1 root     root        7,   1 Jan  1  1970 loop1
+brw-rw-rw-    1 root     root        7,  10 Jan  1  1970 loop10
+brw-rw-rw-    1 root     root        7,  11 Jan  1  1970 loop11
+brw-rw-rw-    1 root     root        7,  12 Jan  1  1970 loop12
+brw-rw-rw-    1 root     root        7,  13 Jan  1  1970 loop13
+brw-rw-rw-    1 root     root        7,  14 Jan  1  1970 loop14
+brw-rw-rw-    1 root     root        7,  15 Jan  1  1970 loop15
+brw-rw-rw-    1 root     root        7,   2 Jan  1  1970 loop2
+brw-rw-rw-    1 root     root        7,   3 Jan  1  1970 loop3
+brw-rw-rw-    1 root     root        7,   4 Jan  1  1970 loop4
+brw-rw-rw-    1 root     root        7,   5 Jan  1  1970 loop5
+brw-rw-rw-    1 root     root        7,   6 Jan  1  1970 loop6
+brw-rw-rw-    1 root     root        7,   7 Jan  1  1970 loop7
+brw-rw-rw-    1 root     root        7,   8 Jan  1  1970 loop8
+brw-rw-rw-    1 root     root        7,   9 Jan  1  1970 loop9
+crw-rw-rw-    1 root     root        1,   3 Jan  1  1970 null
+crw-rw-rw-    1 root     root        5,   2 Jan  1  1970 ptmx
+drwxr-xr-x    2 root     root             0 Jan  1  1970 pts
+crw-rw-rw-    1 root     root        1,   8 Jan  1  1970 random
+crw-rw-rw-    1 root     root      250,   0 Jan  1  1970 rtc0
+drwxr-xr-x    2 root     root             0 Jan  1  1970 serial
+drwxrwxrwt    2 root     root             0 Jan  1  1970 shm
+crw-rw-rw-    1 root     root        5,   0 Jan  1  1970 tty
+crw-rw-rw-    1 root     root        1,   9 Jan  1  1970 urandom
+brw-rw-rw-    1 root     root      254,   0 Jan  1  1970 vda
+crw-rw-rw-    1 root     root        1,   5 Jan  1  1970 zero
+[xk6-diag] ===== /dev/dri =====
+total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 [1;35mcard0[m
+[xk6-diag] ===== /dev/input =====
+total 0
+crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 [1;35mevent0[m
+crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 [1;35mmice[m
+[xk6-diag] launching autorun in background
+[autostart] x-kernel uapp startup hook triggered
+Mon Sep 21 07:11:59 UTC 2026
+[autostart] starting hello
+[inst] start  alpine=3.23.4
+hello from x-kernel rust uapp-hello
+[autostart] starting oci-smoke
+[inst] df before: /dev/vda                  3.9G      1.4G      2.3G  37% /
+[inst] ===== 1. 解包 /pkgs.tar.gz =====
+OCI_SMOKE_PASS pid=16
+kylin-x:~# [6n[inst] chromium 已就位（249957096 字节），跳过解包
+[inst] ===== 2. 关键文件实体校验（Size 必须非 0）=====
+[inst]   -rwxr-xr-x 1 1000 1000 249957096 Sep 21 06:59 /usr/lib/chromium/chromium
+[inst]   lrwxrwxrwx 1 root root 16 Sep 21 06:58 /usr/bin/chromium -> chromium-browser
+[inst]   -rw-r--r-- 1 1000 1000 2664 Sep 21 07:00 /etc/fonts/fonts.conf
+[inst]   -rw-r--r-- 1 1000 1000 147528 Sep 21 07:00 /usr/share/fonts/opensans/OpenSans-Regular.ttf
+[inst]   /usr/lib/chromium 体积: 291.1M
+[inst]   chromium --version: Chromium 149.0.7827.53 Alpine Linux
+[inst]   fonts.conf 头 2 行: <?xml version="1.0"?> <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"> 
+[inst] df after: /dev/vda                  3.9G      1.4G      2.3G  37% /
+[inst] ===== 3. fc-cache =====
+[inst] fc-list 计数: 75
+[inst] ===== 4. 输入设备 =====
+[inst]   已写 /run/udev/data/c13:1 → ID_INPUT_KEYBOARD（evprobe 实测结论）
+[inst]   /dev/input 实况: total 0|crw-rw-rw-    1 root     root       13,   1 Jan  1  1970 event0|crw-rw-rw-    1 root     root       13,   2 Jan  1  1970 mice|
+[inst] ===== 5. weston（libseat-shim + 伪造 sysfs + card0）=====
+[inst]   seatd pid=86 socket=yes
+[libseat-shim] open_seat(listener=0x84f410, userdata=0x248d20)
+[libseat-shim]   enable_seat=0x8277a0 (will call delayed)
+[libseat-shim] open_seat -> fake seat (returning)
+[libseat-shim] get_fd -> 11
+[libseat-shim] open(/dev/dri/card0) -> fd=13 OK
+[libseat-shim] (thread) calling enable_seat
+[libseat-shim] (thread) enable_seat returned
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+[inst]   weston pid=93 （等待 1s）
+[inst]   wayland socket = wayland-0
+[inst]   /run/user/0 实况: total 0|srwxr-xr-x    1 root     root             0 Sep 21 07:12 wayland-0|-rw-r-----    1 root     root             0 Sep 21 07:12 wayland-0.lock|
+[inst]   界标:
+29:[07:12:36.268] Output 'Virtual-1' attempts EOTF mode SDR and colorimetry mode default.
+30:[07:12:36.268] Output 'Virtual-1' using color profile: stock sRGB color profile
+34:[07:12:36.306] Output 'Virtual-1' enabled with head(s) Virtual-1
+45:[07:12:36.315] Loading module '/usr/lib/weston/desktop-shell.so'
+47:[07:12:36.377] launching '/usr/libexec/weston-desktop-shell'
+[inst] ===== 6. Chromium =====
+[inst]   WAYLAND_DISPLAY=wayland-0
+[inst]   【尝试 A-默认】
+[inst]     pid=125
+
+### [2026-09-21 15:12:41] MONITOR: screendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-ch[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chro[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at004[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s.p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s.pp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-01-at0045s.ppm[K
+(qemu) 
+### [2026-09-21 15:12:44] screendump OK (3072016 bytes)
+[37m[ 49.929158 3:125 knet::unix::dgram:250] [33mUDP message truncated: 40 -> 4 bytes[m
+[m[37m[ 49.942708 3:125 ksyscall::dispatch:855] [33mUnimplemented syscall: landlock_create_ruleset (tid=125)[m
+[m[inst]     [A-默认] 已退出 rc=191（存活约 75s）
+[inst]     [A-默认] browser=[] renderer=[]
+[inst]   尝试 A 未存活 → 换 B：--single-process --no-zygote（最小内核上常用的降级组合）
+[inst]   【尝试 B-single-process】
+[inst]     pid=190
+[37m[135.873051 0:190 ksyscall::dispatch:855] [33mUnimplemented syscall: landlock_create_ruleset (tid=190)[m
+[m
+### [2026-09-21 15:14:41] MONITOR: screendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-ch[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chro[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at016[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s.[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s.p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s.pp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-21_t490-chrome2/screenshots/shot-02-at0165s.ppm[K
+(qemu) 
+### [2026-09-21 15:14:44] screendump OK (3072016 bytes)
+[inst]     [B-single-process] 已退出 rc=191（存活约 40s）
+[inst]     [B-single-process] browser=[] renderer=[]
+[inst]   ==== /root/chromium.log 共 236 行，尾 120 行 ====
+
+(chromium:125): Gtk-WARNING **: 07:13:11.827: Could not load a pixbuf from /org/gtk/libgtk/icons/16x16/status/window-minimize-symbolic.symbolic.png.
+This may indicate that pixbuf loaders or the mime database could not be found.
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.828: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.829: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.837: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.837: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.841: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.842: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.864: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.864: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.869: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.869: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.873: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+
+(chromium:125): GdkPixbuf-CRITICAL **: 07:13:11.873: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+[125:125:0921/071313.391384:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[125:125:0921/071314.170085:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:145:0921/071314.174225:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[125:125:0921/071314.177214:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+[125:125:0921/071314.181003:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071314.182897:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.freedesktop.ScreenSaver D-Bus service does not exist
+[125:145:0921/071314.186355:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[125:125:0921/071314.195549:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+[125:125:0921/071314.195955:WARNING:content/browser/gpu/gpu_process_host.cc:1447] The GPU process has crashed 1 time(s)
+[125:125:0921/071314.262597:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071314.578109:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071314.846272:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+prctl(PR_SET_NO_NEW_PRIVS) failed
+[125:125:0921/071316.352217:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[125:125:0921/071316.401077:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071316.401541:WARNING:ui/ozone/platform/wayland/host/org_gnome_mutter_idle_monitor.cc:87] org.gnome.Mutter.IdleMonitor D-Bus service does not exist
+[125:125:0921/071316.433629:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Optimization Hints
+[125:125:0921/071316.446595:VERBOSE1:components/component_updater/component_updater_service.cc:177] CrxUpdateService starting up. First update attempt will take place in 60 s seconds. Next update attempt will take place in 18000 s seconds. 
+[125:125:0921/071316.450908:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for OnDeviceHeadSuggest
+[125:125:0921/071316.454526:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Subresource Filter Rules
+[125:125:0921/071316.475133:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Trust Token Key Commitments
+[125:125:0921/071316.476540:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Certificate Error Assistant
+[125:125:0921/071316.477605:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for File Type Policies
+[125:125:0921/071316.478322:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Origin Trials
+[125:125:0921/071316.479277:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Privacy Sandbox Attestations
+[125:125:0921/071316.482395:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for CRLSet
+[125:125:0921/071316.483580:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Crowd Deny
+[125:125:0921/071316.484215:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Hyphenation
+[125:125:0921/071316.485444:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for PKI Metadata
+[125:125:0921/071316.485967:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Safety Tips
+[125:125:0921/071316.486863:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for MEI Preload
+[125:125:0921/071316.487390:VERBOSE1:components/component_updater/component_installer.cc:589] Component ready, version 1.0.7.1652906823 in /usr/lib/chromium/MEIPreload
+[125:125:0921/071316.488764:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Zxcvbn Data Dictionaries
+[125:125:0921/071316.489950:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Actor Safety Lists
+[125:125:0921/071316.490733:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Amount Extraction Heuristic Regexes
+[125:125:0921/071316.492279:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for WASM TTS Engine
+[125:125:0921/071316.493038:VERBOSE1:components/component_updater/component_installer.cc:548] FinishRegistration for Captcha Providers
+[125:145:0921/071317.706298:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[125:145:0921/071317.709781:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[125:125:0921/071317.794189:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071317.857036:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071317.857455:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.cinnamon.ScreenSaver D-Bus service does not exist
+[125:145:0921/071317.868709:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[125:125:0921/071317.871066:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+[125:125:0921/071317.871399:WARNING:content/browser/gpu/gpu_process_host.cc:1447] The GPU process has crashed 2 time(s)
+[125:143:0921/071318.573736:VERBOSE1:components/signin/public/webdata/token_service_table.cc:259] Loaded tokens: result = 3 ; number of tokens loaded = 0
+[125:125:0921/071318.780365:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[125:125:0921/071318.844923:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+[125:125:0921/071318.845597:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[125:125:0921/071318.845895:WARNING:dbus/property.cc:174] GetAll request failed for: org.freedesktop.UPower.Device
+[125:125:0921/071318.867057:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[125:125:0921/071318.867410:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.gnome.ScreenSaver D-Bus service does not exist
+[125:125:0921/071318.869176:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+[125:145:0921/071318.869354:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[125:125:0921/071318.869531:WARNING:content/browser/gpu/gpu_process_host.cc:1447] The GPU process has crashed 3 time(s)
+[125:125:0921/071318.871558:FATAL:content/browser/gpu/gpu_data_manager_impl_private.cc:418] GPU process isn't usable. Goodbye.
+[190:190:0921/071410.269422:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[190:190:0921/071413.251214:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[190:190:0921/071413.384697:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+[190:190:0921/071413.866928:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:120] Skipping mandatory platform policies because no policy file was found at: /etc/chromium/policies/managed
+[190:190:0921/071413.868969:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:120] Skipping recommended platform policies because no policy file was found at: /etc/chromium/policies/recommended
+[190:190:0921/071414.102210:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:77] VariationsSeedUsage:2
+[190:190:0921/071414.115497:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:374] VariationsSetupComplete
+[190:205:0921/071414.297011:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/VariationsSeedV2": No such file or directory (2)
+[190:205:0921/071414.303621:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/tmp/chromium-baseline/VariationsSeedV2": No such file or directory (2)
+[190:206:0921/071414.310215:ERROR:base/files/file_path_watcher_inotify.cc:338] inotify_init() failed: Function not implemented (38)
+[190:207:0921/071414.340071:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[190:190:0921/071414.558893:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:278] Failed to initialize drm render node handle.
+[190:190:0921/071414.639030:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wl_shm version 1 but version 2 is available.
+[190:190:0921/071414.679869:WARNING:ui/ozone/platform/wayland/host/wayland_connection.cc:273] No wl_seat object. The functionality may suffer.
+[190:190:0921/071415.904317:ERROR:content/browser/browser_main_loop.cc:274] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+[190:190:0921/071418.227274:VERBOSE1:chrome/browser/media/webrtc/webrtc_event_log_manager.cc:126] WebRTC remote-bound event logging enabled.
+[190:190:0921/071418.309632:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:462] 0x1c000c1040: set chrome proxy config service to 0x1c00181500
+[190:190:0921/071418.325555:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_MAIN
+[190:190:0921/071418.326197:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_MAIN
+[190:190:0921/071418.326592:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING
+[190:190:0921/071418.326863:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING
+[190:190:0921/071418.327089:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING_HOST
+[190:190:0921/071418.327470:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING_HOST
+[190:190:0921/071418.412767:VERBOSE1:components/device_event_log/device_event_log_impl.cc:203] [07:14:18.412] Display: EVENT: wayland_screen.cc:146 Displays updated, count: 1
+[190:190:0921/071418.981156:VERBOSE1:components/device_event_log/device_event_log_impl.cc:203] [07:14:18.980] Display: EVENT: wayland_screen.cc:149 Display[14] bounds=[0,0 1280x800], workarea=[0,0 1280x800], scale=1, rotation=0, panel_rotation=0 external detected
+[190:207:0921/071419.052313:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[190:207:0921/071419.062819:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[190:205:0921/071419.074564:ERROR:net/base/address_tracker_linux.cc:243] Could not bind NETLINK socket: Not supported (95)
+[190:207:0921/071419.112911:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[190:207:0921/071419.120267:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[190:223:0921/071419.342109:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:331] Failed to find drm render node path.
+[190:223:0921/071419.347768:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:456] Failed to initialize drm render node handle.
+Assertion 'r == 0 || r == 95' failed at ../src/pulsecore/mutex-posix.c:57, function pa_mutex_new(). Aborting.
+[0921/071419.500287:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[190:223:0921/071419.651818:WARNING:media/gpu/vaapi/vaapi_wrapper.cc:1643] drmGetDevices2() has not found any devices
+[190:223:0921/071419.797030:VERBOSE1:media/gpu/vaapi/vaapi_wrapper.cc:1710] GetHandle(): Either VADisplayStateSingleton::PreSandboxInitialization() hasn't been called or that method failed to find a suitable render node
+[190:223:0921/071420.360462:VERBOSE1:components/viz/service/main/viz_main_impl.cc:87] VizNullHypothesis is disabled (not a warning)
+[inst]   ==== 关键错误行 ====
+3:[125:125:0921/071246.818613:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+12:[125:143:0921/071249.537151:ERROR:base/files/file_path_watcher_inotify.cc:338] inotify_init() failed: Function not implemented (38)
+13:[125:145:0921/071249.631719:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+14:[125:125:0921/071249.929954:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:278] Failed to initialize drm render node handle.
+17:[125:125:0921/071251.791198:ERROR:content/browser/browser_main_loop.cc:274] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+28:[125:145:0921/071255.974311:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+29:[125:145:0921/071256.025711:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+30:[125:143:0921/071255.980641:ERROR:net/base/address_tracker_linux.cc:243] Could not bind NETLINK socket: Not supported (95)
+31:[125:145:0921/071256.043482:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+32:[125:145:0921/071256.053290:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+34:[125:145:0921/071257.056917:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+37:[0921/071257.602382:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+44:[125:145:0921/071301.276456:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+74:[125:145:0921/071306.129351:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+145:[125:125:0921/071314.170085:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+146:[125:145:0921/071314.174225:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+148:[125:125:0921/071314.181003:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+150:[125:145:0921/071314.186355:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+151:[125:125:0921/071314.195549:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+153:[125:125:0921/071314.262597:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+154:[125:125:0921/071314.578109:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+155:[125:125:0921/071314.846272:ERROR:content/browser/network_service_instance_impl.cc:722] Network service crashed or was terminated, restarting service.
+158:[125:125:0921/071316.401077:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+181:[125:145:0921/071317.706298:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+182:[125:145:0921/071317.709781:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+183:[125:125:0921/071317.794189:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+184:[125:125:0921/071317.857036:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+186:[125:145:0921/071317.868709:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+187:[125:125:0921/071317.871066:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+191:[125:125:0921/071318.844923:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+192:[125:125:0921/071318.845597:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+194:[125:125:0921/071318.867057:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+196:[125:125:0921/071318.869176:ERROR:content/browser/gpu/gpu_process_host.cc:999] GPU process launch failed: error_code=1002
+197:[125:145:0921/071318.869354:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+199:[125:125:0921/071318.871558:FATAL:content/browser/gpu/gpu_data_manager_impl_private.cc:418] GPU process isn't usable. Goodbye.
+202:[190:190:0921/071413.384697:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+209:[190:206:0921/071414.310215:ERROR:base/files/file_path_watcher_inotify.cc:338] inotify_init() failed: Function not implemented (38)
+210:[190:207:0921/071414.340071:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+211:[190:190:0921/071414.558893:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:278] Failed to initialize drm render node handle.
+214:[190:190:0921/071415.904317:ERROR:content/browser/browser_main_loop.cc:274] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+225:[190:207:0921/071419.052313:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+226:[190:207:0921/071419.062819:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+227:[190:205:0921/071419.074564:ERROR:net/base/address_tracker_linux.cc:243] Could not bind NETLINK socket: Not supported (95)
+228:[190:207:0921/071419.112911:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+229:[190:207:0921/071419.120267:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+230:[190:223:0921/071419.342109:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:331] Failed to find drm render node path.
+231:[190:223:0921/071419.347768:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:456] Failed to initialize drm render node handle.
+233:[0921/071419.500287:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[inst]   ==== 进程确认 ====
+  135 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=channel=Alpine Linux --annotation=lsb-release=Alpine Linux v3.23 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=149.0.7827.53 --initial-client-fd=5 --shared-client-connection
+  200 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=channel=Alpine Linux --annotation=lsb-release=Alpine Linux v3.23 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=149.0.7827.53 --initial-client-fd=4 --shared-client-connection
+[inst] 进入 watcher（每 30s，含 sync）

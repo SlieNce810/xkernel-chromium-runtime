@@ -1,0 +1,740 @@
+### [2026-09-30 03:31:16] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.18s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000802a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000802a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-29 19:31:16.006277808 UTC
+
+[37m[  0.896608 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-29T19:24:59.883178511Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = c2eabd524461c79631d7b737f4c8fa09bd24e96e
+git_dirty = true
+build_id = c4d11ac1e3ae96bd72958d85c071c9127fcd075e1391f44a6c822a0870285c39
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Tue Sep 29 19:31:17 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1790710277
+[mpdiag] MP_AUTORUN_START_MONO_MS=0\n
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=0
+[mpdiag] GL_MODE=angle
+[mpdiag] NET_MODE=normal
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] STRACE_PATH=missing
+[mpdiag] STRACE_FILE=/usr/bin/strace
+-rwxr-xr-x    1 kiosk    kiosk      1247688 Jan 24  2025 [1;32m/usr/bin/strace[m
+-rwxr-xr-x    1 kiosk    kiosk         1875 Jan 24  2025 [1;32m/usr/bin/strace-log-merge[m
+[37m[  7.707415 2:20 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  8.664359 3:22 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event0 dev=13:64[m
+[m[37m[  8.666479 3:22 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=1[m
+[m[37m[  8.669477 3:22 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event1 dev=13:65[m
+[m[37m[  8.670090 3:22 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=2[m
+[m[37m[  8.780453 2:20 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  8.808590 2:20 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  8.900505 1:24 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  8.901417 1:24 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  8.902350 1:24 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[  8.916961 0:25 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  8.917294 0:25 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  8.917568 0:25 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[ 19.193978 3:31 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[37m[ 19.211540 2:29 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 19.218939 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa4c020[m
+[m[37m[ 19.219299 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 19.219717 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 19.220204 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 19.220582 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa4c010[m
+[m[37m[ 19.220932 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa4c018[m
+[m[37m[ 19.221190 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa4c028[m
+[m[37m[ 19.221478 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa4c090[m
+[m[37m[ 19.221980 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa4c098[m
+[m[37m[ 19.222265 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa4c0a0[m
+[m[37m[ 19.222576 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa4c030[m
+[m[37m[ 19.222892 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa4c0b0[m
+[m[37m[ 19.223104 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa4c0a8[m
+[m[37m[ 19.223345 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa4c0c0[m
+[m[37m[ 19.223569 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa4c0d0[m
+[m[37m[ 19.223846 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa4c0d8[m
+[m[37m[ 19.224212 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa4c138[m
+[m[37m[ 19.224567 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa4c140[m
+[m[37m[ 19.226813 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 19.256640 2:29 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 19.258978 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa56020[m
+[m[37m[ 19.259302 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 19.259611 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 19.259937 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 19.260175 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa56010[m
+[m[37m[ 19.260406 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa56018[m
+[m[37m[ 19.260625 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa56028[m
+[m[37m[ 19.260952 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa56090[m
+[m[37m[ 19.261447 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa56098[m
+[m[37m[ 19.261916 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa560a0[m
+[m[37m[ 19.262153 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa56030[m
+[m[37m[ 19.262424 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa560b0[m
+[m[37m[ 19.262668 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa560a8[m
+[m[37m[ 19.262934 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa560c0[m
+[m[37m[ 19.263185 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa560d0[m
+[m[37m[ 19.263441 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa560d8[m
+[m[37m[ 19.263705 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa56138[m
+[m[37m[ 19.264131 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa56140[m
+[m[37m[ 19.265126 3:31 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 19.558679 3:31 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=31 alive=yes
+[mpdiag] TZ=UTC
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1790710296
+[mpdiag] MP_BROWSER_START_MONO_MS=0\n
+[mpdiag] browser_pid=50
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=0s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    51 root      0:00 {busybox} tail -n 0 -f /root/mp-chromium.log
+[mpdiag] PS    78 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=5
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=5s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    51 root      0:00 {busybox} tail -n 0 -f /root/mp-chromium.log
+[mpdiag] PS   114 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[50:50:0929/193150.140129:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[50:50:0929/193153.157677:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[37m[ 39.690205 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.698632 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.703082 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.718213 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.721226 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.724607 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.727544 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.732264 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.735189 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.737956 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.741152 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.744428 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.748429 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.751567 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.754733 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.757856 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.760460 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.772039 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.780432 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.789674 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.795353 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.798679 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.801717 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.805443 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.814825 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.829281 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.834043 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.839390 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.846447 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.852029 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.866603 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.873561 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.879637 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.888619 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.895240 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.909308 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.916616 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.928064 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.934329 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.948733 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.957270 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.965948 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.979097 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.982803 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.985292 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.993767 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.995420 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 39.998197 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.001733 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.006462 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.016701 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.017728 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.025403 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.030612 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.032521 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.035107 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.046976 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.048075 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.057067 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.058193 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.064608 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.067425 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.070911 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.075611 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.080169 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.084262 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.092320 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.094071 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.100870 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.101145 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.107517 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.110322 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.114312 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.121474 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.122765 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.130180 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.133790 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.137427 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.139844 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.144416 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.147480 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.153478 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.156518 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.163091 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.168271 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.176577 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.180614 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.184149 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.191151 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.191659 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.199685 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.202609 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.206563 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.212960 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.215895 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.221584 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.226956 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.235297 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.237029 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.239562 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.243348 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.247830 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.251133 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.255255 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.258315 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.262513 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.263128 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.269879 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.277881 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.285372 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.285942 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.291399 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.297289 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.299467 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.302909 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.307992 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.309740 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.314478 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.320379 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.327617 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.328468 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.335656 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.337191 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.345635 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.347058 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.351841 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.355231 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.357693 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.363925 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.365259 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.369100 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.374711 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.375995 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.380406 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.384667 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.390149 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.392053 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.397596 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.402699 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.404592 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.411673 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.417059 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.418944 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.425734 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.429553 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.433028 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.439547 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.439644 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.446427 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.453527 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.453705 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.460474 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.465312 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.466193 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.471185 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.473772 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.476666 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.482075 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.483948 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.487134 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.496366 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.498849 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.506211 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.508122 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.519476 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.524223 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.528102 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.532397 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.534108 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.539484 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.544294 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.546486 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.551331 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.558151 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.565309 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.577021 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.577108 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.587212 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.589808 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.599288 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.600388 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.605946 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.611825 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.614558 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.623774 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.625694 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.631319 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.635754 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.638874 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.647085 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.651595 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.655942 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.659443 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.666582 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.670519 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.674688 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.682913 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.684716 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.689300 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.689622 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.700740 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.705101 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.707893 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.713187 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.716882 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.719246 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.725240 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.727910 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.735052 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.739334 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.745071 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.748096 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.757232 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.763075 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.769234 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.771099 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.783241 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.784234 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.789800 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.791107 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.797015 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.799020 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.806120 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.809799 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.816297 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.817943 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.825953 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.827330 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x7ffeffffeff0 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.840519 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.845893 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.853105 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.859329 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.865792 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.872551 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.878276 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.884296 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.891616 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.897367 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.903140 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.915344 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.921106 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.927439 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.936282 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.947547 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.955202 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.960786 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.969679 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.980237 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.988496 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.994768 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 40.999821 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.008847 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.019369 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.029076 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.033802 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.037081 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.043306 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.061138 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.079405 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.105072 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.112058 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.121806 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.126262 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.132937 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.144025 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.151428 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.169886 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.189232 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.196477 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[37m[ 41.199541 0:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff020 a2=0x3c0 a3=0x0 result=Ok(960)[m
+[m[mpdiag] MP_SAMPLE_ELAPSED_SEC=10
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=10s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    51 root      0:00 {busybox} tail -n 0 -f /root/mp-chromium.log
+[mpdiag] PS   125 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   127 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   131 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   134 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   162 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+
+### [2026-09-30 03:32:01] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) [37m[ 44.796885 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x380007c0f0 a2=0x400 a3=0x0 result=Ok(134)[m
+[m[37m[ 44.797811 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x380007c0f0 a2=0x400 a3=0x0 result=Ok(0)[m
+[m[37m[ 44.807656 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x380007c0f0 a2=0x400 a3=0x0 result=Ok(134)[m
+[m[37m[ 44.809194 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0x5 a1=0x380007c0f0 a2=0x400 a3=0x0 result=Ok(0)[m
+[m[37m[ 45.486329 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0xd a1=0x7ffefffff520 a2=0x7ffefffff540 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.487896 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffff7a0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.488499 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x1 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.489799 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x2 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.491022 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x3 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.492282 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x4 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.493412 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1060 a2=0x7ffefffff698 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.494339 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x6 a1=0x7ffefffff610 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.495147 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffff698 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.495872 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x8 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.496350 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0xb a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.496895 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0xe a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.497406 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0xf a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.497910 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x11 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.498385 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x7 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 45.498896 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x5 a1=0x7ffefffff660 a2=0x0 a3=0x8 result=Ok(0)[m
+[ms[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-z[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026093[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at004[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-01-at0045[K
+
+
+
+
+
+
+[37m[ 46.797943 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0xd a1=0x7ffefffff550 a2=0x7ffefffff570 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.803105 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffff7d0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.804122 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x1 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.804933 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x2 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.805788 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x3 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.806677 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x4 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.807426 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1060 a2=0x7ffefffff6c8 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.808106 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x6 a1=0x7ffefffff640 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.808601 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffff6c8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.809273 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x8 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.810171 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0xb a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.811082 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0xe a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.811994 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0xf a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.813082 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x11 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.813686 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x7 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.814204 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x5 a1=0x7ffefffff690 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.877895 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0x5 a1=0x7ffefffff028 a2=0x400 a3=0x0 result=Ok(134)[m
+[m[37m[ 46.884065 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x2 a1=0x7ffefffff320 a2=0x7ffefffff340 a3=0x8 result=Ok(0)[m
+[m[37m[ 46.932474 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=write a0=0x2 a1=0x380003c070 a2=0x6a a3=0x0 result=Ok(106)[m
+[m[37m[ 46.945475 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff150 a2=0x20 a3=0x0 result=Ok(2)[m
+[m[37m[ 46.946401 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff152 a2=0x1e a3=0x0 result=Ok(0)[m
+[m[37m[ 46.953458 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff050 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 46.954489 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff054 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 46.959240 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff050 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 46.960208 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff054 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 46.962340 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff050 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 46.963371 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff054 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 46.965546 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff050 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 46.966707 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffefffff054 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 46.971782 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffeffffed00 a2=0x400 a3=0x0 result=Ok(871)[m
+[m[37m[ 46.974091 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=read a0=0xb a1=0x7ffeffffed00 a2=0x400 a3=0x0 result=Ok(0)[m
+[m[37m[ 46.985847 1:131 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 51[m
+[m[37m[ 46.986237 1:131 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 64[m
+[m[37m[ 47.027970 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=write a0=0xb a1=0x7ffefffff258 a2=0x1 a3=0x0 result=Ok(1)[m
+[m
+[37m[ 47.190630 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=sendmsg a0=0x4 a1=0x7ffeffffe698 a2=0x4000 a3=0x0 result=Ok(20)[m
+[m[37m[ 47.205486 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=recvmsg a0=0xb a1=0x7ffeffffe8e8 a2=0x0 a3=0x0 result=Ok(52)[m
+[m[37m[ 47.227499 1:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=write a0=0x2 a1=0x3800028500 a2=0x78 a3=0x0 result=Ok(120)[m
+[m[37m[ 47.252308 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigprocmask a0=0x1 a1=0x7ffeffffed20 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.253105 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigaction a0=0x11 a1=0x7ffeffffed00 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.254110 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=rt_sigprocmask a0=0x0 a1=0x7ffeffffee90 a2=0x7ffeffffee10 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.257546 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=ppoll a0=0x7ffeffffed60 a1=0x1 a2=0x0 a3=0x7ffeffffed90 result=Ok(1)[m
+[m[37m[ 47.261250 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=recvmsg a0=0x3 a1=0x7ffefffee848 a2=0x0 a3=0x0 result=Ok(8)[m
+[m[37m[ 47.265949 2:131 ksyscall::dispatch:881] [33mZTRACE2 tid=131 sysno=write a0=0x3 a1=0x7ffefffff0e0 a2=0x4 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.350461 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0x2 a1=0x280003c070 a2=0x6a a3=0x0 result=Ok(106)[m
+[m[37m[ 47.355071 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff180 a2=0x20 a3=0x0 result=Ok(2)[m
+[m[37m[ 47.355877 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff182 a2=0x1e a3=0x0 result=Ok(0)[m
+[m[37m[ 47.359205 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff080 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.360106 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff084 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 47.362495 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff080 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.363375 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff084 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 47.365393 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff080 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.366116 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff084 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 47.368153 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff080 a2=0x100 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.368977 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffefffff084 a2=0xfc a3=0x0 result=Ok(0)[m
+[m[37m[ 47.371769 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffeffffed30 a2=0x400 a3=0x0 result=Ok(871)[m
+[m[37m[ 47.374022 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=read a0=0xb a1=0x7ffeffffed30 a2=0x400 a3=0x0 result=Ok(0)[m
+[m[37m[ 47.377610 3:134 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 51[m
+[m[37m[ 47.378185 3:134 ksyscall::task::ctl:228] [33msys_prctl: unsupported option 64[m
+[m[37m[ 47.396670 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0xb a1=0x7ffefffff288 a2=0x1 a3=0x0 result=Ok(1)[m
+[m[37m[ 47.416273 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=sendmsg a0=0x4 a1=0x7ffeffffe6c8 a2=0x4000 a3=0x0 result=Ok(20)[m
+[m[37m[ 47.418447 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=recvmsg a0=0xb a1=0x7ffeffffe918 a2=0x0 a3=0x0 result=Ok(52)[m
+[m[37m[ 47.422168 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0x2 a1=0x2800028500 a2=0x78 a3=0x0 result=Ok(120)[m
+[m[37m[ 47.432749 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x1 a1=0x7ffeffffed50 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.433268 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigaction a0=0x11 a1=0x7ffeffffed30 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.434093 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x0 a1=0x7ffeffffeec0 a2=0x7ffeffffee40 a3=0x8 result=Ok(0)[m
+[m[37m[ 47.435608 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=ppoll a0=0x7ffeffffed90 a1=0x1 a2=0x0 a3=0x7ffeffffedc0 result=Ok(1)[m
+[m[37m[ 47.445284 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=recvmsg a0=0x3 a1=0x7ffefffee878 a2=0x0 a3=0x0 result=Ok(8)[m
+[m[37m[ 47.446497 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0x3 a1=0x7ffefffff110 a2=0x4 a3=0x0 result=Ok(4)[m
+[m[37m[ 47.471003 1:50 ksyscall::dispatch:869] [33mUnimplemented syscall: landlock_create_ruleset (tid=50)[m
+[m### [2026-09-30 03:32:04] screendump OK (3072016 bytes)
+[131:131:0929/193202.746835:INFO:third_party/webrtc/rtc_base/cpu_info.cc:75] Available number of cores: 4
+[131:131:0929/193202.999688:VERBOSE1:content/zygote/zygote_main_linux.cc:201] ZygoteMain: initializing 0 fork delegates
+[134:134:0929/193203.167127:INFO:third_party/webrtc/rtc_base/cpu_info.cc:75] Available number of cores: 4
+[134:134:0929/193203.232623:VERBOSE1:content/zygote/zygote_main_linux.cc:201] ZygoteMain: initializing 0 fork delegates
+[50:50:0929/193204.765389:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:116] Found mandatory policy file: /etc/chromium/policies/managed/kiosk.json
+[50:50:0929/193204.845345:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:121] Skipping recommended platform policies because no policy file was found at: /etc/chromium/policies/recommended
+[50:50:0929/193205.519903:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:80] VariationsSeedUsage:2
+[50:50:0929/193205.539626:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:353] VariationsSetupComplete
+[50:183:0929/193206.218753:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/mp-chromium-profile/VariationsSeedV1": No such file or directory (2)
+[50:186:0929/193206.385709:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[50:50:0929/193206.834516:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:272] Failed to initialize drm render node handle.
+[50:50:0929/193206.889780:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wl_shm version 1 but version 2 is available.
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=15
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=15s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    51 root      0:00 {busybox} tail -n 0 -f /root/mp-chromium.log
+[mpdiag] PS   125 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   127 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   131 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   134 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   228 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[50:50:0929/193213.416095:VERBOSE1:chrome/browser/media/webrtc/webrtc_event_log_manager.cc:122] WebRTC remote-bound event logging enabled.
+[50:50:0929/193213.546899:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:199] 0x3400094000: set chrome proxy config service to 0x340007ebe0
+[50:50:0929/193213.586740:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_MAIN
+[50:50:0929/193213.588057:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_MAIN
+[50:50:0929/193213.589167:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING
+[50:50:0929/193213.589496:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING
+[50:50:0929/193213.589782:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING_HOST
+[50:50:0929/193213.590914:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING_HOST
+[50:50:0929/193214.426634:VERBOSE1:components/device_event_log/device_event_log_impl.cc:200] [19:32:13.978] Display: EVENT: wayland_screen.cc:144 Displays updated, count: 1
+[50:50:0929/193214.435041:VERBOSE1:components/device_event_log/device_event_log_impl.cc:200] [19:32:14.433] Display: EVENT: wayland_screen.cc:147 Display[16] bounds=[0,0 1280x800], workarea=[0,0 1280x800], scale=1, rotation=0, panel_rotation=0 external detected
+[50:186:0929/193214.578302:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[50:186:0929/193214.620408:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[50:186:0929/193214.632605:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[37m[ 59.540061 2:183 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[50:184:0929/193214.659461:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/mp-chromium-profile/component_crx_cache/metadata.json": No such file or directory (2)
+[50:251:0929/193215.082188:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:325] Failed to find drm render node path.
+[50:251:0929/193215.091880:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:458] Failed to initialize drm render node handle.
+[50:188:0929/193215.428716:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MSM::InitializeMaybeAsync([this=0x340016f980])
+[50:188:0929/193215.486688:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MDM::MediaDevicesManager()
+[50:188:0929/193215.493176:VERBOSE1:content/browser/renderer_host/media/media_stream_manager.cc:1555] MSM::MediaStreamManager([this=0x340016f980]))
+[50:183:0929/193215.629443:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/mp-chromium-profile/Consent To Send Stats": No such file or directory (2)
+[50:50:0929/193216.726479:VERBOSE1:components/os_crypt/sync/key_storage_util_linux.cc:46] Password storage detected desktop environment: (unknown)
+[50:50:0929/193216.729351:VERBOSE1:components/os_crypt/sync/key_storage_linux.cc:116] Selected backend for OSCrypt: BASIC_TEXT
+[50:50:0929/193216.734598:VERBOSE1:components/os_crypt/sync/key_storage_linux.cc:135] OSCrypt did not initialize a backend.
+[50:50:0929/193216.786807:VERBOSE1:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:171] Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+
+### [2026-09-30 03:32:21] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at0065s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-z[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026093[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at006[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-02-at0065[K
+
+
+
+
+
+[50:50:0929/193221.936717:VERBOSE1:components/device_event_log/device_event_log_impl.cc:200] [19:32:21.926] Bluetooth: EVENT: bluetooth_api.cc:82 BluetoothAPI: 0x34004bf080
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    51 root      0:00 {busybox} tail -n 0 -f /root/mp-chromium.log
+
+[mpdiag] PS   125 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[37m[ 67.345658 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=ppoll a0=0x7ffeffffed90 a1=0x1 a2=0x0 a3=0x7ffeffffedc0 result=Ok(1)[m
+[m[37m[ 67.352468 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=recvmsg a0=0x3 a1=0x7ffefffee878 a2=0x0 a3=0x0 result=Ok(1008)[m
+[m[37m[ 67.405398 1:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffefffde4c0 a3=0x8 result=Ok(0)[m
+[m[37m[ 67.408732 1:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1060 a2=0x7ffefffde3f0 a3=0x8 result=Ok(0)[m
+[m[mpdiag] PS   127 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+### [2026-09-30 03:32:24] screendump OK (3072016 bytes)
+[50:251:0929/193223.019873:ERROR:media/gpu/vaapi/vaapi_wrapper.cc:1622] Could not get a valid VA display
+[50:251:0929/193223.359922:VERBOSE1:components/viz/service/main/viz_main_impl.cc:86] VizNullHypothesis is disabled (not a warning)
+[50:183:0929/193223.414904:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/mp-chromium-profile/Default/Web Applications/Logs/WebAppInstallManager.log": No such file or directory (2)
+[37m[ 68.014328 1:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffde3f0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.019161 1:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffde4c0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.020548 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffde3f0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.023409 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffefffde4c0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[mpdiag] PS   131 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[37m[ 68.044552 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=sendmsg a0=0xb a1=0x7ffefffde068 a2=0x4000 a3=0x0 result=Ok(11)[m
+[m[37m[ 68.052559 3:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=recvmsg a0=0x3 a1=0x7ffefffde2f8 a2=0x0 a3=0x0 result=Ok(12)[m
+[m[37m[ 68.056858 2:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0x12 a1=0x7ffefffde604 a2=0x4 a3=0x0 result=Ok(4)[m
+[m[37m[ 68.058057 0:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=read a0=0x11 a1=0x7ffefffde5b0 a2=0x4 a3=0x0 result=Ok(4)[m
+[m[37m[ 68.075608 2:134 ksyscall::dispatch:881] [33mZTRACE2 tid=134 sysno=write a0=0x3 a1=0x2800025a90 a2=0xc a3=0x0 result=Ok(12)[m
+[m[37m[ 68.098658 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffee40 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.214844 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1060 a2=0x7ffeffffea58 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.216146 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x6 a1=0x7ffeffffe9d0 a2=0x7ffeffffe9f0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.217204 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffea58 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.218132 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x7 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.218832 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x8 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.219324 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x4 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.219769 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x3 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.220405 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0xb a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.221243 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x5 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.221900 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x18 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.222496 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigaction a0=0x19 a1=0x7ffeffffea20 a2=0x7ffeffffea40 a3=0x8 result=Ok(0)[m
+[m[mpdiag] PS   134 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   257 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader --use-gl=angle --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,15085934468376316020,8394611977057057191,524288 --field-trial-handle=3,i,16951623975992020157,2223097550194672397,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   300 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[37m[ 68.801126 0:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x1 a1=0x7ffeffffef50 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.805322 0:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffeffffef50 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.807902 0:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffef50 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 68.808495 2:307 ksyscall::dispatch:881] [33mZTRACE2 tid=307 sysno=rt_sigprocmask a0=0x2 a1=0x16f80cb8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[50:186:0929/193224.122812:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[37m[ 69.142167 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffeffffe730 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.144248 2:308 ksyscall::dispatch:881] [33mZTRACE2 tid=308 sysno=rt_sigprocmask a0=0x2 a1=0x17188cb8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.146450 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffe730 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.388264 3:308 ksyscall::dispatch:881] [33mZTRACE2 tid=308 sysno=write a0=0xb a1=0x17188b60 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.490536 1:308 ksyscall::dispatch:881] [33mZTRACE2 tid=308 sysno=read a0=0xb a1=0x17188898 a2=0x8 a3=0x0 result=Ok(8)[m
+[m
+### [2026-09-30 03:32:26] MONITOR: screendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-final.ppm
+(qemu) [37m[ 69.592219 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffeffffe800 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.594576 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffe800 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.598663 2:311 ksyscall::dispatch:881] [33mZTRACE2 tid=311 sysno=rt_sigprocmask a0=0x2 a1=0x17390cb8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.604679 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffeffffe6e0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.606828 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffe6e0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.611051 3:312 ksyscall::dispatch:881] [33mZTRACE2 tid=312 sysno=rt_sigprocmask a0=0x2 a1=0x17598cb8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.632636 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x0 a1=0xe0d1058 a2=0x7ffeffffe9f0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.634257 3:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=rt_sigprocmask a0=0x2 a1=0x177a0cb8 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.636872 3:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=rt_sigprocmask a0=0x2 a1=0x7ffeffffe9f0 a2=0x0 a3=0x8 result=Ok(0)[m
+[m[37m[ 69.671476 3:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=write a0=0x12 a1=0x177a0b60 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.718074 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x12 a1=0x177a0848 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.726589 2:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=write a0=0x12 a1=0x7ffeffffdd90 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.727623 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x12 a1=0x177a0848 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.789042 1:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(184)[m
+[m[50:50:0929/193224.869259:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:199] 0x3400096d00: set chrome proxy config service to 0x3400082320
+[50:50:0929/193224.980570:VERBOSE1:chrome/browser/signin/account_consistency_mode_manager.cc:207] Desktop Identity Consistency disabled as sign-in to Chrome is not allowed
+[50:50:0929/193225.289465:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:318] MutablePO2TS::MutablePO2TS
+[37m[ 69.958970 1:308 ksyscall::dispatch:881] [33mZTRACE2 tid=308 sysno=read a0=0xb a1=0x17188898 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.960297 1:302 ksyscall::dispatch:881] [33mZTRACE2 tid=302 sysno=write a0=0xb a1=0x7ffeffffde10 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 69.975115 2:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=sendmsg a0=0xc a1=0x1779eba8 a2=0x4000 a3=0x0 result=Ok(168)[m
+[m[37m[ 70.064625 1:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(2736)[m
+[m[37m[ 70.155050 3:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(176)[m
+[m[37m[ 70.387173 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x14 a1=0x2c000d0000 a2=0x800 a3=0x0 result=Ok(299)[m
+[m[37m[ 70.389494 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x14 a1=0x2c0005e52b a2=0x800 a3=0x0 result=Ok(0)[m
+[ms[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-z[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-2026093[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-f[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-fi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-fin[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-fina[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-final[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-30_t490-mp-zfd-r1-20260930/screenshots/shot-03-final.[K
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[37m[ 71.604987 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(272)[m
+[m[37m[ 71.642866 2:312 ksyscall::dispatch:881] [33mZTRACE2 tid=312 sysno=write a0=0x12 a1=0x175978a0 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.644940 2:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x12 a1=0x177a0848 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.657328 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(192)[m
+[m[37m[ 71.683419 0:312 ksyscall::dispatch:881] [33mZTRACE2 tid=312 sysno=write a0=0x12 a1=0x17597780 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.684218 2:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x12 a1=0x177a0848 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.719532 0:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(320)[m
+[m[37m[ 71.754657 2:312 ksyscall::dispatch:881] [33mZTRACE2 tid=312 sysno=write a0=0x12 a1=0x175978c0 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.758033 1:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=read a0=0x12 a1=0x177a0848 a2=0x8 a3=0x0 result=Ok(8)[m
+[m[37m[ 71.775970 1:313 ksyscall::dispatch:881] [33mZTRACE2 tid=313 sysno=recvmsg a0=0xc a1=0x177a0348 a2=0x40 a3=0x0 result=Ok(192)[m
+[m[50:50:0929/193226.758784:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:199] 0x3400098200: set chrome proxy config service to 0x3400086900
+
+### [2026-09-30 03:32:29] screendump OK (3072016 bytes)
+
+### [2026-09-30 03:32:29] stopping session...
+QEMU: Terminated
+### [2026-09-30 03:32:29] SESSION END (exit=0)

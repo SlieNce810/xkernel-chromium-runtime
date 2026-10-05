@@ -1,0 +1,164 @@
+==================================================================
+round_assert  tag=x11p3
+证据目录      /home/mo/xk6/evidence/2026-09-22_t490-x11p3
+时间          2026-09-22T19:17:54+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 8
+PNG 张数 : 0
+  640x480 921615 shot-01-at0045s.ppm
+  640x480 921615 shot-02-at0105s.ppm
+  640x480 921615 shot-03-at0165s.ppm
+  640x480 921615 shot-04-at0225s.ppm
+  640x480 921615 shot-05-at0285s.ppm
+  640x480 921615 shot-06-at0345s.ppm
+  640x480 921615 shot-07-at0405s.ppm
+  640x480 921615 shot-08-final.ppm
+尺寸集合     : 640x480 
+字节数集合   : 921615 
+众数尺寸     : 640x480（用于逐张判据的 --expect-size）
+→ 尺寸一致性通过（集合单元素 640x480）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+/root/full.log                           (缺失/空)
+/root/chrome-full.log                    (缺失/空)
+/root/chrome-snap.log                    (缺失/空)
+/root/a0.log                             (缺失/空)
+/root/chromium.log                       (缺失/空)
+/root/nnp.log                            (缺失/空)
+/root/nnp-watch.log                      (缺失/空)
+/root/install.log                        (缺失/空)
+/root/install-watch.log                  (缺失/空)
+/tmp/weston.log                          (缺失/空)
+/root/full.log                           (缺失/空)
+/root/chrome-full.log                    (缺失/空)
+/root/chrome-snap.log                    (缺失/空)
+/root/a0.log                             (缺失/空)
+/root/autorun-x11.log                       18092 bytes    363 lines
+/root/xorg.log                               5546 bytes    103 lines
+/root/xorg-stderr.log                        2832 bytes     77 lines
+/root/jwm.log                            (缺失/空)
+--- /root 目录 ---
+   5513   40700 (2)      0      0    4096 22-Sep-2026 19:11 .
+      2   40755 (2)      0      0    4096 21-Sep-2026 12:32 ..
+  10724  100600 (1)      0      0      62 21-Sep-2026 12:36 .ash_history
+  10844  100755 (1)      0      0   19675 22-Sep-2026 19:10 autorun.sh
+  10885  100644 (1)      0      0    5730 22-Sep-2026 19:10 index.html
+  57345  100644 (1)      0      0   18092 22-Sep-2026 19:11 autorun-x11.log
+  57346  100644 (1)      0      0    2832 22-Sep-2026 19:11 xorg-stderr.log
+  57348  100644 (1)      0      0    5546 22-Sep-2026 19:11 xorg.log
+  57349  100644 (1)      0      0     294 22-Sep-2026 19:11 xorg-plain.conf
+  57350  100644 (1)      0      0    5429 22-Sep-2026 19:11 xorg.log.old
+  57351  100644 (1)      0      0     366 22-Sep-2026 19:11 xorg-noshadow.conf
+
+OUT=/home/mo/xk6/evidence/2026-09-22_t490-x11p3/guest
+total 40
+drwxrwxr-x 2 mo mo  4096 Sep 22 19:17 .
+drwxrwxr-x 4 mo mo  4096 Sep 22 19:17 ..
+-rw-rw-r-- 1 mo mo 18092 Sep 22 19:17 _root_autorun-x11.log
+-rw-rw-r-- 1 mo mo  2832 Sep 22 19:17 _root_xorg-stderr.log
+-rw-rw-r-- 1 mo mo  5546 Sep 22 19:17 _root_xorg.log
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-01-at0045s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-02-at0105s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-03-at0165s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-04-at0225s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-05-at0285s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-06-at0345s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-07-at0405s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-08-final: 严格集未通过 
+判定张数     : 8
+严格集未通过 : 8
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 7
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+--- ⑧ X11 启动链判定摘录 ---
+### STAGE 打点（卡在哪一步）
+  Tue Sep 22 11:11:30 UTC 2026 STAGE=x11-xorg-failed
+  Tue Sep 22 11:11:31 UTC 2026 STAGE=x11-session-skipped
+### Xorg 变体与会话结果
+  Tue Sep 22 11:11:01 UTC 2026 --- Xorg try[keeptty]: args=[-keeptty] ---
+  Tue Sep 22 11:11:17 UTC 2026 --- Xorg try[conf-plain]: args=[-config /root/xorg-plain.conf -keeptty] ---
+  Tue Sep 22 11:11:24 UTC 2026 --- Xorg try[conf-noshadow-32bpp]: args=[-config /root/xorg-noshadow.conf -keeptty] ---
+  Tue Sep 22 11:11:31 UTC 2026 Xorg 未就绪，跳过 jwm / chromium（本轮不会有图形证据）
+### chromium 存活结论 / 对照组
+  Tue Sep 22 11:10:59 UTC 2026 /dev/shm remount size=512m 成功
+  Tue Sep 22 11:10:59 UTC 2026 dev/shm: none 0 0 0 0% /dev/shm
+  none                         0         0         0   0% /dev/shm
+  Tue Sep 22 11:11:00 UTC 2026 kiosk home: drwxr-xr-x 6 kiosk kiosk 4096 Sep 21 04:32 /home/kiosk
+### Xorg 决定行（xorg.log 中 EE/WW/modeset/Output）
+  [    35.617] (**) modeset(0): Option "ShadowFB" "false"
+  [    35.617] (**) modeset(0): Option "AccelMethod" "none"
+  [    35.618] (==) modeset(0): RGB weight 888
+  [    35.618] (==) modeset(0): Default visual is TrueColor
+  [    35.618] (**) modeset(0): Cannot use glamor with 24bpp packed fb
+  [    35.619] (II) modeset(0): ShadowFB: preferred YES, enabled FORCE
+  [    35.619] (II) modeset(0): Double-buffered shadow updates: off
+  [    35.622] (II) modeset(0): Output Virtual-1 has no monitor section
+  [    35.623] (II) modeset(0): Up to 1 crtcs needed for screen.
+  [    35.627] (II) modeset(0): Allocated crtc nr. 0 to this screen.
+  [    35.631] (II) modeset(0): EDID for output Virtual-1
+  [    35.632] (II) modeset(0): Printing probed modes for output Virtual-1
+  [    35.633] (II) modeset(0): Modeline "current"x60.0   70.59  1280 1328 1360 1440  800 803 811 817 (49.0 kHz)
+  [    35.634] (II) modeset(0): Output Virtual-1 connected
+  [    35.635] (II) modeset(0): Using sloppy heuristic for initial modes
+  [    35.636] (II) modeset(0): Output Virtual-1 using initial mode current +0+0
+  [    35.637] (==) modeset(0): Using gamma correction (1.0, 1.0, 1.0)
+  [    35.637] (==) modeset(0): DPI set to (96, 96)
+  [    35.651] (EE) 
+  [    35.652] (EE) AddScreen/ScreenInit failed for driver 0
+  [    35.653] (EE) 
+  [    35.653] (EE) 
+  [    35.654] (EE) Please also check the log file at "/root/xorg.log" for additional information.
+  [    35.654] (EE) 
+  [    35.657] (EE) Server terminated with error (1). Closing log file.
+
+==================================================================
+SUMMARY_END tag=x11p3  ppm=8  严格集未通过=8  尺寸不符=0  心跳=0/7
+==================================================================

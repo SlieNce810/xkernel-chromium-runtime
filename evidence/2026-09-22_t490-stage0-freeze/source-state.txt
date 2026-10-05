@@ -1,0 +1,60 @@
+### HEAD
+c2eabd524461c79631d7b737f4c8fa09bd24e96e
+### STATUS
+ M io/drmdevice/src/card0.rs
+ M io/drmdevice/src/drm.rs
+### DIFF
+diff --git a/io/drmdevice/src/card0.rs b/io/drmdevice/src/card0.rs
+index e9ec7c0..a456df3 100644
+--- a/io/drmdevice/src/card0.rs
++++ b/io/drmdevice/src/card0.rs
+@@ -942,6 +942,12 @@ impl DrmIoctl for DrmModeGetPlane {
+         }
+         p.crtc_id = CRTC_ID;
+         p.fb_id = 0;
++        /* 这四个字段是 mainline uapi 的一部分（结构体布局必须完整），
++         * 语义为 plane 当前的裁剪/位置；未启用时全 0。 */
++        p.crtc_x = 0;
++        p.crtc_y = 0;
++        p.x = 0;
++        p.y = 0;
+         p.possible_crtcs = 1;
+         p.gamma_size = 0;
+         p.count_format_types =
+@@ -972,7 +978,7 @@ impl DrmIoctl for DrmModeObjGetProperties {
+ }
+ 
+ impl DrmIoctl for DrmModeGetProperty {
+-    const CMD: u32 = iowr::<DrmModeGetProperty>(DRM_TYPE, 0xAA);
++    const CMD: u32 = iowr::<DrmModeGetProperty>(DRM_TYPE, 0xA8);
+ 
+     fn handle(_dev: &Card0, g: &mut Self) -> VfsResult<usize> {
+         let meta = property_meta(g.prop_id).ok_or(VfsError::NotFound)?;
+@@ -1132,7 +1138,7 @@ impl DrmIoctl for DrmModeDestroyBlob {
+ }
+ 
+ impl DrmIoctl for DrmModeGetBlob {
+-    const CMD: u32 = iowr::<DrmModeGetBlob>(DRM_TYPE, 0xAC);
++    const CMD: u32 = iowr::<DrmModeGetBlob>(DRM_TYPE, 0xAA);
+ 
+     fn handle(dev: &Card0, g: &mut Self) -> VfsResult<usize> {
+         let bytes = if let Some(b) = dev.blobs.lock().get(&g.blob_id).cloned() {
+diff --git a/io/drmdevice/src/drm.rs b/io/drmdevice/src/drm.rs
+index 72772b7..d07111c 100644
+--- a/io/drmdevice/src/drm.rs
++++ b/io/drmdevice/src/drm.rs
+@@ -223,6 +223,14 @@ pub struct DrmModeGetPlane {
+     pub plane_id: u32,
+     pub crtc_id: u32,
+     pub fb_id: u32,
++    /* mainline uapi 在这四个字段之后才是 possible_crtcs ——
++     * 少了它们，sizeof 会从 48 变成 32，而 consts.rs 的 iowr<T>()
++     * 会把 size 编进 ioctl 号 ⇒ 与 libdrm 发出的编码不等 ⇒ errno=95。
++     * 语义：plane 当前的位置/尺寸；本实现的 plane 未启用时置 0。 */
++    pub crtc_x: u32,
++    pub crtc_y: u32,
++    pub x: u32,
++    pub y: u32,
+     pub possible_crtcs: u32,
+     pub gamma_size: u32,
+     pub count_format_types: u32,

@@ -1,0 +1,22 @@
+# 完整运行命令（赛题第六节「浏览器基础功能」要求提供完整运行命令）
+
+## ① 本脚本命令行
+python3 scripts/run-session.py --cwd /home/mo/x-kernel --make-args 'GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n' --duration 120.0 --interval 30.0 --out /home/mo/xk6/evidence/2026-09-22_t490-agentos-x11-probe2
+
+## ② 实际执行的 make 命令
+make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+
+## ③ QEMU 实际命令行（xkmake 干跑抓取的字面行）
+#    来源: make justrun XKMAKE_ARGS=--dry-run  （只打印，不启动 QEMU）
+#    说明: 干跑输出中未找到 qemu-system-aarch64 行
+(抓取失败)
+
+## ④ guest 内需要执行的命令（如适用）
+export XDG_RUNTIME_DIR=/run/user/0
+export WAYLAND_DISPLAY=wayland-0
+chromium --ozone-platform=wayland --no-sandbox --disable-gpu --disable-dev-shm-usage file:///usr/share/html-test/index.html
+
+## ⑤ 计划向 guest 发送的命令
+  t+25.0s : echo PROBE_START; id; uname -a; echo INITTAB; sed -n "/^[^#].*:/p" /etc/inittab; echo X11_SCRIPT; ls -l /usr/local/bin/x11-session /etc/inittab; echo BINARIES; command -v Xorg startx chromium jwm || true; echo DRI; ls -la /dev/dri /dev/input 2>&1 || true
+  t+45.0s : echo PROBE_START_X11; /usr/local/bin/x11-session >/root/x11-session-probe.log 2>&1 & echo X11_LAUNCHED
+  t+90.0s : echo PROBE_AFTER_X11; ps; echo X11_LOG; cat /root/x11-session-probe.log 2>&1; echo SOCKETS; ls -la /tmp/.X11-unix /run 2>&1 || true; pgrep -a -f "Xorg|jwm|chromium" || true

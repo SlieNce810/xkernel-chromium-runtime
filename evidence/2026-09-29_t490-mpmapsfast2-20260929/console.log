@@ -1,0 +1,803 @@
+### [2026-09-29 19:10:31] SESSION START
+### cwd: /home/mo/x-kernel
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/x-kernel/target --disk-image /home/mo/x-kernel/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/x-kernel/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/x-kernel/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+    Finished `release` profile [optimized] target(s) in 0.18s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000801a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000801a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-09-29 11:10:32.006299440 UTC
+
+[37m[  0.899286 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-09-29T08:38:24.426914765Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = c2eabd524461c79631d7b737f4c8fa09bd24e96e
+git_dirty = true
+build_id = f7f4f39bcb00462b87ab43a93fdc1af658c836ca06dd48a3b93877feed316430
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Tue Sep 29 11:10:33 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1790680233
+[37m[  1.784366 3:11 posix_process::runtime:343] [33mMP_EXIT tid=11 name=Task(11, "busybox") code=256 group_exit=true[m
+[m[mpdiag] MP_AUTORUN_START_MONO_MS=0
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=0
+[mpdiag] GL_MODE=legacy
+[mpdiag] NET_MODE=normal
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] STRACE_PATH=missing
+[mpdiag] STRACE_FILE=/usr/bin/strace
+-rwxr-xr-x    1 kiosk    kiosk      1247688 Jan 24  2025 [1;32m/usr/bin/strace[m
+-rwxr-xr-x    1 kiosk    kiosk         1875 Jan 24  2025 [1;32m/usr/bin/strace-log-merge[m
+[37m[  7.705255 3:21 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  8.667375 2:23 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event0 dev=13:64[m
+[m[37m[  8.669527 2:23 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=1[m
+[m[37m[  8.672452 2:23 fs_boot::input_uevent:126] [33minput sysfs uevent write: action=add devnode=/dev/input/event1 dev=13:65[m
+[m[37m[  8.673063 2:23 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=2[m
+[m[37m[  8.788016 3:21 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  8.813082 1:25 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 1[m
+[m[37m[  8.834914 3:21 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=0 strong_count=1[m
+[m[37m[  8.868538 3:26 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 1[m
+[m[37m[  8.908453 1:25 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  8.910560 1:25 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  8.911295 1:25 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[  8.921803 2:26 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[  8.922139 2:26 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184540 arg=0x7ffeffff9b88[m
+[m[37m[  8.922471 2:26 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80184541 arg=0x7ffeffff9ba0[m
+[m[37m[ 16.929802 3:24 posix_process::runtime:343] [33mMP_EXIT tid=24 name=Task(24, "udevadm") code=256 group_exit=true[m
+[m[37m[ 19.137160 2:32 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[37m[ 19.153777 3:30 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 19.160831 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa4c020[m
+[m[37m[ 19.161364 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 19.161838 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 19.162357 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 19.162843 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa4c010[m
+[m[37m[ 19.163303 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa4c018[m
+[m[37m[ 19.163834 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa4c028[m
+[m[37m[ 19.164319 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa4c090[m
+[m[37m[ 19.164936 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa4c098[m
+[m[37m[ 19.165316 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa4c0a0[m
+[m[37m[ 19.165659 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa4c030[m
+[m[37m[ 19.166004 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa4c0b0[m
+[m[37m[ 19.166328 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa4c0a8[m
+[m[37m[ 19.166630 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa4c0c0[m
+[m[37m[ 19.166929 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa4c0d0[m
+[m[37m[ 19.167297 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa4c0d8[m
+[m[37m[ 19.167880 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa4c138[m
+[m[37m[ 19.168355 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa4c140[m
+[m[37m[ 19.170570 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 19.200143 3:30 devfs::nodes::event:190] [33mevdev open event node[m
+[m[37m[ 19.202120 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084520 arg=0xa56020[m
+[m[37m[ 19.202473 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4506 arg=0x7ffeffffecd8[m
+[m[37m[ 19.202758 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4507 arg=0x7ffeffffecd8[m
+[m[37m[ 19.203086 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80ff4508 arg=0x7ffeffffecd8[m
+[m[37m[ 19.203397 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084502 arg=0xa56010[m
+[m[37m[ 19.203670 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80044501 arg=0xa56018[m
+[m[37m[ 19.204068 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084509 arg=0xa56028[m
+[m[37m[ 19.204357 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084522 arg=0xa56090[m
+[m[37m[ 19.204711 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084523 arg=0xa56098[m
+[m[37m[ 19.205072 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084531 arg=0xa560a0[m
+[m[37m[ 19.205389 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604521 arg=0xa56030[m
+[m[37m[ 19.205761 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084525 arg=0xa560b0[m
+[m[37m[ 19.206032 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084524 arg=0xa560a8[m
+[m[37m[ 19.206272 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80104535 arg=0xa560c0[m
+[m[37m[ 19.206542 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084532 arg=0xa560d0[m
+[m[37m[ 19.206807 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80604518 arg=0xa560d8[m
+[m[37m[ 19.207106 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x80084519 arg=0xa56138[m
+[m[37m[ 19.207364 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x8008451b arg=0xa56140[m
+[m[37m[ 19.208073 2:32 devfs::nodes::event:239] [33mevdev ioctl cmd=0x400445a0 arg=0x7ffeffffee5c[m
+[m[37m[ 19.496664 2:32 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=32 alive=yes
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1790680252
+[37m[ 20.369072 0:49 posix_process::runtime:343] [33mMP_EXIT tid=49 name=Task(49, "busybox") code=256 group_exit=true[m
+[m[mpdiag] MP_BROWSER_START_MONO_MS=0
+[mpdiag] browser_pid=50
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=0s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS    95 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=1
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=1s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   142 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=2
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=2s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   189 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=3
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=3s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   238 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+
+### [2026-09-29 19:11:16] MONITOR: screendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpm[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpma[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmap[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmaps[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfas[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026092[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-01-at00[K
+
+### [2026-09-29 19:11:20] screendump OK (3072016 bytes)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=4
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=4s
+[37m[ 53.325737 2:245 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 51[m
+[m[37m[ 53.326300 2:245 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 64[m
+[m[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[37m[ 53.656102 1:245 posix_process::runtime:117] [33mMP_EXCEPTION tid=245 name=Task(245, "chromium") kind=Breakpoint esr=0xf2000000 far=0x4c2bf5 ip=0x884b084 sp=0x7ffeffffef40 lr=0x884aff0[m
+[m[37m[ 53.659011 1:245 posix_process::runtime:343] [33mMP_EXIT tid=245 name=Task(245, "chromium") code=133 group_exit=true[m
+[m[mpdiag] PS   242 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   244 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] MP_MAP_DUMP_BEGIN pid=244 cmd=  244 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[37m[ 54.681399 2:244 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 51[m
+[m[37m[ 54.681763 2:244 ksyscall::task::ctl:213] [33msys_prctl: unsupported option 64[m
+[m[mpdiag] MP_MAP 000000001000-000000002000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000002000-000000003000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000003000-000000004000 rw-p 00000000 00:00 0
+[37m[ 54.804724 2:244 posix_process::runtime:117] [33mMP_EXCEPTION tid=244 name=Task(244, "chromium") kind=Breakpoint esr=0xf2000000 far=0x4c2bf5 ip=0x884b084 sp=0x7ffeffffef30 lr=0x884aff0[m
+[m[37m[ 54.805438 2:244 posix_process::runtime:343] [33mMP_EXIT tid=244 name=Task(244, "chromium") code=133 group_exit=true[m
+[m[mpdiag] MP_MAP 000000004000-000000005000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000005000-000000007000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000007000-000000008000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000008000-00000000d000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000000010000-000001a2e000 r--p 00000000 00:00 5828                       /usr/lib/chromium/chromium
+[mpdiag] MP_MAP 000001a2e000-000001a32000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000001a32000-000001a36000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000001a3e000-00000d3ee000 r-xp 01a1e000 00:00 5828                       /usr/lib/chromium/chromium
+[mpdiag] MP_MAP 00000d3fd000-00000dd89000 r--p 0d3cd000 00:00 5828                       /usr/lib/chromium/chromium
+[mpdiag] MP_MAP 00000dd98000-00000e025000 rw-p 0dd58000 00:00 5828                       /usr/lib/chromium/chromium
+[mpdiag] MP_MAP 00000e030000-00000e0d2000 r-xp 00000000 00:00 1376                       /lib/ld-musl-aarch64.so.1
+[mpdiag] MP_MAP 00000e0ef000-00000e0f0000 r--p 000af000 00:00 1376                       /lib/ld-musl-aarch64.so.1
+[mpdiag] MP_MAP 00000e0f0000-00000e0f3000 rw-p 000b0000 00:00 1376                       /lib/ld-musl-aarch64.so.1
+[mpdiag] MP_MAP 00000e0f3000-00000e262000 r-xp 00000000 00:00 6214                       /usr/lib/libglib-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e262000-00000e263000 r--p 0015f000 00:00 6214                       /usr/lib/libglib-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e263000-00000e264000 rw-p 00160000 00:00 6214                       /usr/lib/libglib-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e264000-00000e265000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e265000-00000e2d2000 r-xp 00000000 00:00 6222                       /usr/lib/libgobject-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e2d2000-00000e2d5000 r--p 0006d000 00:00 6222                       /usr/lib/libgobject-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e2d5000-00000e2d6000 rw-p 00070000 00:00 6222                       /usr/lib/libgobject-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e2d6000-00000e2d7000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e2d7000-00000e325000 r-xp 00000000 00:00 6290                       /usr/lib/libnspr4.so
+[mpdiag] MP_MAP 00000e325000-00000e327000 r--p 0003e000 00:00 6290                       /usr/lib/libnspr4.so
+[mpdiag] MP_MAP 00000e327000-00000e328000 rw-p 00040000 00:00 6290                       /usr/lib/libnspr4.so
+[mpdiag] MP_MAP 00000e328000-00000e32b000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e32b000-00000e454000 r-xp 00000000 00:00 6292                       /usr/lib/libnss3.so.114
+[mpdiag] MP_MAP 00000e454000-00000e45b000 r--p 00119000 00:00 6292                       /usr/lib/libnss3.so.114
+[mpdiag] MP_MAP 00000e45b000-00000e45c000 rw-p 00120000 00:00 6292                       /usr/lib/libnss3.so.114
+[mpdiag] MP_MAP 00000e45c000-00000e45e000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e45e000-00000e497000 r-xp 00000000 00:00 6300                       /usr/lib/libnssutil3.so.114
+[mpdiag] MP_MAP 00000e497000-00000e49e000 r--p 00029000 00:00 6300                       /usr/lib/libnssutil3.so.114
+[mpdiag] MP_MAP 00000e49e000-00000e49f000 rw-p 00030000 00:00 6300                       /usr/lib/libnssutil3.so.114
+[mpdiag] MP_MAP 00000e49f000-00000e4dc000 r-xp 00000000 00:00 6362                       /usr/lib/libsmime3.so.114
+[mpdiag] MP_MAP 00000e4dc000-00000e4df000 r--p 0002d000 00:00 6362                       /usr/lib/libsmime3.so.114
+[mpdiag] MP_MAP 00000e4df000-00000e4e0000 rw-p 00030000 00:00 6362                       /usr/lib/libsmime3.so.114
+[mpdiag] MP_MAP 00000e4e0000-00000e6d8000 r-xp 00000000 00:00 6208                       /usr/lib/libgio-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e6d8000-00000e6e0000 r--p 001f8000 00:00 6208                       /usr/lib/libgio-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e6e0000-00000e6e1000 rw-p 00200000 00:00 6208                       /usr/lib/libgio-2.0.so.0.8400.4
+[mpdiag] MP_MAP 00000e6e1000-00000e6e3000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e6e3000-00000e83e000 r-xp 00000000 00:00 6305                       /usr/lib/libopenh264.so.2.6.0
+[mpdiag] MP_MAP 00000e83e000-00000e843000 r--p 0015b000 00:00 6305                       /usr/lib/libopenh264.so.2.6.0
+[mpdiag] MP_MAP 00000e843000-00000e844000 rw-p 00160000 00:00 6305                       /usr/lib/libopenh264.so.2.6.0
+[mpdiag] MP_MAP 00000e844000-00000e8a2000 r-xp 00000000 00:00 6144                       /usr/lib/libdbus-1.so.3.38.3
+[mpdiag] MP_MAP 00000e8a2000-00000e8a4000 r--p 0004e000 00:00 6144                       /usr/lib/libdbus-1.so.3.38.3
+[mpdiag] MP_MAP 00000e8a4000-00000e8a5000 rw-p 00050000 00:00 6144                       /usr/lib/libdbus-1.so.3.38.3
+[mpdiag] MP_MAP 00000e8a5000-00000e8e2000 r-xp 00000000 00:00 6079                       /usr/lib/libatk-1.0.so.0.25614.1
+[mpdiag] MP_MAP 00000e8e2000-00000e8e5000 r--p 0002d000 00:00 6079                       /usr/lib/libatk-1.0.so.0.25614.1
+[mpdiag] MP_MAP 00000e8e5000-00000e8e6000 rw-p 00030000 00:00 6079                       /usr/lib/libatk-1.0.so.0.25614.1
+[mpdiag] MP_MAP 00000e8e6000-00000e934000 r-xp 00000000 00:00 6081                       /usr/lib/libatk-bridge-2.0.so.0.0.0
+[mpdiag] MP_MAP 00000e934000-00000e936000 r--p 0003e000 00:00 6081                       /usr/lib/libatk-bridge-2.0.so.0.0.0
+[mpdiag] MP_MAP 00000e936000-00000e937000 rw-p 00040000 00:00 6081                       /usr/lib/libatk-bridge-2.0.so.0.0.0
+[mpdiag] MP_MAP 00000e937000-00000e938000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000e938000-00000e9ce000 r-xp 00000000 00:00 6139                       /usr/lib/libcups.so.2
+[mpdiag] MP_MAP 00000e9ce000-00000e9d8000 r--p 00086000 00:00 6139                       /usr/lib/libcups.so.2
+[mpdiag] MP_MAP 00000e9d8000-00000e9d9000 rw-p 00090000 00:00 6139                       /usr/lib/libcups.so.2
+[mpdiag] MP_MAP 00000e9d9000-00000ea08000 r-xp 00000000 00:00 6150                       /usr/lib/libdrm.so.2.124.0
+[mpdiag] MP_MAP 00000ea08000-00000ea09000 r--p 0001f000 00:00 6150                       /usr/lib/libdrm.so.2.124.0
+[mpdiag] MP_MAP 00000ea09000-00000ea0a000 rw-p 00020000 00:00 6150                       /usr/lib/libdrm.so.2.124.0
+[mpdiag] MP_MAP 00000ea0a000-00000ea58000 r-xp 00000000 00:00 6184                       /usr/lib/libfontconfig.so.1.12.1
+[mpdiag] MP_MAP 00000ea58000-00000ea5a000 r--p 0003e000 00:00 6184                       /usr/lib/libfontconfig.so.1.12.1
+[mpdiag] MP_MAP 00000ea5a000-00000ea5b000 rw-p 00040000 00:00 6184                       /usr/lib/libfontconfig.so.1.12.1
+[mpdiag] MP_MAP 00000ea5b000-00000ea8a000 r-xp 00000000 00:00 40967                      /usr/lib/libz.so.1.3.2
+[mpdiag] MP_MAP 00000ea8a000-00000ea8b000 r--p 0001f000 00:00 40967                      /usr/lib/libz.so.1.3.2
+[mpdiag] MP_MAP 00000ea8b000-00000ea8c000 rw-p 00020000 00:00 40967                      /usr/lib/libz.so.1.3.2
+[mpdiag] MP_MAP 00000ea8c000-00000eabb000 r-xp 00000000 00:00 6148                       /usr/lib/libdouble-conversion.so.3.3.0
+[mpdiag] MP_MAP 00000eabb000-00000eabc000 r--p 0001f000 00:00 6148                       /usr/lib/libdouble-conversion.so.3.3.0
+[mpdiag] MP_MAP 00000eabc000-00000eabd000 rw-p 00020000 00:00 6148                       /usr/lib/libdouble-conversion.so.3.3.0
+[mpdiag] MP_MAP 00000eabd000-00000eadc000 r-xp 00000000 00:00 6103                       /usr/lib/libbrotlidec.so.1.1.0
+[mpdiag] MP_MAP 00000eadc000-00000eadd000 r--p 0000f000 00:00 6103                       /usr/lib/libbrotlidec.so.1.1.0
+[mpdiag] MP_MAP 00000eadd000-00000eade000 rw-p 00010000 00:00 6103                       /usr/lib/libbrotlidec.so.1.1.0
+[mpdiag] MP_MAP 00000eade000-00000eb8d000 r-xp 00000000 00:00 41011                      /usr/lib/libzstd.so.1.5.7
+[mpdiag] MP_MAP 00000eb8d000-00000eb8e000 r--p 0009f000 00:00 41011                      /usr/lib/libzstd.so.1.5.7
+[mpdiag] MP_MAP 00000eb8e000-00000eb8f000 rw-p 000a0000 00:00 41011                      /usr/lib/libzstd.so.1.5.7
+[mpdiag] MP_MAP 00000eb8f000-00000ebde000 r-xp 00000000 00:00 6360                       /usr/lib/libsimdutf.so.24.0.0
+[mpdiag] MP_MAP 00000ebde000-00000ebdf000 r--p 0003f000 00:00 6360                       /usr/lib/libsimdutf.so.24.0.0
+[mpdiag] MP_MAP 00000ebdf000-00000ebe0000 rw-p 00040000 00:00 6360                       /usr/lib/libsimdutf.so.24.0.0
+[mpdiag] MP_MAP 00000ebe0000-00000ec0e000 r-xp 00000000 00:00 6178                       /usr/lib/libexpat.so.1.12.4
+[mpdiag] MP_MAP 00000ec0e000-00000ec10000 r--p 0002e000 00:00 6178                       /usr/lib/libexpat.so.1.12.4
+[mpdiag] MP_MAP 00000ec10000-00000ec11000 rw-p 00030000 00:00 6178                       /usr/lib/libexpat.so.1.12.4
+[mpdiag] MP_MAP 00000ec11000-00000ec70000 r-xp 00000000 00:00 6452                       /usr/lib/libwebp.so.7.1.10
+[mpdiag] MP_MAP 00000ec70000-00000ec71000 r--p 0004f000 00:00 6452                       /usr/lib/libwebp.so.7.1.10
+[mpdiag] MP_MAP 00000ec71000-00000ec72000 rw-p 00050000 00:00 6452                       /usr/lib/libwebp.so.7.1.10
+[mpdiag] MP_MAP 00000ec72000-00000ec73000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00000ec73000-00000ec92000 r-xp 00000000 00:00 6454                       /usr/lib/libwebpdemux.so.2.0.16
+[mpdiag] MP_MAP 00000ec92000-00000ec93000 r--p 0000f000 00:00 6454                       /usr/lib/libwebpdemux.so.2.0.16
+[mpdiag] MP_MAP 00000ec93000-00000ec94000 rw-p 00010000 00:00 6454                       /usr/lib/libwebpdemux.so.2.0.16
+[mpdiag] MP_MAP 00000ec94000-00000ecb3000 r-xp 00000000 00:00 6456                       /usr/lib/libwebpmux.so.3.1.1
+[mpdiag] MP_MAP 00000ecb3000-00000ecb4000 r--p 0000f000 00:00 6456                       /usr/lib/libwebpmux.so.3.1.1
+[mpdiag] MP_MAP 00000ecb4000-00000ecb5000 rw-p 00010000 00:00 6456                       /usr/lib/libwebpmux.so.3.1.1
+[mpdiag] MP_MAP 00000ecb5000-00000ed5e000 r-xp 00000000 00:00 6192                       /usr/lib/libfreetype.so.6.20.2
+[mpdiag] MP_MAP 00000ed5e000-00000ed65000 r--p 000a9000 00:00 6192                       /usr/lib/libfreetype.so.6.20.2
+[mpdiag] MP_MAP 00000ed65000-00000ed66000 rw-p 000b0000 00:00 6192                       /usr/lib/libfreetype.so.6.20.2
+[mpdiag] MP_MAP 00000ed66000-00000edf5000 r-xp 00000000 00:00 6246                       /usr/lib/libjpeg.so.8.3.2
+[mpdiag] MP_MAP 00000edf5000-00000edf6000 r--p 0007f000 00:00 6246                       /usr/lib/libjpeg.so.8.3.2
+[mpdiag] MP_MAP 00000edf6000-00000edf7000 rw-p 00080000 00:00 6246                       /usr/lib/libjpeg.so.8.3.2
+[mpdiag] MP_MAP 00000edf7000-00000ef16000 r-xp 00000000 00:00 6234                       /usr/lib/libharfbuzz.so.0.61121.0
+[mpdiag] MP_MAP 00000ef16000-00000ef17000 r--p 0010f000 00:00 6234                       /usr/lib/libharfbuzz.so.0.61121.0
+[mpdiag] MP_MAP 00000ef17000-00000ef18000 rw-p 00110000 00:00 6234                       /usr/lib/libharfbuzz.so.0.61121.0
+[mpdiag] MP_MAP 00000ef18000-00000f017000 r-xp 00000000 00:00 6232                       /usr/lib/libharfbuzz-subset.so.0.61121.0
+[mpdiag] MP_MAP 00000f017000-00000f018000 r--p 000ef000 00:00 6232                       /usr/lib/libharfbuzz-subset.so.0.61121.0
+[mpdiag] MP_MAP 00000f018000-00000f019000 rw-p 000f0000 00:00 6232                       /usr/lib/libharfbuzz-subset.so.0.61121.0
+[mpdiag] MP_MAP 00000f019000-00000f058000 r-xp 00000000 00:00 6509                       /usr/lib/libxcb.so.1.1.0
+[mpdiag] MP_MAP 00000f058000-00000f059000 r--p 0002f000 00:00 6509                       /usr/lib/libxcb.so.1.1.0
+[mpdiag] MP_MAP 00000f059000-00000f05a000 rw-p 00030000 00:00 6509                       /usr/lib/libxcb.so.1.1.0
+[mpdiag] MP_MAP 00000f05a000-00000f0b8000 r-xp 00000000 00:00 6513                       /usr/lib/libxkbcommon.so.0.8.1
+[mpdiag] MP_MAP 00000f0b8000-00000f0ba000 r--p 0004e000 00:00 6513                       /usr/lib/libxkbcommon.so.0.8.1
+[mpdiag] MP_MAP 00000f0ba000-00000f0bb000 rw-p 00050000 00:00 6513                       /usr/lib/libxkbcommon.so.0.8.1
+[mpdiag] MP_MAP 00000f0bb000-00000f107000 r-xp 00000000 00:00 6085                       /usr/lib/libatspi.so.0.0.1
+[mpdiag] MP_MAP 00000f107000-00000f10b000 r--p 0003c000 00:00 6085                       /usr/lib/libatspi.so.0.0.1
+[mpdiag] MP_MAP 00000f10b000-00000f10c000 rw-p 00040000 00:00 6085                       /usr/lib/libatspi.so.0.0.1
+[mpdiag] MP_MAP 00000f10c000-00000f12b000 r-xp 00000000 00:00 6135                       /usr/lib/libcrc32c.so.1.1.0
+[mpdiag] MP_MAP 00000f12b000-00000f12c000 r--p 0000f000 00:00 6135                       /usr/lib/libcrc32c.so.1.1.0
+[mpdiag] MP_MAP 00000f12c000-00000f12d000 rw-p 00010000 00:00 6135                       /usr/lib/libcrc32c.so.1.1.0
+[mpdiag] MP_MAP 00000f12d000-00000f19c000 r-xp 00000000 00:00 6310                       /usr/lib/libopus.so.0.10.1
+[mpdiag] MP_MAP 00000f19c000-00000f19d000 r--p 0005f000 00:00 6310                       /usr/lib/libopus.so.0.10.1
+[mpdiag] MP_MAP 00000f19d000-00000f19e000 rw-p 00060000 00:00 6310                       /usr/lib/libopus.so.0.10.1
+[mpdiag] MP_MAP 00000f19e000-00000fe57000 r-xp 00000000 00:00 6091                       /usr/lib/libavcodec.so.60.31.102
+[mpdiag] MP_MAP 00000fe57000-00000febe000 r--p 00ca9000 00:00 6091                       /usr/lib/libavcodec.so.60.31.102
+[mpdiag] MP_MAP 00000febe000-00000fec0000 rw-p 00d10000 00:00 6091                       /usr/lib/libavcodec.so.60.31.102
+[mpdiag] MP_MAP 00000fec0000-000010412000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000010412000-00001066f000 r-xp 00000000 00:00 6093                       /usr/lib/libavformat.so.60.16.100
+[mpdiag] MP_MAP 00001066f000-0000106a2000 r--p 0024d000 00:00 6093                       /usr/lib/libavformat.so.60.16.100
+[mpdiag] MP_MAP 0000106a2000-0000106a3000 rw-p 00280000 00:00 6093                       /usr/lib/libavformat.so.60.16.100
+[mpdiag] MP_MAP 0000106a3000-000010771000 r-xp 00000000 00:00 6095                       /usr/lib/libavutil.so.58.29.100
+[mpdiag] MP_MAP 000010771000-000010783000 r--p 000be000 00:00 6095                       /usr/lib/libavutil.so.58.29.100
+[mpdiag] MP_MAP 000010783000-000010784000 rw-p 000d0000 00:00 6095                       /usr/lib/libavutil.so.58.29.100
+[mpdiag] MP_MAP 000010784000-000011793000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000011793000-000011861000 r-xp 00000000 00:00 6142                       /usr/lib/libdav1d.so.7.0.0
+[mpdiag] MP_MAP 000011861000-000011863000 r--p 000be000 00:00 6142                       /usr/lib/libdav1d.so.7.0.0
+[mpdiag] MP_MAP 000011863000-000011864000 rw-p 000c0000 00:00 6142                       /usr/lib/libdav1d.so.7.0.0
+[mpdiag] MP_MAP 000011864000-00001189d000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00001189d000-0000119ca000 r-xp 00000000 00:00 6029                       /usr/lib/libX11.so.6.4.0
+[mpdiag] MP_MAP 0000119ca000-0000119cd000 r--p 0011d000 00:00 6029                       /usr/lib/libX11.so.6.4.0
+[mpdiag] MP_MAP 0000119cd000-0000119d0000 rw-p 00120000 00:00 6029                       /usr/lib/libX11.so.6.4.0
+[mpdiag] MP_MAP 0000119d0000-0000119d1000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000119d1000-0000119f0000 r-xp 00000000 00:00 6033                       /usr/lib/libXcomposite.so.1.0.0
+[mpdiag] MP_MAP 0000119f0000-0000119f1000 r--p 0000f000 00:00 6033                       /usr/lib/libXcomposite.so.1.0.0
+[mpdiag] MP_MAP 0000119f1000-0000119f2000 rw-p 00010000 00:00 6033                       /usr/lib/libXcomposite.so.1.0.0
+[mpdiag] MP_MAP 0000119f2000-000011a11000 r-xp 00000000 00:00 6037                       /usr/lib/libXdamage.so.1.1.0
+[mpdiag] MP_MAP 000011a11000-000011a12000 r--p 0000f000 00:00 6037                       /usr/lib/libXdamage.so.1.1.0
+[mpdiag] MP_MAP 000011a12000-000011a13000 rw-p 00010000 00:00 6037                       /usr/lib/libXdamage.so.1.1.0
+[mpdiag] MP_MAP 000011a13000-000011a32000 r-xp 00000000 00:00 6041                       /usr/lib/libXext.so.6.4.0
+[mpdiag] MP_MAP 000011a32000-000011a33000 r--p 0001f000 00:00 6041                       /usr/lib/libXext.so.6.4.0
+[mpdiag] MP_MAP 000011a33000-000011a34000 rw-p 00020000 00:00 6041                       /usr/lib/libXext.so.6.4.0
+[mpdiag] MP_MAP 000011a34000-000011a53000 r-xp 00000000 00:00 6043                       /usr/lib/libXfixes.so.3.1.0
+[mpdiag] MP_MAP 000011a53000-000011a54000 r--p 0000f000 00:00 6043                       /usr/lib/libXfixes.so.3.1.0
+[mpdiag] MP_MAP 000011a54000-000011a55000 rw-p 00010000 00:00 6043                       /usr/lib/libXfixes.so.3.1.0
+[mpdiag] MP_MAP 000011a55000-000011a74000 r-xp 00000000 00:00 6059                       /usr/lib/libXrandr.so.2.2.0
+[mpdiag] MP_MAP 000011a74000-000011a75000 r--p 0000f000 00:00 6059                       /usr/lib/libXrandr.so.2.2.0
+[mpdiag] MP_MAP 000011a75000-000011a76000 rw-p 00010000 00:00 6059                       /usr/lib/libXrandr.so.2.2.0
+[mpdiag] MP_MAP 000011a76000-000011b1e000 r-xp 00000000 00:00 6332                       /usr/lib/libpipewire-0.3.so.0.1407.0
+[mpdiag] MP_MAP 000011b1e000-000011b36000 r--p 000a8000 00:00 6332                       /usr/lib/libpipewire-0.3.so.0.1407.0
+[mpdiag] MP_MAP 000011b36000-000011b37000 rw-p 000c0000 00:00 6332                       /usr/lib/libpipewire-0.3.so.0.1407.0
+[mpdiag] MP_MAP 000011b37000-000011b38000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000011b38000-000011b57000 r-xp 00000000 00:00 6199                       /usr/lib/libgbm.so.1.0.0
+[mpdiag] MP_MAP 000011b57000-000011b58000 r--p 0000f000 00:00 6199                       /usr/lib/libgbm.so.1.0.0
+[mpdiag] MP_MAP 000011b58000-000011b59000 rw-p 00010000 00:00 6199                       /usr/lib/libgbm.so.1.0.0
+[mpdiag] MP_MAP 000011b59000-000011b78000 r-xp 00000000 00:00 6182                       /usr/lib/libffi.so.8.1.4
+[mpdiag] MP_MAP 000011b78000-000011b79000 r--p 0000f000 00:00 6182                       /usr/lib/libffi.so.8.1.4
+[mpdiag] MP_MAP 000011b79000-000011b7a000 rw-p 00010000 00:00 6182                       /usr/lib/libffi.so.8.1.4
+[mpdiag] MP_MAP 000011b7a000-000011c76000 r-xp 00000000 00:00 6115                       /usr/lib/libcairo.so.2.11804.4
+[mpdiag] MP_MAP 000011c76000-000011c7a000 r--p 000ec000 00:00 6115                       /usr/lib/libcairo.so.2.11804.4
+[mpdiag] MP_MAP 000011c7a000-000011c7c000 rw-p 000f0000 00:00 6115                       /usr/lib/libcairo.so.2.11804.4
+[mpdiag] MP_MAP 000011c7c000-000011c7d000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000011c7d000-000011ce9000 r-xp 00000000 00:00 6318                       /usr/lib/libpango-1.0.so.0.5600.3
+[mpdiag] MP_MAP 000011ce9000-000011ced000 r--p 0005c000 00:00 6318                       /usr/lib/libpango-1.0.so.0.5600.3
+[mpdiag] MP_MAP 000011ced000-000011cee000 rw-p 00060000 00:00 6318                       /usr/lib/libpango-1.0.so.0.5600.3
+[mpdiag] MP_MAP 000011cee000-000011d0d000 r-xp 00000000 00:00 6407                       /usr/lib/libudev.so.1.6.3
+[mpdiag] MP_MAP 000011d0d000-000011d0e000 r--p 0000f000 00:00 6407                       /usr/lib/libudev.so.1.6.3
+[mpdiag] MP_MAP 000011d0e000-000011d0f000 rw-p 00010000 00:00 6407                       /usr/lib/libudev.so.1.6.3
+[mpdiag] MP_MAP 000011d0f000-000011d10000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000011d10000-000011e08000 r-xp 00000000 00:00 6075                       /usr/lib/libasound.so.2.0.0
+[mpdiag] MP_MAP 000011e08000-000011e10000 r--p 000f8000 00:00 6075                       /usr/lib/libasound.so.2.0.0
+[mpdiag] MP_MAP 000011e10000-000011e11000 rw-p 00100000 00:00 6075                       /usr/lib/libasound.so.2.0.0
+[mpdiag] MP_MAP 000011e11000-000011e6f000 r-xp 00000000 00:00 6346                       /usr/lib/libpulse.so.0.24.3
+[mpdiag] MP_MAP 000011e6f000-000011e71000 r--p 0004e000 00:00 6346                       /usr/lib/libpulse.so.0.24.3
+[mpdiag] MP_MAP 000011e71000-000011e72000 rw-p 00050000 00:00 6346                       /usr/lib/libpulse.so.0.24.3
+[mpdiag] MP_MAP 000011e72000-000011ed1000 r-xp 00000000 00:00 5998                       /usr/lib/libFLAC.so.12.1.0
+[mpdiag] MP_MAP 000011ed1000-000011ed2000 r--p 0004f000 00:00 5998                       /usr/lib/libFLAC.so.12.1.0
+[mpdiag] MP_MAP 000011ed2000-000011ed3000 rw-p 00050000 00:00 5998                       /usr/lib/libFLAC.so.12.1.0
+[mpdiag] MP_MAP 000011ed3000-000011fe8000 r-xp 00000000 00:00 6519                       /usr/lib/libxml2.so.2.13.9
+[mpdiag] MP_MAP 000011fe8000-000011ff3000 r--p 00115000 00:00 6519                       /usr/lib/libxml2.so.2.13.9
+[mpdiag] MP_MAP 000011ff3000-000011ff4000 rw-p 00120000 00:00 6519                       /usr/lib/libxml2.so.2.13.9
+[mpdiag] MP_MAP 000011ff4000-000011ff5000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000011ff5000-000012014000 r-xp 00000000 00:00 6279                       /usr/lib/libminizip.so.1.0.0
+[mpdiag] MP_MAP 000012014000-000012015000 r--p 0000f000 00:00 6279                       /usr/lib/libminizip.so.1.0.0
+[mpdiag] MP_MAP 000012015000-000012016000 rw-p 00010000 00:00 6279                       /usr/lib/libminizip.so.1.0.0
+[mpdiag] MP_MAP 000012016000-000012064000 r-xp 00000000 00:00 6523                       /usr/lib/libxslt.so.1.1.43
+[mpdiag] MP_MAP 000012064000-000012066000 r--p 0003e000 00:00 6523                       /usr/lib/libxslt.so.1.1.43
+[mpdiag] MP_MAP 000012066000-000012067000 rw-p 00040000 00:00 6523                       /usr/lib/libxslt.so.1.1.43
+[mpdiag] MP_MAP 000012067000-000012096000 r-xp 00000000 00:00 6200                       /usr/lib/libgcc_s.so.1
+[mpdiag] MP_MAP 000012096000-000012097000 r--p 0001f000 00:00 6200                       /usr/lib/libgcc_s.so.1
+[mpdiag] MP_MAP 000012097000-000012098000 rw-p 00020000 00:00 6200                       /usr/lib/libgcc_s.so.1
+[mpdiag] MP_MAP 000012098000-0000120d7000 r-xp 00000000 00:00 6244                       /usr/lib/libintl.so.8.4.3
+[mpdiag] MP_MAP 0000120d7000-0000120d8000 r--p 0002f000 00:00 6244                       /usr/lib/libintl.so.8.4.3
+[mpdiag] MP_MAP 0000120d8000-0000120d9000 rw-p 00030000 00:00 6244                       /usr/lib/libintl.so.8.4.3
+[mpdiag] MP_MAP 0000120d9000-0000120da000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000120da000-000012199000 r-xp 00000000 00:00 6328                       /usr/lib/libpcre2-8.so.0.14.0
+[mpdiag] MP_MAP 000012199000-00001219a000 r--p 000af000 00:00 6328                       /usr/lib/libpcre2-8.so.0.14.0
+[mpdiag] MP_MAP 00001219a000-00001219b000 rw-p 000b0000 00:00 6328                       /usr/lib/libpcre2-8.so.0.14.0
+[mpdiag] MP_MAP 00001219b000-0000121ba000 r-xp 00000000 00:00 6340                       /usr/lib/libplds4.so
+[mpdiag] MP_MAP 0000121ba000-0000121bb000 r--p 0000f000 00:00 6340                       /usr/lib/libplds4.so
+[mpdiag] MP_MAP 0000121bb000-0000121bc000 rw-p 00010000 00:00 6340                       /usr/lib/libplds4.so
+[mpdiag] MP_MAP 0000121bc000-0000121db000 r-xp 00000000 00:00 6339                       /usr/lib/libplc4.so
+[mpdiag] MP_MAP 0000121db000-0000121dc000 r--p 0000f000 00:00 6339                       /usr/lib/libplc4.so
+[mpdiag] MP_MAP 0000121dc000-0000121dd000 rw-p 00010000 00:00 6339                       /usr/lib/libplc4.so
+[mpdiag] MP_MAP 0000121dd000-0000121fc000 r-xp 00000000 00:00 6216                       /usr/lib/libgmodule-2.0.so.0.8400.4
+[mpdiag] MP_MAP 0000121fc000-0000121fd000 r--p 0000f000 00:00 6216                       /usr/lib/libgmodule-2.0.so.0.8400.4
+[mpdiag] MP_MAP 0000121fd000-0000121fe000 rw-p 00010000 00:00 6216                       /usr/lib/libgmodule-2.0.so.0.8400.4
+[mpdiag] MP_MAP 0000121fe000-00001225c000 r-xp 00000000 00:00 6281                       /usr/lib/libmount.so.1.1.0
+[mpdiag] MP_MAP 00001225c000-00001225e000 r--p 0004e000 00:00 6281                       /usr/lib/libmount.so.1.1.0
+[mpdiag] MP_MAP 00001225e000-00001225f000 rw-p 00050000 00:00 6281                       /usr/lib/libmount.so.1.1.0
+[mpdiag] MP_MAP 00001225f000-0000124f1000 r-xp 00000000 00:00 6389                       /usr/lib/libstdc++.so.6.0.33
+[mpdiag] MP_MAP 0000124f1000-0000124ff000 r--p 00292000 00:00 6389                       /usr/lib/libstdc++.so.6.0.33
+[mpdiag] MP_MAP 0000124ff000-000012500000 rw-p 002a0000 00:00 6389                       /usr/lib/libstdc++.so.6.0.33
+[mpdiag] MP_MAP 000012500000-000012504000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000012504000-000012523000 r-xp 00000000 00:00 6089                       /usr/lib/libavahi-common.so.3.5.4
+[mpdiag] MP_MAP 000012523000-000012524000 r--p 0000f000 00:00 6089                       /usr/lib/libavahi-common.so.3.5.4
+[mpdiag] MP_MAP 000012524000-000012525000 rw-p 00010000 00:00 6089                       /usr/lib/libavahi-common.so.3.5.4
+[mpdiag] MP_MAP 000012525000-000012544000 r-xp 00000000 00:00 6087                       /usr/lib/libavahi-client.so.3.2.9
+[mpdiag] MP_MAP 000012544000-000012545000 r--p 0000f000 00:00 6087                       /usr/lib/libavahi-client.so.3.2.9
+[mpdiag] MP_MAP 000012545000-000012546000 rw-p 00010000 00:00 6087                       /usr/lib/libavahi-client.so.3.2.9
+[mpdiag] MP_MAP 000012546000-000012734000 r-xp 00000000 00:00 6220                       /usr/lib/libgnutls.so.30.42.0
+[mpdiag] MP_MAP 000012734000-000012746000 r--p 001ee000 00:00 6220                       /usr/lib/libgnutls.so.30.42.0
+[mpdiag] MP_MAP 000012746000-000012749000 rw-p 00200000 00:00 6220                       /usr/lib/libgnutls.so.30.42.0
+[mpdiag] MP_MAP 000012749000-00001274d000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00001274d000-00001277c000 r-xp 00000000 00:00 6101                       /usr/lib/libbrotlicommon.so.1.1.0
+[mpdiag] MP_MAP 00001277c000-00001277d000 r--p 0002f000 00:00 6101                       /usr/lib/libbrotlicommon.so.1.1.0
+[mpdiag] MP_MAP 00001277d000-00001277e000 rw-p 00030000 00:00 6101                       /usr/lib/libbrotlicommon.so.1.1.0
+[mpdiag] MP_MAP 00001277e000-00001279d000 r-xp 00000000 00:00 6358                       /usr/lib/libsharpyuv.so.0.1.1
+[mpdiag] MP_MAP 00001279d000-00001279e000 r--p 0000f000 00:00 6358                       /usr/lib/libsharpyuv.so.0.1.1
+[mpdiag] MP_MAP 00001279e000-00001279f000 rw-p 00010000 00:00 6358                       /usr/lib/libsharpyuv.so.0.1.1
+[mpdiag] MP_MAP 00001279f000-0000127a0000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000127a0000-0000127bf000 r-xp 00000000 00:00 41010                      /usr/lib/libbz2.so.1.0.8
+[mpdiag] MP_MAP 0000127bf000-0000127c0000 r--p 0000f000 00:00 41010                      /usr/lib/libbz2.so.1.0.8
+[mpdiag] MP_MAP 0000127c0000-0000127c1000 rw-p 00010000 00:00 41010                      /usr/lib/libbz2.so.1.0.8
+[mpdiag] MP_MAP 0000127c1000-000012800000 r-xp 00000000 00:00 6342                       /usr/lib/libpng16.so.16.57.0
+[mpdiag] MP_MAP 000012800000-000012801000 r--p 0002f000 00:00 6342                       /usr/lib/libpng16.so.16.57.0
+[mpdiag] MP_MAP 000012801000-000012802000 rw-p 00030000 00:00 6342                       /usr/lib/libpng16.so.16.57.0
+[mpdiag] MP_MAP 000012802000-000012830000 r-xp 00000000 00:00 6226                       /usr/lib/libgraphite2.so.3.2.1
+[mpdiag] MP_MAP 000012830000-000012832000 r--p 0001e000 00:00 6226                       /usr/lib/libgraphite2.so.3.2.1
+[mpdiag] MP_MAP 000012832000-000012833000 rw-p 00020000 00:00 6226                       /usr/lib/libgraphite2.so.3.2.1
+[mpdiag] MP_MAP 000012833000-000012852000 r-xp 00000000 00:00 6031                       /usr/lib/libXau.so.6.0.0
+[mpdiag] MP_MAP 000012852000-000012853000 r--p 0000f000 00:00 6031                       /usr/lib/libXau.so.6.0.0
+[mpdiag] MP_MAP 000012853000-000012854000 rw-p 00010000 00:00 6031                       /usr/lib/libXau.so.6.0.0
+[mpdiag] MP_MAP 000012854000-000012873000 r-xp 00000000 00:00 6039                       /usr/lib/libXdmcp.so.6.0.0
+[mpdiag] MP_MAP 000012873000-000012874000 r--p 0000f000 00:00 6039                       /usr/lib/libXdmcp.so.6.0.0
+[mpdiag] MP_MAP 000012874000-000012875000 rw-p 00010000 00:00 6039                       /usr/lib/libXdmcp.so.6.0.0
+[mpdiag] MP_MAP 000012875000-000012894000 r-xp 00000000 00:00 6049                       /usr/lib/libXi.so.6.1.0
+[mpdiag] MP_MAP 000012894000-000012895000 r--p 0000f000 00:00 6049                       /usr/lib/libXi.so.6.1.0
+[mpdiag] MP_MAP 000012895000-000012896000 rw-p 00010000 00:00 6049                       /usr/lib/libXi.so.6.1.0
+[mpdiag] MP_MAP 000012896000-0000128c4000 r-xp 00000000 00:00 6391                       /usr/lib/libswresample.so.4.12.100
+[mpdiag] MP_MAP 0000128c4000-0000128c6000 r--p 0001e000 00:00 6391                       /usr/lib/libswresample.so.4.12.100
+[mpdiag] MP_MAP 0000128c6000-0000128c7000 rw-p 00020000 00:00 6391                       /usr/lib/libswresample.so.4.12.100
+[mpdiag] MP_MAP 0000128c7000-000012b34000 r-xp 00000000 00:00 6442                       /usr/lib/libvpx.so.9.1.0
+[mpdiag] MP_MAP 000012b34000-000012b37000 r--p 0025d000 00:00 6442                       /usr/lib/libvpx.so.9.1.0
+[mpdiag] MP_MAP 000012b37000-000012b38000 rw-p 00260000 00:00 6442                       /usr/lib/libvpx.so.9.1.0
+[mpdiag] MP_MAP 000012b38000-000012b3f000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000012b3f000-00001319d000 r-xp 00000000 00:00 6072                       /usr/lib/libaom.so.3.12.1
+[mpdiag] MP_MAP 00001319d000-0000131af000 r--p 0064e000 00:00 6072                       /usr/lib/libaom.so.3.12.1
+[mpdiag] MP_MAP 0000131af000-0000131b5000 rw-p 00660000 00:00 6072                       /usr/lib/libaom.so.3.12.1
+[mpdiag] MP_MAP 0000131b5000-000013200000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000013200000-00001323c000 r--p 00000000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 00001323c000-0000133e6000 r-xp 0002c000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 0000133e6000-0000133f5000 r--p 001e6000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 0000133f5000-0000133f8000 r--p 001d5000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 0000133f8000-000013407000 r--p 001f8000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 000013407000-000013408000 rw-p 001d7000 00:00 6250                       /usr/lib/libjxl.so.0.10.3
+[mpdiag] MP_MAP 000013408000-00001340a000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00001340a000-00001341b000 r--p 00000000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001341b000-00001341d000 r-xp 00001000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001341d000-00001342c000 r--p 00013000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001342c000-00001342d000 r--p 00002000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001342d000-00001343c000 r--p 00023000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001343c000-00001343d000 rw-p 00002000 00:00 6256                       /usr/lib/libjxl_threads.so.0.10.3
+[mpdiag] MP_MAP 00001343d000-00001348b000 r-xp 00000000 00:00 6283                       /usr/lib/libmp3lame.so.0.0.0
+[mpdiag] MP_MAP 00001348b000-00001348d000 r--p 0003e000 00:00 6283                       /usr/lib/libmp3lame.so.0.0.0
+[mpdiag] MP_MAP 00001348d000-00001348e000 rw-p 00040000 00:00 6283                       /usr/lib/libmp3lame.so.0.0.0
+[mpdiag] MP_MAP 00001348e000-0000134ba000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000134ba000-000013618000 r-xp 00000000 00:00 6348                       /usr/lib/librav1e.so.0.7.1
+[mpdiag] MP_MAP 000013618000-00001362a000 r--p 0015e000 00:00 6348                       /usr/lib/librav1e.so.0.7.1
+[mpdiag] MP_MAP 00001362a000-00001362b000 rw-p 00170000 00:00 6348                       /usr/lib/librav1e.so.0.7.1
+[mpdiag] MP_MAP 00001362b000-000013a42000 r-xp 00000000 00:00 6025                       /usr/lib/libSvtAv1Enc.so.2.3.0
+[mpdiag] MP_MAP 000013a42000-000013a4b000 r--p 00407000 00:00 6025                       /usr/lib/libSvtAv1Enc.so.2.3.0
+[mpdiag] MP_MAP 000013a4b000-000013a51000 rw-p 00410000 00:00 6025                       /usr/lib/libSvtAv1Enc.so.2.3.0
+[mpdiag] MP_MAP 000013a51000-000013b98000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000013b98000-000013bd7000 r-xp 00000000 00:00 6403                       /usr/lib/libtheoraenc.so.1.1.2
+[mpdiag] MP_MAP 000013bd7000-000013bd8000 r--p 0002f000 00:00 6403                       /usr/lib/libtheoraenc.so.1.1.2
+[mpdiag] MP_MAP 000013bd8000-000013bd9000 rw-p 00030000 00:00 6403                       /usr/lib/libtheoraenc.so.1.1.2
+[mpdiag] MP_MAP 000013bd9000-000013c08000 r-xp 00000000 00:00 6401                       /usr/lib/libtheoradec.so.1.1.4
+[mpdiag] MP_MAP 000013c08000-000013c09000 r--p 0001f000 00:00 6401                       /usr/lib/libtheoradec.so.1.1.4
+[mpdiag] MP_MAP 000013c09000-000013c0a000 rw-p 00020000 00:00 6401                       /usr/lib/libtheoradec.so.1.1.4
+[mpdiag] MP_MAP 000013c0a000-000013c49000 r-xp 00000000 00:00 6435                       /usr/lib/libvorbis.so.0.4.9
+[mpdiag] MP_MAP 000013c49000-000013c4a000 r--p 0002f000 00:00 6435                       /usr/lib/libvorbis.so.0.4.9
+[mpdiag] MP_MAP 000013c4a000-000013c4b000 rw-p 00030000 00:00 6435                       /usr/lib/libvorbis.so.0.4.9
+[mpdiag] MP_MAP 000013c4b000-000013cd4000 r-xp 00000000 00:00 6437                       /usr/lib/libvorbisenc.so.2.0.12
+[mpdiag] MP_MAP 000013cd4000-000013ceb000 r--p 00079000 00:00 6437                       /usr/lib/libvorbisenc.so.2.0.12
+[mpdiag] MP_MAP 000013ceb000-000013cec000 rw-p 00090000 00:00 6437                       /usr/lib/libvorbisenc.so.2.0.12
+[mpdiag] MP_MAP 000013cec000-000013e9a000 r-xp 00000000 00:00 6458                       /usr/lib/libx264.so.164
+[mpdiag] MP_MAP 000013e9a000-000013e9c000 r--p 001ae000 00:00 6458                       /usr/lib/libx264.so.164
+[mpdiag] MP_MAP 000013e9c000-000013e9d000 rw-p 001b0000 00:00 6458                       /usr/lib/libx264.so.164
+[mpdiag] MP_MAP 000013e9d000-000013f96000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000013f96000-000014601000 r-xp 00000000 00:00 6459                       /usr/lib/libx265.so.209
+[mpdiag] MP_MAP 000014601000-000014606000 r--p 0066b000 00:00 6459                       /usr/lib/libx265.so.209
+[mpdiag] MP_MAP 000014606000-000014609000 rw-p 00670000 00:00 6459                       /usr/lib/libx265.so.209
+[mpdiag] MP_MAP 000014609000-00001461a000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00001461a000-000014689000 r-xp 00000000 00:00 6525                       /usr/lib/libxvidcore.so.4.3
+[mpdiag] MP_MAP 000014689000-00001468a000 r--p 0005f000 00:00 6525                       /usr/lib/libxvidcore.so.4.3
+[mpdiag] MP_MAP 00001468a000-00001468b000 rw-p 00060000 00:00 6525                       /usr/lib/libxvidcore.so.4.3
+[mpdiag] MP_MAP 00001468b000-0000146fd000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000146fd000-00001473c000 r-xp 00000000 00:00 6431                       /usr/lib/libva.so.2.2200.0
+[mpdiag] MP_MAP 00001473c000-00001473d000 r--p 0002f000 00:00 6431                       /usr/lib/libva.so.2.2200.0
+[mpdiag] MP_MAP 00001473d000-00001473e000 rw-p 00030000 00:00 6431                       /usr/lib/libva.so.2.2200.0
+[mpdiag] MP_MAP 00001473e000-000014879000 r-xp 00000000 00:00 6308                       /usr/lib/libopenmpt.so.0.4.4
+[mpdiag] MP_MAP 000014879000-00001487e000 r--p 0012b000 00:00 6308                       /usr/lib/libopenmpt.so.0.4.4
+[mpdiag] MP_MAP 00001487e000-00001487f000 rw-p 00130000 00:00 6308                       /usr/lib/libopenmpt.so.0.4.4
+[mpdiag] MP_MAP 00001487f000-0000148d9000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000148d9000-000014937000 r-xp 00000000 00:00 6099                       /usr/lib/libbluray.so.2.4.3
+[mpdiag] MP_MAP 000014937000-000014939000 r--p 0004e000 00:00 6099                       /usr/lib/libbluray.so.2.4.3
+[mpdiag] MP_MAP 000014939000-00001493a000 rw-p 00050000 00:00 6099                       /usr/lib/libbluray.so.2.4.3
+[mpdiag] MP_MAP 00001493a000-000014a10000 r-xp 00000000 00:00 6385                       /usr/lib/libssl.so.3
+[mpdiag] MP_MAP 000014a10000-000014a1a000 r--p 000c6000 00:00 6385                       /usr/lib/libssl.so.3
+[mpdiag] MP_MAP 000014a1a000-000014a1e000 rw-p 000d0000 00:00 6385                       /usr/lib/libssl.so.3
+[mpdiag] MP_MAP 000014a1e000-000014e0d000 r-xp 00000000 00:00 6136                       /usr/lib/libcrypto.so.3
+[mpdiag] MP_MAP 000014e0d000-000014e7e000 r--p 003df000 00:00 6136                       /usr/lib/libcrypto.so.3
+[mpdiag] MP_MAP 000014e7e000-000014e81000 rw-p 00450000 00:00 6136                       /usr/lib/libcrypto.so.3
+[mpdiag] MP_MAP 000014e81000-000014e84000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000014e84000-000014ec3000 r-xp 00000000 00:00 6350                       /usr/lib/librist.so.4.3.1
+[mpdiag] MP_MAP 000014ec3000-000014ec4000 r--p 0002f000 00:00 6350                       /usr/lib/librist.so.4.3.1
+[mpdiag] MP_MAP 000014ec4000-000014ec5000 rw-p 00030000 00:00 6350                       /usr/lib/librist.so.4.3.1
+[mpdiag] MP_MAP 000014ec5000-000014fa2000 r-xp 00000000 00:00 6382                       /usr/lib/libsrt.so.1.5.3
+[mpdiag] MP_MAP 000014fa2000-000014fa5000 r--p 000dd000 00:00 6382                       /usr/lib/libsrt.so.1.5.3
+[mpdiag] MP_MAP 000014fa5000-000014fa6000 rw-p 000e0000 00:00 6382                       /usr/lib/libsrt.so.1.5.3
+[mpdiag] MP_MAP 000014fa6000-000014fa9000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000014fa9000-000015027000 r-xp 00000000 00:00 6384                       /usr/lib/libssh.so.4.10.2
+[mpdiag] MP_MAP 000015027000-000015029000 r--p 0006e000 00:00 6384                       /usr/lib/libssh.so.4.10.2
+[mpdiag] MP_MAP 000015029000-00001502b000 rw-p 00070000 00:00 6384                       /usr/lib/libssh.so.4.10.2
+[mpdiag] MP_MAP 00001502b000-0000150f1000 r-xp 00000000 00:00 6533                       /usr/lib/libzmq.so.5.2.5
+[mpdiag] MP_MAP 0000150f1000-0000150fb000 r--p 000b6000 00:00 6533                       /usr/lib/libzmq.so.5.2.5
+[mpdiag] MP_MAP 0000150fb000-0000150fc000 rw-p 000c0000 00:00 6533                       /usr/lib/libzmq.so.5.2.5
+[mpdiag] MP_MAP 0000150fc000-00001511b000 r-xp 00000000 00:00 6425                       /usr/lib/libva-drm.so.2.2200.0
+[mpdiag] MP_MAP 00001511b000-00001511c000 r--p 0000f000 00:00 6425                       /usr/lib/libva-drm.so.2.2200.0
+[mpdiag] MP_MAP 00001511c000-00001511d000 rw-p 00010000 00:00 6425                       /usr/lib/libva-drm.so.2.2200.0
+[mpdiag] MP_MAP 00001511d000-00001513c000 r-xp 00000000 00:00 6429                       /usr/lib/libva-x11.so.2.2200.0
+[mpdiag] MP_MAP 00001513c000-00001513d000 r--p 0000f000 00:00 6429                       /usr/lib/libva-x11.so.2.2200.0
+[mpdiag] MP_MAP 00001513d000-00001513e000 rw-p 00010000 00:00 6429                       /usr/lib/libva-x11.so.2.2200.0
+[mpdiag] MP_MAP 00001513e000-00001515d000 r-xp 00000000 00:00 6433                       /usr/lib/libvdpau.so.1.0.0
+[mpdiag] MP_MAP 00001515d000-00001515e000 r--p 0000f000 00:00 6433                       /usr/lib/libvdpau.so.1.0.0
+[mpdiag] MP_MAP 00001515e000-00001515f000 rw-p 00010000 00:00 6433                       /usr/lib/libvdpau.so.1.0.0
+[mpdiag] MP_MAP 00001515f000-00001517e000 r-xp 00000000 00:00 6061                       /usr/lib/libXrender.so.1.3.0
+[mpdiag] MP_MAP 00001517e000-00001517f000 r--p 0000f000 00:00 6061                       /usr/lib/libXrender.so.1.3.0
+[mpdiag] MP_MAP 00001517f000-000015180000 rw-p 00010000 00:00 6061                       /usr/lib/libXrender.so.1.3.0
+[mpdiag] MP_MAP 000015180000-00001519f000 r-xp 00000000 00:00 6481                       /usr/lib/libxcb-render.so.0.0.0
+[mpdiag] MP_MAP 00001519f000-0000151a0000 r--p 0000f000 00:00 6481                       /usr/lib/libxcb-render.so.0.0.0
+[mpdiag] MP_MAP 0000151a0000-0000151a1000 rw-p 00010000 00:00 6481                       /usr/lib/libxcb-render.so.0.0.0
+[mpdiag] MP_MAP 0000151a1000-0000151c0000 r-xp 00000000 00:00 6489                       /usr/lib/libxcb-shm.so.0.0.0
+[mpdiag] MP_MAP 0000151c0000-0000151c1000 r--p 0000f000 00:00 6489                       /usr/lib/libxcb-shm.so.0.0.0
+[mpdiag] MP_MAP 0000151c1000-0000151c2000 rw-p 00010000 00:00 6489                       /usr/lib/libxcb-shm.so.0.0.0
+[mpdiag] MP_MAP 0000151c2000-00001524b000 r-xp 00000000 00:00 6336                       /usr/lib/libpixman-1.so.0.46.4
+[mpdiag] MP_MAP 00001524b000-000015252000 r--p 00089000 00:00 6336                       /usr/lib/libpixman-1.so.0.46.4
+[mpdiag] MP_MAP 000015252000-000015253000 rw-p 00090000 00:00 6336                       /usr/lib/libpixman-1.so.0.46.4
+[mpdiag] MP_MAP 000015253000-000015282000 r-xp 00000000 00:00 6194                       /usr/lib/libfribidi.so.0.4.0
+[mpdiag] MP_MAP 000015282000-000015283000 r--p 0001f000 00:00 6194                       /usr/lib/libfribidi.so.0.4.0
+[mpdiag] MP_MAP 000015283000-000015284000 rw-p 00020000 00:00 6194                       /usr/lib/libfribidi.so.0.4.0
+[mpdiag] MP_MAP 000015284000-000015302000 r-xp 00000000 00:00 6584                       /usr/lib/pulseaudio/libpulsecommon-17.0.so
+[mpdiag] MP_MAP 000015302000-000015304000 r--p 0007e000 00:00 6584                       /usr/lib/pulseaudio/libpulsecommon-17.0.so
+[mpdiag] MP_MAP 000015304000-000015305000 rw-p 00080000 00:00 6584                       /usr/lib/pulseaudio/libpulsecommon-17.0.so
+[mpdiag] MP_MAP 000015305000-000015324000 r-xp 00000000 00:00 6304                       /usr/lib/libogg.so.0.8.5
+[mpdiag] MP_MAP 000015324000-000015325000 r--p 0000f000 00:00 6304                       /usr/lib/libogg.so.0.8.5
+[mpdiag] MP_MAP 000015325000-000015326000 rw-p 00010000 00:00 6304                       /usr/lib/libogg.so.0.8.5
+[mpdiag] MP_MAP 000015326000-000015375000 r-xp 00000000 00:00 41012                      /usr/lib/liblzma.so.5.8.4
+[mpdiag] MP_MAP 000015375000-000015376000 r--p 0003f000 00:00 41012                      /usr/lib/liblzma.so.5.8.4
+[mpdiag] MP_MAP 000015376000-000015377000 rw-p 00040000 00:00 41012                      /usr/lib/liblzma.so.5.8.4
+[mpdiag] MP_MAP 000015377000-0000153b1000 r-xp 00000000 00:00 6097                       /usr/lib/libblkid.so.1.1.0
+[mpdiag] MP_MAP 0000153b1000-0000153b7000 r--p 0002a000 00:00 6097                       /usr/lib/libblkid.so.1.1.0
+[mpdiag] MP_MAP 0000153b7000-0000153b8000 rw-p 00030000 00:00 6097                       /usr/lib/libblkid.so.1.1.0
+[mpdiag] MP_MAP 0000153b8000-000015518000 r-xp 00000000 00:00 6316                       /usr/lib/libp11-kit.so.0.4.8
+[mpdiag] MP_MAP 000015518000-000015528000 r--p 00160000 00:00 6316                       /usr/lib/libp11-kit.so.0.4.8
+[mpdiag] MP_MAP 000015528000-000015537000 rw-p 00170000 00:00 6316                       /usr/lib/libp11-kit.so.0.4.8
+[mpdiag] MP_MAP 000015537000-000015576000 r-xp 00000000 00:00 6240                       /usr/lib/libidn2.so.0.4.0
+[mpdiag] MP_MAP 000015576000-000015577000 r--p 0002f000 00:00 6240                       /usr/lib/libidn2.so.0.4.0
+[mpdiag] MP_MAP 000015577000-000015578000 rw-p 00030000 00:00 6240                       /usr/lib/libidn2.so.0.4.0
+[mpdiag] MP_MAP 000015578000-000015754000 r-xp 00000000 00:00 6409                       /usr/lib/libunistring.so.5.2.0
+[mpdiag] MP_MAP 000015754000-000015758000 r--p 001dc000 00:00 6409                       /usr/lib/libunistring.so.5.2.0
+[mpdiag] MP_MAP 000015758000-000015759000 rw-p 001e0000 00:00 6409                       /usr/lib/libunistring.so.5.2.0
+[mpdiag] MP_MAP 000015759000-00001575a000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00001575a000-000015779000 r-xp 00000000 00:00 6395                       /usr/lib/libtasn1.so.6.6.5
+[mpdiag] MP_MAP 000015779000-00001577a000 r--p 0000f000 00:00 6395                       /usr/lib/libtasn1.so.6.6.5
+[mpdiag] MP_MAP 00001577a000-00001577b000 rw-p 00010000 00:00 6395                       /usr/lib/libtasn1.so.6.6.5
+[mpdiag] MP_MAP 00001577b000-0000157d9000 r-xp 00000000 00:00 6236                       /usr/lib/libhogweed.so.6.11
+[mpdiag] MP_MAP 0000157d9000-0000157db000 r--p 0004e000 00:00 6236                       /usr/lib/libhogweed.so.6.11
+[mpdiag] MP_MAP 0000157db000-0000157dc000 rw-p 00050000 00:00 6236                       /usr/lib/libhogweed.so.6.11
+[mpdiag] MP_MAP 0000157dc000-00001583a000 r-xp 00000000 00:00 6289                       /usr/lib/libnettle.so.8.11
+[mpdiag] MP_MAP 00001583a000-00001583c000 r--p 0004e000 00:00 6289                       /usr/lib/libnettle.so.8.11
+[mpdiag] MP_MAP 00001583c000-00001583d000 rw-p 00050000 00:00 6289                       /usr/lib/libnettle.so.8.11
+[mpdiag] MP_MAP 00001583d000-0000158bb000 r-xp 00000000 00:00 6218                       /usr/lib/libgmp.so.10.5.0
+[mpdiag] MP_MAP 0000158bb000-0000158bd000 r--p 0006e000 00:00 6218                       /usr/lib/libgmp.so.10.5.0
+[mpdiag] MP_MAP 0000158bd000-0000158be000 rw-p 00070000 00:00 6218                       /usr/lib/libgmp.so.10.5.0
+[mpdiag] MP_MAP 0000158be000-0000158dd000 r-xp 00000000 00:00 6107                       /usr/lib/libbsd.so.0.12.2
+[mpdiag] MP_MAP 0000158dd000-0000158de000 r--p 0000f000 00:00 6107                       /usr/lib/libbsd.so.0.12.2
+[mpdiag] MP_MAP 0000158de000-0000158df000 rw-p 00010000 00:00 6107                       /usr/lib/libbsd.so.0.12.2
+[mpdiag] MP_MAP 0000158df000-0000158e0000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0000158e0000-00001590f000 r-xp 00000000 00:00 6374                       /usr/lib/libsoxr.so.0.1.2
+[mpdiag] MP_MAP 00001590f000-000015910000 r--p 0001f000 00:00 6374                       /usr/lib/libsoxr.so.0.1.2
+[mpdiag] MP_MAP 000015910000-000015911000 rw-p 00020000 00:00 6374                       /usr/lib/libsoxr.so.0.1.2
+[mpdiag] MP_MAP 000015911000-000015946000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015946000-000015958000 r--p 00000000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015958000-000015966000 r-xp 00002000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015966000-000015975000 r--p 00020000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015975000-000015976000 r--p 0000f000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015976000-000015985000 r--p 00030000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015985000-000015986000 rw-p 0000f000 00:00 6252                       /usr/lib/libjxl_cms.so.0.10.3
+[mpdiag] MP_MAP 000015986000-0000159a5000 r-xp 00000000 00:00 6238                       /usr/lib/libhwy.so.1.0.7
+[mpdiag] MP_MAP 0000159a5000-0000159a6000 r--p 0000f000 00:00 6238                       /usr/lib/libhwy.so.1.0.7
+[mpdiag] MP_MAP 0000159a6000-0000159a7000 rw-p 00010000 00:00 6238                       /usr/lib/libhwy.so.1.0.7
+[mpdiag] MP_MAP 0000159a7000-000015a56000 r-xp 00000000 00:00 6105                       /usr/lib/libbrotlienc.so.1.1.0
+[mpdiag] MP_MAP 000015a56000-000015a57000 r--p 0009f000 00:00 6105                       /usr/lib/libbrotlienc.so.1.1.0
+[mpdiag] MP_MAP 000015a57000-000015a58000 rw-p 000a0000 00:00 6105                       /usr/lib/libbrotlienc.so.1.1.0
+[37m[ 63.196831 0:50 ksyscall::dispatch:869] [33mUnimplemented syscall: landlock_create_ruleset (tid=50)[m
+[m[mpdiag] MP_MAP 000015a58000-000015a77000 r-xp 00000000 00:00 6302                       /usr/lib/libnuma.so.1.0.0
+[mpdiag] MP_MAP 000015a77000-000015a78000 r--p 0000f000 00:00 6302                       /usr/lib/libnuma.so.1.0.0
+[mpdiag] MP_MAP 000015a78000-000015a79000 rw-p 00010000 00:00 6302                       /usr/lib/libnuma.so.1.0.0
+[mpdiag] MP_MAP 000015a79000-000015a7d000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015a7d000-000015acc000 r-xp 00000000 00:00 6285                       /usr/lib/libmpg123.so.0.48.3
+[mpdiag] MP_MAP 000015acc000-000015acd000 r--p 0003f000 00:00 6285                       /usr/lib/libmpg123.so.0.48.3
+[mpdiag] MP_MAP 000015acd000-000015ace000 rw-p 00040000 00:00 6285                       /usr/lib/libmpg123.so.0.48.3
+[mpdiag] MP_MAP 000015ace000-000015aed000 r-xp 00000000 00:00 6439                       /usr/lib/libvorbisfile.so.3.3.8
+[mpdiag] MP_MAP 000015aed000-000015aee000 r--p 0000f000 00:00 6439                       /usr/lib/libvorbisfile.so.3.3.8
+[mpdiag] MP_MAP 000015aee000-000015aef000 rw-p 00010000 00:00 6439                       /usr/lib/libvorbisfile.so.3.3.8
+[mpdiag] MP_MAP 000015aef000-000015b78000 r-xp 00000000 00:00 6271                       /usr/lib/libmbedcrypto.so.3.6.7
+[mpdiag] MP_MAP 000015b78000-000015b7f000 r--p 00089000 00:00 6271                       /usr/lib/libmbedcrypto.so.3.6.7
+[mpdiag] MP_MAP 000015b7f000-000015b80000 rw-p 00090000 00:00 6271                       /usr/lib/libmbedcrypto.so.3.6.7
+[mpdiag] MP_MAP 000015b80000-000015b82000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015b82000-000015ba1000 r-xp 00000000 00:00 6133                       /usr/lib/libcjson.so.1.7.19
+[mpdiag] MP_MAP 000015ba1000-000015ba2000 r--p 0000f000 00:00 6133                       /usr/lib/libcjson.so.1.7.19
+[mpdiag] MP_MAP 000015ba2000-000015ba3000 rw-p 00010000 00:00 6133                       /usr/lib/libcjson.so.1.7.19
+[mpdiag] MP_MAP 000015ba3000-000015bf2000 r-xp 00000000 00:00 6366                       /usr/lib/libsodium.so.26.2.0
+[mpdiag] MP_MAP 000015bf2000-000015bf3000 r--p 0003f000 00:00 6366                       /usr/lib/libsodium.so.26.2.0
+[mpdiag] MP_MAP 000015bf3000-000015bf4000 rw-p 00040000 00:00 6366                       /usr/lib/libsodium.so.26.2.0
+[mpdiag] MP_MAP 000015bf4000-000015c13000 r-xp 00000000 00:00 6027                       /usr/lib/libX11-xcb.so.1.0.0
+[mpdiag] MP_MAP 000015c13000-000015c14000 r--p 0000f000 00:00 6027                       /usr/lib/libX11-xcb.so.1.0.0
+[mpdiag] MP_MAP 000015c14000-000015c15000 rw-p 00010000 00:00 6027                       /usr/lib/libX11-xcb.so.1.0.0
+[mpdiag] MP_MAP 000015c15000-000015c34000 r-xp 00000000 00:00 6471                       /usr/lib/libxcb-dri3.so.0.1.0
+[mpdiag] MP_MAP 000015c34000-000015c35000 r--p 0000f000 00:00 6471                       /usr/lib/libxcb-dri3.so.0.1.0
+[mpdiag] MP_MAP 000015c35000-000015c36000 rw-p 00010000 00:00 6471                       /usr/lib/libxcb-dri3.so.0.1.0
+[mpdiag] MP_MAP 000015c36000-000015cb3000 r-xp 00000000 00:00 6364                       /usr/lib/libsndfile.so.1.0.37
+[mpdiag] MP_MAP 000015cb3000-000015cb6000 r--p 0006d000 00:00 6364                       /usr/lib/libsndfile.so.1.0.37
+[mpdiag] MP_MAP 000015cb6000-000015cb7000 rw-p 00070000 00:00 6364                       /usr/lib/libsndfile.so.1.0.37
+[mpdiag] MP_MAP 000015cb7000-000015cb9000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015cb9000-000015cd8000 r-xp 00000000 00:00 6077                       /usr/lib/libasyncns.so.0.3.1
+[mpdiag] MP_MAP 000015cd8000-000015cd9000 r--p 0000f000 00:00 6077                       /usr/lib/libasyncns.so.0.3.1
+[mpdiag] MP_MAP 000015cd9000-000015cda000 rw-p 00010000 00:00 6077                       /usr/lib/libasyncns.so.0.3.1
+[mpdiag] MP_MAP 000015cda000-000015cf9000 r-xp 00000000 00:00 6170                       /usr/lib/libeconf.so.0.6.2
+[mpdiag] MP_MAP 000015cf9000-000015cfa000 r--p 0000f000 00:00 6170                       /usr/lib/libeconf.so.0.6.2
+[mpdiag] MP_MAP 000015cfa000-000015cfb000 rw-p 00010000 00:00 6170                       /usr/lib/libeconf.so.0.6.2
+[mpdiag] MP_MAP 000015cfb000-000015cfc000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015cfc000-000015d1b000 r-xp 00000000 00:00 6277                       /usr/lib/libmd.so.0.1.0
+[mpdiag] MP_MAP 000015d1b000-000015d1c000 r--p 0000f000 00:00 6277                       /usr/lib/libmd.so.0.1.0
+[mpdiag] MP_MAP 000015d1c000-000015d1d000 rw-p 00010000 00:00 6277                       /usr/lib/libmd.so.0.1.0
+[mpdiag] MP_MAP 000015d1d000-000015d7c000 r-xp 00000000 00:00 6224                       /usr/lib/libgomp.so.1.0.0
+[mpdiag] MP_MAP 000015d7c000-000015d7d000 r--p 0004f000 00:00 6224                       /usr/lib/libgomp.so.1.0.0
+[mpdiag] MP_MAP 000015d7d000-000015d7e000 rw-p 00050000 00:00 6224                       /usr/lib/libgomp.so.1.0.0
+[mpdiag] MP_MAP 000015d7e000-000015ddb000 r-xp 00000000 00:00 6260                       /usr/lib/liblcms2.so.2.0.19
+[mpdiag] MP_MAP 000015ddb000-000015dde000 r--p 0005d000 00:00 6260                       /usr/lib/liblcms2.so.2.0.19
+[mpdiag] MP_MAP 000015dde000-000015de1000 rw-p 00060000 00:00 6260                       /usr/lib/liblcms2.so.2.0.19
+[mpdiag] MP_MAP 000015de1000-000015de2000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 000015de2000-000015ea0000 r--p 00000000 00:00 5838                       /usr/lib/chromium/v8_context_snapshot.bin
+[mpdiag] MP_MAP 000015ea0000-000015f51000 r--p 00000000 00:00 5825                       /usr/lib/chromium/chrome_100_percent.pak
+[mpdiag] MP_MAP 000015f51000-000016079000 r--p 00000000 00:00 5826                       /usr/lib/chromium/chrome_200_percent.pak
+[mpdiag] MP_MAP 000016079000-000016104000 r--p 00000000 00:00 5835                       /usr/lib/chromium/locales/en-US.pak
+[mpdiag] MP_MAP 000040000000-000040001000 ---p 00000000 00:00 0                          [heap]
+[mpdiag] MP_MAP 000040001000-000040010000 rw-p 00000000 00:00 0                          [heap]
+[mpdiag] MP_MAP 000060001000-000060002000 r-xp 00000000 00:00 0                          [sigtramp]
+[mpdiag] MP_MAP 002800000000-002800001000 ---p 00000000 00:00 0
+[mpdiag] MP_MAP 002800001000-002800002000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800002000-002800004000 ---p 00000000 00:00 0
+[mpdiag] MP_MAP 002800004000-002800008000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800008000-00280000c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280000c000-002800010000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800010000-002800014000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800014000-002800018000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800018000-002800020000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800020000-002800024000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800024000-002800028000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800028000-00280002c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280002c000-002800030000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800030000-002800034000 rw-p 00000000 00:00 0
+
+### [2026-09-29 19:11:36] MONITOR: screendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-at0065s.ppm
+(qemu) [mpdiag] MP_MAP 002800034000-002800038000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800038000-00280003c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280003c000-002800040000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800040000-002800044000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800044000-002800048000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800048000-00280004c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280004c000-002800050000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800050000-002800064000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800064000-002800068000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800068000-00280006c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280006c000-002800070000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800070000-002800074000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800074000-002800078000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800078000-00280007c000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 00280007c000-002800088000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800088000-002800094000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800094000-0028000a0000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000a0000-0028000a8000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000a8000-0028000b4000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000b4000-0028000b8000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000b8000-0028000bc000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000bc000-0028000c4000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000c4000-0028000d0000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000d0000-0028000dc000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000dc000-0028000e8000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000e8000-0028000f0000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000f0000-0028000f8000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000f8000-0028000fc000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 0028000fc000-002800108000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800108000-002800114000 rw-p 00000000 00:00 0
+[mpdiag] MP_MAP 002800114000-003000000000 ---p 00000000 00:00 0
+[mpdiag] MP_MAP 7ffefff80000-7fff00000000 rw-p 00000000 00:00 0                          [stack]
+[mpdiag] MP_MAP_DUMP_END pid=244
+[mpdiag] PS   245 root      0:00 /usr/lib/chromium/chromium --type=zygote --no-sandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable
+[mpdiag] PS   305 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpm[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpma[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmap[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmaps[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfas[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026092[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-02-at00[K
+
+### [2026-09-29 19:11:40] screendump OK (3072016 bytes)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=5
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=5s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   242 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   379 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[37m[ 78.125334 3:316 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=2 strong_count=1[m
+[m[mpdiag] MP_SAMPLE_ELAPSED_SEC=6
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=6s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   242 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   445 root      0:00 {ThreadPoolSingl} /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   447 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+
+### [2026-09-29 19:11:56] MONITOR: screendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-at0085s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpm[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpma[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmap[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmaps[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfas[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026092[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-03-at00[K
+
+### [2026-09-29 19:12:00] screendump OK (3072016 bytes)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=7
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=7s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   242 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   445 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-gl=swiftshader --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,10428043145164554630,16172122145165062161,524288 --field-trial-handle=3,i,4834239559185730635,7655628286756317526,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,Vulkan,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   507 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=8
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_SNAPSHOT=8s
+[mpdiag] PS    50 root      0:00 /usr/lib/chromium/chromium --ozone-platform=wayland --use-gl=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile file:///usr/share/html-test/index.html
+[mpdiag] PS   229 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --monitor-self --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=4 --shared-client-connection
+[mpdiag] PS   242 root      0:00 /usr/lib/chromium/chrome_crashpad_handler --no-periodic-tasks --monitor-self-annotation=ptype=crashpad-handler --database=/root/.config/chromium/Crash Reports --annotation=lsb-release=Alpine Linux v3.22 --annotation=plat=Linux --annotation=prod=Chrome_Linux --annotation=ver=142.0.7444.59 --initial-client-fd=5 --shared-client-connection
+[mpdiag] PS   445 root      0:00 {chromium} /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-gl=swiftshader --crashpad-handler-pid=0 --enable-crash-reporter=, --user-data-dir=/root/mp-chromium-profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,10428043145164554630,16172122145165062161,524288 --field-trial-handle=3,i,4834239559185730635,7655628286756317526,262144 --disable-features=InterestFeedContentSuggestions,OptimizationGuideModelDownloading,OptimizationHints,SegmentationPlatform,Vulkan,WebAppProvider --variations-seed-version --trace-process-track-uuid=3190708989122997041 --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*zygote*=2,*mojo*=2
+[mpdiag] PS   573 root      0:00 {busybox} grep -E chromium|chrome|type=(renderer|zygote|utility|gpu-process)
+
+### [2026-09-29 19:12:12] MONITOR: screendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-final.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpm[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpma[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmap[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmaps[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfas[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-202609[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-2026092[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-f[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-fi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-fin[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-09-29_t490-mpmapsfast2-20260929/screenshots/shot-04-fina[K
+
+### [2026-09-29 19:12:15] screendump OK (3072016 bytes)
+
+### [2026-09-29 19:12:15] stopping session...
+QEMU: Terminated
+### [2026-09-29 19:12:15] SESSION END (exit=0)

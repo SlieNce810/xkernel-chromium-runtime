@@ -1,0 +1,81 @@
+==================================================================
+round_assert  tag=single-initial-r1
+证据目录      /home/mo/xk6/evidence/2026-10-02_t490-single-initial-r1
+时间          2026-10-02T13:56:54+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 5
+PNG 张数 : 0
+  640x480 921615 shot-01-at0045s.ppm
+  640x480 921615 shot-02-at0105s.ppm
+  640x480 921615 shot-03-at0165s.ppm
+  640x480 921615 shot-04-at0225s.ppm
+  640x480 921615 shot-05-at0285s.ppm
+尺寸集合     : 640x480 
+字节数集合   : 921615 
+众数尺寸     : 640x480（用于逐张判据的 --expect-size）
+→ 尺寸一致性通过（集合单元素 640x480）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停
+total 8
+drwxrwxr-x 2 mo mo 4096 Oct  2 13:56 .
+drwxrwxr-x 4 mo mo 4096 Oct  2 13:56 ..
+
+--- ③.5 探针必验项（PROBE_EXIT / PLANESUM / PROBE_ABI）---
+  (guest 目录下无 _root_*.log / *.out —— 无探针输出可判)
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-01-at0045s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-02-at0105s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-03-at0165s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-04-at0225s: 严格集未通过 
+严格集 0/5 通过；失败 ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']｜严格集 = ['banner_c8102e', 'swatches_3channels', 'swatches_left_to_right', 'swatches_same_row', 'js_executed_green_text']
+参考项（不卡关）：['non_white_ratio', 'checkerboard_24px', 'table_borders', 'primary_color_area']；其中未通过 ['checkerboard_24px', 'table_borders', 'primary_color_area']
+⚠️ H=480 < 700：棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核
+  shot-05-at0285s: 严格集未通过 
+判定张数     : 5
+严格集未通过 : 5
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）
+帧对数       : 4
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+--- ⑧ X11 启动链判定摘录 ---
+  !! 缺 guest/_root_autorun-x11.log ⇒ /etc/profile.d/99-autostart.sh 钩子
+     未生效或 /root/autorun.sh 未执行（整轮「静默空跑」的典型特征）
+  (缺 guest/_root_xorg.log ⇒ Xorg 未产出自己的日志)
+
+==================================================================
+SUMMARY_END tag=single-initial-r1  ppm=5  严格集未通过=5  尺寸不符=0  心跳=0/4  探针必验失败=0
+==================================================================
+GATE  strict_fail=5  probe_fail=0
+GATE: FAIL
