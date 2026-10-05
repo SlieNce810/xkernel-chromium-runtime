@@ -51,8 +51,9 @@ QMP 返回成功误写成“硬件键鼠通过”，也没有修改 Wayland 包�
   显示 T1–T6、F1 全部绿色通过，核心结论为 `6/6`，文本框回显
   `hello x-kernel`，鼠标计数为 `1`。
 - [interaction-assert.json](../evidence/2026-10-02_t490-interaction-single-e2e-r20/interaction-assert.json)
-  的官方 interaction 严格集为 `4/4`；`interaction_selfcheck_pass` 作为输入组
-  参考项通过。
+  的 core 组 3 项（banner、无失败色、无异常块）+ viewport 组 1 项（自检表）共 `4/4` 通过，
+  `interaction_selfcheck_pass` 作为 input 组参考项通过；对外转述统一用
+  `ppm-summary.txt` 严格集口径（口径说明见 [report/46](46-初赛单进程材料口径勘误.md) 勘误 2）。
 - [qmp-events.jsonl](../evidence/2026-10-02_t490-interaction-single-e2e-r20/qmp-events.jsonl)
   保存 QMP 握手、`query-mice`、设备清单和 hostfwd setup 回执。
 
@@ -62,10 +63,16 @@ layout 专项轮为 [2026-10-02_t490-layout-e2e-r21](../evidence/2026-10-02_t490
 
 - [layout-top.png](../evidence/2026-10-02_t490-layout-e2e-r21/screenshots/layout-top.png)
   的 `layout-top-assert.json` 显示官方严格几何集 `5/5`：banner、C1 flex、
-  C2 grid、C3 盒模型和无失败色全部通过。
+  C2 grid、C3 盒模型和无失败色全部通过（严格集口径以 `ppm-summary.txt` 为准，
+  C3 在 assert JSON 中归 viewport 组，见 [report/46](46-初赛单进程材料口径勘误.md) 勘误 2）。
 - [layout-e2e.png](../evidence/2026-10-02_t490-interaction-single-e2e-r19/screenshots/layout-e2e.png)
-  保存滚动后结论视图；同一页面的 C1–C6 运行时检查结果为绿色 `布局检查 6/6
-  全部通过`。页面较长，几何和结论分别取证是刻意的两张图。
+  保存滚动后结论视图，C1–C6 运行时检查为绿色 `布局检查 6/6 全部通过`——**该 6/6
+  证据来自 r19 轮**（interaction 页跳转 `layout.html?e2e=1` 后滚动截图）。
+  ⚠️ r21 本轮未产生滚动后结论条证据：r21 的 `layout-verdict.png` 与 `layout-top.png`
+  同哈希（滚动未发生）、`layout_verdict_pass=False`，其 `ppm-summary.txt` 自带
+  「取景不够，必须用更高窗口/滚动后重截」警告（见 report/46 勘误 3）。
+  **待办**：按 report/45 §4-C3 补一轮 e2e 滚动 layout 轮，把 6/6 结论条落入同一目录后，
+  本引用才可改指新目录；补齐前 6/6 一律注明证据在 r19。
 
 ### index 页面
 

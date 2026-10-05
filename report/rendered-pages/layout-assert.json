@@ -1,0 +1,195 @@
+{
+  "file": "shot-05-at0225s.ppm",
+  "size": "1280x800",
+  "header_bytes": 16,
+  "raster_bytes": 3072000,
+  "size_check": {
+    "pass": true,
+    "expected": "1280x800",
+    "got": "1280x800"
+  },
+  "profile": "official-layout",
+  "checks": [
+    {
+      "check": "non_white_ratio",
+      "pass": true,
+      "group": "info",
+      "detail": "非白像素 260933/1024000 = 0.2548；⚠️ 参考项，不参与卡关",
+      "ratio": 0.25482
+    },
+    {
+      "check": "official_banner",
+      "pass": true,
+      "group": "core",
+      "detail": "#17456b banner {'valid': True, 'count': 71261, 'x0': 209, 'y0': 20, 'x1': 1056, 'y1': 110, 'w': 848, 'h': 91}；要求 宽≥768(=0.6·W，实测 0.95@640 / 0.66@1280) 且 高∈[40,140]（实测 84）",
+      "bbox": {
+        "valid": true,
+        "count": 71261,
+        "x0": 209,
+        "y0": 20,
+        "x1": 1056,
+        "y1": 110,
+        "w": 848,
+        "h": 91
+      },
+      "w_req": 768
+    },
+    {
+      "check": "verdict_fail_absent",
+      "pass": true,
+      "group": "core",
+      "detail": "失败色：文字 #c93c37 0 px（上限 300，实测 0）、条底 #ffebe9 59 px（上限 2000，实测 37）；出现即说明页面自检判出了「未通过」",
+      "pass_text": 32,
+      "fail_text": 0,
+      "pass_bg": 42,
+      "fail_bg": 59
+    },
+    {
+      "check": "layout_c1_flex_row",
+      "pass": true,
+      "group": "core",
+      "detail": "C1 flex 三块同行等宽（实测 182x56@640 / 262x56@1280，同一 y 带）：red 262x56@y178；yellow 262x56@y178；purple 262x56@y178；等宽极差 0",
+      "c1": {
+        "red": {
+          "valid": true,
+          "count": 14434,
+          "x0": 226,
+          "y0": 178,
+          "x1": 487,
+          "y1": 233,
+          "w": 262,
+          "h": 56
+        },
+        "yellow": {
+          "valid": true,
+          "count": 33667,
+          "x0": 502,
+          "y0": 178,
+          "x1": 763,
+          "y1": 233,
+          "w": 262,
+          "h": 56
+        },
+        "purple": {
+          "valid": true,
+          "count": 33688,
+          "x0": 778,
+          "y0": 178,
+          "x1": 1039,
+          "y1": 233,
+          "w": 262,
+          "h": 56
+        }
+      }
+    },
+    {
+      "check": "layout_c2_grid_2x2",
+      "pass": true,
+      "group": "core",
+      "detail": "C2 grid 2 行 2 列（实测 287x48@640 / 407x48@1280，两行 y 起点相同、列 x 对齐）：blue 407x48@(226,314)；green 407x48@(633,314)；yellow 407x48@(226,372)；purple 407x48@(633,372)；行分组 {39: ['blue', 'green'], 46: ['yellow', 'purple']}；列对齐 True",
+      "cells": {
+        "blue": {
+          "valid": true,
+          "count": 24259,
+          "x0": 226,
+          "y0": 314,
+          "x1": 632,
+          "y1": 361,
+          "w": 407,
+          "h": 48
+        },
+        "green": {
+          "valid": true,
+          "count": 28376,
+          "x0": 633,
+          "y0": 314,
+          "x1": 1039,
+          "y1": 361,
+          "w": 407,
+          "h": 48
+        },
+        "yellow": {
+          "valid": true,
+          "count": 19251,
+          "x0": 226,
+          "y0": 372,
+          "x1": 632,
+          "y1": 419,
+          "w": 407,
+          "h": 48
+        },
+        "purple": {
+          "valid": true,
+          "count": 19268,
+          "x0": 633,
+          "y0": 372,
+          "x1": 1039,
+          "y1": 419,
+          "w": 407,
+          "h": 48
+        }
+      },
+      "rows": {
+        "39": [
+          "blue",
+          "green"
+        ],
+        "46": [
+          "yellow",
+          "purple"
+        ]
+      }
+    },
+    {
+      "check": "layout_c3_box_model",
+      "pass": true,
+      "group": "viewport",
+      "detail": "C3 盒模型 5px 边框带：细带 2 条 [(500, 504), (645, 649)]；实测上下带 y481..485 / y626..630（跨距 150）、宽 250。判据 = 两条细带等宽（±4）且跨距 ∈[100,200]px（= content 100 + padding 40 + 边框 10）→ 145px / 250px",
+      "c3": {
+        "thin": [
+          [
+            500,
+            504,
+            250
+          ],
+          [
+            645,
+            649,
+            250
+          ]
+        ],
+        "gap": 145,
+        "width": 250,
+        "top": [
+          500,
+          504
+        ],
+        "bottom": 645
+      }
+    },
+    {
+      "check": "layout_verdict_pass",
+      "pass": false,
+      "group": "viewport",
+      "detail": "结论条绿字 32 px（≥300，实测 1483）+ 绿底 42 px（≥5000，实测 30489）→ JS 已跑完 C1–C6 且 6/6 通过",
+      "pass_text": 32,
+      "fail_text": 0,
+      "pass_bg": 42,
+      "fail_bg": 59
+    }
+  ],
+  "strict_set": [
+    "official_banner",
+    "verdict_fail_absent",
+    "layout_c1_flex_row",
+    "layout_c2_grid_2x2",
+    "layout_c3_box_model"
+  ],
+  "info_set": [
+    "non_white_ratio",
+    "layout_verdict_pass"
+  ],
+  "viewport_in_frame": true,
+  "strict_fail_count": 0,
+  "strict_fail_names": []
+}

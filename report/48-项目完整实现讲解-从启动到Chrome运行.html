@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>赛题六项目完整实现讲解：从启动到 Chrome 运行</title>
+<meta name="description" content="面向初学者的 x-kernel + Weston + Chromium 项目完整实现讲解：完整流程、必需内核组件、额外补充内容。">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#fafbfc;
+  --fg:#151821; --fg-2:#4b5464; --fg-3:#79828f;
+  --line:#e5e8ee; --line-2:#cfd6e0;
+  --brand:#2b5fd9; --brand-2:#1d47ab; --brand-soft:#eef3ff; --brand-line:#b9ccf5;
+  --ok:#0b7a4b; --ok-soft:#e8f6ee; --ok-line:#a9d9bf;
+  --warn:#9a5b06; --warn-soft:#fdf4e3; --warn-line:#e6c893;
+  --danger:#b3261e; --danger-soft:#fdeceb; --danger-line:#eab5b1;
+  --radius:14px; --radius-sm:9px; --radius-xs:6px;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 10px 26px -16px rgba(16,24,40,.22);
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --measure:74ch;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+.topbar{position:sticky;top:0;z-index:20;background:rgba(246,247,249,.86);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line)}
+.topbar__in{max-width:1260px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--fg-2)}
+.topbar__mark{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--brand);color:#fff;font-weight:700;font-size:12.5px;flex:0 0 auto}
+.topbar__title{font-weight:600;color:var(--fg);white-space:nowrap}
+.topbar__sep{color:var(--line-2)}
+.topbar__meta{margin-left:auto;color:var(--fg-3);font-size:12.5px;white-space:nowrap}
+
+.shell{max-width:1260px;margin:0 auto;padding:32px 24px 96px;display:grid;grid-template-columns:238px minmax(0,1fr);gap:44px;align-items:start}
+.content{min-width:0}
+
+.hero{grid-column:1/-1;margin-bottom:36px}
+.hero__eyebrow{display:inline-block;margin-bottom:12px;padding:4px 11px;background:var(--brand-soft);border:1px solid var(--brand-line);border-radius:999px;color:var(--brand-2);font-size:12.5px;font-weight:600;letter-spacing:.03em}
+.hero h1{margin:0 0 14px;font-size:clamp(26px,3.4vw,38px);line-height:1.25;letter-spacing:-.015em;font-weight:750}
+.hero__lede{margin:0;max-width:var(--measure);color:var(--fg-2);font-size:clamp(15px,1.5vw,17px)}
+.hero__chips{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:9px}
+.hero__chips li{padding:6px 12px;background:var(--surface);border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--fg-2);box-shadow:var(--shadow-sm)}
+.hero__chips b{color:var(--fg);font-weight:650}
+
+.toc{position:sticky;top:64px;font-size:13.5px}
+.toc__box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 8px 14px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 96px);overflow:auto}
+.toc__hd{padding:0 12px 10px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-3)}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc ol ol{margin:2px 0 6px}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 12px;border-left:2px solid transparent;color:var(--fg-2);line-height:1.5;border-radius:0 6px 6px 0}
+.toc a:hover{background:var(--surface-2);color:var(--fg);text-decoration:none}
+.toc > .toc__box > ol > li > a{font-weight:650;color:var(--fg);margin-top:6px}
+.toc ol ol a{padding-left:24px;font-size:13px;color:var(--fg-3)}
+.toc a.is-active{border-left-color:var(--brand);background:var(--brand-soft);color:var(--brand-2);font-weight:600}
+
+.section{margin:0 0 56px;scroll-margin-top:72px}
+.section > h2{margin:0 0 8px;font-size:clamp(21px,2.3vw,27px);line-height:1.3;font-weight:730;letter-spacing:-.012em;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.section > h2 .num{font-family:var(--mono);font-size:.72em;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:var(--radius-xs);padding:3px 8px}
+.section__lede{margin:0 0 26px;max-width:var(--measure);color:var(--fg-2)}
+h3{margin:40px 0 12px;font-size:18.5px;line-height:1.4;font-weight:680;letter-spacing:-.008em;scroll-margin-top:72px}
+h4{margin:26px 0 8px;font-size:15.5px;font-weight:660;color:var(--fg-2)}
+p{margin:0 0 14px;max-width:var(--measure)}
+ul,ol{margin:0 0 16px;padding-left:22px;max-width:var(--measure)}
+li{margin:5px 0}
+li > ul,li > ol{margin:6px 0 2px}
+hr{margin:44px 0;border:0;border-top:1px solid var(--line)}
+
+code{font-family:var(--mono);font-size:.855em;background:#eef0f4;border:1px solid #e0e3e9;border-radius:5px;padding:1px 5px;word-break:break-word}
+pre{margin:0 0 18px;padding:16px 18px;background:#171b26;border-radius:var(--radius-sm);overflow-x:auto;box-shadow:var(--shadow-sm)}
+pre code{display:block;background:none;border:0;padding:0;color:#dfe4ee;font-size:12.8px;line-height:1.72;white-space:pre}
+pre .c{color:#8b98af}
+pre .k{color:#8ec5ff}
+.codewrap{margin:0 0 18px}
+.codewrap figcaption{margin:0 0 7px;font-size:12.5px;font-weight:650;color:var(--fg-3);letter-spacing:.02em}
+
+.callout{margin:0 0 20px;padding:14px 18px 14px 16px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:0 var(--radius-sm) var(--radius-sm) 0;box-shadow:var(--shadow-sm);max-width:var(--measure)}
+.callout > :last-child{margin-bottom:0}
+.callout__t{display:block;margin-bottom:4px;font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--brand-2)}
+.callout.is-warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.is-warn .callout__t{color:var(--warn)}
+.callout.is-danger{border-left-color:var(--danger);background:var(--danger-soft)}
+.callout.is-danger .callout__t{color:var(--danger)}
+.callout.is-ok{border-left-color:var(--ok);background:var(--ok-soft)}
+.callout.is-ok .callout__t{color:var(--ok)}
+.callout.is-quiet{border-left-color:var(--line-2);background:var(--surface-2);color:var(--fg-2)}
+.callout.is-quiet .callout__t{color:var(--fg-3)}
+
+.tw{margin:0 0 22px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-sm);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.6}
+caption{caption-side:top;text-align:left;padding:13px 16px 11px;font-size:13px;font-weight:700;color:var(--fg-2);letter-spacing:.02em;border-bottom:1px solid var(--line);background:var(--surface-2)}
+thead th{background:var(--surface-2);color:var(--fg-3);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:9px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody th{text-align:left;font-weight:640;color:var(--fg);padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top;min-width:6.5em}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--fg-2);vertical-align:top;overflow-wrap:break-word}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+tbody tr:hover th,tbody tr:hover td{background:#fafbfd}
+td.num,th.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.b{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em;border:1px solid;white-space:nowrap;line-height:1.7}
+.b-ok{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.b-warn{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.b-no{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+
+figure.dgm{margin:0 0 24px;padding:20px 20px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+figure.dgm svg{display:block;width:100%;height:auto}
+figure.dgm figcaption{margin:16px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:13px;color:var(--fg-3);line-height:1.65}
+.dgm .bx{fill:#fff;stroke:#cfd6e0;stroke-width:1.2}
+.dgm .bx-a{fill:#eef3ff;stroke:#b9ccf5;stroke-width:1.4}
+.dgm .bx-g{fill:#e8f6ee;stroke:#a9d9bf;stroke-width:1.3}
+.dgm .bx-w{fill:#fdf4e3;stroke:#e6c893;stroke-width:1.3}
+.dgm .bx-r{fill:#fdeceb;stroke:#eab5b1;stroke-width:1.3}
+.dgm .bx-s{fill:#fafbfc;stroke:#e5e8ee;stroke-width:1.2;stroke-dasharray:5 4}
+.dgm text{font-family:var(--sans)}
+.dgm .t{font-size:13.5px;font-weight:600;fill:#151821}
+.dgm .t2{font-size:12px;font-weight:500;fill:#4b5464}
+.dgm .t3{font-size:11.5px;font-weight:500;fill:#79828f}
+.dgm .tm{font-family:var(--mono);font-size:11.5px;font-weight:500;fill:#4b5464}
+.dgm .hdr{font-size:11.5px;font-weight:700;letter-spacing:.08em;fill:#79828f}
+.dgm .ln{stroke:#9aa6b8;stroke-width:1.4;fill:none}
+.dgm .ln-d{stroke:#9aa6b8;stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.dgm .badge{font-family:var(--mono);font-size:11px;font-weight:700;fill:#fff}
+
+.roadmap{list-style:none;margin:0 0 24px;padding:0;max-width:none}
+.roadmap li{position:relative;margin:0;padding:0 0 20px 44px;border-left:2px solid var(--line);max-width:var(--measure)}
+.roadmap li:last-child{border-left-color:transparent;padding-bottom:0}
+.roadmap li::before{content:attr(data-step);position:absolute;left:-15px;top:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surface);border:2px solid var(--line-2);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--fg-2)}
+.roadmap li.is-key::before{background:var(--brand);border-color:var(--brand);color:#fff}
+.roadmap li.is-guest::before{background:var(--ok);border-color:var(--ok);color:#fff}
+.roadmap strong{display:block;font-size:15px;font-weight:670;line-height:1.45;margin-bottom:2px}
+.roadmap span{display:block;font-size:13.5px;color:var(--fg-3);line-height:1.6}
+.roadmap .out{display:inline-block;margin-top:6px;padding:1px 8px;border-radius:var(--radius-xs);background:var(--surface-2);border:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--fg-2)}
+
+.grid{display:grid;gap:14px;margin:0 0 24px;grid-template-columns:repeat(auto-fit,minmax(238px,1fr))}
+.card{padding:16px 17px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)}
+.card > :last-child{margin-bottom:0}
+.card h4{margin:0 0 6px;font-size:14.5px;font-weight:680;color:var(--fg)}
+.card p{margin:0;font-size:13.5px;color:var(--fg-2);line-height:1.62}
+.card__k{display:inline-block;margin-bottom:8px;font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--brand-2)}
+.card.is-a{border-top:3px solid var(--brand)}
+.card.is-b{border-top:3px solid var(--ok)}
+.card.is-c{border-top:3px solid var(--warn)}
+.card.is-d{border-top:3px solid var(--line-2)}
+
+.foot{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--fg-3);max-width:var(--measure)}
+
+@media (max-width:1060px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0;padding:24px 20px 72px}
+  .toc{position:static;margin-bottom:28px}
+  .toc__box{max-height:none}
+  .toc__box > ol{display:none}
+  .toc__box.is-open > ol{display:block}
+  .toc__hd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:0;font-size:13px;text-transform:none;letter-spacing:.02em;color:var(--fg-2)}
+  .toc__hd::after{content:"展开";font-size:12px;font-weight:600;color:var(--brand)}
+  .toc__box.is-open .toc__hd::after{content:"收起"}
+  .hero{margin-bottom:24px}
+  .topbar__meta{display:none}
+}
+@media (max-width:760px){
+  body{font-size:15.5px}
+  .shell{padding:18px 16px 64px}
+  .topbar__in{padding:9px 16px}
+  h3{margin-top:32px;font-size:17.5px}
+  figure.dgm{padding:14px 12px 10px}
+  figure.dgm figcaption{font-size:12.5px}
+  pre{padding:13px 14px;border-radius:8px}
+  pre code{font-size:12px}
+  .tw{overflow:visible;border:0;background:none;box-shadow:none;border-radius:0}
+  table,caption,thead,tbody,tr,th,td{display:block;width:100%}
+  caption{padding:0 0 10px;border:0;background:none;font-size:13.5px}
+  thead{display:none}
+  tbody tr{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);overflow:hidden}
+  tbody tr:hover th,tbody tr:hover td{background:inherit}
+  tbody th[scope="row"]{padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:14.5px;min-width:0}
+  tbody td{display:block;padding:9px 14px;border-bottom:1px solid #f0f2f6;font-size:14px;overflow-wrap:anywhere}
+  tbody td:last-child{border-bottom:0}
+  tbody td::before{
+    content:attr(data-label);display:block;margin-bottom:3px;
+    font-size:11.5px;font-weight:700;color:var(--fg-3);letter-spacing:.05em;
+  }
+  tbody td:not([data-label])::before{display:none}
+  tbody td code{white-space:normal;overflow-wrap:anywhere}
+  td.num{text-align:left}
+  p,li,.roadmap span,.card p,.callout,figcaption{overflow-wrap:break-word}
+  .grid{grid-template-columns:1fr}
+  .roadmap li{padding-left:38px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{.topbar,.toc{display:none}.shell{display:block;padding:0}body{background:#fff}figure.dgm,.tw,.card,.callout{break-inside:avoid;box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__in">
+    <span class="topbar__mark" aria-hidden="true">XK</span>
+    <span class="topbar__title">赛题六 · 项目完整实现讲解</span>
+    <span class="topbar__sep" aria-hidden="true">/</span>
+    <span>从启动到 Chrome 运行</span>
+    <span class="topbar__meta">报告 48 · 更新 2026-10-05</span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <section class="hero">
+    <span class="hero__eyebrow">面向初学者 · 上手实践指南</span>
+    <h1>赛题六项目完整实现讲解：从启动到 Chrome 运行</h1>
+    <p class="hero__lede">
+      在组委会指定的 AArch64 QEMU 虚拟平台上，用指定的 Rust 内核 x-kernel，把 Weston 图形界面与
+      Chromium 浏览器跑起来，正确渲染指定 HTML，并提交内核兼容性缺口、修复补丁与可复现的测量方法。
+      本文按「怎么跑起来 → 内核必须提供什么 → 我们额外补了什么」三段式展开。
+    </p>
+    <ul class="hero__chips">
+      <li>初赛满分 <b>100</b></li>
+      <li>内核态占 <b>25 分</b>（单项最高）</li>
+      <li>AArch64 QEMU · <b>纯 TCG</b></li>
+      <li>2 GiB · 4 vCPU</li>
+      <li>当前路线 <b>单进程 Chromium</b></li>
+    </ul>
+  </section>
+
+  <nav class="toc" aria-label="目录">
+    <div class="toc__box" id="tocBox">
+      <div class="toc__hd" id="tocHd" role="button" tabindex="0" aria-expanded="false" aria-controls="tocList">目录</div>
+      <ol id="tocList">
+        <li><a href="#s0">0 · 先把题拆开</a>
+          <ol>
+            <li><a href="#s0-1">0.1 一句话题目</a></li>
+            <li><a href="#s0-2">0.2 三层结构</a></li>
+            <li><a href="#s0-3">0.3 评分构成</a></li>
+            <li><a href="#s0-4">0.4 三条关键认知</a></li>
+            <li><a href="#s0-5">0.5 全局总览</a></li>
+          </ol>
+        </li>
+        <li><a href="#s1">1 · 从启动到运行的完整流程</a>
+          <ol>
+            <li><a href="#s1-1">1.1 八个阶段的路线</a></li>
+            <li><a href="#s1-2">1.2 逐阶段拆解</a></li>
+            <li><a href="#s1-3">1.3 平台参数的单一真源</a></li>
+            <li><a href="#s1-4">1.4 单轮编排的八步</a></li>
+            <li><a href="#s1-5">1.5 guest 内的启动时序</a></li>
+            <li><a href="#s1-6">1.6 判据是怎么来的</a></li>
+          </ol>
+        </li>
+        <li><a href="#s2">2 · 支撑 Chrome 启动的内核组件</a>
+          <ol>
+            <li><a href="#s2-1">2.1 Chrome 会向内核要什么</a></li>
+            <li><a href="#s2-2">2.2 内核子系统总图</a></li>
+            <li><a href="#s2-3">2.3 能力与代码落点</a></li>
+            <li><a href="#s2-4">2.4 DRM / KMS 的 ioctl 面</a></li>
+            <li><a href="#s2-5">2.5 sysfs 决定设备是否存在</a></li>
+            <li><a href="#s2-6">2.6 Chrome 到内核的调用链</a></li>
+          </ol>
+        </li>
+        <li><a href="#s3">3 · 额外补充的内容</a>
+          <ol>
+            <li><a href="#s3-1">3.1 四类补充总览</a></li>
+            <li><a href="#s3-2">3.2 A 类 · 内核补丁</a></li>
+            <li><a href="#s3-3">3.3 已合入的兼容改动</a></li>
+            <li><a href="#s3-4">3.4 B 类 · 内核能力补齐</a></li>
+            <li><a href="#s3-5">3.5 C 类 · 镜像与用户态</a></li>
+            <li><a href="#s3-6">3.6 最有价值的一课</a></li>
+            <li><a href="#s3-7">3.7 提交的八条缺口</a></li>
+          </ol>
+        </li>
+        <li><a href="#s4">4 · 上手实践</a>
+          <ol>
+            <li><a href="#s4-1">4.1 最短复现路径</a></li>
+            <li><a href="#s4-2">4.2 结果到哪里看</a></li>
+            <li><a href="#s4-3">4.3 血泪坑清单</a></li>
+          </ol>
+        </li>
+        <li><a href="#s5">5 · 当前坐标与下一步</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <main class="content">
+
+  <section class="section" id="s0">
+    <h2><span class="num">0</span>先把题拆开：这个项目在做什么</h2>
+    <p class="section__lede">
+      不要一上来就看代码。先把题目、评分和所处的位置坐标建立起来，后面每一步才知道为什么这样做。
+    </p>
+
+    <h3 id="s0-1">0.1 一句话题目</h3>
+    <div class="callout">
+      <span class="callout__t">题目本质</span>
+      <p>
+        在组委会指定的 <b>AArch64 QEMU 虚拟平台</b>上，用指定的 Rust 内核 <b>x-kernel</b>，
+        把<b>图形界面（Weston / Wayland）</b>和<b>浏览器（Chromium）</b>跑起来，
+        正确渲染组委会指定的 HTML 页面，稳定运行不少于 10 分钟，
+        并提交<b>内核兼容性缺口、修复补丁、可复现的测量方法与原始数据</b>。
+      </p>
+    </div>
+    <p>
+      这是一道「<b>移植 + 兼容性</b>」题，不是写业务代码。你面对的不是空白项目，
+      而是一个<b>已经能启动、但跑不动大型用户态软件</b>的内核 —— 你的工作是找出并补齐它缺的能力。
+    </p>
+
+    <h3 id="s0-2">0.2 三层结构</h3>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 268" role="img" aria-labelledby="dg1t">
+        <title id="dg1t">项目三层结构与分值分布</title>
+        <rect class="bx" x="0" y="8" width="1000" height="72" rx="12"/>
+        <text class="t" x="24" y="37">用户态</text>
+        <text class="t2" x="24" y="59">Weston 合成器 + Chromium 浏览器</text>
+        <text class="tm" x="976" y="51" text-anchor="end">40 分</text>
+        <line class="ln" x1="500" y1="96" x2="500" y2="82" marker-end="url(#ar1)"/>
+        <text class="t3" x="514" y="93">前置</text>
+        <rect class="bx-a" x="0" y="98" width="1000" height="72" rx="12"/>
+        <text class="t" x="24" y="127">内核态</text>
+        <text class="t2" x="24" y="149">x-kernel：syscall / DRM / VFS / 内存 / 网络</text>
+        <text class="tm" x="976" y="141" text-anchor="end">25 分 · 单项最高，只能自己啃</text>
+        <line class="ln" x1="500" y1="186" x2="500" y2="172" marker-end="url(#ar1)"/>
+        <text class="t3" x="514" y="183">支撑</text>
+        <rect class="bx-s" x="0" y="188" width="1000" height="72" rx="12"/>
+        <text class="t" x="24" y="217">平台层</text>
+        <text class="t2" x="24" y="239">AArch64 + QEMU 纯 TCG + 四类 virtio 设备</text>
+        <text class="tm" x="976" y="231" text-anchor="end">合规红线 · 不合规则数据作废</text>
+        <defs>
+          <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        上图成立的前提在下层：内核能力不具备，用户态图形分项直接归零。平台层不是得分项，但它一票否决 ——
+        架构、加速方式或设备组合任一项不符，整轮数据不得作为评分证据。
+      </figcaption>
+    </figure>
+
+    <h3 id="s0-3">0.3 评分构成决定投入方向</h3>
+    <div class="tw">
+      <table>
+        <caption>初赛评分构成（满分 100）</caption>
+        <thead>
+          <tr>
+            <th scope="col">评分项</th>
+            <th scope="col" class="num">分值</th>
+            <th scope="col">落在哪一层</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">系统兼容性与移植分析</th>
+            <td data-label="分值" class="num"><b>25</b></td>
+            <td data-label="落在哪一层">内核态。8 个缺口 ×1 分，上游 patch ×4 分（最多 3 项），Linux 基线对比 5 分</td>
+          </tr>
+          <tr>
+            <th scope="row">图形环境启动与稳定性</th>
+            <td data-label="分值" class="num">20</td>
+            <td data-label="落在哪一层">用户态（Weston / Chromium），<b>前置是内核图形能力配置</b></td>
+          </tr>
+          <tr>
+            <th scope="row">浏览器基础功能</th>
+            <td data-label="分值" class="num">20</td>
+            <td data-label="落在哪一层">用户态（Chromium）</td>
+          </tr>
+          <tr>
+            <th scope="row">性能观测与量化方法</th>
+            <td data-label="分值" class="num">15</td>
+            <td data-label="落在哪一层">跨层（度量）</td>
+          </tr>
+          <tr>
+            <th scope="row">技术文档与代码规范</th>
+            <td data-label="分值" class="num">10</td>
+            <td data-label="落在哪一层">文档</td>
+          </tr>
+          <tr>
+            <th scope="row">演示效果</th>
+            <td data-label="分值" class="num">10</td>
+            <td data-label="落在哪一层">演示</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s0-4">0.4 三条关键认知</h3>
+    <div class="grid">
+      <article class="card is-a">
+        <span class="card__k">认知 01</span>
+        <h4>不是「只能做内核态」</h4>
+        <p>图形与浏览器合计 40 分落在用户态。但赛题原文要求「配置图形、输入、文件系统和网络所需的<b>内核能力</b>」——
+          内核能力是图形分项的前置条件，两者不是二选一。</p>
+      </article>
+      <article class="card is-a">
+        <span class="card__k">认知 02</span>
+        <h4>内核态是分值最高、且无法绕开的单项</h4>
+        <p>25 分只能自己啃，同时它是决赛「开源回馈 9 分」的唯一来源。上游 patch 的 review-merge 周期以周计，
+          第一周就要开始提。</p>
+      </article>
+      <article class="card is-a">
+        <span class="card__k">认知 03</span>
+        <h4>排查顺序必须是「先内核、后用户态」</h4>
+        <p>遇到「图形起不来」，先读内核能力表（ioctl / syscall 分派表），再决定用户态怎么用。
+          反过来在用户态堆启动脚本、用排除法倒推内核，会浪费整轮整轮的时间。</p>
+      </article>
+    </div>
+
+    <h3 id="s0-5">0.5 全局总览</h3>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 470" role="img" aria-labelledby="dg2t">
+        <title id="dg2t">宿主、guest 内核与 guest 用户态的整体关系</title>
+        <rect class="bx" x="0" y="0" width="300" height="430" rx="14"/>
+        <text class="t" x="20" y="30">宿主 · T490 裸金属</text>
+        <text class="t3" x="20" y="50">Ubuntu 26.04 x86_64</text>
+        <line class="ln" x1="16" y1="64" x2="284" y2="64"/>
+        <rect class="bx-s" x="16" y="78" width="268" height="54" rx="9"/>
+        <text class="t2" x="30" y="101">platform.env</text>
+        <text class="t3" x="30" y="119">平台参数单一真源</text>
+        <rect class="bx-s" x="16" y="146" width="268" height="54" rx="9"/>
+        <text class="t2" x="30" y="169">合规预检 35 项</text>
+        <text class="t3" x="30" y="187">PLATFORM_COMPLIANT</text>
+        <rect class="bx-s" x="16" y="214" width="268" height="54" rx="9"/>
+        <text class="t2" x="30" y="237">t490_round.sh</text>
+        <text class="t3" x="30" y="255">单轮编排 · 注入与校验</text>
+        <rect class="bx-s" x="16" y="282" width="268" height="54" rx="9"/>
+        <text class="t2" x="30" y="305">QEMU 纯 TCG</text>
+        <text class="t3" x="30" y="323">2 GiB · 4 vCPU · cortex-a76</text>
+        <rect class="bx-s" x="16" y="350" width="268" height="54" rx="9"/>
+        <text class="t2" x="30" y="373">screendump + 像素判据</text>
+        <text class="t3" x="30" y="391">唯一认可的功能证据</text>
+
+        <rect class="bx-a" x="348" y="0" width="304" height="430" rx="14"/>
+        <text class="t" x="368" y="30">guest 内核 · x-kernel</text>
+        <text class="t3" x="368" y="50">AArch64 · kplat-aarch64</text>
+        <line class="ln" x1="364" y1="64" x2="636" y2="64"/>
+        <rect class="bx" x="364" y="78" width="272" height="54" rx="9"/>
+        <text class="tm" x="378" y="101">core/ksyscall</text>
+        <text class="t3" x="378" y="119">系统调用分派 · 约 250 项</text>
+        <rect class="bx" x="364" y="146" width="272" height="54" rx="9"/>
+        <text class="tm" x="378" y="169">io/drmdevice</text>
+        <text class="t3" x="378" y="187">DRM / KMS 设备</text>
+        <rect class="bx" x="364" y="214" width="272" height="54" rx="9"/>
+        <text class="tm" x="378" y="237">drivers/devices/virtio</text>
+        <text class="t3" x="378" y="255">gpu · input · blk · net</text>
+        <rect class="bx" x="364" y="282" width="272" height="54" rx="9"/>
+        <text class="tm" x="378" y="305">fs + mm</text>
+        <text class="t3" x="378" y="323">VFS · devfs / procfs / sysfs</text>
+        <rect class="bx" x="364" y="350" width="272" height="54" rx="9"/>
+        <text class="tm" x="378" y="373">net/knet</text>
+        <text class="t3" x="378" y="391">unix stream · netlink · tcp</text>
+
+        <rect class="bx" x="696" y="0" width="304" height="430" rx="14"/>
+        <text class="t" x="716" y="30">guest 用户态</text>
+        <text class="t3" x="716" y="50">agentos-weston.img</text>
+        <line class="ln" x1="712" y1="64" x2="984" y2="64"/>
+        <rect class="bx" x="712" y="78" width="272" height="54" rx="9"/>
+        <text class="t2" x="726" y="101">udevd + seatd</text>
+        <text class="t3" x="726" y="119">设备发现与会话管理</text>
+        <rect class="bx" x="712" y="146" width="272" height="54" rx="9"/>
+        <text class="t2" x="726" y="169">Weston 14</text>
+        <text class="t3" x="726" y="187">DRM backend + pixman</text>
+        <rect class="bx" x="712" y="214" width="272" height="54" rx="9"/>
+        <text class="t2" x="726" y="237">Chromium 142</text>
+        <text class="t3" x="726" y="255">--ozone-platform=wayland</text>
+        <rect class="bx" x="712" y="282" width="272" height="54" rx="9"/>
+        <text class="t2" x="726" y="305">官方三页 HTML</text>
+        <text class="t3" x="726" y="323">index / interaction / layout</text>
+
+        <line class="ln" x1="304" y1="215" x2="344" y2="215" marker-end="url(#ar2)"/>
+        <line class="ln" x1="656" y1="215" x2="692" y2="215" marker-end="url(#ar2)"/>
+
+        <path class="ln-d" d="M 848 430 V 456 H 150 V 434" marker-end="url(#ar2)"/>
+        <rect x="322" y="442" width="356" height="19" fill="#f6f7f9"/>
+        <text class="t3" x="500" y="456" text-anchor="middle">判据不合格 → 回到阶段 2，改内核重新构建</text>
+
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        三个角色各自闭环：宿主负责「编排与取证」，内核负责「提供能力」，用户态负责「把图形跑出来」。
+        虚线是唯一的反馈边 —— 判据不过，回到内核改，而不是在用户态加参数。
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="s1">
+    <h2><span class="num">1</span>项目从启动到运行的完整流程</h2>
+    <p class="section__lede">
+      整条链路拆成八个阶段。记住一个心法：<b>每一阶段都有产物，下一阶段只消费上一阶段的产物</b>。
+      任何一环断了，都会在后面以「现象」的形式暴露，而定位时应当回到产物那一环去查。
+    </p>
+
+    <h3 id="s1-1">1.1 八个阶段的路线</h3>
+    <ol class="roadmap">
+      <li data-step="0">
+        <strong>环境准备</strong>
+        <span>在 T490 上装齐 QEMU 10.2.1、Rust 1.95 与双 target、musl 交叉工具链、rust-objcopy。</span>
+        <span class="out">可用的交叉编译工具链</span>
+      </li>
+      <li data-step="1">
+        <strong>平台参数定标</strong>
+        <span>把赛题第七节(一)的全部取值收敛到单一真源，并做机器可校验断言。</span>
+        <span class="out">platform-check.txt（35 项 PASS / FAIL）</span>
+      </li>
+      <li data-step="2" class="is-key">
+        <strong>内核构建</strong>
+        <span>defconfig → 架构断言 → rootfs 扩容 → uapps → make build。这一步决定后面所有能力。</span>
+        <span class="out">kernel.bin + SHA-256 指纹</span>
+      </li>
+      <li data-step="3">
+        <strong>镜像与 overlay 准备</strong>
+        <span>准备基础镜像与运行时补包：eudev、seatd、libinput、SwiftShader。</span>
+        <span class="out">agentos-weston.img + pkgs.tar.gz</span>
+      </li>
+      <li data-step="4" class="is-key">
+        <strong>单轮编排</strong>
+        <span>换镜像 → 编译探针 → 注入 autorun / 页面 / autostart 钩子 → 回读逐字节自证。</span>
+        <span class="out">注好内容的 disk.img + manifest.txt</span>
+      </li>
+      <li data-step="5" class="is-guest">
+        <strong>guest 内启动时序</strong>
+        <span>udevd → seatd → Weston → Wayland socket → Chromium → 加载页面。</span>
+        <span class="out">console.log · single-initial.log</span>
+      </li>
+      <li data-step="6">
+        <strong>采集与判据</strong>
+        <span>QEMU monitor screendump 出 PPM，再与参考图做严格像素断言。</span>
+        <span class="out">screenshots/*.ppm · ppm-summary.txt</span>
+      </li>
+      <li data-step="7">
+        <strong>性能测量</strong>
+        <span>同配置重复不少于 5 次，取中位数并给出波动范围与宿主指纹。</span>
+        <span class="out">raw.csv · summary.json</span>
+      </li>
+      <li data-step="8">
+        <strong>证据归档与提交</strong>
+        <span>组装不可覆盖的证据包与索引，禁止覆盖旧轮次。</span>
+        <span class="out">提交包索引</span>
+      </li>
+    </ol>
+
+    <h3 id="s1-2">1.2 逐阶段拆解</h3>
+    <div class="tw">
+      <table>
+        <caption>各阶段的关键脚本与产物</caption>
+        <thead>
+          <tr>
+            <th scope="col">阶段</th>
+            <th scope="col">做什么</th>
+            <th scope="col">关键脚本 / 文件</th>
+            <th scope="col">产物</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">0 环境准备</th>
+            <td data-label="做什么">装齐 QEMU 10.2.1（用 apt-get download 加 dpkg -x 绕开 sudo）、Rust 1.95 与双 target、musl 交叉工具链、rust-objcopy</td>
+            <td data-label="脚本 / 文件"><code>probe_t490.sh</code> <code>prepare_t490.sh</code> <code>push_musl_from_wsl.sh</code> <code>t490_fix_objcopy.sh</code></td>
+            <td data-label="产物">可用的交叉编译工具链</td>
+          </tr>
+          <tr>
+            <th scope="row">1 平台参数定标</th>
+            <td data-label="做什么">把赛题第七节(一)的所有取值收敛到单一真源，并做机器可校验断言</td>
+            <td data-label="脚本 / 文件"><code>platform.env</code> <code>t490_platform_check.sh</code></td>
+            <td data-label="产物"><code>platform-check.txt</code>（35 项）</td>
+          </tr>
+          <tr>
+            <th scope="row">2 内核构建</th>
+            <td data-label="做什么">defconfig → 架构断言 → rootfs 扩容 4G → uapps → make build</td>
+            <td data-label="脚本 / 文件"><code>build_xk_t490.sh</code> <code>make build</code></td>
+            <td data-label="产物"><code>kernel.bin</code></td>
+          </tr>
+          <tr>
+            <th scope="row">3 镜像与 overlay</th>
+            <td data-label="做什么">准备基础镜像与运行时补包（eudev / seatd / libinput / SwiftShader）</td>
+            <td data-label="脚本 / 文件"><code>agentos-weston.img</code> <code>t490_build_pkgs.sh</code></td>
+            <td data-label="产物">镜像加 <code>pkgs.tar.gz</code></td>
+          </tr>
+          <tr>
+            <th scope="row">4 单轮编排</th>
+            <td data-label="做什么">换镜像 → 编译探针 → 注入 autorun / 页面 / autostart 钩子 → 回读自证</td>
+            <td data-label="脚本 / 文件"><code>t490_round.sh</code></td>
+            <td data-label="产物">注好的 <code>disk.img</code> 与 <code>manifest.txt</code></td>
+          </tr>
+          <tr>
+            <th scope="row">5 guest 启动时序</th>
+            <td data-label="做什么">udevd → seatd → Weston → Wayland socket → Chromium → 加载页面</td>
+            <td data-label="脚本 / 文件"><code>guest-autostart.sh</code> <code>autorun_single_initial.sh</code></td>
+            <td data-label="产物"><code>console.log</code>、guest 日志</td>
+          </tr>
+          <tr>
+            <th scope="row">6 采集与判据</th>
+            <td data-label="做什么">monitor screendump 出 PPM，再与参考图做严格像素断言</td>
+            <td data-label="脚本 / 文件"><code>run-session.py</code> <code>ppm_assert.py</code></td>
+            <td data-label="产物"><code>screenshots/*.ppm</code>、<code>ppm-summary.txt</code></td>
+          </tr>
+          <tr>
+            <th scope="row">7 性能测量</th>
+            <td data-label="做什么">同配置重复不少于 5 次，取中位数、极差与宿主指纹</td>
+            <td data-label="脚本 / 文件"><code>measure-single-initial.sh</code> <code>collect_single_metrics.py</code> <code>observe_qemu.py</code></td>
+            <td data-label="产物"><code>raw.csv</code>、<code>summary.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">8 归档提交</th>
+            <td data-label="做什么">组装不可覆盖的证据包与索引</td>
+            <td data-label="脚本 / 文件"><code>report/42</code> <code>report/45</code></td>
+            <td data-label="产物">提交包</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s1-3">1.3 平台参数的单一真源</h3>
+    <p>
+      这是本项目最值得学的一处工程实践。早期 QEMU 参数散落在 4 个脚本和文档里，
+      「改一处忘一处」就会与赛题要求漂移。现在全部收敛到一个文件：
+    </p>
+    <figure class="codewrap">
+      <figcaption>scripts/t490/platform.env（节选，保留语义注释）</figcaption>
+      <pre><code>PLAT_ARCH="aarch64"
+<span class="c"># 组委会基线 defconfig；不是上游 README 里那个已失效的路径</span>
+PLAT_DEFCONFIG="platforms/kplat-aarch64/qemu_defconfig"
+PLAT_QEMU_MIN_MAJOR="8"          <span class="c"># 赛题：QEMU 版本不低于 8.0</span>
+PLAT_ACCEL="n"                   <span class="c"># n 表示命令行不出现 -accel，即纯 TCG</span>
+PLAT_CPU_TCG="cortex-a76"        <span class="c"># 出现它就是纯 TCG 的证据</span>
+PLAT_GRAPHIC="y"                 <span class="c"># 追加 virtio-gpu-pci / -vga none / -serial mon:stdio</span>
+PLAT_MEM="2g"
+PLAT_SMP="4"
+PLAT_MAKE_ARGS="GRAPHIC=$PLAT_GRAPHIC ACCEL=$PLAT_ACCEL MEM=$PLAT_MEM SMP=$PLAT_SMP VSOCK=$PLAT_VSOCK"</code></pre>
+    </figure>
+    <div class="callout is-warn">
+      <span class="callout__t">判据陷阱</span>
+      <p>
+        <code>-cpu cortex-a76</code> <b>本身就是纯 TCG 的证据</b>：xkmake 只在
+        <code>accel.is_some()</code> 时才填 <code>host</code>。所以判据是「命令行<b>没有</b> <code>-accel</code>」，
+        而不是「命令行<b>有</b> <code>--no-accel</code>」—— 后者是 xkmake 层参数，不会出现在 QEMU 命令行里。
+      </p>
+    </div>
+
+    <h3 id="s1-4">1.4 单轮编排的八步</h3>
+    <p>
+      <code>t490_round.sh</code> 是宿主侧的「单轮引擎」，把「改一点东西测一轮」的重复劳动固化成流水线。
+      共 8 步，其中第 4a 步是踩过坑之后强制的。
+    </p>
+    <ol class="roadmap">
+      <li data-step="0"><strong>前置预检</strong><span>工具预检、会话互斥（禁止 TCG 并发）、证据目录守卫。</span></li>
+      <li data-step="1"><strong>换镜像</strong><span>把指定的基础镜像复制成本轮工作镜像 <code>disk.img</code>。</span></li>
+      <li data-step="2"><strong>编译探针</strong><span>把 <code>probe.c</code> 交叉编译为静态 aarch64 可执行文件。</span></li>
+      <li data-step="3"><strong>写 autorun 副本</strong><span>把 <code>PAGE_URL</code> 与 Ozone 运行期三元组烘焙进 guest 侧脚本。</span></li>
+      <li data-step="4"><strong>注入并回读自证</strong><span>用 debugfs 注入页面整套与探针，再 dump 回来逐字节比对，不一致即中止。</span></li>
+      <li data-step="4a" class="is-key"><strong>注入 autostart 钩子</strong><span>写 <code>/etc/profile.d/99-autostart.sh</code> 并回读校验。缺它整轮静默空跑。</span></li>
+      <li data-step="5"><strong>校验清单</strong><span>确认注入清单与 autostart 钩子真实存在。</span></li>
+      <li data-step="6" class="is-guest"><strong>起会话并取证</strong><span>纯 TCG 启动 QEMU；按间隔调用 monitor screendump；停机后回收完整 guest 日志。</span></li>
+    </ol>
+    <div class="callout is-danger">
+      <span class="callout__t">为什么必须有第 4a 步</span>
+      <p>
+        agentos 官方 kiosk 镜像的 <code>/etc/profile.d/</code> 里<b>没有</b> <code>99-autostart.sh</code>，
+        因此 <code>/root/autorun.sh</code> 永远不会被拉起 —— 整轮会「静默空跑」，
+        证据看起来正常但什么都没测。所以钩子必须随轮注入并回读自证。
+        <b>换新镜像第一件事就是确认这个钩子。</b>
+      </p>
+    </div>
+
+    <h3 id="s1-5">1.5 guest 内的启动时序</h3>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 340" role="img" aria-labelledby="dg3t">
+        <title id="dg3t">guest 内从 PID1 到 Chromium 加载页面的启动时序</title>
+
+        <rect class="bx" x="0" y="24" width="152" height="76" rx="10"/>
+        <text class="t2" x="76" y="52" text-anchor="middle">PID1</text>
+        <text class="t3" x="76" y="72" text-anchor="middle">/bin/sh --login</text>
+        <text class="t3" x="76" y="90" text-anchor="middle">不跑 /etc/inittab</text>
+
+        <rect class="bx-a" x="169" y="24" width="152" height="76" rx="10"/>
+        <text class="t2" x="245" y="52" text-anchor="middle">99-autostart</text>
+        <text class="t3" x="245" y="72" text-anchor="middle">调用 autorun.sh</text>
+        <text class="t3" x="245" y="90" text-anchor="middle">随轮注入的钩子</text>
+
+        <rect class="bx" x="338" y="24" width="152" height="76" rx="10"/>
+        <text class="t2" x="414" y="46" text-anchor="middle">udevd</text>
+        <text class="t3" x="414" y="66" text-anchor="middle">trigger input</text>
+        <text class="t3" x="414" y="84" text-anchor="middle">settle</text>
+
+        <rect class="bx" x="507" y="24" width="152" height="76" rx="10"/>
+        <text class="t2" x="583" y="52" text-anchor="middle">seatd</text>
+        <text class="t3" x="583" y="72" text-anchor="middle">SEATD_VTBOUND=0</text>
+        <text class="t3" x="583" y="90" text-anchor="middle">/run/seatd.sock</text>
+
+        <rect class="bx" x="676" y="24" width="152" height="76" rx="10"/>
+        <text class="t2" x="752" y="46" text-anchor="middle">Weston 14</text>
+        <text class="t3" x="752" y="66" text-anchor="middle">DRM backend + pixman</text>
+        <text class="t3" x="752" y="84" text-anchor="middle">--drm-device=card0</text>
+
+        <rect class="bx-g" x="845" y="24" width="155" height="76" rx="10"/>
+        <text class="t2" x="922" y="46" text-anchor="middle">Chromium 142</text>
+        <text class="t3" x="922" y="66" text-anchor="middle">--single-process</text>
+        <text class="t3" x="922" y="84" text-anchor="middle">加载 PAGE_URL</text>
+
+        <line class="ln" x1="155" y1="62" x2="165" y2="62" marker-end="url(#ar3)"/>
+        <line class="ln" x1="324" y1="62" x2="334" y2="62" marker-end="url(#ar3)"/>
+        <line class="ln" x1="493" y1="62" x2="503" y2="62" marker-end="url(#ar3)"/>
+        <line class="ln" x1="662" y1="62" x2="672" y2="62" marker-end="url(#ar3)"/>
+        <line class="ln" x1="831" y1="62" x2="841" y2="62" marker-end="url(#ar3)"/>
+
+        <rect class="bx-s" x="0" y="128" width="488" height="62" rx="10"/>
+        <text class="t2" x="20" y="152">等待 Wayland socket（最多 45 秒）</text>
+        <text class="t3" x="20" y="174">轮询 /run/user/0 下的 wayland-* 是否存在</text>
+
+        <rect class="bx-s" x="512" y="128" width="488" height="62" rx="10"/>
+        <text class="t2" x="532" y="152">采样与门禁判定</text>
+        <text class="t3" x="532" y="174">导航已开始 且 保持超时 且 进程存活，则 SINGLE_GATE=1</text>
+
+        <line class="ln-d" x1="752" y1="104" x2="752" y2="124" marker-end="url(#ar3)"/>
+        <line class="ln-d" x1="922" y1="104" x2="922" y2="124" marker-end="url(#ar3)"/>
+
+        <rect class="bx-r" x="0" y="212" width="1000" height="112" rx="10"/>
+        <text class="t2" x="20" y="238">两个必须避开的误判</text>
+        <text class="t3" x="20" y="262">1 · socket 存在不等于可用：Weston 先建 socket，约 7 秒后 backend 失败才清理，</text>
+        <text class="t3" x="20" y="282">      中间存在十几秒的「假可用窗口」，必须用功能门禁判断，例如 xset q。</text>
+        <text class="t3" x="20" y="306">2 · 不要用 pgrep 判存活：该 guest 里 pgrep -x Xorg 恒为空，一律用 /proc/&lt;pid&gt; 判断。</text>
+
+        <defs>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        六个环节是串联的：udev 不到位则 seatd 拿不到设备，seatd 不通则 Weston 起不来，
+        Weston 没有 socket 则 Chromium 无处连接。任何一环失败，后面全部表现为「黑屏」。
+      </figcaption>
+    </figure>
+
+    <h3 id="s1-6">1.6 判据是怎么来的</h3>
+    <p>功能证据<b>只认</b> QEMU monitor 的 screendump。链路是：</p>
+    <figure class="codewrap">
+      <figcaption>取证与判定链路</figcaption>
+      <pre><code>monitor screendump  →  screenshots/*.ppm  →  ppm_assert.py  →  ppm-summary.txt
+                                                            →  ppm-assert-*.json</code></pre>
+    </figure>
+    <p>
+      判据常量<b>来自参考图的实测值</b>，不是从 CSS 反推的。参考图放在
+      <code>scripts/testpage/reference/ref-official-{index,interaction,layout}-{1280x800,640x480}.png</code>。
+    </p>
+    <div class="callout is-warn">
+      <span class="callout__t">三条必须记住的页面事实（实测）</span>
+      <ol>
+        <li><code>index.html</code> 是<b>无脚本静态页</b>，不能对它做双帧差分（必然 0 差异），JS 存活要看结论条颜色。</li>
+        <li><code>interaction.html</code> 的自检<b>必须有一次真实点击</b>：未点击时结论条是灰的，点击后才变绿底。</li>
+        <li><code>layout.html</code> 的「6/6 通过」结论条在整页 y≈1450 处，1280×800 的首屏 screendump <b>看不到</b>。</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="s2">
+    <h2><span class="num">2</span>支撑 Chrome 启动所必需的内核组件</h2>
+    <p class="section__lede">
+      这一章回答「内核必须提供什么」。方法是先列需求，再映射到代码，最后看调用链。
+      不要一上来就翻代码 —— 先有了需求清单，翻代码才有目标。
+    </p>
+
+    <h3 id="s2-1">2.1 Chrome 会向内核要什么</h3>
+    <div class="tw">
+      <table>
+        <caption>一个浏览器从零到画出第一帧，需要内核提供的十一项能力</caption>
+        <thead>
+          <tr>
+            <th scope="col">Chrome 要做的事</th>
+            <th scope="col">需要的内核能力</th>
+            <th scope="col">缺了会怎样</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">进程创建与多线程</th>
+            <td data-label="需要的内核能力"><code>clone</code> / <code>clone3</code>、<code>execve</code>、tid 与 tgid、<code>set_tid_address</code></td>
+            <td data-label="缺了会怎样">起不来，或线程组错乱</td>
+          </tr>
+          <tr>
+            <th scope="row">加载动态库与 JIT</th>
+            <td data-label="需要的内核能力"><code>mmap</code> / <code>mprotect</code> / <code>mremap</code>、<code>memfd_create</code></td>
+            <td data-label="缺了会怎样">崩在 ELF 加载阶段</td>
+          </tr>
+          <tr>
+            <th scope="row">进程间传递文件描述符</th>
+            <td data-label="需要的内核能力"><code>sendmsg</code> / <code>recvmsg</code> 加 SCM_RIGHTS / SCM_CREDENTIALS / MSG_CMSG_CLOEXEC</td>
+            <td data-label="缺了会怎样">子进程拿不到 fd，renderer 死</td>
+          </tr>
+          <tr>
+            <th scope="row">窗口与合成</th>
+            <td data-label="需要的内核能力">AF_UNIX stream（Wayland socket）、<code>wl_shm</code> 共享内存</td>
+            <td data-label="缺了会怎样">只有 socket，没有窗口</td>
+          </tr>
+          <tr>
+            <th scope="row">直接访问显示设备</th>
+            <td data-label="需要的内核能力"><code>/dev/dri/card0</code> 加 DRM / KMS ioctl 全套</td>
+            <td data-label="缺了会怎样">Weston 起不来</td>
+          </tr>
+          <tr>
+            <th scope="row">扫描输出</th>
+            <td data-label="需要的内核能力">dumb buffer 创建与映射、附着 framebuffer、plane 提交</td>
+            <td data-label="缺了会怎样">黑屏，报 Display output is not active</td>
+          </tr>
+          <tr>
+            <th scope="row">设备发现</th>
+            <td data-label="需要的内核能力"><code>/sys/class/drm</code>、<code>/sys/class/input</code>、udev uevent</td>
+            <td data-label="缺了会怎样">合成器<b>根本走不到 open()</b></td>
+          </tr>
+          <tr>
+            <th scope="row">读取配置与状态</th>
+            <td data-label="需要的内核能力">procfs 的 uptime / stat / loadavg / meminfo / statm，以及 sysfs</td>
+            <td data-label="缺了会怎样">启动逻辑读到 0 值，行为异常</td>
+          </tr>
+          <tr>
+            <th scope="row">超时与等待</th>
+            <td data-label="需要的内核能力"><code>epoll</code> / <code>ppoll</code> / <code>poll</code>、<code>eventfd</code> / <code>timerfd</code>、<code>futex</code></td>
+            <td data-label="缺了会怎样">卡死或忙等</td>
+          </tr>
+          <tr>
+            <th scope="row">沙箱</th>
+            <td data-label="需要的内核能力"><code>prctl(PR_SET_NO_NEW_PRIVS)</code>、<code>PR_SET_PDEATHSIG</code>、seccomp 前置</td>
+            <td data-label="缺了会怎样">子进程全灭</td>
+          </tr>
+          <tr>
+            <th scope="row">网络（NetworkService）</th>
+            <td data-label="需要的内核能力"><code>socket</code> / <code>connect</code> / TCP_KEEPIDLE 等 sockopt</td>
+            <td data-label="缺了会怎样">报 ENOPROTOOPT，但不致命</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s2-2">2.2 内核子系统总图</h3>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 528" role="img" aria-labelledby="dg4t">
+        <title id="dg4t">x-kernel 的分层子系统结构</title>
+
+        <rect class="bx" x="0" y="0" width="1000" height="60" rx="12"/>
+        <text class="t" x="22" y="27">用户态应用 · uapps/</text>
+        <text class="t3" x="22" y="47">weston-start（官方启动器） · mini-oci</text>
+        <line class="ln" x1="500" y1="82" x2="500" y2="64" marker-end="url(#ar4)"/>
+
+        <rect class="bx-a" x="0" y="82" width="1000" height="52" rx="12"/>
+        <text class="t" x="22" y="112">核心层 · core/ksyscall — 系统调用分派，约 250 个分派分支</text>
+        <line class="ln" x1="128" y1="156" x2="128" y2="138" marker-end="url(#ar4)"/>
+        <line class="ln" x1="500" y1="156" x2="500" y2="138" marker-end="url(#ar4)"/>
+        <line class="ln" x1="872" y1="156" x2="872" y2="138" marker-end="url(#ar4)"/>
+
+        <rect class="bx" x="0" y="156" width="235" height="170" rx="12"/>
+        <text class="t2" x="18" y="182">执行体</text>
+        <text class="tm" x="18" y="208">task / process</text>
+        <text class="t3" x="18" y="230">sched · futex · signal</text>
+        <text class="t3" x="18" y="252">posix/process</text>
+        <text class="t3" x="18" y="280">tgid / tid 解析</text>
+        <text class="t3" x="18" y="302">线程组与退出语义</text>
+
+        <rect class="bx" x="255" y="156" width="235" height="170" rx="12"/>
+        <text class="t2" x="273" y="182">内存管理</text>
+        <text class="tm" x="273" y="208">mm/</text>
+        <text class="t3" x="273" y="230">memspace · 地址空间</text>
+        <text class="t3" x="273" y="252">anon · pagecache</text>
+        <text class="t3" x="273" y="280">kalloc · alloc-engine</text>
+        <text class="t3" x="273" y="302">mmap / madvise</text>
+
+        <rect class="bx" x="510" y="156" width="235" height="170" rx="12"/>
+        <text class="t2" x="528" y="182">文件系统</text>
+        <text class="tm" x="528" y="208">fs/kvfs</text>
+        <text class="t3" x="528" y="230">VFS · 挂载 · 路径解析</text>
+        <text class="t3" x="528" y="252">pagecache 集成</text>
+        <text class="t3" x="528" y="280">devfs · procfs</text>
+        <text class="t3" x="528" y="302">sysfs · memfs · pipefs</text>
+
+        <rect class="bx" x="765" y="156" width="235" height="170" rx="12"/>
+        <text class="t2" x="783" y="182">网络与 IPC</text>
+        <text class="tm" x="783" y="208">net/knet</text>
+        <text class="t3" x="783" y="230">unix stream / dgram</text>
+        <text class="t3" x="783" y="252">netlink · tcp</text>
+        <text class="t3" x="783" y="280">9p · posix/ipc</text>
+        <text class="t3" x="783" y="302">SCM_RIGHTS</text>
+
+        <line class="ln" x1="500" y1="348" x2="500" y2="330" marker-end="url(#ar4)"/>
+
+        <rect class="bx-w" x="0" y="348" width="1000" height="96" rx="12"/>
+        <text class="t" x="22" y="376">设备 I/O 层与驱动</text>
+        <text class="tm" x="22" y="404">io/drmdevice</text>
+        <text class="t3" x="140" y="404">DRM / KMS 主体</text>
+        <text class="tm" x="330" y="404">io/inputdev</text>
+        <text class="t3" x="430" y="404">evdev</text>
+        <text class="tm" x="560" y="404">io/fbdevice</text>
+        <text class="t3" x="670" y="404">/dev/fb0</text>
+        <text class="tm" x="22" y="430">drivers/devices/virtio</text>
+        <text class="t3" x="200" y="430">gpu · input · blk · net · rng · pci</text>
+        <text class="tm" x="620" y="430">drivers/contracts/display</text>
+        <text class="t3" x="810" y="430">ScanoutFormat</text>
+
+        <line class="ln" x1="500" y1="468" x2="500" y2="448" marker-end="url(#ar4)"/>
+
+        <rect class="bx-s" x="0" y="468" width="1000" height="56" rx="12"/>
+        <text class="t" x="22" y="494">平台层 · platforms/kplat-aarch64 加 qemu_defconfig</text>
+        <text class="t3" x="22" y="514">KFEAT_DRIVER_VIRTIO_GPU=y · KFEAT_DRIVER_VIRTIO_INPUT=y（注释原文：Weston graphics requires the virtio GPU and input drivers）</text>
+
+        <defs>
+          <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        箭头方向表示「下层支撑上层」。做兼容性排查时，<b>从下往上问</b>：设备与契约是否具备能力 →
+        内核入口是否实现了对应 ioctl 或 syscall → 用户态是否用到了它。
+      </figcaption>
+    </figure>
+
+    <h3 id="s2-3">2.3 能力与代码落点</h3>
+    <div class="tw">
+      <table>
+        <caption>Chrome 所需能力与内核代码的对应关系</caption>
+        <thead>
+          <tr>
+            <th scope="col">能力</th>
+            <th scope="col">子系统 / crate</th>
+            <th scope="col">关键文件与说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">平台定标</th>
+            <td data-label="子系统"><code>platforms/kplat-aarch64</code></td>
+            <td data-label="关键文件"><code>qemu_defconfig</code> 明写 <code>KFEAT_DRIVER_VIRTIO_GPU=y</code> 与 <code>KFEAT_DRIVER_VIRTIO_INPUT=y</code></td>
+          </tr>
+          <tr>
+            <th scope="row">启动引导</th>
+            <td data-label="子系统"><code>boot/</code> <code>entry/</code> <code>arch/</code></td>
+            <td data-label="关键文件">引导到 <code>/bin/sh --login</code></td>
+          </tr>
+          <tr>
+            <th scope="row">系统调用 ABI</th>
+            <td data-label="子系统"><code>core/ksyscall</code></td>
+            <td data-label="关键文件"><code>src/dispatch.rs</code>（约 250 个 <code>Sysno::</code> 分支）、<code>src/sys.rs</code>，以及 <code>arch</code> <code>task</code> <code>time</code> <code>vfs</code> <code>io_mpx</code> <code>ipc</code> <code>sync</code> 子模块。这是内核能力清单的<b>第一真源</b></td>
+          </tr>
+          <tr>
+            <th scope="row">POSIX 语义补全</th>
+            <td data-label="子系统"><code>posix/</code></td>
+            <td data-label="关键文件"><code>process</code> <code>mm</code> <code>net</code> <code>fs</code> <code>ipc</code> <code>bpf</code>，即 syscall 之上的语义层</td>
+          </tr>
+          <tr>
+            <th scope="row">进程与线程</th>
+            <td data-label="子系统"><code>task/</code> <code>process/</code></td>
+            <td data-label="关键文件"><code>core/ksyscall/src/task/sched.rs</code>、<code>task/ctl.rs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">内存管理</th>
+            <td data-label="子系统"><code>mm/</code></td>
+            <td data-label="关键文件"><code>memspace/src/aspace.rs</code>、<code>posix/mm/src/mmap.rs</code>、<code>anon/</code>、<code>pagecache/</code>、<code>kalloc/</code></td>
+          </tr>
+          <tr>
+            <th scope="row">虚拟文件系统</th>
+            <td data-label="子系统"><code>fs/kvfs</code></td>
+            <td data-label="关键文件"><code>mount.rs</code> <code>path.rs</code> <code>namei.rs</code> <code>address_space/</code></td>
+          </tr>
+          <tr>
+            <th scope="row">具体文件系统</th>
+            <td data-label="子系统"><code>fs/filesystems</code></td>
+            <td data-label="关键文件"><code>devfs/</code>（<code>nodes/dri.rs</code> <code>nodes/event.rs</code> <code>nodes/fb.rs</code> <code>nodes/pts.rs</code> <code>nodes/shm.rs</code>）、<code>procfs/</code>、<code>sysfs/</code>、<code>memfs/</code>、<code>pipefs/</code>、<code>anon_inodefs/</code></td>
+          </tr>
+          <tr>
+            <th scope="row">DRM / KMS</th>
+            <td data-label="子系统"><code>io/drmdevice</code></td>
+            <td data-label="关键文件"><code>src/card0.rs</code>（1486 行，ioctl 主体）、<code>src/consts.rs</code>（编号与常量）、<code>src/drm.rs</code>。<b>图形链路的核心</b></td>
+          </tr>
+          <tr>
+            <th scope="row">输入设备</th>
+            <td data-label="子系统"><code>io/inputdev</code></td>
+            <td data-label="关键文件">evdev 事件</td>
+          </tr>
+          <tr>
+            <th scope="row">帧缓冲</th>
+            <td data-label="子系统"><code>io/fbdevice</code></td>
+            <td data-label="关键文件"><code>/dev/fb0</code></td>
+          </tr>
+          <tr>
+            <th scope="row">虚拟设备驱动</th>
+            <td data-label="子系统"><code>drivers/devices/virtio</code></td>
+            <td data-label="关键文件"><code>gpu.rs</code> <code>input.rs</code> <code>blk.rs</code> <code>net.rs</code> <code>pci.rs</code> <code>rng.rs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">驱动契约</th>
+            <td data-label="子系统"><code>drivers/contracts</code></td>
+            <td data-label="关键文件"><code>display/src/lib.rs</code> 的 <code>ScanoutFormat</code>，以及 <code>input</code> <code>block</code> <code>net</code> <code>kclass</code> <code>kdevice</code>。<b>格式能力在这里定义</b></td>
+          </tr>
+          <tr>
+            <th scope="row">网络与 IPC</th>
+            <td data-label="子系统"><code>net/knet</code></td>
+            <td data-label="关键文件"><code>unix/stream.rs</code>、<code>unix/stream/channel.rs</code>、<code>netlink/socket.rs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">观测</th>
+            <td data-label="子系统"><code>core/ktracing</code> <code>core/kbpf</code></td>
+            <td data-label="关键文件">tracepoint 与 kBPF，配合 15 分性能项</td>
+          </tr>
+          <tr>
+            <th scope="row">官方用户态</th>
+            <td data-label="子系统"><code>uapps/weston-start</code></td>
+            <td data-label="关键文件"><code>xk-weston-start</code>，组委会提供的 Weston 启动器</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s2-4">2.4 DRM / KMS 的 ioctl 面</h3>
+    <p>
+      <code>io/drmdevice/src/consts.rs</code> 里的 <code>iowr&lt;T&gt;()</code>
+      <b>把结构体大小编进 ioctl 号</b>，与 Linux <code>_IOWR</code> 语义一致：
+    </p>
+    <figure class="codewrap">
+      <figcaption>io/drmdevice/src/consts.rs</figcaption>
+      <pre><code><span class="k">const</span> <span class="k">fn</span> ioc(dir: u32, ty: u8, nr: u8, size: u16) -&gt; u32 {
+    (dir &lt;&lt; 30) | ((size <span class="k">as</span> u32) &lt;&lt; 16) | ((ty <span class="k">as</span> u32) &lt;&lt; 8) | (nr <span class="k">as</span> u32)
+}
+<span class="k">pub</span>(<span class="k">crate</span>) <span class="k">const</span> <span class="k">fn</span> iowr&lt;T&gt;(ty: u8, nr: u8) -&gt; u32 {
+    ioc(IOC_READ | IOC_WRITE, ty, nr, core::mem::size_of::&lt;T&gt;() <span class="k">as</span> u16)
+}</code></pre>
+    </figure>
+    <div class="callout is-danger">
+      <span class="callout__t">这句话是整章的关键</span>
+      <p>
+        编号对不上 <b>或</b> 结构体大小对不上，都会导致分派失败，最后落到
+        <code>_ =&gt; Err(VfsError::OperationNotSupported)</code>，表现为 <code>errno=95</code>（ENOTSUP）。
+        因此：<b>任何内核算术改动，都必须用真实 libdrm 或标准头文件验签，禁止用自写探针自证。</b>
+      </p>
+    </div>
+    <div class="tw">
+      <table>
+        <caption>card0.rs 已实现的 DRM ioctl（DRM_TYPE 为字符 d）</caption>
+        <thead>
+          <tr>
+            <th scope="col">编号</th>
+            <th scope="col">语义</th>
+            <th scope="col">状态</th>
+            <th scope="col">备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>0x00</code></th>
+            <td data-label="语义"><code>GET_VERSION</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">返回 driver=simpledrm 1.0.0，同时是探针的自证对照</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0x01</code> <code>0x07</code></th>
+            <td data-label="语义"><code>GET_UNIQUE</code> / <code>SET_VERSION</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">基础查询</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0x02</code> <code>0x03</code></th>
+            <td data-label="语义"><code>AUTH</code> / <code>DROP_AUTH</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">配合 <code>0x1e</code> / <code>0x1f</code> 的 <code>SET_MASTER</code> / <code>DROP_MASTER</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0x0c</code></th>
+            <td data-label="语义"><code>GET_CAP</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">DRM_CAP_DUMB_BUFFER 等能力位</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0x2d</code> <code>0x2e</code></th>
+            <td data-label="语义"><code>PRIME_HANDLE_TO_FD</code> / <code>FD_TO_HANDLE</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">DMA-BUF 句柄互转</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0x3a</code></th>
+            <td data-label="语义"><code>WAIT_VBLANK</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">垂直消隐等待</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xa0</code></th>
+            <td data-label="语义"><code>MODE_GETRESOURCES</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">返回 fbs=0 crtcs=1 conns=1 encs=1</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xa1</code> <code>0xa2</code></th>
+            <td data-label="语义"><code>MODE_GETCRTC</code> / <code>SETCRTC</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">模式设置主路径</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xa6</code> <code>0xa7</code></th>
+            <td data-label="语义"><code>MODE_GETENCODER</code> / <code>GETCONNECTOR</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">枚举到 Virtual-1 connected 与 1280×800@60</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xaa</code> <code>0xac</code></th>
+            <td data-label="语义"><code>MODE_GETPROPERTY</code> / <code>GETPROPBLOB</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">编号必须与 Linux uapi 完全一致，属性面是 atomic 提交的前提</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xaf</code> <code>0xb0</code> <code>0xb1</code></th>
+            <td data-label="语义"><code>MODE_RMFB</code> / <code>PAGE_FLIP</code> / <code>DIRTYFB</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">帧缓冲生命周期与翻页</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xb2</code> <code>0xb3</code> <code>0xb4</code></th>
+            <td data-label="语义"><code>CREATE_DUMB</code> / <code>MAP_DUMB</code> / <code>DESTROY_DUMB</code></td>
+            <td data-label="状态"><span class="b b-warn">受限</span></td>
+            <td data-label="备注">目前只接受 bpp 等于 32；24 与 16 bpp 返回 EINVAL</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xb5</code> <code>0xb6</code></th>
+            <td data-label="语义"><code>GETPLANE_RESOURCES</code> / <code>GETPLANE</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">结构体必须是标准 32 字节，即 6 个 u32 加一个 u64</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xb8</code></th>
+            <td data-label="语义"><code>MODE_ADDFB2</code></td>
+            <td data-label="状态"><span class="b b-warn">受限</span></td>
+            <td data-label="备注">仅接受 XRGB8888 与 ARGB8888</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xb9</code> <code>0xbc</code></th>
+            <td data-label="语义"><code>OBJ_GETPROPERTIES</code> / <code>MODE_ATOMIC</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">原子提交路径</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xbd</code> <code>0xbe</code></th>
+            <td data-label="语义"><code>CREATEBLOB</code> / <code>DESTROYPROPBLOB</code></td>
+            <td data-label="状态"><span class="b b-ok">已实现</span></td>
+            <td data-label="备注">属性 blob 管理</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xad</code> <code>0xae</code> <code>0xb7</code> <code>0xba</code></th>
+            <td data-label="语义"><code>GETFB</code> / <code>ADDFB</code> / <code>SETPLANE</code> / <code>OBJ_SETPROPERTY</code></td>
+            <td data-label="状态"><span class="b b-no">未实现</span></td>
+            <td data-label="备注">落到 ENOTSUP，已进入缺口清单</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>0xa3</code> <code>0xbb</code> <code>0xa4</code> <code>0xa5</code></th>
+            <td data-label="语义"><code>CURSOR</code> / <code>CURSOR2</code> / <code>GETGAMMA</code> / <code>SETGAMMA</code></td>
+            <td data-label="状态"><span class="b b-no">未实现</span></td>
+            <td data-label="备注">光标与伽马表</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 250" role="img" aria-labelledby="dg5t">
+        <title id="dg5t">ioctl 编号与结构体大小的双重匹配要求</title>
+        <rect class="bx" x="0" y="20" width="250" height="76" rx="10"/>
+        <text class="t2" x="20" y="48">标准客户端</text>
+        <text class="t3" x="20" y="70">libdrm / Weston / Xorg</text>
+        <text class="tm" x="20" y="90">0xC04064AA</text>
+
+        <line class="ln" x1="254" y1="58" x2="300" y2="58" marker-end="url(#ar5)"/>
+
+        <rect class="bx-a" x="304" y="20" width="270" height="76" rx="10"/>
+        <text class="t2" x="324" y="48">card0.rs 分派表</text>
+        <text class="t3" x="324" y="70">编号与 size 双维度匹配</text>
+
+        <path class="ln" d="M 578 44 H 656" marker-end="url(#ar5)"/>
+        <text class="t3" x="588" y="36">双维度一致</text>
+
+        <path class="ln" d="M 578 76 H 656" marker-end="url(#ar5)"/>
+        <text class="t3" x="588" y="98">任一项不一致</text>
+
+        <rect class="bx-g" x="660" y="10" width="340" height="66" rx="10"/>
+        <text class="t2" x="680" y="38">执行处理函数</text>
+        <text class="t3" x="680" y="60">继续走 virtio-gpu 路径</text>
+
+        <rect class="bx-r" x="660" y="90" width="340" height="66" rx="10"/>
+        <text class="t2" x="680" y="118">落到兜底分支</text>
+        <text class="t3" x="680" y="140">OperationNotSupported，errno=95</text>
+
+        <line class="ln" x1="830" y1="160" x2="830" y2="192" marker-end="url(#ar5)"/>
+
+        <rect class="bx" x="600" y="196" width="400" height="44" rx="10"/>
+        <text class="t2" x="620" y="224">现象：合成器报设备能力缺失，或直接黑屏</text>
+
+        <defs>
+          <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        同一张图也是「两次误修」的成因：只要自写探针与内核共用同一个错误假设，
+        两个分支就会一起「自洽变绿」，而标准客户端必然走到红色分支。
+      </figcaption>
+    </figure>
+
+    <h3 id="s2-5">2.5 sysfs 决定「设备是否存在」</h3>
+    <p>
+      图形链路能不能走通，<b>第一关不是 open()，而是设备节点和 sysfs 存不存在</b>。
+      Weston 14 的 DRM backend 会先用 libudev 去 <code>/sys/class/drm/&lt;name&gt;</code> 查设备：
+    </p>
+    <figure class="codewrap">
+      <figcaption>libweston/backend-drm/drm.c（Weston 14.0.2，节选）</figcaption>
+      <pre><code>udev_device = udev_device_new_from_subsystem_sysname(b-&gt;udev, <span class="k">"drm"</span>, name);
+<span class="k">if</span> (!udev_device) {
+    weston_log(<span class="k">"ERROR: could not open DRM device '%s'\n"</span>, name);   <span class="c">/* 我们看到的报错 */</span>
+    <span class="k">return</span> NULL;
+}</code></pre>
+    </figure>
+    <p>
+      查不到就<b>直接返回，根本走不到 open() 与 libseat_open_device()</b>。
+      所以无论怎么调参数、用不用 seatd，都必然失败。
+      本仓库的 <code>fs/filesystems/sysfs/src/lib.rs</code> 已经实现了这部分投射：
+    </p>
+    <div class="tw">
+      <table>
+        <caption>sysfs 侧已经投射出的路径</caption>
+        <thead>
+          <tr>
+            <th scope="col">投射出的路径</th>
+            <th scope="col">代码位置</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>/sys/class/drm/card0</code>（软链）</th>
+            <td data-label="代码位置"><code>add_drm_entries()</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>/sys/devices/pci0000:00/0000:00:03.0/drm/card0</code></th>
+            <td data-label="代码位置"><code>add_drm_entries()</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>/sys/dev/char/&lt;maj&gt;:&lt;min&gt;</code></th>
+            <td data-label="代码位置"><code>character_device_link</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>/sys/class/input/inputN</code> 与 <code>eventN</code></th>
+            <td data-label="代码位置">input 类投射</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>/sys/&lt;device&gt;/subsystem</code> 与 <code>/sys/bus/...</code></th>
+            <td data-label="代码位置">子系统软链</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout is-quiet">
+      <span class="callout__t">关于 guest 侧的最小 sysfs 契约</span>
+      <p>
+        <code>autorun_single_initial.sh</code> 里仍保留一段手工写入 <code>/sys/class/drm/card0/{uevent,dev,subsystem}</code>
+        的代码。它在早期是必需的绕过手段，现在作为防御性兜底保留。
+        注意 <code>/sys</code> 是内存文件系统，运行时写入有效，但<b>镜像里预置的会被挂载覆盖</b>，所以只能在运行时构造。
+      </p>
+    </div>
+
+    <h3 id="s2-6">2.6 Chrome 到内核的调用链</h3>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 232" role="img" aria-labelledby="dg6t">
+        <title id="dg6t">Chromium 与 Weston 两条路径汇聚到 virtio-gpu</title>
+
+        <text class="hdr" x="0" y="16">应用</text>
+        <text class="hdr" x="255" y="16">用户态库</text>
+        <text class="hdr" x="510" y="16">内核入口</text>
+        <text class="hdr" x="765" y="16">物理设备</text>
+
+        <rect class="bx" x="0" y="30" width="235" height="76" rx="10"/>
+        <text class="t" x="18" y="58">Chromium 142</text>
+        <text class="t3" x="18" y="80">内含 ANGLE / SwiftShader</text>
+        <text class="t3" x="18" y="98">CPU 光栅</text>
+
+        <rect class="bx" x="255" y="30" width="235" height="76" rx="10"/>
+        <text class="t" x="273" y="58">Ozone + libwayland</text>
+        <text class="t3" x="273" y="80">连接 wayland-1</text>
+        <text class="t3" x="273" y="98">wl_shm 共享缓冲</text>
+
+        <rect class="bx-a" x="510" y="30" width="235" height="76" rx="10"/>
+        <text class="tm" x="528" y="58">net/knet</text>
+        <text class="t3" x="528" y="80">AF_UNIX SOCK_STREAM</text>
+        <text class="t3" x="528" y="98">unix/stream.rs</text>
+
+        <rect class="bx" x="0" y="126" width="235" height="76" rx="10"/>
+        <text class="t" x="18" y="154">Weston 14</text>
+        <text class="t3" x="18" y="176">DRM backend + pixman</text>
+        <text class="t3" x="18" y="194">合成与扫描输出</text>
+
+        <rect class="bx" x="255" y="126" width="235" height="76" rx="10"/>
+        <text class="t" x="273" y="154">libdrm</text>
+        <text class="t3" x="273" y="176">打开 /dev/dri/card0</text>
+        <text class="t3" x="273" y="194">发标准 ioctl 号</text>
+
+        <rect class="bx-a" x="510" y="126" width="235" height="76" rx="10"/>
+        <text class="tm" x="528" y="154">io/drmdevice</text>
+        <text class="t3" x="528" y="176">card0.rs 分派表</text>
+        <text class="t3" x="528" y="194">consts.rs 编号</text>
+
+        <rect class="bx-w" x="765" y="30" width="235" height="172" rx="10"/>
+        <text class="t" x="783" y="62">drivers/devices/</text>
+        <text class="t" x="783" y="82">virtio/gpu.rs</text>
+        <line class="ln" x1="783" y1="100" x2="982" y2="100"/>
+        <text class="t2" x="783" y="128">QEMU virtio-gpu-pci</text>
+        <text class="t3" x="783" y="150">2D 扫描输出</text>
+        <text class="t3" x="783" y="176">契约：display/ScanoutFormat</text>
+
+        <line class="ln" x1="239" y1="68" x2="251" y2="68" marker-end="url(#ar6)"/>
+        <line class="ln" x1="494" y1="68" x2="506" y2="68" marker-end="url(#ar6)"/>
+        <line class="ln" x1="239" y1="164" x2="251" y2="164" marker-end="url(#ar6)"/>
+        <line class="ln" x1="494" y1="164" x2="506" y2="164" marker-end="url(#ar6)"/>
+        <line class="ln" x1="749" y1="68" x2="761" y2="68" marker-end="url(#ar6)"/>
+        <line class="ln" x1="749" y1="164" x2="761" y2="164" marker-end="url(#ar6)"/>
+
+        <defs>
+          <marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        两条路径并行：上排是「窗口与协议」，下排是「显示与扫描输出」，最终都落到 virtio-gpu。
+        横向依赖（所有层都会用到）：<code>/proc</code>、<code>/sys</code>、<code>/dev</code> 走 fs/kvfs；
+        <code>mmap</code> 与共享内存走 mm；<code>epoll</code>、<code>futex</code> 与信号走 task 与 core/ksyscall。
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="s3">
+    <h2><span class="num">3</span>为使 Chrome 正常运行而额外补充的内容</h2>
+    <p class="section__lede">
+      上游内核能启动、能跑 shell，但跑不动大型用户态图形程序。
+      第 2 章是底座，这一章是我们在底座上补的砖，分四类。
+    </p>
+
+    <h3 id="s3-1">3.1 四类补充总览</h3>
+    <div class="grid">
+      <article class="card is-a">
+        <span class="card__k">A</span>
+        <h4>内核补丁</h4>
+        <p>可直接写进缺口清单、可直接提上游。P0 至 P4 加后续若干项，落点集中在
+          <code>io/drmdevice</code>、<code>net/knet</code>、<code>core/ksyscall</code>、<code>mm</code>。</p>
+      </article>
+      <article class="card is-b">
+        <span class="card__k">B</span>
+        <h4>内核能力补齐</h4>
+        <p>不是「改 bug」，而是「从无到有」：sysfs 设备模型投射、
+          <code>/dev/dri/renderD128</code> 别名、procfs 动态值。</p>
+      </article>
+      <article class="card is-c">
+        <span class="card__k">C</span>
+        <h4>镜像与用户态</h4>
+        <p>基础镜像、运行时 overlay、autostart 钩子、官方三页套、单进程启动参数。
+          这些不是得分项，但没有它们就没有可测的对象。</p>
+      </article>
+      <article class="card is-d">
+        <span class="card__k">D</span>
+        <h4>测量与判据工具链</h4>
+        <p>平台合规预检、像素判据、五次重复测量、host 侧 fallback 观测。
+          对应 15 分性能项与文档分。</p>
+      </article>
+    </div>
+
+    <h3 id="s3-2">3.2 A 类 · 内核补丁</h3>
+    <div class="tw">
+      <table>
+        <caption>补丁集（见 report/patches，编号 0001 至 0013，缺 0008）</caption>
+        <thead>
+          <tr>
+            <th scope="col">序</th>
+            <th scope="col">补丁内容</th>
+            <th scope="col">落点</th>
+            <th scope="col">现象与修复</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">P0</th>
+            <td data-label="补丁内容">DRM_IOCTL_VERSION 容忍 NULL 指针</td>
+            <td data-label="落点"><code>io/drmdevice/src/card0.rs</code></td>
+            <td data-label="现象与修复">传 NULL 参数内核直接崩，改为容忍并返回。已提交 commit 8162e8a，补丁 0001</td>
+          </tr>
+          <tr>
+            <th scope="row">P1</th>
+            <td data-label="补丁内容">AF_UNIX SOCK_STREAM 传递 ancillary data</td>
+            <td data-label="落点"><code>net/knet/src/unix/stream.rs</code>、<code>unix/stream/channel.rs</code></td>
+            <td data-label="现象与修复">Wayland 与 Mojo 靠 SCM_RIGHTS 传 fd，不实现则 fd 传递失败。补丁 0002</td>
+          </tr>
+          <tr>
+            <th scope="row">P2-a</th>
+            <td data-label="补丁内容">sched_target 同时按 tid 解析</td>
+            <td data-label="落点"><code>core/ksyscall/src/task/sched.rs</code></td>
+            <td data-label="现象与修复">子线程 sched_getparam 解析错。补丁 0003</td>
+          </tr>
+          <tr>
+            <th scope="row">P2-b</th>
+            <td data-label="补丁内容">netlink bind 接受 groups 非 0</td>
+            <td data-label="落点"><code>net/knet/src/netlink/socket.rs</code></td>
+            <td data-label="现象与修复">udev 组订阅失败。补丁 0004</td>
+          </tr>
+          <tr>
+            <th scope="row">P3</th>
+            <td data-label="补丁内容">实现 prctl(PR_SET_NO_NEW_PRIVS)</td>
+            <td data-label="落点"><code>core/ksyscall/src/task/ctl.rs</code></td>
+            <td data-label="现象与修复">原为 ENOSYS，导致 Chromium 子进程全灭。补丁 0005</td>
+          </tr>
+          <tr>
+            <th scope="row">P4</th>
+            <td data-label="补丁内容">madvise 白名单与允许跨洞 DONTNEED</td>
+            <td data-label="落点"><code>posix/mm/src/mmap.rs</code>、<code>mm/memspace/src/aspace.rs</code></td>
+            <td data-label="现象与修复">合法 madvise 被拒。探针 4 项转正，但未解决 renderer 问题。补丁 0006</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">SCM_CREDENTIALS 凭据传递</td>
+            <td data-label="落点"><code>net/knet</code></td>
+            <td data-label="现象与修复">Unix 套接字凭据缺失。补丁 0007</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">procfs 的 inotify 与 quota 文件</td>
+            <td data-label="落点"><code>procfs</code></td>
+            <td data-label="现象与修复">用户态读取时缺文件。补丁 0010</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">futex PI 未实现时返回 EOPNOTSUPP</td>
+            <td data-label="落点"><code>posix/</code></td>
+            <td data-label="现象与修复">让 musl 可以回退到普通 mutex，而不是死等。补丁 0011</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">/proc 内存统计快照</td>
+            <td data-label="落点"><code>mm</code></td>
+            <td data-label="现象与修复">内存项可读。补丁 0012</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">MSG_CMSG_CLOEXEC</td>
+            <td data-label="落点"><code>net/knet</code></td>
+            <td data-label="现象与修复">避免 fd 泄漏。补丁 0013</td>
+          </tr>
+          <tr>
+            <th scope="row">后续</th>
+            <td data-label="补丁内容">aarch64 的 /proc/cpuinfo</td>
+            <td data-label="落点"><code>procfs</code></td>
+            <td data-label="现象与修复">字段错误。补丁 0009</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout is-ok">
+      <span class="callout__t">上游状态</span>
+      <p>其中 <b>上游 MR !831 已合并</b>。这是「上游 patch 每个 4 分、最多 3 项」的来源。</p>
+    </div>
+
+    <h3 id="s3-3">3.3 已合入工作树的兼容改动</h3>
+    <p>这批改动可直接写成缺口条目，均有远端构建记录：</p>
+    <ol>
+      <li>fd 表下界复制 —— 避免 zygote 继承 fd 时把低号 fd 覆盖成错误对象。</li>
+      <li>Unix 的 SCM_RIGHTS / SCM_CREDENTIALS / MSG_CMSG_CLOEXEC 收发与 fd 安装。</li>
+      <li>AArch64 <code>ppoll_time64</code> 分派。</li>
+      <li>procfs 任务目录 nlink 与线程数保持一致。</li>
+      <li><code>/dev/dri/renderD128</code> 兼容别名。</li>
+      <li><code>PR_SET_PDEATHSIG</code> / <code>PR_GET_PDEATHSIG</code> 最小 ABI 行为。</li>
+      <li><code>/proc/stat</code>、<code>/proc/loadavg</code>、<code>/proc/meminfo</code>、<code>/proc/&lt;pid&gt;/statm</code> 最小接口。</li>
+      <li>Unix DGRAM / SEQPACKET socketpair 的半关闭、凭据传递与 SCM_RIGHTS 路径。</li>
+      <li>TCP 的 TCP_KEEPIDLE / TCP_KEEPINTVL / TCP_KEEPCNT，消除 Chromium 的 ENOPROTOOPT。</li>
+      <li><code>/proc/uptime</code> 从硬编码 0.00 0.00 改为内核单调时钟动态值。</li>
+    </ol>
+
+    <h3 id="s3-4">3.4 B 类 · 内核能力补齐</h3>
+    <div class="tw">
+      <table>
+        <caption>从无到有的能力，而非缺陷修复</caption>
+        <thead>
+          <tr>
+            <th scope="col">项</th>
+            <th scope="col">为什么必须</th>
+            <th scope="col">落点</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">sysfs 设备模型投射</th>
+            <td data-label="为什么必须">Weston 14 用 libudev 查 <code>/sys/class/drm/&lt;name&gt;</code>，查不到就<b>根本不 open</b></td>
+            <td data-label="落点"><code>fs/filesystems/sysfs/src/lib.rs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">/dev/dri/renderD128 别名</th>
+            <td data-label="为什么必须">部分用户态按 render node 找设备</td>
+            <td data-label="落点"><code>fs/filesystems/devfs/src/nodes/dri.rs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">procfs 动态 uptime</th>
+            <td data-label="为什么必须">原为常量 0，Chromium 的启动计时全部错乱</td>
+            <td data-label="落点"><code>procfs</code></td>
+          </tr>
+          <tr>
+            <th scope="row">input 类 sysfs</th>
+            <td data-label="为什么必须">libinput 与 udev 需要 <code>inputN</code> 与 <code>eventN</code> 才能归类输入设备</td>
+            <td data-label="落点"><code>sysfs/src/lib.rs</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s3-5">3.5 C 类 · 镜像与用户态</h3>
+    <div class="tw">
+      <table>
+        <caption>用户态侧的准备项</caption>
+        <thead>
+          <tr>
+            <th scope="col">项</th>
+            <th scope="col">内容</th>
+            <th scope="col">为什么必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">基础镜像</th>
+            <td data-label="内容"><code>agentos-weston.img</code>（Alpine 3.22 加 Weston 全家桶）</td>
+            <td data-label="为什么必须">上游测试用的 X11 kiosk 镜像<b>没有 weston / seatd / Xwayland</b>，而官方意图路线是 Weston 加 Wayland</td>
+          </tr>
+          <tr>
+            <th scope="row">运行时 overlay</th>
+            <td data-label="内容"><code>eudev-seatprobe-libinput-swiftshader-p31.tar.gz</code></td>
+            <td data-label="为什么必须">提供 udev、seatd、libinput、SwiftShader（CPU 光栅）。没有它，udev 组订阅与 input uevent 不成立</td>
+          </tr>
+          <tr>
+            <th scope="row">autostart 钩子</th>
+            <td data-label="内容"><code>/etc/profile.d/99-autostart.sh</code></td>
+            <td data-label="为什么必须">agentos 镜像<b>没有这个文件</b>，<code>/root/autorun.sh</code> 永不执行，整轮空跑</td>
+          </tr>
+          <tr>
+            <th scope="row">官方三页套</th>
+            <td data-label="内容"><code>index</code> / <code>interaction</code> / <code>layout.html</code> 注入到 <code>/usr/share/html-test/</code></td>
+            <td data-label="为什么必须">三页互相引用，<b>必须整目录注入</b>；注入后要 dump 回读逐字节比对</td>
+          </tr>
+          <tr>
+            <th scope="row">单进程启动参数</th>
+            <td data-label="内容">见下方代码块</td>
+            <td data-label="为什么必须">多进程 renderer 在当前内核上尚未打通，初赛范围收敛为单进程主流程</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <figure class="codewrap">
+      <figcaption>单进程 Chromium 启动参数（工作版本）</figcaption>
+      <pre><code>--ozone-platform=wayland
+--use-gl=angle --use-angle=swiftshader
+--in-process-gpu --no-zygote --single-process
+--no-sandbox --disable-dev-shm-usage
+--disable-crash-reporter --disable-breakpad
+--disable-features=Vulkan,SegmentationPlatform,
+  OptimizationGuideModelDownloading,OptimizationHints,
+  WebAppProvider,InterestFeedContentSuggestions,
+  AudioServiceOutOfProcess,AudioServiceSandbox</code></pre>
+    </figure>
+    <figure class="codewrap">
+      <figcaption>guest 侧 Weston 启动行</figcaption>
+      <pre><code>SEATD_VTBOUND=0 seatd -l info &amp;
+env XDG_RUNTIME_DIR=/run/user/0 WESTON_DISABLE_ATOMIC=1 \
+    LIBSEAT_BACKEND=seatd SEATD_SOCK=/run/seatd.sock \
+    weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 \
+    --seat=seat0 --idle-time=0 --debug --log=/root/single-weston.log &amp;</code></pre>
+    </figure>
+    <div class="callout is-warn">
+      <span class="callout__t">两个易错点</span>
+      <ol>
+        <li><code>--drm-device</code> 必须用<b>简写 <code>card0</code></b>：Weston 把它原样传给
+          <code>udev_device_new_from_subsystem_sysname(udev, "drm", name)</code>，
+          传 <code>/dev/dri/card0</code> 会拼出非法 syspath，返回 NULL。</li>
+        <li><code>WESTON_DISABLE_ATOMIC=1</code> 目前仍保留。它的历史角色是「原子提交不可用」的绕过手段；
+          当前内核 plane 与属性链路已修复，该变量属于<b>稳健性设置</b>，不是根因修复。</li>
+      </ol>
+    </div>
+
+    <h3 id="s3-6">3.6 最有价值的一课：两次已撤销的误修</h3>
+    <p>这是整个项目最值得记住的教训，比任何一个补丁都重要。</p>
+    <figure class="dgm">
+      <svg viewBox="0 0 1000 336" role="img" aria-labelledby="dg7t">
+        <title id="dg7t">两次误修的推导回路与最终回退</title>
+
+        <rect class="bx-w" x="0" y="0" width="300" height="72" rx="10"/>
+        <text class="t2" x="42" y="28">现象</text>
+        <text class="t3" x="42" y="50">Weston 报 Failed to find</text>
+        <text class="t3" x="42" y="68">primary plane</text>
+        <circle cx="20" cy="20" r="11" fill="#9a5b06"/>
+        <text class="badge" x="20" y="24" text-anchor="middle">1</text>
+
+        <rect class="bx" x="350" y="0" width="300" height="72" rx="10"/>
+        <text class="t2" x="392" y="28">定位</text>
+        <text class="t3" x="392" y="50">drm_plane_create() 因类型越界</text>
+        <text class="t3" x="392" y="68">静默丢弃 plane</text>
+        <circle cx="370" cy="20" r="11" fill="#4b5464"/>
+        <text class="badge" x="370" y="24" text-anchor="middle">2</text>
+
+        <rect class="bx" x="700" y="0" width="300" height="72" rx="10"/>
+        <text class="t2" x="742" y="28">猜测</text>
+        <text class="t3" x="742" y="50">属性 ioctl 编号错位</text>
+        <text class="t3" x="742" y="68">GETPLANE 结构体少字段</text>
+        <circle cx="720" cy="20" r="11" fill="#4b5464"/>
+        <text class="badge" x="720" y="24" text-anchor="middle">3</text>
+
+        <line class="ln" x1="304" y1="36" x2="346" y2="36" marker-end="url(#ar7)"/>
+        <line class="ln" x1="654" y1="36" x2="696" y2="36" marker-end="url(#ar7)"/>
+        <line class="ln" x1="850" y1="76" x2="850" y2="120" marker-end="url(#ar7)"/>
+
+        <rect class="bx" x="700" y="124" width="300" height="72" rx="10"/>
+        <text class="t2" x="742" y="152">自写探针复现</text>
+        <text class="t3" x="742" y="174">与内核共用同一个错误假设</text>
+        <circle cx="720" cy="144" r="11" fill="#4b5464"/>
+        <text class="badge" x="720" y="148" text-anchor="middle">4</text>
+
+        <rect class="bx-g" x="350" y="124" width="300" height="72" rx="10"/>
+        <text class="t2" x="392" y="152">探针变绿 · 自洽</text>
+        <text class="t3" x="392" y="174">看起来问题已经解决</text>
+        <circle cx="370" cy="144" r="11" fill="#0b7a4b"/>
+        <text class="badge" x="370" y="148" text-anchor="middle">5</text>
+
+        <rect class="bx" x="0" y="124" width="300" height="72" rx="10"/>
+        <text class="t2" x="42" y="152">换真实 libdrm 验证</text>
+        <text class="t3" x="42" y="174">标准客户端发标准编号</text>
+        <circle cx="20" cy="144" r="11" fill="#4b5464"/>
+        <text class="badge" x="20" y="148" text-anchor="middle">6</text>
+
+        <line class="ln" x1="696" y1="160" x2="654" y2="160" marker-end="url(#ar7)"/>
+        <line class="ln" x1="346" y1="160" x2="304" y2="160" marker-end="url(#ar7)"/>
+        <line class="ln" x1="150" y1="200" x2="150" y2="244" marker-end="url(#ar7)"/>
+
+        <rect class="bx-r" x="0" y="248" width="300" height="72" rx="10"/>
+        <text class="t2" x="42" y="276">必然落空</text>
+        <text class="t3" x="42" y="298">errno=95，ENOTSUP</text>
+        <circle cx="20" cy="268" r="11" fill="#b3261e"/>
+        <text class="badge" x="20" y="272" text-anchor="middle">7</text>
+
+        <rect class="bx" x="350" y="248" width="300" height="72" rx="10"/>
+        <text class="t2" x="392" y="276">回退两处误修</text>
+        <text class="t3" x="392" y="298">card0.rs 与 HEAD 逐字节一致</text>
+        <circle cx="370" cy="268" r="11" fill="#4b5464"/>
+        <text class="badge" x="370" y="272" text-anchor="middle">8</text>
+
+        <rect class="bx-a" x="700" y="248" width="300" height="72" rx="10"/>
+        <text class="t2" x="742" y="276">结论</text>
+        <text class="t3" x="742" y="298">误修本身就是该失败的直接原因</text>
+        <circle cx="720" cy="268" r="11" fill="#2b5fd9"/>
+        <text class="badge" x="720" y="272" text-anchor="middle">9</text>
+
+        <line class="ln" x1="304" y1="284" x2="346" y2="284" marker-end="url(#ar7)"/>
+        <line class="ln" x1="654" y1="284" x2="696" y2="284" marker-end="url(#ar7)"/>
+
+        <defs>
+          <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9aa6b8"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>
+        回路的关键在第 4 步到第 5 步：探针与内核共用同一个错误假设，于是「一起对」也「一起错」。
+        只有换成真实 libdrm（第 6 步），假阳性才会暴露。
+      </figcaption>
+    </figure>
+    <div class="tw">
+      <table>
+        <caption>两次误修的具体内容（均已回退）</caption>
+        <thead>
+          <tr>
+            <th scope="col">误修</th>
+            <th scope="col">当时改成</th>
+            <th scope="col">真值</th>
+            <th scope="col">后果</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">A · 属性编号</th>
+            <td data-label="当时改成"><code>0xAA</code> 改成 <code>0xA8</code>，<code>0xAC</code> 改成 <code>0xAA</code></td>
+            <td data-label="真值"><code>0xAA</code> 就是 GETPROPERTY，<code>0xAC</code> 就是 GETPROPBLOB，<b>HEAD 原值才对</b></td>
+            <td data-label="后果">真实 libdrm 发 0xc04064aa，内核只认 0xc04064a8，返回 errno=95，读不到属性名，plane 类型越界被静默丢弃，最终表现为 Failed to find primary plane</td>
+          </tr>
+          <tr>
+            <th scope="row">D · GETPLANE 结构体</th>
+            <td data-label="当时改成">32 字节扩到 48 字节</td>
+            <td data-label="真值">标准 uapi 是 6 个 u32 加一个 u64，共 32 字节。<code>crtc_x</code> / <code>crtc_y</code> / <code>x</code> / <code>y</code> 属于 <code>drm_mode_set_plane</code>，不属于 <code>drm_mode_get_plane</code></td>
+            <td data-label="后果">结构体大小编进 ioctl 号，编码从 0xC02064B6 变成 0xC03064B6，与标准客户端不匹配</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout is-quiet">
+      <span class="callout__t">机器证据</span>
+      <p><code>scripts/t490/abi_probe.c</code>，宿主与 aarch64 双编译器复算。</p>
+    </div>
+    <div class="callout is-danger">
+      <span class="callout__t">由此确立的三条铁律</span>
+      <ol>
+        <li><code>io/drmdevice</code> 的 uapi 必须做一次系统性核对：<b>编号与结构体字段长度，双维度</b>。</li>
+        <li>任何内核算术改动<b>必须用真实 libdrm 或标准头文件验签，禁止用自写探针自证</b> ——
+          自写探针与内核共用同一个错误假设时，会「自洽变绿」，这是最危险的假阳性。</li>
+        <li>探针<b>必须自带一个已知能通的对照</b>，例如先跑 <code>DRM_IOCTL_VERSION</code>，证明探针自身编码正确。</li>
+      </ol>
+    </div>
+
+    <h3 id="s3-7">3.7 提交的八条兼容性缺口（收敛后）</h3>
+    <p>按「现象、最小复现、Linux 对照、影响、已有补丁与限制」组织：</p>
+    <ol>
+      <li>fd 表下界与 zygote fd 继承语义。</li>
+      <li>Unix 套接字 ancillary（SCM_RIGHTS、SCM_CREDENTIALS、MSG_CMSG_CLOEXEC）与
+        Unix DGRAM / SEQPACKET 半关闭和凭据（两条合一）。</li>
+      <li><code>ppoll_time64</code> 分派。</li>
+      <li>procfs 线程、状态、内存与 uptime 字段。</li>
+      <li><code>PR_SET_PDEATHSIG</code> 最小语义。</li>
+      <li>TCP keepalive 选项。</li>
+      <li>futex PI 未实现时返回 <code>EOPNOTSUPP</code>（musl 回退普通 mutex），与 D-Bus session 请求
+        <code>RLIMIT_NOFILE=65536</code> 而内核固定 1024 fd 表容量（两条合一）。</li>
+      <li><b>virtio-input 事件消费链未打通</b>：QMP 层注入成功，但内核无事件消费。</li>
+    </ol>
+    <div class="callout is-warn">
+      <span class="callout__t">计分口径</span>
+      <p>每条缺口<b>必须附复现方法</b>，否则该条不计分。</p>
+    </div>
+  </section>
+
+  <section class="section" id="s4">
+    <h2><span class="num">4</span>上手实践</h2>
+    <p class="section__lede">
+      这一章是「照着做」的部分。先跑通一轮，再去读第 2、3 章的源码细节。
+    </p>
+
+    <h3 id="s4-1">4.1 最短复现路径</h3>
+    <figure class="codewrap">
+      <figcaption>一次性：T490 环境准备（用户级，零 sudo）</figcaption>
+      <pre><code>bash scripts/t490/probe_t490.sh          <span class="c"># 体检：工具、网络、sudo、磁盘</span>
+bash scripts/t490/prepare_t490.sh        <span class="c"># QEMU 10.2.1 + rust 1.95 + 双 target + clone</span>
+bash scripts/t490/t490_fix_objcopy.sh    <span class="c"># 补 rust-objcopy，缺它 make build 必失败</span>
+bash scripts/t490/push_musl_from_wsl.sh  <span class="c"># musl 工具链在 T490 不可达，从本地推送</span></code></pre>
+    </figure>
+    <figure class="codewrap">
+      <figcaption>每次：平台预检与内核构建</figcaption>
+      <pre><code>ssh mo@T490 'bash ~/xk6/scripts/t490/t490_platform_check.sh ~/xk6/tmp/check.txt; echo RC=$?'
+<span class="c">#   期望 RC=0 且输出了 PLATFORM_COMPLIANT</span>
+ssh mo@T490 'export PATH=$HOME/.cargo/bin:$PATH; cd ~/x-kernel &amp;&amp; make build'
+<span class="c">#   期望 BUILD_EXIT=0</span></code></pre>
+    </figure>
+    <figure class="codewrap">
+      <figcaption>每次：跑一轮功能门禁</figcaption>
+      <pre><code>ssh mo@T490 'cd ~/xk6 &amp;&amp;
+  ASSERT_PROFILE=official-index FIRST_SHOT=180 \
+  BASE_IMG=$HOME/x-kernel/images/agentos-weston.img \
+  PKG_TARBALL=$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz \
+  INJECT_AUTOSTART=1 STRICT_GATE=1 \
+  bash scripts/t490/t490_round.sh single-initial-r5 720 60 autorun_single_initial.sh'</code></pre>
+    </figure>
+    <figure class="codewrap">
+      <figcaption>停机后回收日志，以及性能测量</figcaption>
+      <pre><code>ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh single-initial-r5'
+<span class="c">#   console 只有 tail 窗口，完整 guest 日志必须这样回收</span>
+
+bash scripts/t490/measure-single-initial.sh      <span class="c"># 不少于 5 次重复</span>
+python3 scripts/collect_single_metrics.py        <span class="c"># 汇总为 raw.csv 与 summary.json</span></code></pre>
+    </figure>
+
+    <h3 id="s4-2">4.2 结果到哪里看</h3>
+    <div class="tw">
+      <table>
+        <caption>证据文件的用途索引</caption>
+        <thead>
+          <tr>
+            <th scope="col">想看什么</th>
+            <th scope="col">看哪个文件</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">启动参数、首个导航、门禁结论</th>
+            <td data-label="文件">evidence/&lt;日期&gt;_t490-&lt;tag&gt;/<code>console.log</code>，找 <code>SINGLE_GATE=1</code></td>
+          </tr>
+          <tr>
+            <th scope="row">官方页严格像素结果</th>
+            <td data-label="文件"><code>ppm-summary.txt</code>、<code>ppm-assert-*.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">原始截图</th>
+            <td data-label="文件"><code>screenshots/*.ppm</code></td>
+          </tr>
+          <tr>
+            <th scope="row">guest 内完整日志</th>
+            <td data-label="文件"><code>guest/_root_single-initial.log</code> 与 <code>.csv</code></td>
+          </tr>
+          <tr>
+            <th scope="row">平台合规</th>
+            <td data-label="文件"><code>platform-check.txt</code>、<code>platform-compliance.txt</code>，必须 FAIL=0</td>
+          </tr>
+          <tr>
+            <th scope="row">各类指纹</th>
+            <td data-label="文件"><code>manifest.txt</code>、<code>build-manifest.txt</code>、<code>env.txt</code>，含内核、镜像、overlay、页面与宿主</td>
+          </tr>
+          <tr>
+            <th scope="row">性能原始数据与统计</th>
+            <td data-label="文件"><code>measure-single-perf3/raw.csv</code>、<code>summary.json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>当前可对照的已通过基准轮（2026-10-02）：</p>
+    <div class="tw">
+      <table>
+        <caption>已通过基准轮与结论</caption>
+        <thead>
+          <tr>
+            <th scope="col">轮次</th>
+            <th scope="col">结论</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>t490-single-initial-r5</code></th>
+            <td data-label="结论">官方 index 严格像素 strict_fail=0（7/7 × 10 张），SINGLE_GATE=1，保持超过 600 秒</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>interaction-single-e2e-r20</code></th>
+            <td data-label="结论">T1 至 T6 与 F1 全绿 6/6，回显 hello x-kernel，计数 1</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>layout-e2e-r21</code></th>
+            <td data-label="结论">几何 5/5</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>measure-single-perf3</code></th>
+            <td data-label="结论">5 轮：首个导航中位数 75.0 秒，首张通过判据截图 180.2 秒，gate 5/5</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>profile-single</code></th>
+            <td data-label="结论">host 侧 QEMU CPU 173.56%（单核尺度），峰值 RSS 1,671,512 kB；perf 与 eBPF 因权限失败已如实归档</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="s4-3">4.3 血泪坑清单</h3>
+    <p>改脚本之前先看这一节。</p>
+    <div class="grid">
+      <article class="card">
+        <h4>1 · autostart 钩子</h4>
+        <p>agentos 镜像没有 <code>99-autostart.sh</code>，不注入就是整轮空跑。</p>
+      </article>
+      <article class="card">
+        <h4>2 · 不要用 pgrep 判存活</h4>
+        <p><code>pgrep -x Xorg</code> 在该 guest 恒为空，一律用 <code>/proc/&lt;pid&gt;</code>。</p>
+      </article>
+      <article class="card">
+        <h4>3 · socket 存在不等于服务可用</h4>
+        <p>存在约 7 秒的「假可用窗口」，必须用功能门禁判断。</p>
+      </article>
+      <article class="card">
+        <h4>4 · 探针要自证</h4>
+        <p>新探针先跑一个已知能通的对照，否则探针缺陷会被误读成内核缺陷。</p>
+      </article>
+      <article class="card">
+        <h4>5 · 改了编号必须验签</h4>
+        <p>改内核编号或结构体后必须用真实 libdrm 验证，不能自证。</p>
+      </article>
+      <article class="card">
+        <h4>6 · /sys 运行时才能写</h4>
+        <p>镜像里预置的 sysfs 内容会被 memfs 挂载覆盖。</p>
+      </article>
+      <article class="card">
+        <h4>7 · console 只有 tail 窗口</h4>
+        <p>完整 guest 日志必须停机后用 debugfs dump 回收。</p>
+      </article>
+      <article class="card">
+        <h4>8 · guest 内 apk 极慢</h4>
+        <p>依赖求解纯 CPU 且与宿主争抢，改用宿主侧跨架构预装或复用冻结镜像。</p>
+      </article>
+      <article class="card">
+        <h4>9 · 写镜像前必停 QEMU</h4>
+        <p>改完必须执行 <code>e2fsck -f -y disk.img</code>。</p>
+      </article>
+      <article class="card">
+        <h4>10 · pkill 会自杀</h4>
+        <p><code>pkill -f &lt;pat&gt;</code> 会匹配承载它的 ssh shell，用字符类规避。</p>
+      </article>
+      <article class="card">
+        <h4>11 · 判「日志消失」要全局计数</h4>
+        <p>必须全局 <code>grep -c</code>，不能看 tail 窗口。</p>
+      </article>
+      <article class="card">
+        <h4>12 · 新探针要进循环</h4>
+        <p>新增 <code>.c</code> 必须同步加进 autorun 的探针循环，否则注入了却不执行。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="s5">
+    <h2><span class="num">5</span>当前坐标与下一步</h2>
+
+    <h3>已闭环</h3>
+    <div class="callout is-ok">
+      <ul>
+        <li>单进程 Chromium 主流程通过初赛功能门禁：官方 index 严格像素 0 失败、图形会话超过 600 秒、SINGLE_GATE=1。</li>
+        <li>interaction 与 layout 两页 e2e 通过（6/6、5/5）。</li>
+        <li>5 轮性能测量与 host profiling 已归档。</li>
+        <li>八条兼容性缺口收敛完成；补丁集 12 个，上游 MR !831 已合并。</li>
+      </ul>
+    </div>
+
+    <h3>待处理</h3>
+    <div class="callout is-danger">
+      <ol>
+        <li><b>内核自报 <code>git_dirty = true</code></b>（启动横幅可见）：与「提交时存档 git tag、组委会复核存档代码」
+          的要求冲突。处理方式是清树重建并重打哈希，或在材料中显式说明脏状态并附补丁集。
+          注意 <code>git status --porcelain</code> 查不出这项，<b>只有启动横幅会暴露</b>。</li>
+        <li><b>layout 6/6 结论条证据缺位</b>：r21 的 <code>layout-top.png</code> 与
+          <code>layout-verdict.png</code> 同哈希（滚动未发生），报告引用的 6/6 图实际在 r19，
+          需补一次滚动复跑，把证据落入同一目录。</li>
+        <li>按 <code>report/45</code> 的手动验证清单执行 A 到 H 全流程。</li>
+      </ol>
+    </div>
+
+    <h3>决赛方向（不在初赛宣称）</h3>
+    <p>
+      virtio-input 事件消费链（<code>fs/filesystems/devfs/src/nodes/event.rs</code>：鼠标被暴露成 <code>mice</code>、
+      <code>input_drain_devices()</code> 取走设备列表、minor 未使用 <code>64+N</code>；另需 input sysfs 投射
+      <code>ID_INPUT*</code>）、多进程 renderer、30 分钟稳定、双窗口、1.5 GiB 内存线。
+    </p>
+
+    <h3>贯穿全程的三条红线</h3>
+    <div class="grid">
+      <article class="card is-a">
+        <h4>不得进收益表</h4>
+        <p>用户态 flags、shim、测试页只作诊断、过渡、测量手段，<b>不得写入优化收益表</b>。</p>
+      </article>
+      <article class="card is-a">
+        <h4>不得混入加速器</h4>
+        <p>评分数据<b>不得混入 KVM 或 HVF</b>，必须全部出自纯 TCG。</p>
+      </article>
+      <article class="card is-a">
+        <h4>只认归档文件</h4>
+        <p><b>判定只认归档文件</b>，不凭报告转述。</p>
+      </article>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<footer class="foot">
+  本文只做归纳讲解，不替代原始证据。所有结论可追溯到 <code>report/</code> 下的编号报告与
+  <code>scripts/</code>、<code>evidence/</code> 中的归档文件；判定只认归档文件，不凭转述。
+</footer>
+
+<script>
+(function () {
+  var box = document.getElementById('tocBox');
+  var hd = document.getElementById('tocHd');
+  if (box && hd) {
+    var toggle = function () {
+      var open = box.classList.toggle('is-open');
+      hd.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    hd.addEventListener('click', toggle);
+    hd.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  }
+  var links = [].slice.call(document.querySelectorAll('.toc a'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  if (!('IntersectionObserver' in window) || !targets.length) return;
+  var seen = {};
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      seen[en.target.id] = en.isIntersecting ? en.boundingClientRect.top : null;
+    });
+    var best = null;
+    for (var id in seen) {
+      if (seen[id] !== null && (best === null || seen[id] < seen[best])) best = id;
+    }
+    if (!best) return;
+    links.forEach(function (a) { a.classList.toggle('is-active', a.getAttribute('href') === '#' + best); });
+  }, { rootMargin: '-72px 0px -70% 0px', threshold: [0, 1] });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>
+</body>
+</html>
