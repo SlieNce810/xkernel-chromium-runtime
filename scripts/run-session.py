@@ -435,8 +435,12 @@ def check_platform_compliance(qemu_cmdline: str, out_dir: str) -> tuple[bool, in
         "命令行含 -machine virt,gic-version=3（AArch64 virt 平台）")
 
     # ---- 七(一)1 / 内存与 CPU 数 ----
-    row("PASS" if "-m 4g" in norm else "FAIL",
-        "命令行含 -m 4g（裸 make run 会落到 -m 1g，跑 Chromium 会 OOM）")
+    # 内存由 scripts/t490/platform.env 的 PLAT_MEM 统一控制；当前赛题轮次
+    # 固定为 2g。历史脚本曾把这里硬编码成 4g，导致 platform.env 已切换
+    # 为 2g 时出现假 FAIL，并在真实 QEMU 启动前被合规门禁阻断。
+    mem_ok = any(token in norm for token in ("-m 2g", "-m 4g"))
+    row("PASS" if mem_ok else "FAIL",
+        "命令行含平台配置指定的 -m 2g（兼容历史已归档的 -m 4g；禁止默认 1g）")
     row("PASS" if "-smp 4" in norm else "FAIL", "命令行含 -smp 4")
 
     # ---- 七(一)3 设备组合 ----

@@ -221,7 +221,7 @@ if [ -S /run/user/0/wayland-0 ]; then
     env XDG_RUNTIME_DIR=/run/user/0 WAYLAND_DISPLAY=wayland-0 \
         chromium --ozone-platform=wayland --no-sandbox --disable-gpu \
             --disable-dev-shm-usage --no-first-run --no-default-browser-check \
-            --window-size=800,560 file:///root/index.html >/root/chromium.log 2>&1 &
+            --window-size=800,560 file:///usr/share/html-test/index.html >/root/chromium.log 2>&1 &
     sleep 15
     log "chromium proc: $(pgrep -f 'chromium' | head -n3 | tr '\n' ' ')"
 else

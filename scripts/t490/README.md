@@ -28,7 +28,7 @@
 | **七(一)1** | AArch64 QEMU 虚拟平台（x-kernel `kplat-aarch64` + 组委会 `qemu_defconfig`），不接受其他架构 | `platform.env` 的 `PLAT_ARCH/PLAT_HAL/PLAT_DEFCONFIG`；`build_xk_t490.sh` §1/§1b | `ARCH="aarch64"`、`MACHINE_AARCH64_QEMU=y`、无 `ARCH_{RISCV64,X86_64,LOONGARCH64}=y`、无 `RK3588`、无 `KFEAT_VMM`；**线上 `.config` 与基线重展开逐字节一致** |
 | **七(一)2** | `qemu-system-aarch64` ≥ 8.0；评分数据必须出自**纯 TCG**，初赛禁用 KVM/HVF | `PLAT_QEMU_MIN_MAJOR / PLAT_ACCEL / PLAT_CPU_TCG` | QEMU 版本 ≥ 8.0；命令行**无任何 `-accel`**；含 `-cpu cortex-a76`（非 `host`） |
 | **七(一)3** | 设备组合 `virtio-gpu-pci` + `virtio-input` + `virtio-blk` + `virtio-net`；功能证据统一用 monitor `screendump` | `PLAT_GRAPHIC / PLAT_INPUT_DEVICES / PLAT_REQUIRED_DEVICES` | 五类设备字面均出现；含 `-device virtio-gpu-pci`、`-vga none`、`-serial mon:stdio`；**不含 `-nographic`** |
-| **七(一)3** | 以组委会发布基线为准 | `PLAT_VSOCK=n`（关掉基线外多余的 `vhost-vsock-pci`） | 设备清单里不出现 `vhost-vsock-pci` |
+| **设备暴露** | 用户固定要求不限制 GPU/输入/块/网卡等设备 | 保留 `virtio-gpu`、键鼠、`virtio-blk`、`virtio-net` 与 `virtio-rng`；T490 无 `/dev/vhost-vsock`，故 `PLAT_VSOCK=n` 防止 QEMU 启动失败 | 不使用 `-nodefaults` 或设备过滤参数 |
 | **七(二)1/3** | before/after 基线 = 队伍首个可运行版本（**git tag 存档**），组委会复核存档代码 | `run-session.py::host_fingerprint(cwd)` | `env.txt` 的 `git_commit` / `git_describe` **非空**；`-dirty` 时预检给 WARN |
 | **七(二)4** | 每项指标 ≥5 次取中位数 + 波动范围；注明宿主 CPU 型号/内存/QEMU 版本/OS | `PLAT_REPEAT_MIN / PLAT_STAT`；`run-session.py` 的 `env.txt` | `env.txt` 含 `cpu_model / mem_total / os_pretty / qemu-system-aarch64 / machine / host_vs_guest` |
 | 第六节(一) | 浏览器基础功能要「提供**完整运行命令**」 | `run-session.py::write_cmd_txt()` | `cmd.txt` 含字面 `qemu-system-aarch64 …` 行（xkmake 干跑抓取），且 `grep -c -- '-accel'` = 0 |
@@ -61,7 +61,7 @@ python3 scripts/run-session.py --cwd ~/x-kernel --make-args "$PLAT_MAKE_ARGS" \
 1. **`-cpu cortex-a76` 本身就是纯 TCG 证据**：`qemu.rs:149` 里 `host` 只在 `accel.is_some()` 时出现。
    判据是「命令行**无 `-accel`**」，**不是**「命令行含 `--no-accel`」（那是 xkmake 层参数，不会出现在 QEMU 命令行里）。
 2. **`make run` 裸调用不合规**：`GRAPHIC ?= n` → `-nographic`、无 `virtio-gpu-pci`、无 `-serial mon:stdio`；
-   `MEM ?=` 为空 → xkmake 默认 `-m 1g`。必须显式传 `GRAPHIC=y ACCEL=n MEM=4g SMP=4`。
+   `MEM ?=` 为空 → xkmake 默认 `-m 1g`。本项目固定显式传 `GRAPHIC=y ACCEL=n MEM=2g SMP=4`，以满足赛题的 2G 内存要求。
 3. **`virtio-input` 工具链永不添加**（`qemu.rs` 全文件 input 关键字计数 = 0），只能靠 `QEMU_ARGS`
    或 `run-session.py --with-input` 补。
 4. **`.config` 被 `.gitignore:46` 忽略** → 架构错误在 git 层面不可见，必须靠 §1b 的显式断言。
@@ -118,6 +118,11 @@ ssh mo@T490 'grep -E "VERDICT|drmGet|Output |ERROR" ~/xk6/evidence/*/console.log
 | | `check_scm.sh` / `check_scm_deep.sh` | SCM_RIGHTS 源码核查 |
 | | `recon_userptr.sh` / `mount_recon*.sh` / `weston_kms_check*.sh` / `get_libdrm_src*.sh` / `get_weston_src.sh` | 上游源码侦察（UserPtr API、挂载流程、weston/libdrm 关键函数） |
 | **rounds**（实验轨迹，只读参考） | `t490_v7..v16*.sh`、`t490_fakesysfs*.sh`、`t490_weston10*.sh`、`t490_*_read.sh` | 每轮实验的注入 + 起会话脚本，按时间顺序记录排查路径 |
+| **pages**（页面与判据） | `t490_inject_pages.sh` | **★ 官方三页套注入器**：整套写盘 + 读回逐字节自证 + 入口白名单校验 |
+| | `t490_inject_pages_dryrun.sh` | 注入器本地干跑台（桩 `debugfs`，无需镜像；期望 19/19） |
+| | `ppm_assert.py` | **★ 像素判据**：`--profile legacy`（自建页 v1.1）/ `official-{index,layout,interaction}`（组委会三页，常量来自参考图实测）；含差图模式 |
+| | `ppm_assert_selftest.py` | **★ 判据三重对照自检**（正 / 跨页负 / 合成负 / 真实历史负；含定向破坏） |
+| | `page_measure.py` | 几何测量器：颜色块 bbox + 行带扫描（判据常量的取值工具） |
 | **close**（收口） | `close_A_status.sh` / `close_B_archive.sh` / `close_B2_fix.sh` | 状态核验 / 证据打包归档 / 目录层级修正 |
 
 ## 2. 从零复现（新机器）
@@ -188,16 +193,38 @@ ssh mo@T490 'python3 ~/xk6/scripts/t490/p3_prctl_nonewprivs.py ~/x-kernel'
 ssh mo@T490 'export PATH=$HOME/.cargo/bin:$PATH; cd ~/x-kernel && make build'   # 期望 BUILD_EXIT=0
 # ③ 一轮会话：注入任意探针 + 任意 autorun，然后跑
 #    ★ 平台参数已收敛到 platform.env，这里不必再传 GRAPHIC/ACCEL/MEM/SMP
+#    ★ 测试页自 2026-09-22 起是「官方三页套」，默认整目录注入（见 §5.1）
 ssh mo@T490 'cd ~/xk6; BASE_IMG=$HOME/x-kernel/images/pkg-installed.img \
-  PAGE_HTML=$HOME/xk6/scripts/testpage/local-check.html \
   bash ~/xk6/scripts/t490/t490_round.sh <tag> <dur> <ival> <autorun.sh> [probe.c …]'
+#    换要测的页面（默认 index.html）：
+#    PAGE_URL=file:///usr/share/html-test/layout.html bash … t490_round.sh css 600 120 autorun_v5.sh
 # ④ 停机后回收 guest 完整日志（★ console 只有 tail 窗口，不够用）
 ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 ```
 
 > ③ 结束时证据目录应含 **8 个文件**：`env.txt console.log cmd.txt timestamps.csv
-> manifest.txt platform-check.txt platform-compliance.txt` + `screenshots/`。
+> manifest.txt platform-check.txt platform-compliance.txt` + `screenshots/`；
+> 走 `PAGE_DIR` 页面集注入时再多一个 **`pages.txt`**（页面清单 + 写盘读回自证）。
 > 其中 `platform-compliance.txt` 必须为 `PLATFORM_COMPLIANT`（`FAIL=0`），否则该轮数据不得作为评分证据。
+
+### 5.1 测试页（官方三件套）与判据档
+
+> 完整说明见 `scripts/testpage/README.md` 与 `report/26`。
+
+| 项 | 值 |
+|---|---|
+| 页面集 | `scripts/testpage/{index,interaction,layout}.html`（组委会 v1.0） |
+| 注入 | `t490_inject_pages.sh`：整套写盘 → `/usr/share/html-test/`，并 `debugfs dump` **读回逐字节自比**；失败即硬退 |
+| 入口 | `PAGE_URL`（白名单：三页之一），默认 `file:///usr/share/html-test/index.html`；注入时烘焙进 autorun 副本 |
+| 判据 | `ppm_assert.py --profile official-index｜official-layout｜official-interaction`（常量全部来自参考图实测） |
+| 测量 | `page_measure.py`：颜色块 bbox + 行带扫描（新页面集到来时用它重新取常量） |
+| 自检 | `ppm_assert_selftest.py`（四类对照，期望 **28/28**，真实负对照取 3 张时 34/34）；`t490_inject_pages_dryrun.sh`（桩 debugfs 干跑，期望 **19/19**） |
+
+三条必须记住的页面事实（实测）：
+
+1. `index.html` 是**无脚本静态页** → 不能对它做双帧差分（必然 0 差异），JS 证据看结论条颜色；
+2. `interaction.html` 的自检**必须有一次真实点击**（未点击时结论条是灰的）；
+3. `layout.html` 的"6/6 通过"结论条在整页 y≈1450 处，1280×800 的 screendump **看不到**。
 
 ### 补丁应用器（截止 2026-09-21，全部幂等）
 | 脚本 | 补丁 | 落点 | 状态 |

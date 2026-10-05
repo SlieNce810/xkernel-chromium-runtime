@@ -52,14 +52,19 @@ file "$XK6/tmp/drmprobe"
 
 debugfs -w -R "mkdir /root" disk.img 2>/dev/null
 tr -d '\r' < "$XK6/scripts/guest-bootstrap.sh" > /tmp/bootstrap_lf.sh
-tr -d '\r' < "$XK6/scripts/testpage/local-check.html" > /tmp/index_lf.html
 tr -d '\r' < "$XK6/scripts/t490/autorun_v5.sh" > /tmp/autorun_v5_lf.sh
 
 debugfs -w -R "write /tmp/bootstrap_lf.sh /root/bootstrap.sh" disk.img || exit 1
-debugfs -w -R "write /tmp/index_lf.html /root/index.html" disk.img || exit 1
 debugfs -w -R "write /tmp/autorun_v5_lf.sh /root/autorun.sh" disk.img || exit 1
 debugfs -w -R "write $XK6/tmp/drmprobe /drmprobe" disk.img || exit 1
 debugfs -w -R "set_inode_field /drmprobe mode 0100755" disk.img
+
+# ---- 5b. 测试页三页套（★ 2026-09-22 起：整套注入 + 读回自证）----
+# 不再只写 /root/index.html —— 官方三页互有超链接，必须整目录注入
+# /usr/share/html-test/，否则 interaction.html ↔ layout.html 的跳转会 404。
+bash "$XK6/scripts/t490/t490_inject_pages.sh" disk.img "$XK6/scripts/testpage" || {
+  echo "FATAL: 测试页注入失败"; exit 1;
+}
 
 # ---- 6. 99-autostart.sh 改写：顶部注入 autorun 启动，移除原 weston-start 行 ----
 debugfs -R "cat /etc/profile.d/99-autostart.sh" disk.img 2>/dev/null > /tmp/cur_autostart.sh

@@ -22,10 +22,10 @@ debugfs -R "cat /etc/profile.d/99-autostart.sh" disk.img 2>/dev/null | grep -c "
 echo "=== weston-start 行是否已移除（应为 0）==="
 debugfs -R "cat /etc/profile.d/99-autostart.sh" disk.img 2>/dev/null | grep -c "weston-start"
 
-# 3. 补注入：drmprobe（重编）+ autorun v6
+# 3. 补注入：drmprobe（重编）+ autorun v6 + 测试页三页套
 aarch64-linux-musl-gcc -static -Os -o /tmp/drmprobe "$HOME/xk6/scripts/t490/drmprobe.c" && file /tmp/drmprobe
 cp "$HOME/xk6/scripts/t490/autorun_v5.sh" /tmp/a6.sh && sed -i "s/\r$//" /tmp/a6.sh
-for p in /drmprobe /root/autorun.sh /root/bootstrap.sh /root/index.html; do
+for p in /drmprobe /root/autorun.sh /root/bootstrap.sh; do
   debugfs -w -R "rm $p" disk.img >/dev/null 2>&1
 done
 debugfs -w -R "write /tmp/drmprobe /drmprobe" disk.img
@@ -33,9 +33,11 @@ debugfs -w -R "set_inode_field /drmprobe mode 0100755" disk.img
 debugfs -w -R "write /tmp/a6.sh /root/autorun.sh" disk.img
 debugfs -w -R "set_inode_field /root/autorun.sh mode 0100755" disk.img
 tr -d "\r" < "$HOME/xk6/scripts/guest-bootstrap.sh" > /tmp/boot.sh
-tr -d "\r" < "$HOME/xk6/scripts/testpage/local-check.html" > /tmp/idx.html
 debugfs -w -R "write /tmp/boot.sh /root/bootstrap.sh" disk.img
-debugfs -w -R "write /tmp/idx.html /root/index.html" disk.img
+
+# 测试页：改为整套注入（三个官方页 + 读回自证），不再只写 /root/index.html
+bash "$HOME/xk6/scripts/t490/t490_inject_pages.sh" disk.img "$HOME/xk6/scripts/testpage" \
+  || { echo "!! 页面集注入失败"; exit 1; }
 
 # 4. 收尾校验
 e2fsck -f -y disk.img 2>&1 | tail -2

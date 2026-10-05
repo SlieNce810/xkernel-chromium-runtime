@@ -56,7 +56,26 @@
   .note { font-size: 15px; color: #333333; margin: 14px 0; }
   .mono { font-family: "DejaVu Sans Mono", monospace; font-size: 15px;
           background: #f6f6f6; border: 1px solid #cccccc; padding: 8px 10px; }
-  #runtime { font-weight: bold; color: #0b6b2f; }
+
+  /* ---- v1.2 首屏状态条：紧随 banner，把「JS 是否执行」与「渲染心跳」放进第一屏 ----
+     动机：整页高约 1080 px，而 QEMU screendump 的常见画幅只有 640×480，
+     ⑤/⑦ 会落在视野之外 ⇒ 用「两帧像素差」证明 renderer 存活的最强判据会失效。
+     放进首屏后，任何分辨率下都能判：banner 存在 + 绿字出现 + 双帧有差异。 */
+  .statusbar {
+    display: flex; align-items: center; gap: 10px;
+    height: 40px; padding: 0 24px;
+    background: #f0f0f0; border-bottom: 2px solid #111111;
+    font-size: 16px; color: #111111;
+  }
+  .sb-k { color: #555555; }
+  #runtime, #runtime2 { font-weight: bold; color: #b3261e; }  /* 默认红 = JS 未执行 */
+  /* 心跳移动块：固定 192×18 盒子 + 12px 块 + 16 个位置
+     ⇒ 两帧差异的 bbox 恒定很小，可与「整屏重绘」区分开 */
+  .sb-box { position: relative; width: 192px; height: 18px;
+            border: 2px solid #111111; margin-left: 6px; }
+  .sb-box > span { position: absolute; top: 0; left: 0;
+                   width: 12px; height: 14px; background: #111111; }
+
   #ua { font-size: 13px; color: #555555; word-break: break-all; }
   .footer { border-top: 2px solid #111111; margin-top: 22px; padding-top: 10px;
             font-size: 14px; color: #444444; }
@@ -64,7 +83,16 @@
 </head>
 <body>
 
-<div class="banner">XK-6 · 渲染自检页 v1.0 · marker=XK-CHROMIUM-OK</div>
+<div class="banner">XK-6 · 渲染自检页 v1.2 · marker=XK-CHROMIUM-OK</div>
+
+<!-- ⓪ 首屏状态条（v1.2 新增）：JS 状态 + 渲染心跳，保证在 640×480 画幅内也能判定 -->
+<div class="statusbar">
+  <span class="sb-k">JS 状态</span>
+  <span id="runtime">JS-NOT-RUNNING</span>
+  <span class="sb-k">心跳</span>
+  <span id="beat">0</span>
+  <span class="sb-box"><span id="beatmark"></span></span>
+</div>
 
 <div class="wrap">
 
@@ -106,29 +134,67 @@
   </p>
 
   <h3>⑤ JavaScript 执行（若被禁用则显示 DISABLED）</h3>
+  <!-- v1.1：本行文字颜色由 JS 独占改写（CSS 默认红 #b3261e → JS 置绿 #0b6b2f）。
+       因此「截图里出现绿色 #0b6b2f 文字」是 JS 确实执行过的**像素级硬证据**，
+       而不是靠 CSS 写死颜色造成的假象。
+       v1.2：权威副本已移到首屏状态条（id=runtime），此处改为副本 runtime2 —— 当画幅
+       只有 640×480 时这一节会落在视野外，首屏那条才始终可见。 -->
   <p class="note">
-    运行时状态：<span id="runtime">JS-NOT-RUNNING</span><br>
+    运行时状态（副本）：<span id="runtime2">JS-NOT-RUNNING</span><br>
     渲染时间：<span id="clock">-</span>
   </p>
 
   <h3>⑥ 渲染环境指纹</h3>
   <p id="ua">…</p>
 
+  <!-- ⑦ 是 v1.1 新增：把「renderer 存活」与「JS 正在执行」变成两张截图的像素差证据。
+       计数器每秒自增 ⇒ 任意两个不同时刻的 screendump 在该区域必然不同；
+       移动块限定在固定尺寸盒子内 ⇒ 变化区域的 bbox 一定是小的，
+       可据此区分「心跳在动」与「整屏重绘 / 闪屏」。
+       v1.2：首屏状态条已承载权威心跳（id=beat/beatmark），此处为副本。 -->
+  <h3>⑦ 渲染心跳（副本；权威副本见首屏状态条）</h3>
+  <p class="note">
+    帧计数：<span id="beat2">0</span>　
+    心跳时间：<span id="beatclock">-</span>
+  </p>
+  <div id="beatbox2" style="width:384px;height:24px;border:2px solid #111111;position:relative;margin:6px 0 18px;">
+    <div id="beatmark2" style="position:absolute;top:0;left:0;width:24px;height:20px;background:#111111;"></div>
+  </div>
+
   <div class="footer">
     x-kernel 基础任务 · 占位自检页（组委会指定测试页到位后请替换）<br>
-    判据：截图与上述 ①–⑥ 特征一致即视为「渲染正确」
+    判据：截图与 banner + ⓪ 首屏状态条 + ①–⑦ 特征一致即视为「渲染正确」
   </div>
 </div>
 
 <script>
-  document.getElementById('runtime').textContent = 'JS-OK';
-  document.getElementById('runtime').style.color = '#0b6b2f';
+  // ⓪ 首屏状态条 + ⑤ 副本：JS 把「红 → 绿」这一色变作为自身执行过的证据
+  var __rt = document.getElementById('runtime');
+  var __rt2 = document.getElementById('runtime2');
+  __rt.textContent = 'JS-OK';
+  __rt.style.color = '#0b6b2f';
+  __rt2.textContent = 'JS-OK';
+  __rt2.style.color = '#0b6b2f';
   var d = new Date();
   document.getElementById('clock').textContent =
       d.toISOString().replace('T', ' ').replace('Z', ' UTC');
   document.getElementById('ua').textContent = navigator.userAgent;
   // 便于脚本化核对：把关键判据挂到 title 上
   document.title = 'XK-6 渲染自检页 / JS-OK';
+
+  // ⓪⑦ 渲染心跳：每秒自增 + 移动块（首屏与副本同步更新）
+  var __frame = 0;
+  var __mark = document.getElementById('beatmark');
+  var __mark2 = document.getElementById('beatmark2');
+  setInterval(function () {
+    __frame++;
+    document.getElementById('beat').textContent = __frame;
+    document.getElementById('beat2').textContent = __frame;
+    document.getElementById('beatclock').textContent =
+        new Date().toISOString().replace('T', ' ').replace('Z', ' UTC');
+    __mark.style.left = ((__frame % 16) * 12) + 'px';   // 首屏盒子 192px / 12px 块
+    __mark2.style.left = ((__frame % 16) * 24) + 'px';  // 副本盒子 384px / 24px 块
+  }, 1000);
 </script>
 
 </body>

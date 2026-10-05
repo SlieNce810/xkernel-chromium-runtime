@@ -1,0 +1,86 @@
+/*
+ * libudev_shim.map — libudev shim 的符号版本脚本
+ *
+ * 为什么必须给 shim 的符号加版本
+ * ------------------------------
+ * Alpine 的 libudev.so.1 使用了 **符号版本化**：消费者（drm-backend.so、libinput.so.10）
+ * 引用的是带版本的符号，例如：
+ *     udev_device_get_devnode@LIBUDEV_183
+ *
+ * 而默认编译出来的 shim 只导出**无版本**的 `udev_device_get_devnode`。
+ * 版本化引用与无版本定义能否匹配属于链接器的灰色地带（GLIBC 系可回退、musl 系行为不一），
+ * 本项目已因"符号没对上"失败过一轮（libseat shim v5 缺 3 个符号 → 静默回退到真库）。
+ * 因此这里用 version script 把 shim 的导出符号**显式声明为 LIBUDEV_183**，
+ * 与消费者的引用逐字对齐，不留任何回退空间。
+ *
+ * 结果：readelf 里应看到
+ *     ... udev_device_get_devnode@@LIBUDEV_183
+ *
+ * 用法（在 build_shims.sh 中）：
+ *     aarch64-linux-musl-gcc -shared -fPIC -O2 -Wall \
+ *         -Wl,--version-script=libudev_shim.map -o libudev-shim.so libudev_shim.c
+ *
+ * 注意：local: *; 会隐藏 _init/_fini 等其余符号 —— 对 LD_PRELOAD shim 无影响。
+ */
+LIBUDEV_183 {
+    global:
+        udev_new;
+        udev_unref;
+        udev_ref;
+
+        udev_device_new_from_subsystem_sysname;
+        udev_device_new_from_syspath;
+        udev_device_new_from_devnum;
+        udev_device_get_devnode;
+        udev_device_get_devnum;
+        udev_device_get_sysname;
+        udev_device_get_sysnum;
+        udev_device_get_syspath;
+        udev_device_get_sysattr_value;
+        udev_device_get_property_value;
+        udev_device_get_parent_with_subsystem_devtype;
+        udev_device_get_parent;
+        udev_device_get_devtype;
+        udev_device_get_subsystem;
+        udev_device_get_action;
+        udev_device_get_is_initialized;
+        udev_device_has_tag;
+        udev_device_unref;
+        udev_device_ref;
+
+        udev_enumerate_new;
+        udev_enumerate_add_match_subsystem;
+        udev_enumerate_add_match_sysname;
+        udev_enumerate_add_match_property;
+        udev_enumerate_add_match_tag;
+        udev_enumerate_add_syspath;
+        udev_enumerate_scan_devices;
+        udev_enumerate_scan_subsystems;
+        udev_enumerate_get_list_entry;
+        udev_enumerate_get_udev;
+        udev_enumerate_unref;
+        udev_enumerate_ref;
+
+        udev_list_entry_get_next;
+        udev_list_entry_get_name;
+        udev_list_entry_get_value;
+        udev_list_entry_get_by_name;
+
+        udev_monitor_new_from_netlink;
+        udev_monitor_enable_receiving;
+        udev_monitor_filter_add_match_subsystem_devtype;
+        udev_monitor_filter_add_match_tag;
+        udev_monitor_filter_remove;
+        udev_monitor_filter_update;
+        udev_monitor_get_fd;
+        udev_monitor_get_udev;
+        udev_monitor_receive_device;
+        udev_monitor_set_receive_buffer_size;
+        udev_monitor_unref;
+        udev_monitor_ref;
+
+        udev_util_encode_string;
+
+    local:
+        *;
+};
