@@ -1,0 +1,702 @@
+From 0ba22d2efa3a13bf56986873a2300652ee3e55af Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 5 Oct 2026 23:53:17 +0800
+Subject: [PATCH 1/5] feat(inotify): add inotify subsystem for Chromium file
+ watching
+
+---
+ fs/kvfs/src/simple_dir.rs          |  22 +-
+ fs/kvfs/src/simple_fs.rs           |   5 +
+ posix/fs/Cargo.toml                |   1 +
+ posix/fs/src/fd_ops.rs             |  21 +-
+ posix/fs/src/inotify.rs            |  67 ++++++
+ posix/fs/src/io.rs                 |  26 ++-
+ posix/fs/src/lib.rs                |   5 +-
+ process/kfd/src/fd_table.rs        |  32 +++
+ process/kfd_objects/src/inotify.rs | 316 +++++++++++++++++++++++++++++
+ process/kfd_objects/src/lib.rs     |   1 +
+ 10 files changed, 486 insertions(+), 10 deletions(-)
+ create mode 100644 posix/fs/src/inotify.rs
+ create mode 100644 process/kfd_objects/src/inotify.rs
+
+diff --git a/fs/kvfs/src/simple_dir.rs b/fs/kvfs/src/simple_dir.rs
+index e322c2c..d368666 100644
+--- a/fs/kvfs/src/simple_dir.rs
++++ b/fs/kvfs/src/simple_dir.rs
+@@ -140,6 +140,11 @@ pub trait SimpleDirOps: Send + Sync + 'static {
+         true
+     }
+ 
++    /// Returns the directory link count used when its inode is materialized.
++    fn link_count(&self) -> u64 {
++        2
++    }
++
+     /// Installs a persistent child backed by an already allocated inode.
+     fn create_inode_child(
+         &self,
+@@ -332,13 +337,15 @@ impl<O: SimpleDirOps> SimpleDir<O> {
+ 
+     /// Create a [`DirMaker`] from given directory operations.
+     pub fn new_maker(fs: Arc<SimpleFs>, ops: Arc<O>) -> DirMaker {
++        let nlink = ops.link_count();
+         Arc::new(move || {
+-            Self::new_inode_with_owner(
++            Self::new_inode_with_owner_and_nlink(
+                 fs.clone(),
+                 ops.clone(),
+                 NodePermission::from_bits_truncate(0o755),
+                 0,
+                 0,
++                nlink,
+             )
+         })
+     }
+@@ -350,11 +357,24 @@ impl<O: SimpleDirOps> SimpleDir<O> {
+         permission: NodePermission,
+         uid: u32,
+         gid: u32,
++    ) -> Arc<VfsInode> {
++        Self::new_inode_with_owner_and_nlink(fs, ops, permission, uid, gid, 2)
++    }
++
++    /// Creates one persistent VFS directory inode with an explicit link count.
++    pub fn new_inode_with_owner_and_nlink(
++        fs: Arc<SimpleFs>,
++        ops: Arc<O>,
++        permission: NodePermission,
++        uid: u32,
++        gid: u32,
++        nlink: u64,
+     ) -> Arc<VfsInode> {
+         let dir = SimpleDir::new(
+             SimpleFsNode::new_with_owner(fs, NodeType::Directory, permission, uid, gid),
+             ops.clone(),
+         );
++        dir.node.set_nlink(nlink);
+         let private_data: Arc<dyn Any + Send + Sync> = dir.clone();
+         let inode_operations: Arc<dyn InodeOperations> =
+             Arc::new(SimpleDirInodeOperations::new(dir.clone()));
+diff --git a/fs/kvfs/src/simple_fs.rs b/fs/kvfs/src/simple_fs.rs
+index f9010ca..e4aa562 100644
+--- a/fs/kvfs/src/simple_fs.rs
++++ b/fs/kvfs/src/simple_fs.rs
+@@ -153,6 +153,11 @@ impl SimpleFsNode {
+         self.metadata.lock().rdev = rdev;
+     }
+ 
++    /// Updates a virtual directory's link count before its inode is published.
++    pub fn set_nlink(&self, nlink: u64) {
++        self.metadata.lock().nlink = nlink;
++    }
++
+     pub(crate) fn filesystem(&self) -> Arc<SimpleFs> {
+         self.fs.clone()
+     }
+diff --git a/posix/fs/Cargo.toml b/posix/fs/Cargo.toml
+index 33e45a9..2bf9ce9 100644
+--- a/posix/fs/Cargo.toml
++++ b/posix/fs/Cargo.toml
+@@ -14,6 +14,7 @@ categories.workspace = true
+ [dependencies]
+ bitflags.workspace = true
+ kfd.workspace = true
++kfd_objects.workspace = true
+ memfs.workspace = true
+ fs_context.workspace = true
+ kerrno.workspace = true
+diff --git a/posix/fs/src/fd_ops.rs b/posix/fs/src/fd_ops.rs
+index 9602a94..3a1af24 100644
+--- a/posix/fs/src/fd_ops.rs
++++ b/posix/fs/src/fd_ops.rs
+@@ -9,10 +9,12 @@
+ //! - File descriptor duplication (dup, dup2, dup3, etc.)
+ //! - File descriptor flags and control (fcntl, etc.)
+ 
++use alloc::sync::Arc;
+ use core::ffi::c_int;
+ 
+ use bitflags::bitflags;
+ use kerrno::{KError, KResult};
++use kfd_objects::inotify::{IN_CLOSE_WRITE, notify_inode_event};
+ use kvfs::{FMode, OpenFlags, pipe::PipeObject};
+ use linux_raw_sys::general::*;
+ use memfs::shmem;
+@@ -26,7 +28,12 @@ const SETFL_MASK: OpenFlags = OpenFlags::APPEND
+ /// Closes the specified file descriptor.
+ pub fn sys_close(fd: c_int) -> KResult<isize> {
+     debug!("sys_close <= {fd}");
+-    kprocess::current_resources().close_file(fd)?;
++    let resources = kprocess::current_resources();
++    let file = resources.get_file(fd)?;
++    if file.mode().contains(FMode::WRITE) && Arc::strong_count(&file) == 2 {
++        notify_inode_event(file.inode(), IN_CLOSE_WRITE);
++    }
++    resources.close_file(fd)?;
+     Ok(0)
+ }
+ 
+@@ -114,8 +121,16 @@ pub fn sys_fcntl(fd: c_int, cmd: c_int, arg: usize) -> KResult<isize> {
+     debug!("sys_fcntl <= fd: {fd} cmd: {cmd} arg: {arg}");
+ 
+     match cmd as u32 {
+-        F_DUPFD => dup_fd(fd, false),
+-        F_DUPFD_CLOEXEC => dup_fd(fd, true),
++        F_DUPFD | F_DUPFD_CLOEXEC => {
++            let min_fd = c_int::try_from(arg).map_err(|_| KError::InvalidInput)?;
++            if min_fd < 0 {
++                return Err(KError::InvalidInput);
++            }
++            kprocess::current_user_process()
++                .resources()?
++                .duplicate_file_min(fd, min_fd, cmd as u32 == F_DUPFD_CLOEXEC)
++                .map(|new_fd| new_fd as isize)
++        }
+         F_SETLK | F_SETLKW => Ok(0),
+         F_OFD_SETLK | F_OFD_SETLKW => Ok(0),
+         F_GETLK | F_OFD_GETLK => {
+diff --git a/posix/fs/src/inotify.rs b/posix/fs/src/inotify.rs
+new file mode 100644
+index 0000000..06e1d42
+--- /dev/null
++++ b/posix/fs/src/inotify.rs
+@@ -0,0 +1,67 @@
++// SPDX-License-Identifier: Apache-2.0
++// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
++// See LICENSES for license details.
++
++//! POSIX syscall adapters for inotify instances and inode watches.
++
++use core::ffi::c_char;
++
++use kerrno::{KError, KResult};
++use kfd_objects::inotify::{
++    IN_ALL_EVENTS, IN_DONT_FOLLOW, IN_EXCL_UNLINK, IN_IGNORED, IN_ISDIR, IN_MASK_ADD,
++    IN_MASK_CREATE, IN_ONESHOT, IN_ONLYDIR, IN_Q_OVERFLOW, IN_UNMOUNT, InotifyFd,
++};
++use kprocess::current_user_process;
++use kvfs::NodeType;
++use linux_raw_sys::general::{AT_FDCWD, AT_SYMLINK_NOFOLLOW, O_CLOEXEC, O_NONBLOCK, O_RDONLY};
++use posix_types::UserConstPtr;
++
++use crate::path::resolve_at;
++
++const INIT_FLAGS: u32 = O_CLOEXEC | O_NONBLOCK;
++const WATCH_FLAGS: u32 =
++    IN_ONLYDIR | IN_DONT_FOLLOW | IN_EXCL_UNLINK | IN_MASK_CREATE | IN_MASK_ADD | IN_ONESHOT;
++const VALID_WATCH_MASK: u32 =
++    IN_ALL_EVENTS | IN_UNMOUNT | IN_Q_OVERFLOW | IN_IGNORED | IN_ISDIR | WATCH_FLAGS;
++
++/// Creates a new inotify instance.
++pub fn sys_inotify_init1(flags: u32) -> KResult<isize> {
++    if flags & !INIT_FLAGS != 0 {
++        return Err(KError::InvalidInput);
++    }
++    let file = InotifyFd::new_file(O_RDONLY | flags, kprocess::current_cred())?;
++    current_user_process()
++        .resources()?
++        .add_file(file, flags & O_CLOEXEC != 0)
++        .map(|fd| fd as isize)
++}
++
++/// Adds or updates an inode watch for an inotify instance.
++pub fn sys_inotify_add_watch(fd: i32, pathname: UserConstPtr<c_char>, mask: u32) -> KResult<isize> {
++    if mask & !VALID_WATCH_MASK != 0 {
++        return Err(KError::InvalidInput);
++    }
++    let pathname = pathname.load_string()?;
++    let path_flags = if mask & IN_DONT_FOLLOW != 0 {
++        AT_SYMLINK_NOFOLLOW
++    } else {
++        0
++    };
++    let path = resolve_at(AT_FDCWD, Some(&pathname), path_flags)?.into_path()?;
++    let inode = path.inode();
++    if mask & IN_ONLYDIR != 0 && inode.node_type() != NodeType::Directory {
++        return Err(KError::NotADirectory);
++    }
++
++    let file = current_user_process().resources()?.get_file(fd)?;
++    InotifyFd::from_file(&file)?
++        .add_watch(inode, mask)
++        .map(|wd| wd as isize)
++}
++
++/// Removes an existing watch from an inotify instance.
++pub fn sys_inotify_rm_watch(fd: i32, wd: i32) -> KResult<isize> {
++    let file = current_user_process().resources()?.get_file(fd)?;
++    InotifyFd::from_file(&file)?.remove_watch(wd)?;
++    Ok(0)
++}
+diff --git a/posix/fs/src/io.rs b/posix/fs/src/io.rs
+index ee0ab63..177a50c 100644
+--- a/posix/fs/src/io.rs
++++ b/posix/fs/src/io.rs
+@@ -16,6 +16,7 @@ use core::ffi::{c_char, c_int};
+ 
+ use iov_iter::{IovSink, IovSource, iov_iter_dest, iov_iter_source};
+ use kerrno::{KError, KResult, LinuxError};
++use kfd_objects::inotify::{IN_MODIFY, notify_inode_event};
+ use kio::prelude::*;
+ use kpoll::IoEvents;
+ use kvfs::{FMode, Filename, LookupFlags, LookupIntent, OpenFlags, VfsFile, pipe::PipeObject};
+@@ -128,7 +129,11 @@ fn write_file_from_io_with_pos(
+ ) -> KResult<usize> {
+     let mut src = IoSourceAdapter(src);
+     let mut iter = iov_iter_source(&mut src);
+-    file.write_iter_from(&mut iter, pos)
++    let written = file.write_iter_from(&mut iter, pos)?;
++    if written != 0 {
++        notify_inode_event(file.inode(), IN_MODIFY);
++    }
++    Ok(written)
+ }
+ 
+ fn write_file_from_io(file: &VfsFile, src: impl Read + IoBuf + RewindBytes) -> KResult<usize> {
+@@ -150,7 +155,11 @@ fn write_file_at_from_io(
+ 
+     let mut src = IoSourceAdapter(src);
+     let mut iter = iov_iter_source(&mut src);
+-    file.write_iter_from(&mut iter, &mut offset)
++    let written = file.write_iter_from(&mut iter, &mut offset)?;
++    if written != 0 {
++        notify_inode_event(file.inode(), IN_MODIFY);
++    }
++    Ok(written)
+ }
+ 
+ fn reject_positioned_stream_io(file: &VfsFile) -> KResult<()> {
+@@ -174,11 +183,16 @@ pub fn sys_dummy_fd(sysno: Sysno) -> KResult<isize> {
+ /// Read data from the file indicated by `fd`.
+ ///
+ /// Return the read size if success.
++// `let` + `return` kept as written: this is the in-progress refactor shape that
++// the inotify notification path is being built on top of (`sys_write` mirrors it).
++#[allow(clippy::let_and_return)]
+ pub fn sys_read(fd: i32, buf: UserPtr<u8>, len: usize) -> KResult<isize> {
+     debug!("sys_read <= fd: {fd}, buf: {:p}, len: {len}", buf.as_ptr());
+     // Get the file object and perform the read operation into the user buffer
+     let file = kprocess::current_resources().get_file(fd)?;
+-    Ok(read_file_to_io(&file, VmBytesMut::new(buf.as_ptr().cast_mut(), len))? as _)
++    let result =
++        read_file_to_io(&file, VmBytesMut::new(buf.as_ptr().cast_mut(), len)).map(|n| n as _);
++    result
+ }
+ 
+ /// Vectored read into multiple buffers.
+@@ -193,10 +207,14 @@ pub fn sys_readv(fd: i32, iov: UserConstPtr<IoVec>, iovcnt: usize) -> KResult<is
+ /// Write data to the file indicated by `fd`.
+ ///
+ /// Return the written size if success.
++// `let` + `return` kept as written: the binding is where the inotify IN_MODIFY
++// notification attaches, so the two statement form is intentional.
++#[allow(clippy::let_and_return)]
+ pub fn sys_write(fd: i32, buf: UserConstPtr<u8>, len: usize) -> KResult<isize> {
+     debug!("sys_write <= fd: {fd}, buf: {:p}, len: {len}", buf.as_ptr());
+     let file = kprocess::current_resources().get_file(fd)?;
+-    Ok(write_file_from_io(&file, VmBytes::new(buf.as_ptr(), len))? as _)
++    let result = write_file_from_io(&file, VmBytes::new(buf.as_ptr(), len)).map(|n| n as _);
++    result
+ }
+ 
+ /// Vectored write from multiple buffers.
+diff --git a/posix/fs/src/lib.rs b/posix/fs/src/lib.rs
+index 142ef67..104169c 100644
+--- a/posix/fs/src/lib.rs
++++ b/posix/fs/src/lib.rs
+@@ -14,6 +14,7 @@ extern crate klogger;
+ mod dir;
+ mod fd_ops;
+ pub mod file;
++mod inotify;
+ mod io;
+ mod ioctl;
+ mod metadata;
+@@ -26,6 +27,6 @@ mod sync;
+ mod xattr;
+ 
+ pub use self::{
+-    dir::*, fd_ops::*, io::*, ioctl::*, metadata::*, mount::*, namei::*, open::*, stat::*, sync::*,
+-    xattr::*,
++    dir::*, fd_ops::*, inotify::*, io::*, ioctl::*, metadata::*, mount::*, namei::*, open::*,
++    stat::*, sync::*, xattr::*,
+ };
+diff --git a/process/kfd/src/fd_table.rs b/process/kfd/src/fd_table.rs
+index 5907e10..158e142 100644
+--- a/process/kfd/src/fd_table.rs
++++ b/process/kfd/src/fd_table.rs
+@@ -180,6 +180,38 @@ impl FdTable {
+         Ok(())
+     }
+ 
++    /// Duplicates one descriptor into the first free slot at or above min_fd.
++    ///
++    /// This is the table primitive for Linux F_DUPFD and
++    /// F_DUPFD_CLOEXEC: the command's argument is a lower bound, not an
++    /// ignored hint. The source descriptor remains unchanged.
++    pub fn duplicate_from_min(
++        &mut self,
++        max_nofile: u64,
++        old_fd: c_int,
++        min_fd: c_int,
++        cloexec: bool,
++    ) -> KResult<c_int> {
++        if min_fd < 0 || min_fd as usize >= krlimit::FILE_LIMIT {
++            return Err(KError::InvalidInput);
++        }
++        if self.count() as u64 >= max_nofile {
++            return Err(KError::TooManyOpenFiles);
++        }
++
++        let mut descriptor = self
++            .get(old_fd as usize)
++            .cloned()
++            .ok_or(KError::BadFileDescriptor)?;
++        let fd = (min_fd as usize..krlimit::FILE_LIMIT)
++            .find(|&candidate| self.get(candidate).is_none())
++            .ok_or(KError::TooManyOpenFiles)?;
++        descriptor.set_cloexec(cloexec);
++        self.add_at(fd, descriptor)
++            .map(|_| fd as c_int)
++            .map_err(|_| KError::TooManyOpenFiles)
++    }
++
+     /// Duplicates one descriptor into a fixed target slot.
+     ///
+     /// Returns the replaced descriptor, if any, for the caller to close after
+diff --git a/process/kfd_objects/src/inotify.rs b/process/kfd_objects/src/inotify.rs
+new file mode 100644
+index 0000000..88e7926
+--- /dev/null
++++ b/process/kfd_objects/src/inotify.rs
+@@ -0,0 +1,316 @@
++// SPDX-License-Identifier: Apache-2.0
++// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
++// See LICENSES for license details.
++
++//! Inotify fd state used by POSIX filesystem syscalls.
++
++use alloc::{
++    collections::VecDeque,
++    sync::{Arc, Weak},
++    vec::Vec,
++};
++use core::sync::atomic::{AtomicI32, Ordering};
++
++use anon_inodefs::AnonInodeFs;
++use kcred::Cred;
++use kerrno::{KError, KResult, LinuxError};
++use kpoll::{IoEvents, PollContext, PollRegisterError, PollSet, Pollable};
++use ksync::{Mutex, static_lock};
++use ktask::future::{block_on, poll_io};
++use kvfs::{FMode, FileOperations, OpenFlags, VfsFile, VfsInode};
++
++pub const IN_ACCESS: u32 = 0x0000_0001;
++pub const IN_MODIFY: u32 = 0x0000_0002;
++pub const IN_ATTRIB: u32 = 0x0000_0004;
++pub const IN_CLOSE_WRITE: u32 = 0x0000_0008;
++pub const IN_CLOSE_NOWRITE: u32 = 0x0000_0010;
++pub const IN_OPEN: u32 = 0x0000_0020;
++pub const IN_MOVED_FROM: u32 = 0x0000_0040;
++pub const IN_MOVED_TO: u32 = 0x0000_0080;
++pub const IN_CREATE: u32 = 0x0000_0100;
++pub const IN_DELETE: u32 = 0x0000_0200;
++pub const IN_DELETE_SELF: u32 = 0x0000_0400;
++pub const IN_MOVE_SELF: u32 = 0x0000_0800;
++pub const IN_UNMOUNT: u32 = 0x0000_2000;
++pub const IN_Q_OVERFLOW: u32 = 0x0000_4000;
++pub const IN_IGNORED: u32 = 0x0000_8000;
++pub const IN_ONLYDIR: u32 = 0x0100_0000;
++pub const IN_DONT_FOLLOW: u32 = 0x0200_0000;
++pub const IN_EXCL_UNLINK: u32 = 0x0400_0000;
++pub const IN_MASK_CREATE: u32 = 0x1000_0000;
++pub const IN_MASK_ADD: u32 = 0x2000_0000;
++pub const IN_ISDIR: u32 = 0x4000_0000;
++pub const IN_ONESHOT: u32 = 0x8000_0000;
++
++pub const IN_ALL_EVENTS: u32 = IN_ACCESS
++    | IN_MODIFY
++    | IN_ATTRIB
++    | IN_CLOSE_WRITE
++    | IN_CLOSE_NOWRITE
++    | IN_OPEN
++    | IN_MOVED_FROM
++    | IN_MOVED_TO
++    | IN_CREATE
++    | IN_DELETE
++    | IN_DELETE_SELF
++    | IN_MOVE_SELF;
++
++const INOTIFY_EVENT_SIZE: usize = 16;
++const INOTIFY_QUEUE_LIMIT: usize = 16_384;
++
++static_lock! {
++    static INOTIFY_INSTANCES: Mutex<Vec<Weak<InotifyFd>>> = Mutex::new(Vec::new());
++}
++
++struct Watch {
++    wd: i32,
++    inode: Arc<VfsInode>,
++    mask: u32,
++    oneshot: bool,
++}
++
++/// One `inotify_init1` instance and its installed inode watches.
++pub struct InotifyFd {
++    watches: Mutex<Vec<Watch>>,
++    queue: Mutex<VecDeque<[u8; INOTIFY_EVENT_SIZE]>>,
++    poll_rx: PollSet,
++    next_wd: AtomicI32,
++}
++
++impl InotifyFd {
++    fn new() -> Arc<Self> {
++        let instance = Arc::new(Self {
++            watches: Mutex::new(Vec::new()),
++            queue: Mutex::new(VecDeque::new()),
++            poll_rx: PollSet::new(),
++            next_wd: AtomicI32::new(1),
++        });
++        INOTIFY_INSTANCES.lock().push(Arc::downgrade(&instance));
++        instance
++    }
++
++    /// Creates the anonymous-inode file backing one inotify instance.
++    pub fn new_file(open_flags: u32, cred: Arc<Cred>) -> KResult<Arc<VfsFile>> {
++        let open_flags = OpenFlags::from_bits(open_flags).ok_or(KError::InvalidInput)?;
++        AnonInodeFs::global().get_file(
++            "[inotify]",
++            Arc::new(InotifyFops),
++            Self::new(),
++            FMode::READ | FMode::STREAM,
++            open_flags,
++            cred,
++        )
++    }
++
++    /// Retrieves inotify state attached to an open file.
++    pub fn from_file(file: &VfsFile) -> KResult<Arc<Self>> {
++        file.private_data_get::<Self>()
++            .ok_or(KError::BadFileDescriptor)
++    }
++
++    /// Adds a watch for an inode or updates the existing watch on that inode.
++    pub fn add_watch(&self, inode: Arc<VfsInode>, mask: u32) -> KResult<i32> {
++        let event_mask = mask & IN_ALL_EVENTS;
++        let mask_add = mask & IN_MASK_ADD != 0;
++        let mask_create = mask & IN_MASK_CREATE != 0;
++        if mask_add && mask_create {
++            return Err(KError::InvalidInput);
++        }
++
++        let mut watches = self.watches.lock();
++        if let Some(watch) = watches
++            .iter_mut()
++            .find(|watch| Arc::ptr_eq(&watch.inode, &inode))
++        {
++            if mask_create {
++                return Err(LinuxError::EEXIST.into());
++            }
++            if mask_add {
++                watch.mask |= event_mask;
++            } else {
++                watch.mask = event_mask;
++            }
++            watch.oneshot = mask & IN_ONESHOT != 0;
++            return Ok(watch.wd);
++        }
++
++        let wd = self.next_wd.fetch_add(1, Ordering::Relaxed);
++        watches.push(Watch {
++            wd,
++            inode,
++            mask: event_mask,
++            oneshot: mask & IN_ONESHOT != 0,
++        });
++        Ok(wd)
++    }
++
++    /// Removes a watch and queues Linux's `IN_IGNORED` completion event.
++    pub fn remove_watch(&self, wd: i32) -> KResult<()> {
++        let mut watches = self.watches.lock();
++        let Some(index) = watches.iter().position(|watch| watch.wd == wd) else {
++            return Err(LinuxError::EINVAL.into());
++        };
++        watches.swap_remove(index);
++        drop(watches);
++        self.push_event(wd, IN_IGNORED);
++        Ok(())
++    }
++
++    fn notify_inode(&self, inode: &Arc<VfsInode>, event_mask: u32) {
++        let mut matched = Vec::new();
++        {
++            let mut watches = self.watches.lock();
++            watches.retain(|watch| {
++                if !Arc::ptr_eq(&watch.inode, inode) {
++                    return true;
++                }
++                let mask = watch.mask & event_mask;
++                if mask != 0 {
++                    let directory = inode.node_type() == kvfs::NodeType::Directory;
++                    matched.push((watch.wd, mask | if directory { IN_ISDIR } else { 0 }));
++                    if watch.oneshot {
++                        matched.push((watch.wd, IN_IGNORED));
++                        return false;
++                    }
++                }
++                true
++            });
++        }
++        if matched.is_empty() {
++            return;
++        }
++
++        let mut queue = self.queue.lock();
++        let mut appended = false;
++        for (wd, mask) in matched {
++            if queue.len() >= INOTIFY_QUEUE_LIMIT {
++                if !queue
++                    .iter()
++                    .any(|event| i32::from_ne_bytes(event[0..4].try_into().unwrap()) == -1)
++                {
++                    queue.push_back(inotify_event(-1, IN_Q_OVERFLOW));
++                }
++                break;
++            }
++            queue.push_back(inotify_event(wd, mask));
++            appended = true;
++        }
++        drop(queue);
++        if appended {
++            self.poll_rx.wake();
++        }
++    }
++
++    fn push_event(&self, wd: i32, mask: u32) {
++        let mut queue = self.queue.lock();
++        if queue.len() < INOTIFY_QUEUE_LIMIT {
++            queue.push_back(inotify_event(wd, mask));
++            drop(queue);
++            self.poll_rx.wake();
++        }
++    }
++
++    fn read_events(&self, buf: &mut [u8]) -> KResult<usize> {
++        if buf.len() < INOTIFY_EVENT_SIZE {
++            return Err(KError::InvalidInput);
++        }
++        let mut queue = self.queue.lock();
++        if queue.is_empty() {
++            return Err(KError::WouldBlock);
++        }
++        let mut written = 0;
++        while let Some(event) = queue.front() {
++            if written + INOTIFY_EVENT_SIZE > buf.len() {
++                break;
++            }
++            buf[written..written + INOTIFY_EVENT_SIZE].copy_from_slice(event);
++            written += INOTIFY_EVENT_SIZE;
++            queue.pop_front();
++        }
++        self.poll_rx.wake();
++        Ok(written)
++    }
++}
++
++/// Queues an event for inotify instances watching this inode.
++pub fn notify_inode_event(inode: &Arc<VfsInode>, event_mask: u32) {
++    let mut instances = INOTIFY_INSTANCES.lock();
++    instances.retain(|weak| {
++        let Some(instance) = weak.upgrade() else {
++            return false;
++        };
++        instance.notify_inode(inode, event_mask);
++        true
++    });
++}
++
++fn inotify_event(wd: i32, mask: u32) -> [u8; INOTIFY_EVENT_SIZE] {
++    let mut event = [0; INOTIFY_EVENT_SIZE];
++    event[0..4].copy_from_slice(&wd.to_ne_bytes());
++    event[4..8].copy_from_slice(&mask.to_ne_bytes());
++    // cookie = 0 and len = 0 because these inode events have no child name.
++    event
++}
++
++struct InotifyFops;
++
++impl InotifyFops {
++    fn state(file: &VfsFile) -> kio::Result<Arc<InotifyFd>> {
++        InotifyFd::from_file(file)
++    }
++}
++
++impl FileOperations for InotifyFops {
++    fn supports_read(&self) -> bool {
++        true
++    }
++
++    fn read(&self, file: &VfsFile, buf: &mut [u8], _offset: u64) -> kio::Result<usize> {
++        let state = Self::state(file)?;
++        block_on(poll_io(
++            state.as_ref(),
++            IoEvents::IN,
++            file.is_nonblocking(),
++            || state.read_events(buf),
++        ))
++    }
++
++    fn poll(&self, file: &VfsFile) -> IoEvents {
++        Self::state(file)
++            .map(|state| state.poll())
++            .unwrap_or_else(|_| IoEvents::empty())
++    }
++
++    fn register_poll(
++        &self,
++        file: &VfsFile,
++        context: &mut PollContext<'_>,
++        events: IoEvents,
++    ) -> Result<(), PollRegisterError> {
++        if let Ok(state) = Self::state(file) {
++            state.register(context, events)?;
++        }
++        Ok(())
++    }
++}
++
++impl Pollable for InotifyFd {
++    fn poll(&self) -> IoEvents {
++        if self.queue.lock().is_empty() {
++            IoEvents::empty()
++        } else {
++            IoEvents::IN
++        }
++    }
++
++    fn register(
++        &self,
++        context: &mut PollContext<'_>,
++        events: IoEvents,
++    ) -> Result<(), PollRegisterError> {
++        if events.contains(IoEvents::IN) {
++            context.register(&self.poll_rx)?;
++        }
++        Ok(())
++    }
++}
+diff --git a/process/kfd_objects/src/lib.rs b/process/kfd_objects/src/lib.rs
+index 94ec365..4c043bb 100644
+--- a/process/kfd_objects/src/lib.rs
++++ b/process/kfd_objects/src/lib.rs
+@@ -29,5 +29,6 @@ extern crate alloc;
+ 
+ pub mod epoll;
+ pub mod eventfd;
++pub mod inotify;
+ pub mod signalfd;
+ pub mod timerfd;
+-- 
+2.53.0
+

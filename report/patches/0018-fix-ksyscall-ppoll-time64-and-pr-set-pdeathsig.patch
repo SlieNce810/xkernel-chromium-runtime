@@ -1,0 +1,238 @@
+From 2a1b101ccf97ed255821b85628f366700089cda3 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 5 Oct 2026 23:53:50 +0800
+Subject: [PATCH 5/5] fix(ksyscall): add ppoll_time64, PR_SET_PDEATHSIG and
+ driver misc fixes
+
+---
+ Cargo.lock                       |  3 +++
+ core/ksyscall/src/dispatch.rs    | 20 ++++++++++++++++++--
+ core/ksyscall/src/sync/futex.rs  | 25 ++++++++++++++++++++++---
+ core/ksyscall/src/task/ctl.rs    | 15 +++++++++++++++
+ core/ksyscall/src/task/execve.rs |  6 ++++--
+ io/drmdevice/src/drm.rs          |  4 ++++
+ posix/process/src/runtime.rs     |  1 -
+ process/kresources/src/lib.rs    | 14 ++++++++++++++
+ 8 files changed, 80 insertions(+), 8 deletions(-)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index c19c97a..a745ee5 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1611,8 +1611,10 @@ dependencies = [
+  "fs_context",
+  "kbuild_config",
+  "kclass",
++ "kcpu_id_map",
+  "kcred",
+  "kerrno",
++ "knet",
+  "ksync",
+  "kvfs",
+  "log",
+@@ -3959,6 +3961,7 @@ dependencies = [
+  "kcred",
+  "kerrno",
+  "kfd",
++ "kfd_objects",
+  "kio",
+  "klogger",
+  "kpoll",
+diff --git a/core/ksyscall/src/dispatch.rs b/core/ksyscall/src/dispatch.rs
+index 2215900..61fc16c 100644
+--- a/core/ksyscall/src/dispatch.rs
++++ b/core/ksyscall/src/dispatch.rs
+@@ -86,7 +86,6 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+     };
+ 
+     trace!("Syscall {sysno:?}");
+-
+     let result = match sysno {
+         // fs ctl
+         Sysno::ioctl => {
+@@ -350,6 +349,18 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+             uctx.arg3().into(),
+             uctx.arg4() as _,
+         ),
++        #[cfg(any(
++            target_arch = "aarch64",
++            target_arch = "riscv64",
++            target_arch = "loongarch64"
++        ))]
++        Sysno::ppoll_time64 => sys_ppoll(
++            uctx.arg0().into(),
++            uctx.arg1() as _,
++            uctx.arg2().into(),
++            uctx.arg3().into(),
++            uctx.arg4() as _,
++        ),
+         #[cfg(target_arch = "x86_64")]
+         Sysno::select => sys_select(
+             uctx.arg0() as _,
+@@ -800,9 +811,14 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+         #[cfg(not(feature = "ebpf"))]
+         Sysno::bpf => sys_dummy_fd(sysno),
+ 
++        Sysno::inotify_init1 => sys_inotify_init1(uctx.arg0() as _),
++        Sysno::inotify_add_watch => {
++            sys_inotify_add_watch(uctx.arg0() as _, uctx.arg1().into(), uctx.arg2() as _)
++        }
++        Sysno::inotify_rm_watch => sys_inotify_rm_watch(uctx.arg0() as _, uctx.arg1() as _),
++
+         // dummy fds
+         Sysno::fanotify_init
+-        | Sysno::inotify_init1
+         | Sysno::userfaultfd
+         | Sysno::perf_event_open
+         | Sysno::io_uring_setup
+diff --git a/core/ksyscall/src/sync/futex.rs b/core/ksyscall/src/sync/futex.rs
+index 86c61e1..a4d7a71 100644
+--- a/core/ksyscall/src/sync/futex.rs
++++ b/core/ksyscall/src/sync/futex.rs
+@@ -11,9 +11,10 @@ use kfutex::{FutexKey, FutexWakeOp, global_table};
+ use kprocess::{AsThread, current_user_mm_id, current_user_process_address_space};
+ use ktime_types::TimeSpan;
+ use linux_raw_sys::general::{
+-    FUTEX_CLOCK_REALTIME, FUTEX_CMD_MASK, FUTEX_CMP_REQUEUE, FUTEX_PRIVATE_FLAG, FUTEX_REQUEUE,
+-    FUTEX_WAIT, FUTEX_WAIT_BITSET, FUTEX_WAKE, FUTEX_WAKE_BITSET, FUTEX_WAKE_OP, robust_list_head,
+-    timespec,
++    FUTEX_CLOCK_REALTIME, FUTEX_CMD_MASK, FUTEX_CMP_REQUEUE, FUTEX_CMP_REQUEUE_PI, FUTEX_LOCK_PI,
++    FUTEX_LOCK_PI2, FUTEX_PRIVATE_FLAG, FUTEX_REQUEUE, FUTEX_TRYLOCK_PI, FUTEX_UNLOCK_PI,
++    FUTEX_WAIT, FUTEX_WAIT_BITSET, FUTEX_WAIT_REQUEUE_PI, FUTEX_WAKE, FUTEX_WAKE_BITSET,
++    FUTEX_WAKE_OP, robust_list_head, timespec,
+ };
+ use osvm::VirtPtr;
+ use posix_types::{TimeSpanLike, UserConstPtr, UserPtr};
+@@ -126,6 +127,24 @@ pub fn sys_futex(
+     let command = futex_op & (FUTEX_CMD_MASK as u32);
+     let is_private = futex_op & FUTEX_PRIVATE_FLAG != 0;
+     let is_realtime = futex_op & FUTEX_CLOCK_REALTIME != 0;
++
++    // Priority-inheritance futexes are not implemented. Report the feature as
++    // unsupported (EOPNOTSUPP) instead of treating these known commands as an
++    // unknown syscall (ENOSYS). musl probes FUTEX_LOCK_PI to implement
++    // pthread_mutexattr_setprotocol(), and callers such as PulseAudio rely on
++    // ENOTSUP to fall back to a normal mutex.
++    if matches!(
++        command,
++        FUTEX_LOCK_PI
++            | FUTEX_UNLOCK_PI
++            | FUTEX_TRYLOCK_PI
++            | FUTEX_WAIT_REQUEUE_PI
++            | FUTEX_CMP_REQUEUE_PI
++            | FUTEX_LOCK_PI2
++    ) {
++        return Err(KError::OperationNotSupported);
++    }
++
+     if is_realtime && !matches!(command, FUTEX_WAIT | FUTEX_WAIT_BITSET) {
+         return Err(KError::Unsupported);
+     }
+diff --git a/core/ksyscall/src/task/ctl.rs b/core/ksyscall/src/task/ctl.rs
+index 4271ac1..12838d4 100644
+--- a/core/ksyscall/src/task/ctl.rs
++++ b/core/ksyscall/src/task/ctl.rs
+@@ -95,6 +95,21 @@ pub fn sys_prctl(
+     debug!("sys_prctl <= option: {option}, args: {arg2}, {arg3}, {arg4}, {arg5}");
+ 
+     match option {
++        PR_SET_PDEATHSIG => {
++            // Chromium sets this in every child-launch path and treats an
++            // unexpected errno as a fatal pre-exec failure. The full parent
++            // death delivery model is not wired yet; preserve the Linux ABI
++            // by accepting valid signals and reporting no configured signal.
++            if arg2 > 64 || arg3 != 0 || arg4 != 0 || arg5 != 0 {
++                return Err(KError::InvalidInput);
++            }
++        }
++        PR_GET_PDEATHSIG => {
++            if arg3 != 0 || arg4 != 0 || arg5 != 0 {
++                return Err(KError::InvalidInput);
++            }
++            write_vm_mem(arg2 as _, &[0u32])?;
++        }
+         PR_SET_NAME => {
+             let s = vm_load_string(arg2 as *const c_char)?;
+             current().set_name(&s);
+diff --git a/core/ksyscall/src/task/execve.rs b/core/ksyscall/src/task/execve.rs
+index 25c2d87..84da23a 100644
+--- a/core/ksyscall/src/task/execve.rs
++++ b/core/ksyscall/src/task/execve.rs
+@@ -103,7 +103,6 @@ pub fn sys_execve(
+     drop(aspace);
+ 
+     curr.set_name(entry_name.as_str());
+-
+     let exec_update =
+         kprocess::ProcessExecUpdate::new(absolute_path.clone(), Arc::new(args), USER_HEAP_BASE);
+ 
+@@ -122,10 +121,13 @@ pub fn sys_execve(
+     };
+ 
+     if let Err(error) = process.apply_exec_update(exec_update) {
+-        error!("sys_execve: post-commit process update failed; terminating: {error}");
++        error!(
++            "sys_execve: post-commit process update failed; terminating current process: {error}"
++        );
+         posix_process::do_exit(ksignal::Signo::SIGSEGV as i32, true);
+         return Ok(0);
+     }
++
+     let mut exec_cred = thread.prepare_creds();
+     exec_cred.apply_exec();
+     thread.commit_creds(exec_cred);
+diff --git a/io/drmdevice/src/drm.rs b/io/drmdevice/src/drm.rs
+index 72772b7..f815706 100644
+--- a/io/drmdevice/src/drm.rs
++++ b/io/drmdevice/src/drm.rs
+@@ -223,6 +223,10 @@ pub struct DrmModeGetPlane {
+     pub plane_id: u32,
+     pub crtc_id: u32,
+     pub fb_id: u32,
++    // ★ 2026-09-22 勘误（report/32）：标准 uapi 的 drm_mode_get_plane 是
++    // 6×u32 + 1×u64 = 32 字节，**没有** crtc_x/crtc_y/x/y —— 那四个字段
++    // 属于 drm_mode_set_plane。此前按“48 字节”补字段的做法使标准
++    // libdrm 的 32 字节请求失配（iowr 把 size 编进请求值），已回退。
+     pub possible_crtcs: u32,
+     pub gamma_size: u32,
+     pub count_format_types: u32,
+diff --git a/posix/process/src/runtime.rs b/posix/process/src/runtime.rs
+index 895f7d8..17624f7 100644
+--- a/posix/process/src/runtime.rs
++++ b/posix/process/src/runtime.rs
+@@ -328,7 +328,6 @@ pub fn do_exit(exit_code: i32, group_exit: bool) {
+     let process = thr.process();
+ 
+     info!("{} exit with code: {}", curr.id_name(), exit_code);
+-
+     let head = thr.robust_list_head() as *const RobustListHead;
+     if !head.is_null() {
+         exit_robust_list(head, thr.tid());
+diff --git a/process/kresources/src/lib.rs b/process/kresources/src/lib.rs
+index 8c73c29..0398274 100644
+--- a/process/kresources/src/lib.rs
++++ b/process/kresources/src/lib.rs
+@@ -201,6 +201,20 @@ impl ProcessResources {
+         self.add_file(file, cloexec)
+     }
+ 
++    /// Duplicates a descriptor into the first free slot at or above min_fd.
++    pub fn duplicate_file_min(
++        &self,
++        fd: c_int,
++        min_fd: c_int,
++        cloexec: bool,
++    ) -> kerrno::KResult<c_int> {
++        self.with_fd_table(|fd_table| {
++            fd_table
++                .write()
++                .duplicate_from_min(self.max_nofile(), fd, min_fd, cloexec)
++        })
++    }
++
+     /// Duplicates a descriptor into a fixed slot.
+     ///
+     /// The table capacity is checked, but this method does not apply `RLIMIT_NOFILE`.
+-- 
+2.53.0
+

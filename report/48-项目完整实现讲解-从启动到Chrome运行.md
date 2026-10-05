@@ -491,7 +491,7 @@ flowchart LR
 | 后续 | `MSG_CMSG_CLOEXEC` | `net/knet` | fd 泄漏 | ✅ `0013` |
 | 后续 | aarch64 `/proc/cpuinfo` | `procfs` | 字段错 | ✅ `0009` |
 
-> 补丁集见 `report/patches/`（`0001`–`0013`，缺 `0008`）。
+> 补丁集见 `report/patches/`（`0001`–`0018`，缺 `0008`；索引与覆盖关系见 `report/patches/README.md`）。
 > 其中 **上游 MR !831 已合并**。这是"上游 patch 每个 4 分"的来源。
 
 同时报告 §39 记录了一批**已合入工作树的兼容改动**（可直接写成缺口条目）：

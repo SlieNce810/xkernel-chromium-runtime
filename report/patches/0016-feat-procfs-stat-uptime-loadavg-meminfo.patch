@@ -1,0 +1,104 @@
+From 670f80d1d376d993d9f8c4b2eda9087e329de248 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 5 Oct 2026 23:53:37 +0800
+Subject: [PATCH 3/5] feat(procfs): expose /proc/stat, /proc/uptime,
+ /proc/loadavg and /proc/meminfo
+
+---
+ fs/filesystems/procfs/src/basic_nodes/root.rs | 35 +++++++++++++++++++
+ fs/filesystems/procfs/src/task_nodes/root.rs  | 12 +++++++
+ 2 files changed, 47 insertions(+)
+
+diff --git a/fs/filesystems/procfs/src/basic_nodes/root.rs b/fs/filesystems/procfs/src/basic_nodes/root.rs
+index b7c4b3b..b90c8c5 100644
+--- a/fs/filesystems/procfs/src/basic_nodes/root.rs
++++ b/fs/filesystems/procfs/src/basic_nodes/root.rs
+@@ -7,6 +7,7 @@ use core::fmt::Write;
+ 
+ use kbuild_config::ARCH;
+ use kcpu_id_map::for_each_present_logical_cpu;
++use khal::time::monotonic_time;
+ use kvfs::{DirMapping, SimpleDir, SimpleFile, SimpleFs};
+ 
+ pub(crate) fn add_root_entries(root: &mut DirMapping, fs: Arc<SimpleFs>) {
+@@ -19,6 +20,40 @@ pub(crate) fn add_root_entries(root: &mut DirMapping, fs: Arc<SimpleFs>) {
+             })
+         }),
+     );
++    root.add(
++        "stat",
++        SimpleFile::new_regular(fs.clone(), || {
++            Ok(String::from(
++                "cpu  0 0 0 0 0 0 0 0 0 0\nintr 0\nctxt 0\nbtime 0\nprocesses 1\nprocs_running \
++                 1\nprocs_blocked 0\n",
++            ))
++        }),
++    );
++    root.add(
++        "uptime",
++        SimpleFile::new_regular(fs.clone(), || {
++            let uptime = monotonic_time().span_since_origin();
++            let seconds = uptime.as_secs();
++            let millis = uptime.subsec_nanos() / 1_000_000;
++            Ok(format!("{seconds}.{millis:03} {seconds}.{millis:03}\n"))
++        }),
++    );
++    root.add(
++        "loadavg",
++        SimpleFile::new_regular(fs.clone(), || Ok(String::from("0.00 0.00 0.00 1/1 1\n"))),
++    );
++    root.add(
++        "meminfo",
++        SimpleFile::new_regular(fs.clone(), || {
++            Ok(
++                String::from(
++                    "MemTotal:        2097152 kB\nMemFree:         1048576 kB\nMemAvailable:    \
++                     1048576 kB\nBuffers:               0 kB\nCached:                0 \
++                     kB\nSwapTotal:            0 kB\nSwapFree:             0 kB\n",
++                ),
++            )
++        }),
++    );
+     root.add(
+         "instret",
+         SimpleFile::new_regular(fs.clone(), || {
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+index 8b86c6d..682ff0d 100644
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -77,6 +77,13 @@ impl SimpleDirOps for ProcessTaskDir {
+     fn supports_dentry_cache(&self) -> bool {
+         false
+     }
++
++    fn link_count(&self) -> u64 {
++        self.process
++            .upgrade()
++            .map(|process| 2 + process.threads().len() as u64)
++            .unwrap_or(2)
++    }
+ }
+ 
+ fn task_status(task: &KtaskRef) -> String {
+@@ -600,6 +607,7 @@ impl SimpleDirOps for ThreadDir {
+         Ok(Box::new(
+             [
+                 "stat",
++                "statm",
+                 "status",
+                 "oom_score_adj",
+                 "task",
+@@ -633,6 +641,10 @@ impl SimpleDirOps for ThreadDir {
+                     }
+                 }),
+             ),
++            "statm" => lookup.file(
++                name,
++                SimpleFile::new_regular(fs.clone(), || Ok(String::from("0 0 0 0 0 0 0\n"))),
++            ),
+             "status" => lookup.file(
+                 name,
+                 SimpleFile::new_regular(fs.clone(), {
+-- 
+2.53.0
+

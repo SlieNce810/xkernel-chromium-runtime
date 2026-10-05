@@ -1,0 +1,982 @@
+From 707ada7f9b834351dfe5f691763131c2f696e5f5 Mon Sep 17 00:00:00 2001
+From: xk6 <xk6@local>
+Date: Mon, 5 Oct 2026 23:53:30 +0800
+Subject: [PATCH 2/5] feat(input): project evdev sysfs nodes and consume
+ virtio-input events
+
+---
+ drivers/contracts/kclass/src/generic.rs       |  30 ++
+ .../kdriver/src/driver_registry/virtio/mod.rs |  27 +-
+ fs/boot/Cargo.toml                            |   2 +
+ fs/boot/src/input_uevent.rs                   | 163 +++++++++
+ fs/boot/src/lib.rs                            | 314 ++++++++++++++++++
+ fs/filesystems/devfs/src/lib.rs               |   4 +
+ fs/filesystems/devfs/src/nodes/dri.rs         |  26 +-
+ fs/filesystems/devfs/src/nodes/event.rs       | 211 +++++++++++-
+ io/inputdev/src/lib.rs                        |  13 +-
+ 9 files changed, 759 insertions(+), 31 deletions(-)
+ create mode 100644 fs/boot/src/input_uevent.rs
+
+diff --git a/drivers/contracts/kclass/src/generic.rs b/drivers/contracts/kclass/src/generic.rs
+index 0cc2de5..6c141e5 100644
+--- a/drivers/contracts/kclass/src/generic.rs
++++ b/drivers/contracts/kclass/src/generic.rs
+@@ -51,6 +51,29 @@ impl ClassDeviceMetadata {
+             }),
+         }
+     }
++
++    fn set_parent_location(&mut self, location: DeviceLocation) {
++        let Some(identity) = self.input_identity.as_mut() else {
++            return;
++        };
++        identity.physical_location = match location {
++            DeviceLocation::Pci {
++                segment,
++                bus,
++                device,
++                function,
++            } => alloc::format!("pci{segment:04x}:{bus:02x}:{device:02x}.{function}/input0"),
++            DeviceLocation::Mmio { base, .. } => alloc::format!("virtio-mmio@{base:x}/input0"),
++            DeviceLocation::FirmwareNode { id } => alloc::format!("firmware:{id}/input0"),
++            DeviceLocation::PlatformStatic { id } => alloc::format!("platform:{id}/input0"),
++            DeviceLocation::Bridge { domain } => alloc::format!("pci-bridge:{domain}/input0"),
++        };
++        // VirtIO does not report a per-device serial number. Do not publish the
++        // driver's old generic "virtio" marker as if it were unique hardware.
++        if identity.unique_id == "virtio" {
++            identity.unique_id.clear();
++        }
++    }
+ }
+ 
+ impl<T> Clone for ClassDevice<T> {
+@@ -90,6 +113,8 @@ impl<T> ClassDevice<T> {
+     ) -> DriverResult<Self> {
+         parent.driver_name().ok_or(DriverError::BadState)?;
+         parent.driver_id().ok_or(DriverError::BadState)?;
++        let mut metadata = metadata;
++        metadata.set_parent_location(parent.location());
+         Ok(Self {
+             inner: Arc::new(ClassDeviceInner {
+                 parent,
+@@ -112,6 +137,11 @@ impl<T> ClassDevice<T> {
+         self.inner.parent.id()
+     }
+ 
++    /// Return whether two handles reference the same published class object.
++    pub fn is_same_device(&self, other: &Self) -> bool {
++        Arc::ptr_eq(&self.inner, &other.inner)
++    }
++
+     /// Stable runtime device name.
+     pub fn name(&self) -> &str {
+         &self.inner.name
+diff --git a/drivers/integration/kdriver/src/driver_registry/virtio/mod.rs b/drivers/integration/kdriver/src/driver_registry/virtio/mod.rs
+index bd715e0..79c5e9d 100644
+--- a/drivers/integration/kdriver/src/driver_registry/virtio/mod.rs
++++ b/drivers/integration/kdriver/src/driver_registry/virtio/mod.rs
+@@ -178,15 +178,24 @@ fn activate_virtio_pci(device: Arc<DeviceObject>, device_kind: DeviceKind) -> Dr
+         .map(|(_, info)| info)
+         .ok_or(DriverError::BadState)?;
+ 
+-    let (ty, transport, irq) =
+-        virtio::probe_pci_device::<glue::VirtIoHalImpl, pci::MmioCam<'static>>(
+-            root,
+-            bdf,
+-            &dev_info,
+-            config,
+-            crate::resource::resource_provider(),
+-        )
+-        .ok_or(DriverError::BadState)?;
++    let probe_result = virtio::probe_pci_device::<glue::VirtIoHalImpl, pci::MmioCam<'static>>(
++        root,
++        bdf,
++        &dev_info,
++        config,
++        crate::resource::resource_provider(),
++    );
++    let (ty, transport, irq) = match probe_result {
++        Some(result) => result,
++        None => {
++            // virtio-input probe failures still fall through to BadState; the
++            // input-specific handling this branch was opened for is not written
++            // yet. Keep the branch as a marker instead of dropping it.
++            #[allow(clippy::needless_ifs)]
++            if device_kind == DeviceKind::Input {}
++            return Err(DriverError::BadState);
++        }
++    };
+ 
+     if ty != device_kind {
+         return Err(DriverError::Unsupported);
+diff --git a/fs/boot/Cargo.toml b/fs/boot/Cargo.toml
+index 9e86593..519968a 100644
+--- a/fs/boot/Cargo.toml
++++ b/fs/boot/Cargo.toml
+@@ -25,6 +25,8 @@ devfs.workspace = true
+ fs_context.workspace = true
+ kclass = { workspace = true, optional = true }
+ kbuild_config.workspace = true
++kcpu_id_map.workspace = true
++knet.workspace = true
+ kerrno.workspace = true
+ kcred.workspace = true
+ ksync.workspace = true
+diff --git a/fs/boot/src/input_uevent.rs b/fs/boot/src/input_uevent.rs
+new file mode 100644
+index 0000000..1c3d084
+--- /dev/null
++++ b/fs/boot/src/input_uevent.rs
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: Apache-2.0
++// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
++// See LICENSES for license details.
++
++//! Writable input sysfs event attributes backed by kernel uevent multicast.
++
++use alloc::{format, string::String, sync::Arc, vec::Vec};
++
++use kvfs::{
++    CommandFile, DirMapping, NodePermission, NodeType, SimpleDir, SimpleFile, SimpleFileOperation,
++    SimpleFs, SuperBlock, SuperBlockFlags,
++};
++
++const SYSFS_MAGIC: u32 = 0x6265_6572;
++
++fn readonly_file(fs: Arc<SimpleFs>, contents: Vec<u8>) -> Arc<SimpleFile> {
++    SimpleFile::new_regular_with_permission(
++        fs,
++        NodePermission::from_bits_truncate(0o444),
++        move || Ok(contents.clone()),
++    )
++}
++
++fn symlink_file(fs: Arc<SimpleFs>, target: String) -> Arc<SimpleFile> {
++    SimpleFile::new(fs, NodeType::Symlink, move || {
++        Ok(target.clone().into_bytes())
++    })
++}
++
++fn input_capability_property(name: &str) -> Option<&'static str> {
++    match name {
++        "ev" => Some("EV"),
++        "key" => Some("KEY"),
++        "rel" => Some("REL"),
++        "abs" => Some("ABS"),
++        "msc" => Some("MSC"),
++        "sw" => Some("SW"),
++        "led" => Some("LED"),
++        "snd" => Some("SND"),
++        "ff" => Some("FF"),
++        _ => None,
++    }
++}
++
++fn uevent_contents(input: &devfs::InputSysfsDevice, minor: u32) -> Vec<u8> {
++    let mut contents = format!(
++        "MAJOR={}\nMINOR={minor}\nDEVNAME=input/{}\nPRODUCT={:04x}/{:04x}/{:04x}/{:04x}\nNAME=\"\
++         {}\"\nPHYS=\"{}\"\nUNIQ=\"{}\"\nPROP=0\n",
++        devfs::INPUT_DEV_MAJOR,
++        input.event_name,
++        input.bus_type,
++        input.vendor,
++        input.product,
++        input.version,
++        input.name,
++        input.physical_location,
++        input.unique_id,
++    );
++    for (name, value) in &input.capabilities {
++        let Some(property) = input_capability_property(name) else {
++            continue;
++        };
++        contents.push_str(property);
++        contents.push('=');
++        contents.push_str(value.trim());
++        contents.push('\n');
++    }
++    contents.into_bytes()
++}
++
++fn publish_input_uevent(input: &devfs::InputSysfsDevice, minor: u32, action: &str) {
++    let device_path = input
++        .event_path
++        .strip_prefix("/sys")
++        .unwrap_or(input.event_path.as_str());
++    let mut payload = Vec::new();
++    payload.extend_from_slice(
++        format!(
++            "{action}@{device_path}\0ACTION={action}\0DEVPATH={device_path}\0SUBSYSTEM=input\\
++             0MAJOR={}\0MINOR={minor}\0DEVNAME=input/{}\0",
++            devfs::INPUT_DEV_MAJOR,
++            input.event_name,
++        )
++        .as_bytes(),
++    );
++    payload.extend_from_slice(
++        format!(
++            "PRODUCT={:04x}/{:04x}/{:04x}/{:04x}\0NAME=\"{}\"\0PHYS=\"{}\"\0UNIQ=\"{}\"\0PROP=0\0",
++            input.bus_type,
++            input.vendor,
++            input.product,
++            input.version,
++            input.name,
++            input.physical_location,
++            input.unique_id,
++        )
++        .as_bytes(),
++    );
++    for (name, value) in &input.capabilities {
++        let Some(property) = input_capability_property(name) else {
++            continue;
++        };
++        payload.extend_from_slice(format!("{property}={}\0", value.trim()).as_bytes());
++    }
++    knet::netlink::publish_kobject_uevent(1, &payload);
++}
++
++/// Build one event class directory whose `uevent` writes notify real eudev
++/// listeners. The device path, dev_t, IDs, and capability masks come from the
++/// same registered kernel input device as the `/dev/input/eventN` node.
++pub(crate) fn new_event_sysfs(input: devfs::InputSysfsDevice, minor: u32) -> Arc<SuperBlock> {
++    let read_content = uevent_contents(&input, minor);
++    let command_input = input.clone();
++    let command = CommandFile::new(move |operation| match operation {
++        SimpleFileOperation::Read => Ok(Some(read_content.clone())),
++        SimpleFileOperation::Write { data, .. } => {
++            let action = core::str::from_utf8(data)
++                .map_err(|_| kvfs::VfsError::InvalidInput)?
++                .trim_matches(|ch: char| ch == '\0' || ch.is_whitespace());
++            if !matches!(action, "add" | "change" | "remove") {
++                return Err(kvfs::VfsError::InvalidInput);
++            }
++            log::warn!(
++                "input sysfs uevent write: action={} devnode=/dev/input/{} dev=13:{}",
++                action,
++                command_input.event_name,
++                minor,
++            );
++            publish_input_uevent(&command_input, minor, action);
++            Ok(None)
++        }
++    });
++
++    SimpleFs::new_with_superblock_flags(
++        &memfs::SYSFS_TYPE,
++        SYSFS_MAGIC,
++        SuperBlockFlags::empty(),
++        move |fs| {
++            let mut entries = DirMapping::new();
++            entries.add(
++                "dev",
++                readonly_file(
++                    fs.clone(),
++                    format!("{}:{minor}\n", devfs::INPUT_DEV_MAJOR).into_bytes(),
++                ),
++            );
++            entries.add(
++                "uevent",
++                SimpleFile::new_regular_with_permission(
++                    fs.clone(),
++                    NodePermission::from_bits_truncate(0o644),
++                    command,
++                ),
++            );
++            entries.add("device", symlink_file(fs.clone(), input.input_path.clone()));
++            entries.add(
++                "subsystem",
++                symlink_file(fs.clone(), String::from("/sys/class/input")),
++            );
++            SimpleDir::new_maker(fs.clone(), Arc::new(entries))
++        },
++    )
++}
+diff --git a/fs/boot/src/lib.rs b/fs/boot/src/lib.rs
+index e38ab88..8fb65c0 100644
+--- a/fs/boot/src/lib.rs
++++ b/fs/boot/src/lib.rs
+@@ -13,6 +13,8 @@
+ 
+ extern crate alloc;
+ 
++mod input_uevent;
++
+ #[macro_use]
+ extern crate log;
+ 
+@@ -245,6 +247,12 @@ impl BootVfs {
+         }
+         self.create_sys_graphics_links()
+             .expect("Failed to create sys graphics links");
++        self.create_sys_drm_entries()
++            .expect("Failed to create sys DRM entries");
++        self.create_sys_input_entries()
++            .expect("Failed to create sys input entries");
++        self.create_sys_cpu_entries()
++            .expect("Failed to create sys CPU entries");
+ 
+         if let Err(err) = devfs::bind_dev_log() {
+             if err != kerrno::LinuxError::ENOSYS && err != kerrno::LinuxError::EOPNOTSUPP {
+@@ -326,6 +334,312 @@ impl BootVfs {
+         }
+         Ok(())
+     }
++
++    /// # 内核侧 sysfs 投射：DRM 设备
++    ///
++    /// 为什么必须在**内核**里做：Weston 14 的 DRM backend 先经 libudev 在
++    /// `/sys/class/drm/<name>` 找到设备、拿到 devnode，才去 open 设备节点
++    /// （`udev_device_new_from_subsystem_sysname(..., "drm", "card0")`）。
++    /// 此前 `/sys/class` 只有 `graphics`，只能靠 LD_PRELOAD 的 libudev shim 伪造，
++    /// 而用户态伪造正是验收要拆掉的东西。
++    ///
++    /// 投射面来自**实证**：guest 镜像里的 `libudev.so.1.6.3`（eudev）二进制里
++    /// 引用 `/sys/class/`、`/sys/dev/%s/%u:%u`，解析属性 MAJOR/MINOR/DEVNAME/DEVTYPE。
++    /// 设备号取自 devfs 的 `/dev/dri/card0` 注册点（单一真源），本函数不做任何硬编码。
++    fn create_sys_drm_entries(&self) -> kvfs::VfsResult<()> {
++        if !devfs::drm_available() {
++            return Ok(());
++        }
++        let major = devfs::CARD0_DEV_MAJOR;
++        let minor = devfs::CARD0_DEV_MINOR;
++
++        self.ensure_directory_path("/sys/class/drm/card0")?;
++        self.ensure_directory_path("/sys/dev/char")?;
++
++        // card0/dev —— libudev 用它解析设备号
++        self.create_sys_file(
++            "/sys/class/drm/card0/dev",
++            &format!("{major}:{minor}\n"),
++            0o444,
++        )?;
++        // card0/uevent —— DEVNAME 决定 udev_device_get_devnode() 的返回值
++        self.create_sys_file(
++            "/sys/class/drm/card0/uevent",
++            &format!("MAJOR={major}\nMINOR={minor}\nDEVNAME=dri/card0\nDEVTYPE=drm_minor\n"),
++            0o444,
++        )?;
++        // /sys/dev/char/<maj>:<min> → 设备目录（udev_device_new_from_devnum 的入口）
++        self.create_sys_symlink(
++            &format!("/sys/dev/char/{major}:{minor}"),
++            "/sys/class/drm/card0",
++        )?;
++        // libdrm walks /sys/dev/char/<major>:<minor>/device before it accepts
++        // a DRM minor. The KMS-only driver has no PCI parent, so provide the
++        // simpledrm-style device/subsystem links used by platform displays.
++        self.ensure_directory_path("/sys/devices/simpledrm")?;
++        self.ensure_directory_path("/sys/devices/simpledrm/drm")?;
++        self.ensure_directory_path("/sys/bus/platform")?;
++        self.create_sys_symlink("/sys/class/drm/card0/device", "/sys/devices/simpledrm")?;
++        self.create_sys_symlink("/sys/devices/simpledrm/subsystem", "/sys/bus/platform")?;
++        self.create_sys_symlink("/sys/devices/simpledrm/drm/card0", "/sys/class/drm/card0")?;
++        self.create_sys_file(
++            "/sys/devices/simpledrm/uevent",
++            "DRIVER=simpledrm\nDEVTYPE=drm_minor\nOF_FULLNAME=/simple-framebuffer\\
++             nMODALIAS=platform:simpledrm\nOF_COMPATIBLE_N=1\nOF_COMPATIBLE_0=simpledrm\n",
++            0o444,
++        )?;
++        // card0/subsystem -> /sys/class/drm.
++        self.create_sys_symlink("/sys/class/drm/card0/subsystem", "/sys/class/drm")?;
++        info!("sysfs: projected /sys/class/drm/card0 ({major}:{minor}) for libudev/libdrm");
++        Ok(())
++    }
++
++    /// Project input devices from the registered kernel device snapshot.
++    fn create_sys_input_entries(&self) -> kvfs::VfsResult<()> {
++        let devices = devfs::input_sysfs_devices();
++        if devices.is_empty() {
++            return Ok(());
++        }
++
++        self.ensure_directory_path("/sys/class/input")?;
++        self.ensure_directory_path("/sys/dev/char")?;
++        self.ensure_directory_path("/sys/subsystem")?;
++        self.ensure_directory_path("/sys/bus/input/devices")?;
++        self.ensure_directory_path("/sys/bus/input/drivers")?;
++        self.create_sys_symlink("/sys/subsystem/input", "../bus/input")?;
++
++        for input in devices {
++            let event_minor = devfs::INPUT_EVENT_MINOR_BASE + input.index as u32;
++            let parent = &input.parent_path;
++            let input_path = &input.input_path;
++            let event_path = &input.event_path;
++            let input_class = format!("/sys/class/input/{}", input.input_name);
++            let event_class = format!("/sys/class/input/{}", input.event_name);
++            let input_relative = input_path.trim_start_matches("/sys/");
++            let event_relative = event_path.trim_start_matches("/sys/");
++            let input_class_target = format!("../../{input_relative}");
++            let input_bus_target = format!("../../../{input_relative}");
++            let event_bus_target = format!("../../../{event_relative}");
++            let event_dev_target = format!("../../{event_relative}");
++            let parent_bus_target = format!("../../../{}", parent.trim_start_matches("/sys/"));
++            let parent_subsystem_target = format!(
++                "../../../bus/{}",
++                input.parent_bus_path.trim_start_matches("/sys/bus/"),
++            );
++
++            self.ensure_directory_path(parent)?;
++            self.ensure_directory_path(&format!("{parent}/input"))?;
++            self.ensure_directory_path(&format!("{input_path}/id"))?;
++            self.ensure_directory_path(&format!("{input_path}/capabilities"))?;
++            self.ensure_directory_path(event_path)?;
++            self.ensure_directory_path(&event_class)?;
++            self.ensure_directory_path(&format!(
++                "/sys/bus/{}/devices",
++                if input.parent_bus_path.ends_with("/pci") {
++                    "pci"
++                } else {
++                    "platform"
++                }
++            ))?;
++
++            let parent_uevent = format!(
++                "SUBSYSTEM={}\n",
++                if input.parent_bus_path.ends_with("/pci") {
++                    "pci"
++                } else {
++                    "platform"
++                },
++            );
++            self.create_sys_file(&format!("{parent}/uevent"), &parent_uevent, 0o444)?;
++            self.create_sys_file(
++                &format!("{input_path}/name"),
++                &format!("{}\n", input.name),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{input_path}/phys"),
++                &format!("{}\n", input.physical_location),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{input_path}/uniq"),
++                &format!("{}\n", input.unique_id),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{input_path}/uevent"),
++                &format!(
++                    "PRODUCT={:04x}/{:04x}/{:04x}/{:04x}\nNAME=\"{}\"\nPHYS=\"{}\"\nUNIQ=\"{}\"\\
++                     nPROP=0\n",
++                    input.bus_type,
++                    input.vendor,
++                    input.product,
++                    input.version,
++                    input.name,
++                    input.physical_location,
++                    input.unique_id,
++                ),
++                0o444,
++            )?;
++            for (field, value) in [
++                ("bustype", input.bus_type),
++                ("vendor", input.vendor),
++                ("product", input.product),
++                ("version", input.version),
++            ] {
++                self.create_sys_file(
++                    &format!("{input_path}/id/{field}"),
++                    &format!("{value:04x}\n"),
++                    0o444,
++                )?;
++            }
++            for (name, value) in &input.capabilities {
++                self.create_sys_file(&format!("{input_path}/capabilities/{name}"), value, 0o444)?;
++            }
++            self.create_sys_file(&format!("{input_path}/properties"), "0\n", 0o444)?;
++
++            self.create_sys_file(
++                &format!("{event_path}/dev"),
++                &format!("{}:{event_minor}\n", devfs::INPUT_DEV_MAJOR),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{event_path}/uevent"),
++                &format!(
++                    "MAJOR={}\nMINOR={event_minor}\nDEVNAME=input/{}\n",
++                    devfs::INPUT_DEV_MAJOR,
++                    input.event_name,
++                ),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{event_class}/dev"),
++                &format!("{}:{event_minor}\n", devfs::INPUT_DEV_MAJOR),
++                0o444,
++            )?;
++            self.create_sys_file(
++                &format!("{event_class}/uevent"),
++                &format!(
++                    "MAJOR={}\nMINOR={event_minor}\nDEVNAME=input/{}\n",
++                    devfs::INPUT_DEV_MAJOR,
++                    input.event_name,
++                ),
++                0o444,
++            )?;
++
++            self.create_sys_symlink(&input_class, &input_class_target)?;
++            self.create_sys_symlink(&format!("{event_class}/device"), input_path)?;
++            self.create_sys_symlink(&format!("{event_class}/subsystem"), "/sys/class/input")?;
++            self.create_sys_symlink(&format!("{input_path}/device"), "../..")?;
++            self.create_sys_symlink(&format!("{input_path}/subsystem"), "/sys/class/input")?;
++            self.create_sys_symlink(&format!("{parent}/subsystem"), &parent_subsystem_target)?;
++            self.create_sys_symlink(&input.parent_bus_link, &parent_bus_target)?;
++            self.create_sys_symlink(
++                &format!("/sys/bus/input/devices/{}", input.input_name),
++                &input_bus_target,
++            )?;
++            self.create_sys_symlink(
++                &format!("/sys/bus/input/devices/{}", input.event_name),
++                &event_bus_target,
++            )?;
++            self.create_sys_symlink(
++                &format!("/sys/dev/char/{}:{event_minor}", devfs::INPUT_DEV_MAJOR),
++                &event_dev_target,
++            )?;
++
++            self.mount_sysfs_input_event(&input, event_minor, event_path)?;
++            info!(
++                "sysfs: projected {} ({},{}:{event_minor}) at {}",
++                input.event_name,
++                input.name,
++                devfs::INPUT_DEV_MAJOR,
++                input_path,
++            );
++        }
++        Ok(())
++    }
++
++    fn mount_sysfs_input_event(
++        &self,
++        input: &devfs::InputSysfsDevice,
++        event_minor: u32,
++        mountpoint: &str,
++    ) -> kvfs::VfsResult<()> {
++        let mountpoint = self.lookup(mountpoint)?;
++        let superblock = input_uevent::new_event_sysfs(input.clone(), event_minor);
++        self.namespace
++            .attach_with_flags_and_devname(&mountpoint, &superblock, PSEUDO_FS_MOUNT_FLAGS, None)
++            .map(|_| ())
++    }
++
++    /// Project the platform's actual CPU map for userspace CPU discovery.
++    ///
++    /// CPU identities come from the device tree parsed by `kcpu_id_map`.
++    /// x-kernel does not support CPU hotplug, so every discovered CPU is
++    /// present and online for this fixed QEMU platform.
++    fn create_sys_cpu_entries(&self) -> kvfs::VfsResult<()> {
++        let cpu_count = kcpu_id_map::nr_cpus().max(1);
++        // The literal arm is kept to mirror the formatted arm below.
++        #[allow(clippy::useless_format)]
++        let cpu_list = if cpu_count == 1 {
++            format!("0\n")
++        } else {
++            format!("0-{}\n", cpu_count - 1)
++        };
++        let kernel_max = format!("{}\n", cpu_count - 1);
++        let base = "/sys/devices/system/cpu";
++        self.ensure_directory_path(base)?;
++
++        for (name, value) in [
++            ("possible", cpu_list.as_str()),
++            ("present", cpu_list.as_str()),
++            ("online", cpu_list.as_str()),
++            ("kernel_max", kernel_max.as_str()),
++        ] {
++            self.create_sys_file(&format!("{base}/{name}"), value, 0o444)?;
++        }
++
++        info!(
++            "sysfs: projected CPU map from device tree: {}",
++            cpu_list.trim()
++        );
++        Ok(())
++    }
++
++    /// 建一个内容固定的 sysfs 属性文件（已存在则截断重写）。
++    fn create_sys_file(&self, path: &str, content: &str, mode: u16) -> kvfs::VfsResult<()> {
++        let cred = kcred::initial_cred();
++        if let Some((parent, _)) = path.rsplit_once('/') {
++            self.ensure_directory_path(parent)?;
++        }
++        let file = Filename::new(path).open_with_flags_at(
++            &self.root,
++            &self.root,
++            (kvfs::OpenFlags::WRITE_ONLY | kvfs::OpenFlags::CREATE | kvfs::OpenFlags::TRUNCATE)
++                .bits(),
++            NodePermission::from_bits_truncate(mode),
++            NodePermission::empty(),
++            cred,
++        )?;
++        let mut pos = 0u64;
++        let data = content.as_bytes();
++        while (pos as usize) < data.len() {
++            let n = file.write_from(&data[pos as usize..], &mut pos)?;
++            if n == 0 {
++                return Err(kvfs::VfsError::Io);
++            }
++        }
++        Ok(())
++    }
++
++    /// 建一个符号链接（已存在则跳过）。
++    fn create_sys_symlink(&self, path: &str, target: &str) -> kvfs::VfsResult<()> {
++        let cred = kcred::initial_cred();
++        match Filename::new(path).symlink_at(&self.root, &self.root, target, &cred) {
++            Ok(_) | Err(kvfs::VfsError::AlreadyExists) => Ok(()),
++            Err(err) => Err(err),
++        }
++    }
+ }
+ 
+ fn mount_root_file_system(boot: &BootVfs) {
+diff --git a/fs/filesystems/devfs/src/lib.rs b/fs/filesystems/devfs/src/lib.rs
+index fbf68ae..703999c 100644
+--- a/fs/filesystems/devfs/src/lib.rs
++++ b/fs/filesystems/devfs/src/lib.rs
+@@ -88,3 +88,7 @@ pub fn capture_firmware_dtb_snapshot() {
+ 
+ #[cfg(feature = "dev-log")]
+ pub use nodes::log::bind_dev_log;
++pub use nodes::{
++    dri::{CARD0_DEV_MAJOR, CARD0_DEV_MINOR, drm_available},
++    event::{INPUT_DEV_MAJOR, INPUT_EVENT_MINOR_BASE, InputSysfsDevice, input_sysfs_devices},
++};
+diff --git a/fs/filesystems/devfs/src/nodes/dri.rs b/fs/filesystems/devfs/src/nodes/dri.rs
+index f66a750..8e9bf09 100644
+--- a/fs/filesystems/devfs/src/nodes/dri.rs
++++ b/fs/filesystems/devfs/src/nodes/dri.rs
+@@ -10,6 +10,21 @@ use kvfs::{DirMapping, SimpleDir, SimpleFs};
+ 
+ use crate::{DeviceFile, add_device_entry};
+ 
++/// `/dev/dri/card0` 的设备号（major, minor）—— **单一真源**。
++///
++/// 内核 sysfs 投射（`fs/boot` 生成 `/sys/class/drm/card0/{dev,uevent}`）与这里的
++/// 设备节点注册必须给出**同一个**设备号；两处各写一份常量必然漂移，
++/// 所以由本文件定义、两处引用。
++pub const CARD0_DEV_MAJOR: u32 = 226;
++pub const CARD0_DEV_MINOR: u32 = 0;
++
++/// 显示设备是否可用（即 `/dev/dri/card0` 已注册）。
++///
++/// 供 sysfs 投射判断"要不要生成 `/sys/class/drm/**`"——绝不为不存在的设备造节点。
++pub fn drm_available() -> bool {
++    drmdevice::available()
++}
++
+ /// Register `/dev/dri/card0` if a display device is available.
+ pub(crate) fn add_root_entries(root: &mut DirMapping, fs: Arc<SimpleFs>) {
+     if !drmdevice::available() {
+@@ -21,7 +36,16 @@ pub(crate) fn add_root_entries(root: &mut DirMapping, fs: Arc<SimpleFs>) {
+         "card0",
+         DeviceFile::new_character(
+             fs.clone(),
+-            kvfs::DeviceId::new(226, 0),
++            kvfs::DeviceId::new(CARD0_DEV_MAJOR, CARD0_DEV_MINOR),
++            drmdevice::Card0::new(),
++        ),
++    );
++    add_device_entry(
++        &mut dri_dir,
++        "renderD128",
++        DeviceFile::new_character(
++            fs.clone(),
++            kvfs::DeviceId::new(CARD0_DEV_MAJOR, 128),
+             drmdevice::Card0::new(),
+         ),
+     );
+diff --git a/fs/filesystems/devfs/src/nodes/event.rs b/fs/filesystems/devfs/src/nodes/event.rs
+index 40abe70..cefd678 100644
+--- a/fs/filesystems/devfs/src/nodes/event.rs
++++ b/fs/filesystems/devfs/src/nodes/event.rs
+@@ -2,13 +2,19 @@
+ // Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+ // See LICENSES for license details.
+ 
+-use alloc::{format, string::ToString, sync::Arc, vec};
++use alloc::{
++    format,
++    string::{String, ToString},
++    sync::Arc,
++    vec,
++    vec::Vec,
++};
+ 
+ use bitmaps::Bitmap;
+ use kclass::ClassDevice;
+ #[allow(unused_imports)]
+ use kclass::prelude::{DriverError, Event, EventType, InputDevice, InputDeviceId, InputDeviceImpl};
+-use kdevice::subscribe_device_removed;
++use kdevice::{DeviceLocation, subscribe_device_removed};
+ use kerrno::{KError, KResult};
+ use kpoll::{IoEvents, PollContext, PollRegisterError, PollSet, Pollable};
+ use ksync::Mutex;
+@@ -42,6 +48,10 @@ impl Inner {
+         if self.read_ahead.is_none() {
+             match device.read_event() {
+                 Ok(event) => {
++                    warn!(
++                        "evdev event type={} code={} value={}",
++                        event.event_type, event.code, event.value
++                    );
+                     if event.event_type == EventType::Key as u16 {
+                         if event.value == 0 {
+                             self.key_state.set(event.code as usize, false);
+@@ -181,6 +191,7 @@ pub extern "C" fn ongkey() {
+ 
+ impl DeviceFileOps for EventDev {
+     fn open(&self, _inode: &VfsInode, file: &mut VfsFileBuilder) -> VfsResult<()> {
++        warn!("evdev open event node");
+         file.stream_open();
+         Ok(())
+     }
+@@ -229,6 +240,7 @@ impl DeviceFileOps for EventDev {
+     }
+ 
+     fn ioctl(&self, _file: &VfsFile, cmd: u32, arg: usize) -> VfsResult<usize> {
++        warn!("evdev ioctl cmd={cmd:#010x} arg={arg:#x}");
+         match cmd {
+             EVIOCGVERSION => {
+                 UserPtr::<u32>::from(arg).write_vm(0x10001)?;
+@@ -371,27 +383,190 @@ impl Pollable for EventDev {
+     }
+ }
+ 
++pub const INPUT_DEV_MAJOR: u32 = 13;
++pub const INPUT_EVENT_MINOR_BASE: u32 = 64;
++
++/// Real input-device metadata used to project the matching evdev sysfs node.
++#[derive(Clone, Debug)]
++pub struct InputSysfsDevice {
++    pub index: usize,
++    pub input_name: String,
++    pub event_name: String,
++    pub input_path: String,
++    pub event_path: String,
++    pub parent_path: String,
++    pub parent_bus_path: String,
++    pub parent_bus_link: String,
++    pub name: String,
++    pub physical_location: String,
++    pub unique_id: String,
++    pub bus_type: u16,
++    pub vendor: u16,
++    pub product: u16,
++    pub version: u16,
++    pub capabilities: Vec<(String, String)>,
++}
++
++fn bitset_sysfs_value(bytes: &[u8]) -> String {
++    use core::fmt::Write as _;
++
++    // Linux input sysfs prints unsigned-long words from high to low, separated
++    // by spaces; AArch64 unsigned long is 64 bits.
++    let word_count = bytes.len().div_ceil(size_of::<u64>());
++    let word_at = |index: usize| {
++        let start = index * size_of::<u64>();
++        let end = (start + size_of::<u64>()).min(bytes.len());
++        let mut raw = [0u8; size_of::<u64>()];
++        if start < end {
++            raw[..end - start].copy_from_slice(&bytes[start..end]);
++        }
++        u64::from_le_bytes(raw)
++    };
++    let Some(last) = (0..word_count).rev().find(|index| word_at(*index) != 0) else {
++        return String::from("0\n");
++    };
++
++    let mut value = String::new();
++    for index in (0..=last).rev() {
++        if index == last {
++            let _ = write!(&mut value, "{:x}", word_at(index));
++        } else {
++            let _ = write!(&mut value, " {:016x}", word_at(index));
++        }
++    }
++    value.push('\n');
++    value
++}
++
++fn input_capability_name(ty: EventType) -> Option<&'static str> {
++    match ty {
++        EventType::Key => Some("key"),
++        EventType::Relative => Some("rel"),
++        EventType::Absolute => Some("abs"),
++        EventType::Misc => Some("msc"),
++        EventType::Switch => Some("sw"),
++        EventType::Led => Some("led"),
++        EventType::Sound => Some("snd"),
++        EventType::ForceFeedback => Some("ff"),
++        EventType::Synchronization => None,
++    }
++}
++
++fn input_sysfs_paths(
++    location: DeviceLocation,
++    index: usize,
++) -> (String, String, String, String, String) {
++    match location {
++        DeviceLocation::Pci {
++            segment,
++            bus,
++            device,
++            function,
++        } => {
++            let bus_name = alloc::format!("pci{segment:04x}:{bus:02x}");
++            let bdf = alloc::format!("{segment:04x}:{bus:02x}:{device:02x}.{function}");
++            let parent = alloc::format!("/sys/devices/{bus_name}/{bdf}");
++            let input = alloc::format!("{parent}/input/input{index}");
++            let event = alloc::format!("{input}/event{index}");
++            let bus_path = String::from("/sys/bus/pci");
++            let bus_link = alloc::format!("/sys/bus/pci/devices/{bdf}");
++            (parent, input, event, bus_path, bus_link)
++        }
++        DeviceLocation::Mmio { base, .. } => {
++            let parent = alloc::format!("/sys/devices/platform/virtio-mmio@{base:x}");
++            let input = alloc::format!("{parent}/input/input{index}");
++            let event = alloc::format!("{input}/event{index}");
++            let bus_path = String::from("/sys/bus/platform");
++            let bus_link = alloc::format!("/sys/bus/platform/devices/virtio-mmio@{base:x}");
++            (parent, input, event, bus_path, bus_link)
++        }
++        DeviceLocation::FirmwareNode { id } => {
++            let parent = alloc::format!("/sys/devices/platform/firmware:{id}");
++            let input = alloc::format!("{parent}/input/input{index}");
++            let event = alloc::format!("{input}/event{index}");
++            let bus_path = String::from("/sys/bus/platform");
++            let bus_link = alloc::format!("/sys/bus/platform/devices/firmware:{id}");
++            (parent, input, event, bus_path, bus_link)
++        }
++        DeviceLocation::PlatformStatic { id } => {
++            let parent = alloc::format!("/sys/devices/platform/static:{id}");
++            let input = alloc::format!("{parent}/input/input{index}");
++            let event = alloc::format!("{input}/event{index}");
++            let bus_path = String::from("/sys/bus/platform");
++            let bus_link = alloc::format!("/sys/bus/platform/devices/static:{id}");
++            (parent, input, event, bus_path, bus_link)
++        }
++        DeviceLocation::Bridge { domain } => {
++            let parent = alloc::format!("/sys/devices/platform/pci-bridge:{domain}");
++            let input = alloc::format!("{parent}/input/input{index}");
++            let event = alloc::format!("{input}/event{index}");
++            let bus_path = String::from("/sys/bus/platform");
++            let bus_link = alloc::format!("/sys/bus/platform/devices/pci-bridge:{domain}");
++            (parent, input, event, bus_path, bus_link)
++        }
++    }
++}
++
++/// Return an event-numbered snapshot of the registered devices and their
++/// actual bus locations/capabilities for the kernel's sysfs projection.
++pub fn input_sysfs_devices() -> Vec<InputSysfsDevice> {
++    inputdev::input_devices()
++        .into_iter()
++        .enumerate()
++        .map(|(index, device)| {
++            let (parent_path, input_path, event_path, parent_bus_path, parent_bus_link) =
++                input_sysfs_paths(device.location(), index);
++            let mut event_bits = Bitmap::<{ EventType::COUNT as usize }>::new();
++            event_bits.set(EventType::Synchronization as usize, true);
++            let mut capabilities = Vec::new();
++
++            for slot in 0..EventType::COUNT {
++                let Some(ty) = EventType::from_repr(slot) else {
++                    continue;
++                };
++                let mut bits = vec![0u8; ty.bits_count().div_ceil(8)];
++                if device.get_event_bits(ty, &mut bits).unwrap_or(false) {
++                    event_bits.set(slot as usize, true);
++                    if let Some(file_name) = input_capability_name(ty) {
++                        capabilities.push((file_name.into(), bitset_sysfs_value(&bits)));
++                    }
++                }
++            }
++            capabilities.push(("ev".into(), bitset_sysfs_value(event_bits.as_bytes())));
++            let id = device.device_id();
++            InputSysfsDevice {
++                index,
++                input_name: format!("input{index}"),
++                event_name: format!("event{index}"),
++                input_path,
++                event_path,
++                parent_path,
++                parent_bus_path,
++                parent_bus_link,
++                name: device.name().into(),
++                physical_location: device.physical_location().into(),
++                unique_id: device.unique_id().into(),
++                bus_type: id.bus_type,
++                vendor: id.vendor,
++                product: id.product,
++                version: id.version,
++                capabilities,
++            }
++        })
++        .collect()
++}
++
+ pub fn input_devices(fs: Arc<SimpleFs>) -> DirMapping {
+     let mut inputs = DirMapping::new();
+-    let mut input_id = 0;
+-    let input_devices = inputdev::input_drain_devices();
+-    let mut keys = [0; 0x300usize.div_ceil(8)];
+-    for (i, device) in input_devices.into_iter().enumerate() {
+-        assert!(device.get_event_bits(EventType::Key, &mut keys).unwrap());
+-
++    let devices = inputdev::input_devices();
++    for (input_id, device) in devices.into_iter().enumerate() {
+         let event_dev = Arc::new(EventDev::new(device));
+         event_dev.subscribe_removed();
+ 
+-        let dev = DeviceFile::new_character(fs.clone(), DeviceId::new(13, (i + 1) as _), event_dev);
+-
+-        const BTN_MOUSE: usize = 0x110;
+-        if keys[BTN_MOUSE / 8] & (1 << (BTN_MOUSE % 8)) != 0 {
+-            // Mouse
+-            add_device_entry(&mut inputs, "mice", dev);
+-        } else {
+-            add_device_entry(&mut inputs, format!("event{input_id}"), dev);
+-            input_id += 1;
+-        }
++        let minor = INPUT_EVENT_MINOR_BASE + input_id as u32;
++        let dev =
++            DeviceFile::new_character(fs.clone(), DeviceId::new(INPUT_DEV_MAJOR, minor), event_dev);
++        add_device_entry(&mut inputs, format!("event{input_id}"), dev);
+     }
+     inputs
+ }
+diff --git a/io/inputdev/src/lib.rs b/io/inputdev/src/lib.rs
+index 4346eae..ba310ec 100644
+--- a/io/inputdev/src/lib.rs
++++ b/io/inputdev/src/lib.rs
+@@ -44,7 +44,7 @@ fn register_input_device(handle: ClassDevice<InputDeviceImpl>) {
+     }
+ 
+     let mut devices = INPUT_DEVICES.lock();
+-    if devices.iter().any(|device| device.id() == handle.id()) {
++    if devices.iter().any(|device| device.is_same_device(&handle)) {
+         return;
+     }
+ 
+@@ -70,7 +70,14 @@ fn subscribe_input_unregister() {
+     }));
+ }
+ 
+-/// Drain all registered input device handles out of the input subsystem.
++/// Return a repeatable snapshot of all currently registered input devices.
++pub fn input_devices() -> Vec<ClassDevice<InputDeviceImpl>> {
++    INPUT_DEVICES.lock().clone()
++}
++
++/// Compatibility wrapper retained for older callers. Input enumeration is a
++/// snapshot now; reading `/dev/input` must not consume the registration list.
++#[deprecated(note = "use input_devices(); input enumeration is non-consuming")]
+ pub fn input_drain_devices() -> Vec<ClassDevice<InputDeviceImpl>> {
+-    INPUT_DEVICES.lock().drain(..).collect()
++    input_devices()
+ }
+-- 
+2.53.0
+
