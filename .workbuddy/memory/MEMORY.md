@@ -91,7 +91,8 @@
   **交付类 HTML 的图一律内联 SVG，不要赌外部资源。**
   内容：拆题与评分坐标 → 从启动到运行的 8 阶段流程 → 支撑 Chrome 的内核组件（含 DRM ioctl 编号表、sysfs 关键性）→ 额外补充的四类内容（补丁 / 能力补齐 / 镜像与用户态 / 工具链）→ 两次误修教训 → 上手实践最短路径 + 12 条坑。
   需要"给新人讲一遍项目"或写文档/答辩材料时，**先从这里取骨架**。
-- 内核指纹两枚：`dcb862c9…`（r5/perf3）、`7584653b…`（r20/r21）；镜像 `bb25e0b2…`；overlay `56dba17c…`。补丁 12 个（report/patches，0001–0013 缺 0008），上游 MR !831 已合并。
+- 内核指纹两枚：`dcb862c9…`（r5/perf3）、`7584653b…`（r20/r21）；镜像 `bb25e0b2…`；overlay `56dba17c…`。**补丁 17 个（report/patches，0001–0018 缺 0008，索引见 `report/patches/README.md`）**，上游 MR !831 已合并。
+  ⚠️ `0011`（futex PI）与 `0013`（MSG_CMSG_CLOEXEC）的内容**已被 `0018`/`0017` 完全覆盖**（同一改动先后导出两次：先导出补丁、后随归档正式入库）⇒ **不要重复应用**。
 
 **⛔→✅ 4 处「报告 ↔ 归档证据」不一致：口径已全部修正（2026-10-05，report/46 勘误）**
 1. report/40 称 r5「心跳 9 对均有变化」→ 归档实为 `心跳=0/9`（九对全同）。**index 纯静态页 0/9 是预期**（README 规则 3），r5 GATE 行不含心跳。report/40 已改。
@@ -99,13 +100,16 @@
 3. **layout 6/6 结论条证据仍缺位**：r21 的 `layout-top.png` 与 `layout-verdict.png` 同哈希（滚动未发生）、`layout_verdict_pass=False`；report/44 引的 6/6 图实际在 r19。口径已改（注明证据在 r19），**证据补齐待执行 C3 e2e 滚动复跑**。
 4. 缺口清单 9 条 > ≤8 口径 → 已收敛为 8 条（含补入 report/44 的 virtio-input 消费缺口）。
 
-**⛔ 提交前合规点（2026-10-05 直播复现时发现，尚未处理）**
-- **内核自报 `git_dirty = true`**（启动横幅，r5 与当前构建均如此）：`git_commit=c2eabd52…`、`config_sha256=128e17a1…`。与七(二)3「提交时存档 git tag……组委会复核存档代码」冲突——二进制不能仅凭 commit 复现。处理：清树重建并重打哈希，或在材料中显式说明脏状态 + 附补丁集。`git status --porcelain` 查不出这项，只有横幅能暴露。
+**✅ 提交前合规点已解决（2026-10-05 归档时）**
+- ~~内核自报 `git_dirty = true`~~ → **根因已消除**：原因是 T490 工作区那 41 项内核改动一直未提交。10-05 已按主题提交为 5 个 commit（`0ba22d2` inotify / `707ada7` input+virtio-input / `670f80d` procfs / `aff4f00` knet / `2a1b101` ksyscall），工作区转 CLEAN。
+  **仍需执行**：重建内核并在新证据里记录新的 `git_commit` 与 `config_sha256`（旧横幅的 `c2eabd52…` / `128e17a1…` 对应归档前的脏树；`git status --porcelain` 查不出的这项，现在只有重建后的横幅能证实已消除）。
 - 内核构建元数据（区分轮次用）：**r5 = build_time 2026-09-30T03:50:50Z（dcb862c9）**；**r20/r21 与当前构建树 = 2026-10-02T13:21:16Z（7584653b）**。
 - **`ConnectionRefused` 噪声定性**：`knet::transport::tcp:447 [KErrorKind::ConnectionRefused]`（约每 5 s 一条）= **当前版 `autorun_single_initial.sh` 的 CDP 就绪轮询**（连 9222 失败产出 `CDP_READY=0`）。r20/r21 同为 `CDP_READY=0`；r5 用旧版 autorun（无 `--remote-debugging-port`）故 0 条。**非故障**。
 - **autorun 版本差异**：`scripts/t490/autorun_single_initial.sh` 于 **2026-10-02 22:29** 加入 CDP 支持（`--remote-debugging-port=9222` + CDP_READY 逻辑），晚于 r5（14:44）。⇒ 现在重跑单进程轮得到的配置与 r5 归档不同：`FIRST_NAV_ELAPSED` 60 s（新）/ 75 s（r5 旧版）/ 90 s（CDP 轮）。
 
 **待办（按顺序）**
+0. **推送归档（外发，需单独确认）**：本地领先 `main` **35 个提交**（分支 `codex/initial-round-single-process`，含 10-05 的 8 个归档提交）。按用户决定"两个分支都推"：先 `push -u origin codex/initial-round-single-process`，再 `git branch -f main HEAD` + `push origin main`（线性后代可 FF）。318 MB 的 `agentos-disk.img.xz` 走 GitHub Release 附件（本机无 `gh`，走 PAT+curl 或网页手动上传）。
+  已完成的归档前置：`.git` 319.82 MiB → **18 MiB**（gc）、evidence 保真修复（`evidence/** -text` + renormalize，384 个文件）、T490 scripts +81 / evidence +257 目录、patches 0014–0018。
 1. 按 report/45 逐项手动执行：先修 §1 口径，再 A→H；B1/E1 复跑各约 25/45 min（TCG 禁并发）。
 2. 补 C3 layout 滚动轮，把 6/6 结论条证据落入同一目录。
 3. 缺口清单收敛为 8 条（含 virtio-input）。
