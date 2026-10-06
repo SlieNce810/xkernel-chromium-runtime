@@ -161,9 +161,10 @@ L1-a  →  L2-smoke  →  L1-b  →  L2-full  →  L3-a(用户 sudo)  →  L3-b
 | 14:58 | L2 | 归档 | ✅ 10/10 sha256 一致；时延视频 20.08 s（`report/rendered-videos/`） |
 | 14:59 | L2 | L2.7 操作卡 | ✅ `docs/demo/Windows侧VNC录屏操作卡.md` |
 | 15:00 | L3 | L3.0 依赖复核 | ✅ apt 干跑：默认 108 包 / `--no-install-recommends` 67 包；源含 `obs-studio 32.1.0`；磁盘 354 GB |
-| — | L3 | L3.1 `sudo apt install` | ⏸ **待你执行**（sudo 需密码，`sudo -n` 已确认不可用） |
-| 15:00 | L3 | L3.4/L3.5 操作卡 + `-display gtk` 命令归档 | ✅ `docs/demo/OBS安装与配置操作卡.md` |
-| — | L3 | L3.2/L3.3 验证 + 预置配置 | ⏸ 依赖 L3.1，装完后执行 |
+| 23:12 | L3 | L3.1 `sudo apt install obs-studio` | ✅ **用户已执行** |
+| 23:12 | L3 | L3.2 验证装成 | ✅ `OBS Studio - 32.1.0-0ubuntu3`；`obs-studio`/`obs-plugins`/`libobs0t64` 齐；插件目录含 **`linux-pipewire.so`** + `linux-capture.so` + `obs-x264.so`；`libx264-165` 已装 |
+| 23:21 | L3 | L3.3 预置 profile 配置 | ❌ **判定为不可行，故意不做**（见 §七 问题 3）：OBS 需显示器才能生成/校验 profile；无 Xvfb；手写 ini 的键名无法全部核实 ⇒ 按"不伪造完成度"原则不写。已创建 `~/Videos`，并让 OBS 生成 `basic/{profiles,scenes}` 目录 |
+| 15:00 | L3 | L3.4/L3.5 操作卡 + `-display gtk` 命令归档 | ✅ `docs/demo/OBS安装与配置操作卡.md`（已补入实测验证结果、无头边界说明、已核实键名附录） |
 
 ### 验收状态汇总
 
@@ -178,7 +179,10 @@ L1-a  →  L2-smoke  →  L1-b  →  L2-full  →  L3-a(用户 sudo)  →  L3-b
 | L2 | A2.3 VNC 帧 1280×800 非全黑 | ✅ 非黑 100% |
 | L2 | A2.4 manifest N/N + 官方页可见 | ✅ 10/10，index 页已确认 |
 | L2 | A2.5 无 kvm/hvf | ✅ PASS=15 FAIL=0 |
-| L3 | A3.1~A3.4 | ⏸ 待 L3.1 完成后验证 |
+| L3 | A3.1 `obs --version` 含 32.1.0 | ✅ |
+| L3 | A3.2 插件含 linux-capture/pipewire | ✅ |
+| L3 | A3.3 portal 采集预览出画面 | ⏸ 需你在 T490 物理屏前授权 |
+| L3 | A3.4 测试片参数正确 | ⏸ 同上 |
 
 ---
 
@@ -221,6 +225,28 @@ export PATH="$HOME/.cargo/bin:$HOME/qemu-root/usr/bin:$PATH"
   但 screendump 是七(一)3 唯一认可的证据形式，为支撑 `manifest` 的 `10/10` 声明，
   **仍然全部入库（+30 MB）**，并附 `_ppm-sha256-t490-20261006.txt` 可独立校验。
   ⇒ 一致原则：**判据与演示轮的 screendump 都入库，只有纯诊断轮才留在 T490。**
+
+### 问题 3 · OBS 的 profile 配置在无显示器环境下无法生成或校验
+
+想把 OBS 的输出/视频参数预置好让用户开箱即用，实测发现做不到：
+
+1. `QT_QPA_PLATFORM=offscreen obs --disable-shutdown-check` 能启动，但日志只有
+   **`Unable to open X display`**，`Loading module` 行数 = **0**（插件未加载），
+   随后进程退出；只留下空 `global.ini`、两行 `user.ini` 与空的 `basic/{profiles,scenes}`。
+2. 正解是 `xvfb-run`，但 T490 **未装 Xvfb**（源里有 `xvfb 2:21.1.22-1ubuntu1.2`，装它需要再一次 sudo）。
+3. 退而求其次，用 `strings /usr/bin/obs` 核实键名，**只确认了一部分**：
+
+| 已确认 | 未确认/不存在 |
+|---|---|
+| 段 `SimpleOutput` / `AdvOut`；键 `RecFormat2`、`RecFilePath`、`RecRB*`、`RecSplitFile*`、`BaseCX/CY`、`OutputCX/CY`、`ScaleType`、`FPSCommon/Num/Den/Int/Type`、`StreamEncoder`；编码器 id `obs_x264`；全局 `FirstRun` / `ProfileDir` / `SceneCollectionFile` | **`RecFormat` 不存在**（现代 OBS 用 `RecFormat2`）；`x264` 不存在（是 `obs_x264`）；**`Profile` / `SceneCollection` / 录制格式值 `mkv` 等均未确认** |
+
+⇒ **决策：不手写 `basic.ini`**。猜错键名会让用户首次启动带上错误默认值，
+违反"严禁伪造完成度"。改为两步收尾（都在物理屏前，各 1 分钟）：
+**① 用户启动一次 OBS（本来就必须做，portal 授权要物理屏）→ ② 读它生成的真实
+`basic.ini` 再改值，零猜测**，或直接照操作卡点 8 个字段。
+
+> 附带产物：`~/Videos` 已创建（OBS 默认录制目录）。
+> 操作卡已补「已核实键名」附录，明确标注哪些键**不存在**，避免照抄网上旧教程。
 
 
 ---

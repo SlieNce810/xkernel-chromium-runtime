@@ -63,9 +63,21 @@
   **VNC 有真实画面**。设 `PLATFORM_COMPLIANT` 不受影响。⚠️ 绑 LAN IP 且无密码 ⇒ 录完立刻停 QEMU。
   验证工具 `scripts/vnc_grab.py`（纯标准库最小 RFB 客户端，`--probe` / `--frames N`）。
 - **`git add -f <目录>` 会递归强制暂存该目录下所有被 ignore 的文件**（想只加某类文件要逐路径 add）。
+- **`git check-ignore` 的返回码取决于"该文件是否已被跟踪"**：已跟踪 → rc=1 无输出；
+  未跟踪 → rc=0 并打印规则。所以"rc=1"**不能**被读成"规则失效"——两回事。
 - **evidence 入库统一原则（2026-10-06 定）**：判据轮与演示轮的 screendump **都入库**
   （`git add -f`，故须显式写路径）；只有纯诊断轮留在 T490。
+  ⚠️ **漏交排查的教训**：只比对"manifest 声称张数 vs 目录实际张数"会漏掉最严重的情况 ——
+  **r5（主功能轮）与 r6~r8 的 ppm 是"一张都没入库"**，且因为 git 不跟踪空目录，
+  在工作区存在的 `screenshots/` 在 `git ls-tree` 里根本看不到，会被误读成"没有截图目录"。
+  正确排查法：**对"工作区 glob 出的 ppm 集合"与 `git ls-files` 做差集**，而不是看目录存不存在。
+  规模：81 个轮次 / 盘上 591 张 / 曾未入库 431 张（其中 22 张属推荐提交项，已补）。
   另：Git Bash 的 `sha256sum` 输出形如 `<hash> *path`（二进制标记），比对前要归一化，否则假警报。
+- **OBS（T490 已装 32.1.0）**：`linux-pipewire.so` + `linux-capture.so` + `obs-x264.so` 齐；`libx264-165` 已装。
+  ⛔ **profile 配置无法无头生成/校验**：`QT_QPA_PLATFORM=offscreen obs` 报 `Unable to open X display`、
+  `Loading module`=0，只留空 `global.ini`；正解 `xvfb-run` 但 T490 未装 Xvfb。
+  ⚠️ 键名陷阱：现代 OBS 用 **`RecFormat2`（不是 `RecFormat`）**、编码器 id 是 **`obs_x264`（不是 `x264`）**；
+  `Profile`/`SceneCollection` 未经核实。⇒ **不要手写 `basic.ini`**，让 OBS 先跑一次再改真实文件。
 - 沙箱：含"通配符+删除循环"的脚本会被 SIGTERM（改 python 驱动）；**`sleep` 超前台超时也会被 SIGTERM**（不会自动转后台）→ 长等待用 `run_in_background` 或拆 ≤100 s。
 
 ## agentos 镜像与判据坑（report/25、27、26）

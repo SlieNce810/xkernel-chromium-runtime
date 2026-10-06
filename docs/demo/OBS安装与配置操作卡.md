@@ -36,13 +36,47 @@ sudo apt install -y obs-studio
 候选版本：`obs-studio 32.1.0-0ubuntu3`（universe，已确认源里有）。
 磁盘：`/` 354 GB 可用，无压力。
 
-**装完后的自检（这几条我来跑）**：
+**装完成功**（2026-10-06 实测，用户执行 sudo 后由本机 SSH 验证）：
 
-```bash
-obs --version                                  # 期望含 OBS Studio 32.1.0
-dpkg -l | grep -E "obs-studio|libobs"          # 期望 ii 状态
-ls /usr/lib/x86_64-linux-gnu/obs-plugins/ | grep -iE "linux-capture|pipewire|ffmpeg"
+| 验收点 | 实测结果 |
+|---|---|
+| A3.1 版本 | ✅ `/usr/bin/obs` → **`OBS Studio - 32.1.0-0ubuntu3`** |
+| A3.2 包状态 | ✅ `obs-studio` / `obs-plugins` / `libobs0t64` 均为 `32.1.0-0ubuntu3` |
+| A3.2 采集插件 | ✅ `/usr/lib/x86_64-linux-gnu/obs-plugins/` 含 **`linux-pipewire.so`**（Wayland 采集路径）与 **`linux-capture.so`** |
+| A3.2 编码器 | ✅ `obs-x264.so` 存在；`libx264-165` 已装 |
+| 录制目录 | ✅ 已创建 `~/Videos` |
+| 首启目录 | ✅ `~/.config/obs-studio/basic/{profiles,scenes}` 已生成 |
+
+插件全清单（供核对）：`decklink*` `frontend-tools` `image-source` `linux-alsa` `linux-capture`
+`linux-jack` `linux-pipewire` `linux-pulseaudio` `linux-v4l2` `obs-ffmpeg` `obs-filters` `obs-nvenc`
+`obs-outputs` `obs-transitions` `obs-websocket` `obs-x264` `rtmp-services` `text-freetype2` `vlc-video`
+
+---
+
+## 二·补 · ⚠️ 为什么没有"预置好的配置"（重要，勿以为是漏做）
+
+**结论：OBS 的 profile 配置无法在无显示器环境下生成或校验，因此本卡不预置 `basic.ini`，改为"照点"流程。**
+
+实测依据：
+
+1. `QT_QPA_PLATFORM=offscreen obs --disable-shutdown-check` 能启动，但日志只有一行关键错误
+   —— **`Unable to open X display`**，`Loading module` 行数 = **0**（插件一个都没加载）；
+2. 结果只生成了空 `global.ini`、两行 `user.ini` 与空的 `basic/{profiles,scenes}` 目录，
+   **没有 profile、没有 `basic.ini`**；
+3. 换成 `xvfb-run` 可以解决，但 T490 **未装 Xvfb**（源里有 `xvfb 2:21.1.22-1ubuntu1.2`，装它需要再一次 sudo）。
+
+**为什么不直接手写 `basic.ini`**：配置键名必须对得上 OBS 32 的真实实现，猜错会让首次启动带上错误默认值。
+用 `strings /usr/bin/obs` 只能确认一部分键（见 §附），**`Profile` / `SceneCollection` / 录制格式值均未确认**
+—— 所以按"不伪造完成度"原则**不写**。
+
+### 收尾只差两步（都在你面前做，各 1 分钟）
+
 ```
+第 1 步：在 T490 桌面启动一次 OBS        → 它会写出真实的 basic.ini 与场景集合
+第 2 步：按 §四 的两张表把设置点一遍     → 或把这步交给我：我读真实的 basic.ini 再改值，零猜测
+```
+
+> 第 1 步本来就必须做 —— portal 屏幕共享授权框弹在 T490 物理屏上，纯 SSH 完不成。
 
 ---
 
@@ -149,12 +183,15 @@ python3 scripts/run-session.py \
 
 ## 七、验收标准
 
-| # | 验收点 | 判定方式 |
-|---|---|---|
-| A3.1 | `obs --version` 含 `OBS Studio 32.1.0` | 命令输出 |
-| A3.2 | `obs-studio` / `libobs` 为 `ii`，`obs-plugins` 目录含 `linux-capture` | `dpkg -l` + `ls` |
-| A3.3 | OBS 能列出并选中「屏幕采集(PipeWire)」源，且授权后预览出画面 | OBS 界面 |
-| A3.4 | 录一段 10 s 测试片，`ffprobe` 显示 1920x1080 / 30fps / h264 | `ffprobe` |
+| # | 验收点 | 判定方式 | 状态 |
+|---|---|---|---|
+| A3.1 | `obs --version` 含 `OBS Studio 32.1.0` | 命令输出 | ✅ **已通过**（实测 `OBS Studio - 32.1.0-0ubuntu3`） |
+| A3.2 | `obs-studio`/`obs-plugins`/`libobs` 为 `ii`，插件目录含 `linux-capture` 与 `linux-pipewire` | `dpkg -l` + `ls` | ✅ **已通过** |
+| A3.3 | OBS 能列出并选中「屏幕采集(PipeWire)」源，且授权后预览出画面 | OBS 界面 | ⏸ 待你在物理屏前完成（§三/§四） |
+| A3.4 | 录一段 10 s 测试片，`ffprobe` 显示 1920x1080 / 30fps / h264 | `ffprobe` | ⏸ 同上 |
+
+> A3.1/A3.2 是本机 SSH 可验证的部分，已实测达标；
+> A3.3/A3.4 依赖物理屏上的 portal 授权，**纯 SSH 不可能完成**，故留给你。
 
 ---
 
@@ -167,3 +204,24 @@ python3 scripts/run-session.py \
 | 录制有画面但没声音 | 本就关了桌面音频 | 演示不需要声音，忽略 |
 | 录完 mkv 要交 mp4 | 赛题评审更认 mp4 | OBS「文件 → 重新封装录像」 |
 | 录屏卡顿、掉帧 | TCG 已吃满 CPU | 降 FPS 到 24、码率到 4000，或改用 `report/51` §路线 A（VNC + Windows 侧录） |
+
+---
+
+## 附 · 若要手工编辑 `basic.ini`：已核实的键名（**部分**，勿全信）
+
+以下键名由 `strings -n 4 /usr/bin/obs | grep -cx <key>` 在 **本机 32.1.0 二进制**上确认为存在，
+可作为手工编辑的起点；**未列出的键未经核实，不要照抄网上的旧教程**：
+
+| 已确认存在的键 | 备注 |
+|---|---|
+| `RecFormat2` | ⚠️ **现代 OBS 用 `RecFormat2`，不是 `RecFormat`**（后者在本机二进制中**不存在**） |
+| `RecFilePath` / `RecRB` / `RecRBTime` / `RecSplitFile` / `RecSplitFileTime` | 录制路径与自动分段 |
+| `BaseCX` / `BaseCY` / `OutputCX` / `OutputCY` / `ScaleType` | 视频设置 |
+| `FPSCommon` / `FPSNum` / `FPSDen` / `FPSInt` / `FPSType` | 帧率（常用值走 `FPSCommon`） |
+| `StreamEncoder` | 编码器（录制侧对应的键**未确认**） |
+| 段名 `SimpleOutput` / `AdvOut` | 输出模式两套段 |
+| 编码器 id **`obs_x264`** | ⚠️ 不是 `x264`（后者在本机二进制中**不存在**） |
+| 全局键 `FirstRun` / `ProfileDir` / `SceneCollectionFile` | ⚠️ `Profile` / `SceneCollection` **未确认** |
+
+> 建议：与其手改 ini，不如按 §三/§四**点一遍界面**（约 8 个字段），
+> 或让 OBS 先跑一次、再由我读它的真实 `basic.ini` 改值。
