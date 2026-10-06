@@ -52,6 +52,20 @@
 - `mo@192.168.1.217`（2026-10-05 起主用；`mo@10.249.63.140` 为备选），密钥 `C:\Users\12697\.ssh\id_ed25519_t490`。远端：`~/x-kernel`（构建）、`~/xk6`（脚本+证据）。
 - 本机 Bash 先加 PATH：`/c/Users/12697/.workbuddy/binaries/PortableGit/versions/1.2.0/usr/bin:/usr/bin:/bin:/c/Windows/System32`；`python` 不在 PATH。
 - 工具链 PATH 须含 `~/.cargo/bin`、`~/qemu-root/usr/bin`、musl 交叉工具链。guest 日志写 `/root/`（`/tmp` 是 tmpfs）。避免 `pkill -f` 自杀。
+  - ⛔ **2026-10-06 踩坑实录**：非交互 SSH 的 PATH 不含 `~/.cargo/bin` ⇒ `cargo/rustc` 落到系统
+    **rustc 1.93.1**，而 `~/x-kernel/rust-toolchain.toml` pin 的是 **1.95.0** ⇒ `make justrun`
+    报 `error[E0658]: use of unstable library feature cfg_select`（`mm/kaddr_layout/src/lib.rs:54`），
+    **看起来像内核坏了，其实只是工具链没选对**；连带 `run-session.py` 抓不到 QEMU 字面命令行
+    ⇒ 合规断言 `PLATFORM_NOT_COMPLIANT`。**任何构建/干跑前先 `export PATH="$HOME/.cargo/bin:$HOME/qemu-root/usr/bin:$PATH"`**。
+    修正后 `rustc 1.95.0`、`PASS=15 FAIL=0`，且**重建后 kernel.bin 仍是 `7584653b…`（构建可复现）**。
+- **VNC 演示路线（2026-10-06 实测打通，录屏用）**：`--qemu-args '-display vnc=<T490 LAN IP>:0'`
+  ⇒ 端口 5900。**与 `-serial mon:stdio` 可并存**（合规 15/15），`-vga none`+virtio-gpu-pci 下
+  **VNC 有真实画面**。设 `PLATFORM_COMPLIANT` 不受影响。⚠️ 绑 LAN IP 且无密码 ⇒ 录完立刻停 QEMU。
+  验证工具 `scripts/vnc_grab.py`（纯标准库最小 RFB 客户端，`--probe` / `--frames N`）。
+- **`git add -f <目录>` 会递归强制暂存该目录下所有被 ignore 的文件**（想只加某类文件要逐路径 add）。
+- **evidence 入库统一原则（2026-10-06 定）**：判据轮与演示轮的 screendump **都入库**
+  （`git add -f`，故须显式写路径）；只有纯诊断轮留在 T490。
+  另：Git Bash 的 `sha256sum` 输出形如 `<hash> *path`（二进制标记），比对前要归一化，否则假警报。
 - 沙箱：含"通配符+删除循环"的脚本会被 SIGTERM（改 python 驱动）；**`sleep` 超前台超时也会被 SIGTERM**（不会自动转后台）→ 长等待用 `run_in_background` 或拆 ≤100 s。
 
 ## agentos 镜像与判据坑（report/25、27、26）
