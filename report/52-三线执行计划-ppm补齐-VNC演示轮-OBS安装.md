@@ -181,8 +181,8 @@ L1-a  →  L2-smoke  →  L1-b  →  L2-full  →  L3-a(用户 sudo)  →  L3-b
 | L2 | A2.5 无 kvm/hvf | ✅ PASS=15 FAIL=0 |
 | L3 | A3.1 `obs --version` 含 32.1.0 | ✅ |
 | L3 | A3.2 插件含 linux-capture/pipewire | ✅ |
-| L3 | A3.3 portal 采集预览出画面 | ⏸ 需你在 T490 物理屏前授权 |
-| L3 | A3.4 测试片参数正确 | ⏸ 同上 |
+| L3 | A3.3 portal 采集预览出画面 | ✅ 2026-10-12 用户物理屏确认 |
+| L3 | A3.4 测试片参数正确 | ✅ 2026-10-12 用户物理屏确认（试录正常） |
 
 ---
 

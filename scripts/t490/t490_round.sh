@@ -69,13 +69,13 @@ AUTORUN="${4:?autorun filename required}"
 shift 4
 PROBES="$*"
 
-SRC_DIR="$HOME/xk6/scripts/t490"
+SRC_DIR="${SRC_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 # 该脚本的 autorun 注入流程针对旧 Weston 镜像；使用 agentos X11 镜像时，
 # 由调用方显式传 BASE_IMG，并先按 report/24 的 X11 启动路径验证。
-BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/p0-drmversion-fixed.img}"
+BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
 PKG_TARBALL="${PKG_TARBALL:-}"
 # ---- 测试页（组委会三页套）--------------------------------------------- #
-PAGE_DIR="${PAGE_DIR:-$HOME/xk6/scripts/testpage}"
+PAGE_DIR="${PAGE_DIR:-$(cd "$SRC_DIR/../testpage" && pwd)}"
 PAGE_FILES="${PAGE_FILES:-index.html interaction.html layout.html}"
 PAGE_URL="${PAGE_URL:-file:///usr/share/html-test/index.html}"
 PAGE_HTML="${PAGE_HTML:-}"              # 已弃用：单文件模式，见文件头说明
@@ -383,7 +383,7 @@ if [ -n "$PAGE_HTML" ]; then
 else
     echo "=== 注入测试页（三页套）: $PAGE_DIR → /usr/share/html-test/ ==="
     echo "=== 入口: $PAGE_URL ==="
-    if ! bash "$HOME/xk6/scripts/t490/t490_inject_pages.sh" disk.img "$PAGE_DIR" "$PAGE_ENTRY" \
+    if ! bash "$SRC_DIR/t490_inject_pages.sh" disk.img "$PAGE_DIR" "$PAGE_ENTRY" \
             > "$HOME/xk6/tmp/pages-$TAG.txt" 2>&1; then
         echo "!! 页面集注入/自证失败，硬失败（不得带病起会话）："
         cat "$HOME/xk6/tmp/pages-$TAG.txt"
@@ -425,7 +425,7 @@ fi
 # ---------------------------------------------------------------- 6. 会话
 echo "=== 会话 tag=$TAG duration=$DUR interval=$IVL ==="
 echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE ==="
-bash "$HOME/xk6/scripts/t490/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
+bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
 echo "SESSION_RC=$?"
 
 # 页面溯源入证据目录：会话跑完后 EVID 已由 run-session.py 建好，把注入自证清单

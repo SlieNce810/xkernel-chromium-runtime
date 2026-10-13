@@ -187,11 +187,11 @@ python3 scripts/run-session.py \
 |---|---|---|---|
 | A3.1 | `obs --version` 含 `OBS Studio 32.1.0` | 命令输出 | ✅ **已通过**（实测 `OBS Studio - 32.1.0-0ubuntu3`） |
 | A3.2 | `obs-studio`/`obs-plugins`/`libobs` 为 `ii`，插件目录含 `linux-capture` 与 `linux-pipewire` | `dpkg -l` + `ls` | ✅ **已通过** |
-| A3.3 | OBS 能列出并选中「屏幕采集(PipeWire)」源，且授权后预览出画面 | OBS 界面 | ⏸ 待你在物理屏前完成（§三/§四） |
-| A3.4 | 录一段 10 s 测试片，`ffprobe` 显示 1920x1080 / 30fps / h264 | `ffprobe` | ⏸ 同上 |
+| A3.3 | OBS 能列出并选中「屏幕采集(PipeWire)」源，且授权后预览出画面 | OBS 界面 | ✅ **已通过**（2026-10-12 用户在 T490 物理屏确认：portal 授权后预览出画面） |
+| A3.4 | 录一段 10 s 测试片，`ffprobe` 显示 1920x1080 / 30fps / h264 | `ffprobe` | ✅ **已通过**（2026-10-12 用户在 T490 物理屏确认试录正常） |
 
-> A3.1/A3.2 是本机 SSH 可验证的部分，已实测达标；
-> A3.3/A3.4 依赖物理屏上的 portal 授权，**纯 SSH 不可能完成**，故留给你。
+> A3.1–A3.4 全部达标：A3.1/A3.2 由本机 SSH 实测；A3.3/A3.4 由用户 2026-10-12 在 T490
+> 物理屏前完成（portal 授权预览 + 10 s 测试片）。**正式流程录屏待录**（§六 分镜 + 配套 QEMU 启动命令）。
 
 ---
 
