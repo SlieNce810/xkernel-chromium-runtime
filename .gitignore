@@ -43,3 +43,9 @@ desktop.ini
 # 的 ppm 留在 T490 ~/xk6/evidence，由 evidence/_ppm-sha256-*.txt 哈希清单覆盖。
 # 注意：本规则只对未跟踪文件生效，已跟踪的 ppm 不受影响（git add -f 是唯一入口）。
 evidence/**/*.ppm
+# 组委会下发材料：仅保留赛题六 PDF 在跟踪内，其余 12 个文件（含其他 8 个赛题
+# 命题书与空白报名表）已在 acebde7 移出分支；ignore 防止 git add -A 误加回。
+docs/报名资料/*
+!docs/报名资料/附件2*/
+docs/报名资料/附件2*/*
+!docs/报名资料/附件2*/6 赛题六*.pdf
