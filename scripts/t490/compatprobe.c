@@ -237,19 +237,19 @@ int main(void)
 			chk("madvise(misaligned) expect EINVAL", rc, errno,
 			    rc == -1 && errno == EINVAL);
 
-			/* 中间打洞：Linux 容忍（只丢弃已映射部分），x-kernel 是否容忍？ */
+			/* Linux processes mapped portions but reports ENOMEM for the hole. */
 			if (munmap(m + P, P) == 0) {
 				errno = 0; rc = madvise(m, P * 3, MADV_DONTNEED);
 				printf("[CP] %-38s rc=%d errno=%d (%s)\n",
 				       "madvise(HOLE in middle)", rc, errno,
 				       errno ? strerror(errno) : "-");
-				chk("  -> Linux tolerates gap (expect 0)", rc, errno,
-				    rc == 0);
+				chk("  -> Linux hole errno ENOMEM", rc, errno,
+				    rc == -1 && errno == ENOMEM);
 			}
 			munmap(m, P * 4);
 		}
 
-		/* 其他 advice：Linux 对未知/MADV_NORMAL 等一律接受并返回 0 */
+		/* Exercise recognized advisory operations; unknown advice is not accepted. */
 		char *q = mmap(NULL, P, PROT_READ | PROT_WRITE,
 		               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (q != MAP_FAILED) {
@@ -277,6 +277,11 @@ int main(void)
 	{
 		int sv[2];
 		if (socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sv) == 0) {
+			/* Linux only delivers credentials to a receiver with SO_PASSCRED. */
+			int passcred = 1;
+			errno = 0;
+			rc = setsockopt(sv[1], SOL_SOCKET, SO_PASSCRED, &passcred, sizeof(passcred));
+			chk("setsockopt(receiver,SO_PASSCRED)", rc, errno, rc == 0);
 			char msg[8] = "c";
 			char cbuf[CMSG_SPACE(sizeof(struct ucred))];
 			struct msghdr mh;

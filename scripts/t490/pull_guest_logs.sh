@@ -39,6 +39,11 @@ FILES="/root/full.log /root/chrome-full.log /root/chrome-snap.log /root/a0.log \
 # QEMU image is stopped.
 FILES="$FILES /root/mp-diag.log /root/mp-chromium.log /root/mp-weston.log \
 /root/mp-weston-stdout.log /root/mp-seatd.log /root/mp-udevd.log /root/mp-trace.*"
+FILES="$FILES /root/autostart.log /root/single-initial.log /root/single-initial.csv /root/single-chromium.log \
+/root/single-weston.log /root/single-weston-stdout.log /root/single-seatd.log /root/single-udevd.log \
+/root/submission-gaps.log /root/submission-gap-submission_gap_probe.out \
+/root/submission-gap-compatprobe.out /root/submission-gap-sandboxipcprobe.out \
+/root/submission-gap-fdprobe.out /root/submission-gap-seqpacketprobe.out /root/submission-gap-evprobe.out"
 
 for f in $FILES; do
     base=$(echo "$f" | tr '/' '_')

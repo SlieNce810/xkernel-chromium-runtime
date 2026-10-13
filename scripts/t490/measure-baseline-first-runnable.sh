@@ -15,6 +15,7 @@ RUNS="${MEASURE_RUNS:-5}"
 DURATION="${MEASURE_DURATION:-300}"
 INTERVAL="${MEASURE_INTERVAL:-60}"
 TAG_PREFIX="${MEASURE_TAG_PREFIX:-baseline-first-runnable}"
+AUTORUN="${MEASURE_AUTORUN:-autorun_single_initial.sh}"
 OUT_ROOT="${MEASURE_OUT_ROOT:-$ROOT/evidence/$(date +%Y-%m-%d)_measure-$TAG_PREFIX}"
 RAW_CSV="$OUT_ROOT/raw.csv"
 SUMMARY_JSON="$OUT_ROOT/summary.json"
@@ -28,6 +29,8 @@ case "$(uname -s 2>/dev/null || true)" in Linux) ;; *) die "只在 Linux/T490 �
 case "$RUNS" in ''|*[!0-9]*) die "MEASURE_RUNS 必须为正整数" ;; esac
 [ "$RUNS" -ge 5 ] || die "初赛测量至少 5 次"
 [ -x "$HERE/t490_round.sh" ] || die "缺少 t490_round.sh"
+case "$AUTORUN" in autorun_single_initial.sh|autorun_single_common_pi.sh) ;; *) die "Unsupported MEASURE_AUTORUN" ;; esac
+[ -f "$HERE/$AUTORUN" ] || die "Missing autorun: $AUTORUN"
 [ -f "$ROOT/scripts/collect_single_metrics.py" ] || die "缺少 collect_single_metrics.py"
 [ ! -e "$RAW_CSV" ] || die "拒绝覆盖已有 raw.csv: $RAW_CSV"
 mkdir -p "$OUT_ROOT"
@@ -75,7 +78,7 @@ for n in $(seq 1 "$RUNS"); do
     set +e
     ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=120 SINGLE_SAMPLE_VALUE=15 \
         MP_TRACE_VALUE=0 STRICT_GATE=1 BASE_IMG="$BASE_IMG" PKG_TARBALL="$PKG_TARBALL" \
-        bash "$HERE/t490_round.sh" "$tag" "$DURATION" "$INTERVAL" autorun_single_initial.sh \
+        bash "$HERE/t490_round.sh" "$tag" "$DURATION" "$INTERVAL" "$AUTORUN" \
         2>&1 | tee "$round_log"
     round_rc=${PIPESTATUS[0]}
     set -e

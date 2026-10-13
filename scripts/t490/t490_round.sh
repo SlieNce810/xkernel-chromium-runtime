@@ -428,6 +428,13 @@ echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDO
 bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
 echo "SESSION_RC=$?"
 
+# Recover persistent guest logs before a subsequent round replaces disk.img.
+if [ -f "$SRC_DIR/pull_guest_logs.sh" ] && [ -d "$EVID" ]; then
+    if ! bash "$SRC_DIR/pull_guest_logs.sh" "$TAG"; then
+        echo "GUEST_LOG_RECOVERY_FAILED tag=$TAG"
+    fi
+fi
+
 # 页面溯源入证据目录：会话跑完后 EVID 已由 run-session.py 建好，把注入自证清单
 # 一并归档，这样"这一轮到底加载了哪几页、哪一页是入口、sha256 是多少"可独立复核。
 if [ -f "$HOME/xk6/tmp/pages-$TAG.txt" ] && [ -d "$EVID" ]; then
