@@ -42,5 +42,5 @@ Use concise imperative subjects such as `scripts: add DRM probe`, and keep each 
 
 Kept out of history, see `.gitignore`:
 
-- `agentos-disk.img.xz` (318 MB) exceeds GitHub's 100 MB per-file limit and is distributed as a GitHub Release asset instead.
-- `evidence/**/*.ppm` are raw QEMU framebuffer dumps (about 2.4 MB each) and are not human-readable verdicts. Their SHA-256 manifests (`evidence/_ppm-sha256-*.txt`) are committed in their place; the originals stay on the T490 host under `~/xk6/evidence`.
+- The 2 GiB base image agentos-weston.img (sha256 bb25e0b2..., the one every evidence round used) exceeds the GitHub per-file limit and is distributed as a GitHub Release asset instead. The stale agentos-disk.img.xz at repo root (decompresses to 441b4504...) predates the preinstalled Weston/Chromium stack and must NOT be used for reproduction.
+- `evidence/**/*.ppm` are raw QEMU framebuffer dumps (about 2.4 MB each). Rounds that carry verdicts or demo value (criteria rounds and demo rounds) are force-added with `git add -f` together with PNG conversions; pure diagnostic rounds stay on the T490 host under `~/xk6/evidence`, covered by the SHA-256 manifests (`evidence/_ppm-sha256-*.txt`). Note the rule only affects untracked files; already-tracked ppm are unaffected.

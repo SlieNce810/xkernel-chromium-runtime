@@ -1,0 +1,54 @@
+[single] PAGE_URL=file:///usr/share/html-test/index.html
+[single] HOLD_SECONDS=120 SAMPLE_SECONDS=15
+[single] kernel=Linux 10.0.0 aarch64
+[single] chromium=Chromium 142.0.7444.59 Alpine Linux
+[single] LD_PRELOAD=<unset>
+[single] INPUT_DEVICES_READY=0s
+[single] WESTON_SOCKET=wayland-1
+[single] CHROME_ARGS=--ozone-platform=wayland --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-zygote --single-process --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --window-size=1280,800 --start-fullscreen --kiosk --remote-debugging-port=9222 --remote-debugging-address=10.0.2.15 --remote-allow-origins=* --disable-features=Vulkan,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions,AudioServiceOutOfProcess,AudioServiceSandbox --enable-logging=stderr --v=1 --vmodule=*wayland*=2,*ozone*=2,*navigation*=2,*render_process*=2,*content*=2,*viz*=2 --user-data-dir=/root/single-initial-profile
+[single] SINGLE_MODE=single-process,no-zygote,in-process-gpu
+[single] BROWSER_PID=43 BROWSER_START_EPOCH=1791856978
+[single] SAMPLE elapsed=0 browser_alive=1 weston_alive=1 rss_kb=0 navigation=0
+[single] BROWSER_EXITED before hold elapsed=30
+[single] SINGLE_GATE=0
+[single] METRICS_BEGIN
+elapsed_sec,epoch_sec,browser_pid,browser_alive,weston_alive,rss_kb,navigation_started
+0,1791856979,43,1,1,0,0
+15,1791856995,43,1,1,0,0
+[single] METRICS_END
+[single] CHROME_LOG_TAIL_BEGIN
+[43:43:1013/020303.674202:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[43:43:1013/020306.536281:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[43:43:1013/020307.602591:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:116] Found mandatory policy file: /etc/chromium/policies/managed/kiosk.json
+[43:43:1013/020307.661651:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:121] Skipping recommended platform policies because no policy file was found at: /etc/chromium/policies/recommended
+[43:43:1013/020308.249001:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:80] VariationsSeedUsage:2
+[43:43:1013/020308.269125:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:353] VariationsSetupComplete
+[43:43:1013/020308.295456:ERROR:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:45] drmGetDevices2() has not found any devices: No such file or directory (2)
+[43:65:1013/020308.750311:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/single-initial-profile/VariationsSeedV1": No such file or directory (2)
+[43:64:1013/020308.760547:ERROR:base/files/file_path_watcher_inotify.cc:339] inotify_init() failed: Function not implemented (38)
+[43:66:1013/020308.866855:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[43:43:1013/020309.250874:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:272] Failed to initialize drm render node handle.
+[43:43:1013/020309.324017:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wl_shm version 1 but version 2 is available.
+[43:43:1013/020309.340593:WARNING:ui/ozone/platform/wayland/host/wayland_connection.cc:273] No wl_seat object. The functionality may suffer.
+[43:43:1013/020320.086839:ERROR:content/browser/browser_main_loop.cc:288] Gdk: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+[43:43:1013/020322.346367:VERBOSE1:chrome/browser/media/webrtc/webrtc_event_log_manager.cc:122] WebRTC remote-bound event logging enabled.
+[43:43:1013/020322.475524:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:199] 0x4400315500: set chrome proxy config service to 0x440006a220
+[43:43:1013/020322.511664:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_MAIN
+[43:43:1013/020322.513316:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_MAIN
+[43:43:1013/020322.514420:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING
+[43:43:1013/020322.514704:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING
+[43:43:1013/020322.514907:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING_HOST
+[43:43:1013/020322.515959:VERBOSE1:google_apis/api_key_cache.cc:99] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING_HOST
+[43:43:1013/020323.353379:VERBOSE1:components/device_event_log/device_event_log_impl.cc:200] [02:03:22.898] Display: EVENT: wayland_screen.cc:144 Displays updated, count: 1
+[43:43:1013/020323.361530:VERBOSE1:components/device_event_log/device_event_log_impl.cc:200] [02:03:23.360] Display: EVENT: wayland_screen.cc:147 Display[15] bounds=[0,0 1280x800], workarea=[0,0 1280x800], scale=1, rotation=0, panel_rotation=0 external detected
+[43:66:1013/020323.492646:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[43:66:1013/020323.521769:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[43:66:1013/020323.547341:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[43:87:1013/020323.624358:VERBOSE1:base/files/file_util_posix.cc:317] Cannot stat "/root/single-initial-profile/component_crx_cache/metadata.json": No such file or directory (2)
+[43:91:1013/020323.947788:WARNING:ui/ozone/platform/wayland/ozone_platform_wayland.cc:325] Failed to find drm render node path.
+[43:91:1013/020323.953191:WARNING:ui/ozone/platform/wayland/gpu/wayland_buffer_manager_gpu.cc:458] Failed to initialize drm render node handle.
+Assertion 'r == 0 || r == 95' failed at ../src/pulsecore/mutex-posix.c:57, function pa_mutex_new(). Aborting.
+[1013/020324.281538:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:177] missing credentials
+[43:91:1013/020326.315673:VERBOSE1:media/gpu/vaapi/vaapi_wrapper.cc:1585] GetHandle(): Either VADisplayStateSingleton::PreSandboxInitialization() hasn't been called or that method failed to find a suitable render node
+[43:91:1013/020326.354252:VERBOSE1:components/viz/service/main/viz_main_impl.cc:86] VizNullHypothesis is disabled (not a warning)
+[single] CHROME_LOG_TAIL_END
