@@ -14,6 +14,8 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 RUNS="${MEASURE_RUNS:-5}"
 DURATION="${MEASURE_DURATION:-300}"
 INTERVAL="${MEASURE_INTERVAL:-60}"
+FIRST_SHOT="${MEASURE_FIRST_SHOT:-180}"
+ROUND_STRICT="${MEASURE_STRICT_GATE:-1}"
 TAG_PREFIX="${MEASURE_TAG_PREFIX:-baseline-first-runnable}"
 AUTORUN="${MEASURE_AUTORUN:-autorun_single_initial.sh}"
 OUT_ROOT="${MEASURE_OUT_ROOT:-$ROOT/evidence/$(date +%Y-%m-%d)_measure-$TAG_PREFIX}"
@@ -28,6 +30,8 @@ die() { echo "ERROR: $*" >&2; exit 2; }
 case "$(uname -s 2>/dev/null || true)" in Linux) ;; *) die "只在 Linux/T490 主机运行" ;; esac
 case "$RUNS" in ''|*[!0-9]*) die "MEASURE_RUNS 必须为正整数" ;; esac
 [ "$RUNS" -ge 5 ] || die "初赛测量至少 5 次"
+case "$FIRST_SHOT" in ''|*[!0-9]*) die "MEASURE_FIRST_SHOT must be an integer" ;; esac
+case "$ROUND_STRICT" in 0|1) ;; *) die "MEASURE_STRICT_GATE must be 0 or 1" ;; esac
 [ -x "$HERE/t490_round.sh" ] || die "缺少 t490_round.sh"
 case "$AUTORUN" in autorun_single_initial.sh|autorun_single_common_pi.sh) ;; *) die "Unsupported MEASURE_AUTORUN" ;; esac
 [ -f "$HERE/$AUTORUN" ] || die "Missing autorun: $AUTORUN"
@@ -37,6 +41,7 @@ mkdir -p "$OUT_ROOT"
 
 {
     echo "MEASURE_START=$(date -Is)"
+    echo "AUTORUN=$AUTORUN DURATION=$DURATION INTERVAL=$INTERVAL FIRST_SHOT=$FIRST_SHOT STRICT_GATE=$ROUND_STRICT HOLD=120"
     echo "HOST=$(hostname)"
     uname -a
     lscpu | grep -E 'Model name|CPU\(s\)|Architecture' || true
@@ -76,8 +81,8 @@ for n in $(seq 1 "$RUNS"); do
     ) &
     OBS_BG_PID=$!
     set +e
-    ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=120 SINGLE_SAMPLE_VALUE=15 \
-        MP_TRACE_VALUE=0 STRICT_GATE=1 BASE_IMG="$BASE_IMG" PKG_TARBALL="$PKG_TARBALL" \
+    ASSERT_PROFILE=official-index FIRST_SHOT="$FIRST_SHOT" SINGLE_HOLD_VALUE=120 SINGLE_SAMPLE_VALUE=15 \
+        MP_TRACE_VALUE=0 STRICT_GATE="$ROUND_STRICT" BASE_IMG="$BASE_IMG" PKG_TARBALL="$PKG_TARBALL" \
         bash "$HERE/t490_round.sh" "$tag" "$DURATION" "$INTERVAL" "$AUTORUN" \
         2>&1 | tee "$round_log"
     round_rc=${PIPESTATUS[0]}

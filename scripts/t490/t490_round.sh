@@ -425,8 +425,9 @@ fi
 # ---------------------------------------------------------------- 6. 会话
 echo "=== 会话 tag=$TAG duration=$DUR interval=$IVL ==="
 echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE ==="
-bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
-echo "SESSION_RC=$?"
+session_rc=0
+bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL" || session_rc=$?
+echo "SESSION_RC=$session_rc"
 
 # Recover persistent guest logs before a subsequent round replaces disk.img.
 if [ -f "$SRC_DIR/pull_guest_logs.sh" ] && [ -d "$EVID" ]; then
@@ -480,3 +481,4 @@ fi
 
 echo "ROUND_DONE tag=$TAG"
 echo "EVIDENCE=$EVID"
+exit "$session_rc"
