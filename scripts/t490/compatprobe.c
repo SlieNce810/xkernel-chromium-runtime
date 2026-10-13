@@ -340,7 +340,7 @@ int main(void)
 		}
 	}
 
-	errno = 0; rc = prctl(PR_SET_PDEATHSIG, SIGKILL);
+	errno = 0; rc = prctl(PR_SET_PDEATHSIG, (long)SIGKILL, 0L, 0L, 0L);
 	chk("prctl(PR_SET_PDEATHSIG,SIGKILL)", rc, errno, rc == 0);
 
 	/* ---------- 5. 受继承性检查：fork+exec 后 fd 是否仍可用 ---------- */

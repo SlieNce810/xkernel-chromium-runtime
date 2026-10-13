@@ -85,12 +85,12 @@ int main(int argc, char **argv)
     struct timespec delay = {.tv_sec = 0, .tv_nsec = 200000000};
     nanosleep(&delay, NULL); file_excerpt("/proc/uptime");
     errno = 0;
-    int result = prctl(PR_SET_PDEATHSIG, SIGTERM);
+    int result = prctl(PR_SET_PDEATHSIG, (long)SIGTERM, 0L, 0L, 0L);
     check("G5.set_pdeathsig", result == 0, result, errno);
     int signal_number = -1;
-    errno = 0; result = prctl(PR_GET_PDEATHSIG, &signal_number);
+    errno = 0; result = prctl(PR_GET_PDEATHSIG, &signal_number, 0L, 0L, 0L);
     check("G5.get_pdeathsig", result == 0 && signal_number == SIGTERM, signal_number, errno);
-    prctl(PR_SET_PDEATHSIG, 0);
+    prctl(PR_SET_PDEATHSIG, 0L, 0L, 0L, 0L);
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock >= 0) {
         int options[] = {TCP_KEEPIDLE, TCP_KEEPINTVL, TCP_KEEPCNT};
