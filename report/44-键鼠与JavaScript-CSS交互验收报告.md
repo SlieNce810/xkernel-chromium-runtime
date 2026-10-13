@@ -72,7 +72,9 @@ layout 专项轮为 [2026-10-02_t490-layout-e2e-r21](../evidence/2026-10-02_t490
   同哈希（滚动未发生）、`layout_verdict_pass=False`，其 `ppm-summary.txt` 自带
   「取景不够，必须用更高窗口/滚动后重截」警告（见 report/46 勘误 3）。
   **待办**：按 report/45 §4-C3 补一轮 e2e 滚动 layout 轮，把 6/6 结论条落入同一目录后，
-  本引用才可改指新目录；补齐前 6/6 一律注明证据在 r19。
+  本引用才可改指新目录。**2026-10-13 已补齐**：evidence/2026-10-13_t490-verify-c3-1013/
+  （layout.html?e2e=1 自动滚动，shot-02~07 六张 layout_verdict_pass=True，SINGLE_GATE=1）；
+  6/6 结论条现有 r19 与 verify-c3-1013 两轮证据，几何 5/5 仍以 r21 首屏轮为准。
 
 ### index 页面
 
