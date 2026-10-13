@@ -35,6 +35,10 @@ def main() -> int:
     # Unix pathname sockets have a short ABI limit; use a unique short /tmp path.
     if len(env['SEQPACKET_PROBE_PATH'].encode()) >= 108:
         env['SEQPACKET_PROBE_PATH'] = f'/tmp/xk-seqpacket-{os.getpid()}.sock'
+    fd_scratch = out / 'fdprobe-scratch'
+    fd_scratch.mkdir()
+    env['FDPROBE_TARGET_PATH'] = str(fd_scratch / 'target')
+    env['FDPROBE_COUNT_PATH'] = str(fd_scratch / 'count')
     for name in names:
         source = here / (name + '.c')
         for arch, compiler in [('native', args.native_cc), ('aarch64', args.cross_cc)]:
@@ -62,6 +66,8 @@ def main() -> int:
             except OSError as exc:
                 record['error'] = str(exc)
             results.append(record)
+    for scratch_name in ['target', 'count']:
+        (fd_scratch / scratch_name).unlink(missing_ok=True)
     (out / 'results.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     facts = subprocess.check_output(['uname', '-a']) + subprocess.check_output(['lscpu'])
     (out / 'env.txt').write_bytes(facts)
