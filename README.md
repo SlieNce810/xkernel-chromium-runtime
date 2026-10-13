@@ -52,7 +52,7 @@ QEMU 10.2.1 **纯 TCG（命令行无 `-accel`，每轮断言）**；guest 2 GiB 
 
 | 资产 | 规格 | sha256 | 获取 |
 |---|---|---|---|
-| 基础镜像 `agentos-weston.img` | 2 GiB（Weston+Chromium 142 预装） | `bb25e0b298d619a62df06b0ab044750c0885adc2d34602eb0c5875a022aaee09` | GitHub Release 资产 `agentos-weston.img.xz`（344 MB，包 sha256 `6ed1bff7…`；**待上传后回填 URL**。压缩包已在 T490 `~/xk6/images/` 备好） |
+| 基础镜像 `agentos-weston.img` | 2 GiB（Weston+Chromium 142 预装） | `bb25e0b298d619a62df06b0ab044750c0885adc2d34602eb0c5875a022aaee09` | **Release 资产**：`agentos-weston.img.xz`（344 MB，包 sha256 `6ed1bff7…`）<br>下载：<https://github.com/SlieNce810/xkernel-chromium-runtime/releases/download/v0.1-single-initial/agentos-weston.img.xz> |
 | 运行时 overlay `eudev-seatprobe-libinput-swiftshader-p31.tar.gz` | 16 MB（guest 用户态补充包） | `56dba17c74ff80399d32a3fceef9ffa724a0197992fdc5934e0e254a8d8cf4b2` | **仓库内** `guest-overlays/` |
 
 > ⚠️ 仓库根的 `agentos-disk.img.xz`（解出 `441b4504…`，2026-09-22 15:39）是**过期镜像**，
@@ -72,7 +72,9 @@ make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n     # 产物 target/xkmake/kpl
 
 # 2) 镜像与 overlay
 mkdir -p ~/x-kernel/images
-# 从 Release 下载 agentos-weston.img.xz 并解压到 ~/x-kernel/images/
+# 从 Release 下载 agentos-weston.img.xz（344 MB）并解压到 ~/x-kernel/images/
+# 下载页：https://github.com/SlieNce810/xkernel-chromium-runtime/releases/tag/v0.1-single-initial
+#   https://github.com/SlieNce810/xkernel-chromium-runtime/releases/download/v0.1-single-initial/agentos-weston.img.xz
 # （解压后镜像校验 bb25e0b2…，压缩包本身校验 6ed1bff7…）
 xz -dc agentos-weston.img.xz > ~/x-kernel/images/agentos-weston.img
 
