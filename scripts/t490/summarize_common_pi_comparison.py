@@ -16,15 +16,17 @@ METRICS = {
 }
 
 
-def read(path: Path) -> dict[str, list[float]]:
+def read(path: Path) -> tuple[dict[str, list[float]], dict[str, list[str]]]:
     result: dict[str, list[float]] = {}
+    run_ids: dict[str, list[str]] = {}
     with path.open(encoding='utf-8', newline='') as stream:
         for row in csv.DictReader(stream):
             try:
                 result.setdefault(row['metric'], []).append(float(row['value']))
+                run_ids.setdefault(row['metric'], []).append(row['run'])
             except (KeyError, TypeError, ValueError):
                 continue
-    return result
+    return result, run_ids
 
 
 def stats(values: list[float]) -> dict:
@@ -40,14 +42,15 @@ def main() -> int:
     args = parser.parse_args()
     if args.out.exists():
         parser.error('Refuse to overwrite a completed comparison')
-    before, after = read(args.before), read(args.after)
-    for dataset, label in [(before, 'before'), (after, 'after')]:
+    before, before_runs = read(args.before)
+    after, after_runs = read(args.after)
+    for dataset, run_ids, label in [(before, before_runs, 'before'), (after, after_runs, 'after')]:
         for name in ('single_gate', 'page_assertion', *METRICS):
             vals = dataset.get(name, [])
             if len(vals) != 5:
                 parser.error(f'{label}: {name} requires exactly five samples, got {len(vals)}')
-            if len(dataset.get(name, [])) != len(set(dataset.get(name, []))) and name in ('single_gate','page_assertion'):
-                pass
+            if sorted(run_ids.get(name, [])) != ['01', '02', '03', '04', '05']:
+                parser.error(f'{label}: {name} must contain distinct runs 01 through 05')
     for dataset, label in [(before, 'before'), (after, 'after')]:
         for name in ('single_gate', 'page_assertion'):
             if any(value != 1 for value in dataset[name]):
