@@ -302,13 +302,6 @@ def host_fingerprint(git_cwd: str = ".") -> list[str]:
             lines.append(f"{tool:16s} : " + (first[0] if first else "?"))
         except Exception:
             lines.append(f"{tool:16s} : NOT FOUND")
-    try:
-        with open("/proc/sys/kernel/osrelease", encoding="utf-8") as fh:
-            rel = fh.read().strip()
-        if "microsoft" in rel.lower():
-            lines.append("wsl              : YES (xkmake 会排除 KVM，但建议用原生 Linux)")
-    except OSError:
-        pass
     # ---- git 追溯（赛题第七节(二)3）----
     # 用 `git -C <git_cwd>` 显式指定仓库，**不用 cwd=**：本脚本的工作目录是
     # x-kernel 之外的编排目录（T490 上是 ~/xk6），在那里跑 git 会静默失败。

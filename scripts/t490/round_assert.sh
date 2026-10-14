@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # round_assert.sh —— 单轮结束后的取证收尾（尺寸校验 → 收 guest 日志 → 像素判据 → 汇总）
 #
 # 用法：
@@ -42,7 +48,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ASSERT="$HERE/ppm_assert.py"
 ASSERT_PROFILE="${ASSERT_PROFILE:-legacy}"
 PULL="$HERE/pull_guest_logs.sh"
-IMAGE="$HOME/x-kernel/disk.img"
+IMAGE="${KERNEL_REPO}/disk.img"
 PY=python3
 command -v "$PY" >/dev/null 2>&1 || PY=python
 

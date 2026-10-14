@@ -1,5 +1,12 @@
 # Repository Guidelines
 
+## Initial-round submission policy (user decision, 2026-10-14)
+
+- WSL2 is only a development-stage validation environment. Never include WSL2 scripts, evidence, instructions, or validation reports in the initial-round submission.
+- Deliver only the T490 native Linux runtime and its required script dependencies. Exclude Windows automation and local transfer/recovery helpers.
+- Keep the submission concise: one curated, complete T490 evidence bundle, one full demonstration video, the technical solution, source/configuration, and the minimum reproduction scripts.
+- Preserve historical raw evidence outside the submission; do not rewrite original logs when curating. Registration forms remain excluded at the user's request.
+
 ## Project Structure & Module Organization
 
 This repository records work for the x-kernel Chromium environment task. Keep each artifact in its intended area:
