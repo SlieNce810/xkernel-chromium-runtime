@@ -55,7 +55,12 @@ def round_files(name: str, destination: str, extra: tuple[str, ...] = ()) -> Non
 round_files('2026-10-13_t490-clean-submission-repro-v2-1350', 'main')
 round_files('2026-10-02_t490-interaction-single-e2e-r20', 'interaction',
             ('interaction-assert.json', 'qmp-events.jsonl', 'screenshots/interaction-e2e.png'))
-round_files('2026-10-13_t490-verify-c3-1013', 'layout', ('screenshots/shot-07-final.png',))
+round_files('2026-10-13_t490-verify-c3-1013', 'layout',
+            ('screenshots/shot-07-final.png', 'ppm-assert-shot-07-final.json'))
+top = 'evidence/2026-10-02_t490-layout-e2e-r21/'
+for name in ('screenshots/shot-03-at0180s.ppm', 'screenshots/layout-top.png',
+             'layout-top-assert.json', 'cmd.txt', 'env.txt', 'build-manifest.txt'):
+    add(top + name, 'evidence/t490-final/layout/top-view/' + name)
 for name, dest in (
     ('2026-10-13_t490-submission-gaps-prctl-recheck', 'compatibility/guest'),
     ('2026-10-13_t490-linux-gap-baselines-v3-prctl', 'compatibility/linux'),
