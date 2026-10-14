@@ -84,10 +84,16 @@ for path in sorted(metrics.iterdir()):
 times = ('103424', '103953', '104522', '105052', '105622')
 for i, time in enumerate(times, 1):
     round_files(f'2026-10-13_t490-current-2a1b101-{i:02}-{time}', f'performance/run-{i:02}')
-demo = 'evidence/2026-10-13_t490-demo-record-gtk-1013c/'
-for name in ('cmd.txt', 'env.txt', 'build-manifest.txt', 'DEMO-VIDEO-NOTE.md'):
-    add(demo + name, 'evidence/t490-final/video-context/' + name)
-add(demo + '2026-10-13-demo-full-flow.mp4', 'video/full-flow.mp4', 'asset')
+demo = 'evidence/2026-10-14_t490-record-complete-1440/'
+for source, name in (
+    ('run/cmd.txt', 'cmd.txt'), ('run/env.txt', 'env.txt'),
+    ('run/build-manifest.txt', 'build-manifest.txt'),
+    ('run/guest/_root_single-initial.log', 'guest-single-initial.log'),
+    ('recording-start.json', 'recording-start.json'), ('recording-stop.json', 'recording-stop.json'),
+    ('media-info.json', 'media-info.json'), ('video-result.json', 'video-result.json'),
+):
+    add(demo + source, 'evidence/t490-final/video-context/' + name)
+add(demo + '2026-10-14-demo-full-flow.mp4', 'video/full-flow.mp4', 'asset')
 add('evidence/2026-09-22_t490-stage0-freeze/src-snapshot/.config', 'config/xkernel.config')
 add('report/submission-assets/x-kernel-source-2a1b101.tar.gz', 'assets/x-kernel-source-2a1b101.tar.gz', 'asset')
 add('guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz',

@@ -8,7 +8,7 @@
 | 内核源码 / 构建配置 | `assets/x-kernel-source-2a1b101.tar.gz` / `config/xkernel.config` |
 | T490 自动化运行和测试脚本 | `scripts/` |
 | 唯一提交证据集 | `evidence/t490-final/`，索引见 `证据说明.md` |
-| 完整演示录像 | `video/full-flow.mp4`，730 秒 |
+| 当天新录演示录像 | `video/full-flow.mp4`，945 秒（15 分 45 秒），1280×800 / 30 fps |
 | 文件来源、大小、SHA-256 | `manifest.csv`、`SHA256SUMS` |
 
 内核提交：`2a1b101ccf97ed255821b85628f366700089cda3`。源码归档含 Git 元数据，可回读版本及基线 tag。内核仓库：<https://gitee.com/mofan0810/x-kernel/tree/t490-chromium-runtime>；材料仓库：<https://github.com/SlieNce810/xkernel-chromium-runtime>。
