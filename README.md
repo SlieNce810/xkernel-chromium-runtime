@@ -26,7 +26,7 @@ QEMU 10.2.1 **纯 TCG（命令行无 `-accel`，每轮断言）**；guest 2 GiB 
 设备组合 virtio-gpu-pci + virtio-keyboard/mouse-pci + virtio-blk-pci + virtio-net-pci。
 功能证据统一为 QEMU monitor `screendump`；主机屏幕录像仅作演示辅助。
 
-**2026-10-13 收口进展**：65 张缺失 PPM、两份 console 与录屏轮 12 份 guest 文件已回传并校验，详见 [恢复报告](report/59-T490原始证据回传与校验报告.md)。八条缺口复现、Linux/guest 对照及未覆盖项见 [附件](report/60-八条兼容性缺口复现与Linux对照附件.md)。未加适配器的历史 before 五轮失败仍保留，新的共同用户态对照单独报告。行政资料按用户要求跳过。
+**2026-10-14 收口进展**：65 张缺失 PPM、两份 console 与录屏轮 12 份 guest 文件已回传并逐文件校验，详见 [恢复报告](report/59-T490原始证据回传与校验报告.md)。八条缺口复现、Linux/guest 对照及未覆盖项见 [附件](report/60-八条兼容性缺口复现与Linux对照附件.md)。未加适配器的历史 before 失败轮仍保留；共同 PI 中和适配器下另测 before/after 各五次，四项指标均无性能改善分证据，详见 [实测报告](report/64-共同用户态适配器before-after五轮实测.md)。报名表按用户要求跳过，学校盖章与技术主体身份页未声称已具备。
 
 ## 材料索引（初赛六件套 → 仓库位置）
 
@@ -60,45 +60,45 @@ QEMU 10.2.1 **纯 TCG（命令行无 `-accel`，每轮断言）**；guest 2 GiB 
 > ⚠️ 仓库根的 `agentos-disk.img.xz`（解出 `441b4504…`，2026-09-22 15:39）是**过期镜像**，
 > 不含后续预装的 Weston/Chromium，**不能用于复现**；请以上表 `bb25e0b2…` 为准。
 
-## 最短复现路径（x86_64 Linux 主机，需 QEMU ≥ 8）
+## 从冻结交付 ZIP 做干净 Linux 复现
 
-正式交付以当前 ZIP 为准，解压到 ~/xk6；SOURCE-REVISION.json 指定冻结提交，SHA256SUMS 提供逐文件校验。下面 Git clone 是已发布材料分支的历史入口；本次收口分支 codex/initial-submission-complete 尚未推送时，使用 ZIP 内容，不能用早期 Release 的 Source code 包替代。
-
+交付包位于 report/submission/2026-10-14_xkernel-initial-submission.zip；同目录的 .zip.sha256 是包文件 SHA-256。ZIP 内 SHA256SUMS 覆盖包内提交内容。下例通过 WSL2 Ubuntu 22.04 的新 HOME 完整执行：验证 ZIP、解包、校验所有文件、从独立源码归档构建内核、解压基础镜像并运行 900 秒功能轮。需要预装 QEMU 8.2.3、Rust 1.95.0、AArch64 musl 交叉工具链及 debugfs/e2fsprogs；脚本使用 WSL 现有依赖缓存，新建验证 HOME，不能复用已有验证目录。
 
 ```bash
-# 0) 依赖：qemu-system-aarch64 10.2.1、rustup（rust-toolchain.toml pin 1.95.0）、debugfs(e2fsprogs)
-export PATH="$HOME/.cargo/bin:$HOME/qemu-root/usr/bin:/usr/sbin:/sbin:$PATH"
-# 当前脚本依赖 ~/xk6 与 ~/x-kernel；已有 checkout 请复用并核对分支。
-git clone --branch codex/initial-round-single-process \
-  git@github.com:SlieNce810/xkernel-chromium-runtime.git "$HOME/xk6"
-mkdir -p "$HOME/xk6/tmp"
+PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission.zip"
+RUNNER_DIR="$(mktemp -d)"
+unzip -p "$PACKAGE_ZIP" scripts/t490/validate_delivery_package_wsl.sh > "$RUNNER_DIR/validate_delivery_package_wsl.sh"
+bash "$RUNNER_DIR/validate_delivery_package_wsl.sh" "$PACKAGE_ZIP" "$HOME/xk6-submission-validation-20261014"
+```
 
-# 1) 内核：fork 分支 + 组委会基线 .config
-git clone https://gitee.com/mofan0810/x-kernel.git ~/x-kernel
-cd ~/x-kernel && git checkout t490-chromium-runtime
-cp "$HOME/xk6/evidence/2026-09-22_t490-stage0-freeze/src-snapshot/.config" .config
-make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n     # 产物 target/xkmake/kplat-aarch64/release/kernel.bin
+脚本结束时会打印 evidence 目录和 round exit code。该验证是 WSL2 干净目录复现，不表示重装系统或使用第二台物理主机。完整日志、主机指纹、构建结果及截图摘要一并留在新 HOME 的 xk6/evidence 下。
 
-# 2) 镜像与 overlay
-mkdir -p ~/x-kernel/images
-# 从 Release 下载 agentos-weston.img.xz（344 MB）并解压到 ~/x-kernel/images/
-# 下载页：https://github.com/SlieNce810/xkernel-chromium-runtime/releases/tag/v0.1-single-initial
-#   https://github.com/SlieNce810/xkernel-chromium-runtime/releases/download/v0.1-single-initial/agentos-weston.img.xz
-# （解压后镜像校验 bb25e0b2…，压缩包本身校验 6ed1bff7…）
-xz -dc agentos-weston.img.xz > ~/x-kernel/images/agentos-weston.img
+## 手动 Linux 复现步骤
 
-# 3) 跑一轮功能证据（官方 index 页，严格像素判据）
+在干净 x86_64 Linux HOME 中放入 ZIP 与其 .zip.sha256 sidecar 后，使用包内资产建立源码和工作镜像：
+
+```bash
+export PATH="$HOME/.cargo/bin:$HOME/qemu-8.2.3/bin:$HOME/musl/aarch64-linux-musl-cross/bin:/usr/sbin:/sbin:$PATH"
+PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission.zip"
+mkdir -p "$HOME/xk6"
+unzip "$PACKAGE_ZIP" -d "$HOME/xk6"
+(cd "$HOME/xk6" && sha256sum -c SHA256SUMS)
+tar -xzf "$HOME/xk6/assets/x-kernel-source-2a1b101.tar.gz" -C "$HOME"
+git -C "$HOME/x-kernel" checkout --detach 2a1b101ccf97ed255821b85628f366700089cda3
+cp "$HOME/xk6/evidence/2026-09-22_t490-stage0-freeze/src-snapshot/.config" "$HOME/x-kernel/.config"
+cd "$HOME/x-kernel"
+make defconfig
+make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
+mkdir -p "$HOME/x-kernel/images"
+xz -dc "$HOME/xk6/assets/agentos-weston.img.xz" > "$HOME/x-kernel/images/agentos-weston.img"
 cd "$HOME/xk6"
-BASE_IMG="$HOME/x-kernel/images/agentos-weston.img" \
-PKG_TARBALL="$PWD/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" \
-ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 \
-bash scripts/t490/t490_round.sh "my-repro-$(date +%H%M%S)" 900 60 autorun_single_initial.sh
-# 产物：evidence/<日期>_t490-my-repro-<时分秒>/（console.log、screendump、ppm-summary、platform-compliance）
+BASE_IMG="$HOME/x-kernel/images/agentos-weston.img" PKG_TARBALL="$PWD/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 bash scripts/t490/t490_round.sh "my-repro-$(date +%H%M%S)" 900 60 autorun_single_initial.sh
+```
 
-# 4) 五轮性能测量（中位数 + 波动范围 + host 指纹）
-MEASURE_TAG_PREFIX="myperf-$(date +%H%M%S)" \
-MEASURE_OUT_ROOT="$PWD/evidence/$(date +%F)_measure-myrepro-$(date +%H%M%S)" \
-bash scripts/t490/measure-single-initial.sh
+上面的包校验后再构建；功能轮会输出 console.log、QEMU screendump、ppm-summary.txt 和平台合规结果。若还要重复测量，可在当前内核工作目录使用五轮驱动：
+
+```bash
+MEASURE_TAG_PREFIX="myperf-$(date +%H%M%S)" MEASURE_OUT_ROOT="$PWD/evidence/$(date +%F)_measure-myrepro-$(date +%H%M%S)" bash scripts/t490/measure-single-initial.sh
 ```
 
 ## 已知限制与如实口径（不超额宣称）
@@ -106,7 +106,7 @@ bash scripts/t490/measure-single-initial.sh
 - **renderer 子进程**：未覆盖——初赛单进程路线（`--single-process --no-zygote`）为主动选择，非失败；多进程探索轮（`mp-*`）留存 T490。
 - **键盘鼠标**：应用层输入事件（CDP/页面事件）通过（r20 6/6）；**内核 virtio-input 事件消费链是已知缺口**（缺口清单第 8 条）。
 - **多窗口/多页面**：未覆盖，不在初赛宣称范围。
-- **性能 before/after**：基线 `v0.1-first-runnable` 已实测**无法完成页面加载**（ Weston 可起、Chromium 启动后中止：PulseAudio mutex 断言 + crashpad 缺凭据）；对比方法与原始数据见 `report/57`。
+- **性能 before/after**：未适配器的基线 v0.1-first-runnable 因 PulseAudio mutex 断言和 crashpad 缺凭据而未能完成页面加载（report/57）；两版共同使用 PI 中和用户态适配器的五轮对照没有达到 5% 改善档位（report/64）。
 - **perf/eBPF/火焰图**：T490 `perf_event_paranoid=4`，采样失败，原始报错已归档（`evidence/2026-10-02_profile-single/`）；未冒充任何 perf 结论。
 - guest `/proc/<pid>/status` 的 `VmRSS` 不可用，内存指标采用 host 侧 QEMU 进程 RSS（已在报告中标注 host 观测属性）。
 
@@ -115,8 +115,7 @@ bash scripts/t490/measure-single-initial.sh
 ```text
 scripts/      t490/ 全部轮次与测量脚本；testpage/ 官方三页与像素判据参考图；wsl2/ 历史阶段脚本
 evidence/     判据轮与演示轮全量证据（console.log、screendump、assert JSON、manifest、env）
-report/       01–57 工作笔记与正式报告；patches/ 17 个补丁候选
+report/       01–64 工作笔记与正式报告；patches/ 17 个补丁候选
 guest-overlays/  运行时 overlay（16 MB）
 docs/         赛题原文、操作卡（OBS 录屏、VNC 演示）
 ```
-

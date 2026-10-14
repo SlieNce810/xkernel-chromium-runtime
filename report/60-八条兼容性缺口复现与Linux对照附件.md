@@ -58,3 +58,7 @@ G1 的历史线索见 [report/38](38-2026-09-29-干净多进程复核与zygote-f
 Linux 对未映射区间处理其余映射但返回 ENOMEM，参见 [madvise(2)](https://man7.org/linux/man-pages/man2/madvise.2.html)；接收 SCM_CREDENTIALS 需 SO_PASSCRED，参见 [unix(7)](https://man7.org/linux/man-pages/man7/unix.7.html)。原生等待、父死亡信号与 TCP 选项契约分别参见 [ppoll(2)](https://man7.org/linux/man-pages/man2/ppoll.2.html)、[PR_SET_PDEATHSIG](https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html)、[tcp(7)](https://man7.org/linux/man-pages/man7/tcp.7.html)。
 
 没有任何一个探针覆盖全部八条，更没有替代多进程 Chromium 与硬件输入验收。
+
+## 宿主探针副作用说明
+
+在 T490 原生 Linux 宿主执行 fdprobe 时，探针曾对固定路径 /tmp/fdprobe-target 与 /tmp/fdprobe-t1.count 使用 O_TRUNC，覆盖了这些路径上的内容。运行前没有保存存在状态或文件内容，无法证明原值或恢复未知的先前状态。2026-10-14 的只读复核记录到 target 为 25 字节，内容为 CHILD-WROTE-9876543210789，SHA-256 为 ab1e899df1575cf9a233b89d2f45a285a6f14dbf3fd106401287b8623bf4e57a；count 文件内容为 1，SHA-256 为 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865，二者 mtime 均为 2026-10-13 14:21（北京时间）。后续 fdprobe.c 已改为接受 FDPROBE_TARGET_PATH 和 FDPROBE_COUNT_PATH，Linux 对照驱动把它们指向本轮独立证据目录。该修正仅适用于后续复测，不改变或掩盖宿主原路径的既有状态。

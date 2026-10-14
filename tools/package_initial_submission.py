@@ -74,7 +74,7 @@ def main() -> int:
     # Only selected deliverable evidence is present; Git sources do not contain evidence here.
     metadata = {'material_revision': revision, 'kernel_revision': selection['kernel_revision'],
                 'created_at': datetime.now(timezone(timedelta(hours=8))).isoformat(),
-                'administrative_forms': 'excluded at user request',
+                'administrative_forms': 'registration form excluded at user request; school stamp and technical identity pages not present in searched workspace/template and not claimed complete',
                 'evidence_directories': selection['evidence_directories'],
                 'manifest_scope': 'All payload files except submission-manifest.csv and SHA256SUMS'}
     payload['SOURCE-REVISION.json'] = ((json.dumps(metadata, ensure_ascii=False, indent=2) + '\n').encode(), 0o644, 'generated')
