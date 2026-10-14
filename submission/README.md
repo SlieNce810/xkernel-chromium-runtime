@@ -15,7 +15,7 @@
 
 ## T490 复现
 
-依赖：x86_64 Linux、QEMU ≥ 8（原始证据为 10.2.1）、Rust 1.95.0/Cargo、GNU make、AArch64 musl GCC、Python 3、e2fsprogs、xz、tar、Git。用户级工具默认位于 `~/.cargo/bin`、`~/qemu-root/usr/bin`、`~/musl/aarch64-linux-musl-cross/bin`。Rust 目标由源码的 `rust-toolchain.toml` 指定。
+依赖：x86_64 Linux、QEMU ≥ 8（原始证据为 10.2.1）、Rust 1.95.0/Cargo、GNU make、AArch64 musl GCC、Python 3、e2fsprogs、xz、tar、Git；可选 Linux 兼容性对照另需 native GCC 和 `qemu-aarch64`。用户级工具默认位于 `~/.cargo/bin`、`~/qemu-root/usr/bin`、`~/musl/aarch64-linux-musl-cross/bin`。Rust 目标由源码的 `rust-toolchain.toml` 指定。
 
 在新目录解压提交 ZIP 后，进入解压根目录执行：
 
