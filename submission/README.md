@@ -31,6 +31,8 @@ bash scripts/t490/reproduce_submission.sh --run
 
 平台固定 `GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n`，保留 virtio GPU、键鼠、块设备、网卡。运行前不得有其他 QEMU 会话。脚本从基础镜像新建工作盘，注入三张测试页及 guest 启动脚本，运行 900 秒；每次使用新的场景目录，原件保存在当前提交目录的 `evidence/<date>_t490-<tag>/`。
 
+显示区域固定为 **1280×800**。在 T490 桌面终端运行会自动打开 GTK 窗口（需 `x11-utils`、`libX11`）；脚本隐藏菜单栏、在 guest 启动前设置并固定窗口内容尺寸，标题栏不计入 1280×800。`QEMU_DISPLAY=gtk bash scripts/t490/reproduce_submission.sh --run` 可显式打开窗口；SSH 运行需传入当前桌面的 `DISPLAY`、`XAUTHORITY`。无桌面时默认 `QEMU_DISPLAY=none`，仍通过 monitor 保存 1280×800 原始截图。窗口初始化或截图尺寸不符会返回失败；不要另加全屏或 `-display` 参数。
+
 通过条件：平台 `PASS=15/15`，guest `SINGLE_GATE=1`、保持至少 600 秒，定时截图通过 official-index 严格判据。`*-final.ppm` 是退出后的诊断帧，独立保留和判定。
 
 需要复测其他项目时，使用与准备阶段相同的源码和基础镜像位置。下例对应默认位置：

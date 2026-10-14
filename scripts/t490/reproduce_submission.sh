@@ -25,7 +25,8 @@ Usage: bash scripts/t490/reproduce_submission.sh [--prepare|--check|--dry-run|--
   --dry-run  Run --check, then save the full QEMU command without starting QEMU.
   --run      Run --check, then execute the 900-second official-index round (default).
 Environment: KERNEL_REPO (default sibling x-kernel-final), BASE_IMAGE_XZ (cached .xz),
-             BASE_IMG (uncompressed base), TAG (new scenario name).
+             BASE_IMG (uncompressed base), TAG (new scenario name),
+             QEMU_DISPLAY=gtk|none (default gtk with DISPLAY, otherwise none).
 Run on native T490 Linux. Keep existing source/evidence directories intact.
 EOF
 }
@@ -89,6 +90,7 @@ TAG="${TAG:-final-$(date +%Y%m%d-%H%M%S)}"
 if [ "$ACTION" = --dry-run ]; then
     python3 "$ROOT/scripts/run-session.py" --dry-run --cwd "$KERNEL_REPO" \
         --make-args "$PLAT_MAKE_ARGS" --with-input --require-platform-compliance \
+        --display-mode "$PLAT_DISPLAY_MODE" --display-size "$PLAT_DISPLAY_SIZE" \
         --duration 900 --first-shot 180 --interval 60 --out "$ROOT/tmp/dry-run-$TAG"
     exit 0
 fi

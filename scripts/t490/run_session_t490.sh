@@ -30,11 +30,10 @@ TAG="${1:-run1}"
 DUR="${2:-2400}"
 IVL="${3:-120}"
 
-# Optional QMP endpoint used by the reproducible keyboard/mouse interaction
-# round.  Ordinary rendering rounds leave it unset and keep the platform
-# command line unchanged.  The path is validated because it becomes part of
-# the make-provided QEMU_ARGS value.
+# Optional QMP endpoint and extras for the interaction round.
+# Display options belong to QEMU_DISPLAY/platform.env, not QMP_EXTRA_ARGS.
 QMP_ARGS=()
+QMP_VALUE="${QMP_EXTRA_ARGS:-}"
 if [ -n "${QMP_SOCKET:-}" ]; then
     case "$QMP_SOCKET" in
         *[!A-Za-z0-9_./-]*)
@@ -44,12 +43,14 @@ if [ -n "${QMP_SOCKET:-}" ]; then
     esac
     rm -f "$QMP_SOCKET"
     QMP_VALUE="-qmp unix:${QMP_SOCKET},server=on,wait=off ${QMP_EXTRA_ARGS:-}"
-    case "$QMP_VALUE" in
-        *[\'\"\;\|\&\`\$]*)
-            echo "!! 非法 QMP_EXTRA_ARGS"
-            exit 1
-            ;;
-    esac
+fi
+case "$QMP_VALUE" in
+    *[\'\"\;\|\&\`\$]*)
+        echo "!! 非法 QMP_EXTRA_ARGS"
+        exit 1
+        ;;
+esac
+if [ -n "$QMP_VALUE" ]; then
     QMP_ARGS=(--qemu-args "$QMP_VALUE")
 fi
 
@@ -80,6 +81,7 @@ python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/run-session.py" \
   --make-args "$PLAT_MAKE_ARGS" \
   --with-input \
   --input-devices "$PLAT_INPUT_DEVICES" \
+  --display-mode "$PLAT_DISPLAY_MODE" --display-size "$PLAT_DISPLAY_SIZE" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
   "${QMP_ARGS[@]}" \

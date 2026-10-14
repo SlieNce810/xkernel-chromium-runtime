@@ -9,6 +9,8 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 export XK6_ROOT="${XK6_ROOT:-$ROOT}"
 export KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+# Preserve the archived performance stack even when started in a desktop terminal.
+export QEMU_DISPLAY="${QEMU_DISPLAY:-none}"
 RUNS="${MEASURE_RUNS:-5}"
 DURATION="${MEASURE_DURATION:-300}"
 INTERVAL="${MEASURE_INTERVAL:-60}"
@@ -46,6 +48,7 @@ mkdir -p "$OUT_ROOT"
 
 {
     echo "MEASURE_START=$(date -Is)"
+    echo "QEMU_DISPLAY=$QEMU_DISPLAY DISPLAY_SIZE=1280x800"
     echo "AUTORUN=$AUTORUN DURATION=$DURATION INTERVAL=$INTERVAL FIRST_SHOT=$FIRST_SHOT STRICT_GATE=$ROUND_STRICT HOLD=120"
     echo "HOST=$(hostname)"
     uname -a

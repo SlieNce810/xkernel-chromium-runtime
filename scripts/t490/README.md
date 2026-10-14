@@ -4,6 +4,7 @@
 
 - `reproduce_submission.sh`：准备源码/镜像、构建、平台检查、干跑、900 秒主功能轮。
 - `t490_round.sh`、`run_session_t490.sh`：独立工作盘、启动、串口与 QEMU 截图。
+- `../qemu_window.py`：GTK 窗口在 guest 启动前固定为 1280×800 内容区；有桌面默认 GTK，无桌面默认无窗口，可用 `QEMU_DISPLAY=gtk|none` 显式选择。
 - `platform.env`、`t490_platform_check.sh`：AArch64 / TCG / 2G / 4 核及设备合规。
 - `guest-autostart.sh`、`autorun_single_initial.sh`、`t490_inject_pages.sh`：guest 运行与三页注入。
 - `pull_guest_logs.sh`、`round_assert.sh`、`ppm_assert.py`：原始日志回收及像素断言。

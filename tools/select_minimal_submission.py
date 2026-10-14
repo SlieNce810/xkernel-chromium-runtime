@@ -21,7 +21,7 @@ def add(source: str, destination: str, kind: str = 'evidence') -> None:
 
 for name in ('README.md', '技术方案.md', '证据说明.md'):
     add('submission/' + name, name, 'git')
-for name in ('run-session.py', 'ppm2png.py', 'collect_single_metrics.py', 'observe_qemu.py', 'measure.py'):
+for name in ('run-session.py', 'qemu_window.py', 'ppm2png.py', 'collect_single_metrics.py', 'observe_qemu.py', 'measure.py'):
     add('scripts/' + name, 'scripts/' + name, 'git')
 runtime = '''reproduce_submission.sh t490_round.sh run_session_t490.sh round_assert.sh
 ppm_assert.py pull_guest_logs.sh t490_inject_pages.sh guest-autostart.sh platform.env
@@ -53,6 +53,9 @@ def round_files(name: str, destination: str, extra: tuple[str, ...] = ()) -> Non
 
 
 round_files('2026-10-13_t490-clean-submission-repro-v2-1350', 'main')
+display = 'evidence/2026-10-14_t490-display-size-validation/'
+for name in ('resolution-check.json', 'display-geometry.json', 'cmd.txt', 'env.txt', 'frame.ppm'):
+    add(display + name, 'evidence/t490-final/display-check/' + name)
 round_files('2026-10-02_t490-interaction-single-e2e-r20', 'interaction',
             ('interaction-assert.json', 'qmp-events.jsonl', 'screenshots/interaction-e2e.png'))
 round_files('2026-10-13_t490-verify-c3-1013', 'layout',
@@ -105,6 +108,6 @@ selection = {'kernel_revision': '2a1b101ccf97ed255821b85628f366700089cda3',
                             'image_sha256': 'bb25e0b298d619a62df06b0ab044750c0885adc2d34602eb0c5875a022aaee09'},
              'files': sorted(files, key=lambda item: item['destination'])}
 (ROOT / 'submission/selection.json').write_text(json.dumps(selection, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-print(json.dumps({'files': len(files), 'runtime_scripts': len(runtime) + 5,
+print(json.dumps({'files': len(files), 'runtime_scripts': len(runtime) + 6,
                   'ppm': sum(x['destination'].endswith('.ppm') for x in files),
                   'bytes': sum((ROOT / x['source']).stat().st_size for x in files)}))
