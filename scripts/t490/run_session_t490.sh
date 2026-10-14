@@ -76,7 +76,7 @@ cd "${XK6_ROOT}" || exit 1
 #    run-session.py 对**实跑命令行**再做一次 第七节(一)3 的硬断言
 FIRST_SHOT="${FIRST_SHOT:-45}"
 python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/run-session.py" \
-  --cwd "${KERNEL_REPO:-${KERNEL_REPO}}" \
+  --cwd "$KERNEL_REPO" \
   --make-args "$PLAT_MAKE_ARGS" \
   --with-input \
   --input-devices "$PLAT_INPUT_DEVICES" \

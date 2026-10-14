@@ -52,7 +52,7 @@ IMAGE="${KERNEL_REPO}/disk.img"
 PY=python3
 command -v "$PY" >/dev/null 2>&1 || PY=python
 
-EV="$(ls -d "$HOME"/xk6/evidence/*"_t490-$TAG" 2>/dev/null | tail -1)"
+EV="$(ls -d "$XK6_ROOT"/evidence/*"_t490-$TAG" 2>/dev/null | tail -1)"
 if [ -z "$EV" ] || [ ! -d "$EV" ]; then
     echo "!! 找不到本轮证据目录: ~/xk6/evidence/*_t490-$TAG（tag=$TAG）"
     exit 1

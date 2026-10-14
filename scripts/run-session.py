@@ -70,35 +70,9 @@ import subprocess
 import sys
 import time
 
-# pty / termios / tty 都是 Unix 专有模块，Windows 上不存在。
-# 这里做**惰性导入**：--dry-run 与参数校验在 Windows 上也能跑，
-# 只有真正要启动 QEMU 会话时才需要 Linux。
-_PTY_IMPORT_ERROR = None
-try:
-    import pty  # noqa: F401
-except ImportError as exc:  # pragma: no cover - Windows only
-    pty = None            # type: ignore[assignment]
-    _PTY_IMPORT_ERROR = exc
+# Native Linux QEMU orchestration uses a Unix pseudo-terminal.
+import pty
 
-
-def require_unix_pty() -> None:
-    if pty is None:
-        sys.stderr.write(
-            "\n".join([
-                "",
-                "=" * 70,
-                " 错误：本脚本需要 Unix 伪终端（pty/termios），当前 Python 环境不支持。",
-                f" 原始错误：{_PTY_IMPORT_ERROR}",
-                "",
-                " 原因：x-kernel 的构建与 QEMU 取证必须在 Linux 上进行",
-                "       （Windows 无 debugfs / musl 交叉工具链 / QEMU ≥8.0）。",
-                "",
-                " 正确做法：把本仓库 rsync/scp 到 Linux 主机后再运行；",
-                "           或先用 --dry-run 在当前环境校验参数与输出目录。",
-                "=" * 70,
-                "",
-            ]))
-        sys.exit(3)
 
 CTRL_A = b"\x01"
 TO_MONITOR = CTRL_A + b"c"
@@ -319,14 +293,6 @@ def host_fingerprint(git_cwd: str = ".") -> list[str]:
         lines.append("disk_free        : %.1f GiB (%s)"
                      % (st.f_bavail * st.f_frsize / 1073741824,
                         os.path.abspath(os.path.expanduser(git_cwd))))
-    except AttributeError:                          # Windows
-        try:
-            import shutil as _sh
-            lines.append("disk_free        : %.1f GiB (%s)"
-                         % (_sh.disk_usage(git_cwd).free / 1073741824,
-                            os.path.abspath(os.path.expanduser(git_cwd))))
-        except Exception:  # noqa: BLE001
-            lines.append("disk_free        : ?")
     except OSError:
         lines.append("disk_free        : ?")
     return lines
@@ -536,7 +502,7 @@ def main() -> int:
     ap.add_argument("--quiet", action="store_true", help="不把子进程输出回显到终端")
     ap.add_argument("--dry-run", action="store_true",
                     help="只校验参数、打印将执行的命令并写好输出目录，不启动 QEMU"
-                         "（可在 Windows 上运行）")
+                         "（在 T490 Linux 上执行）")
     ap.add_argument("--require-platform-compliance", action="store_true",
                     help="合规门禁：若实跑命令行不满足赛题第七节的平台要求"
                          "（无 -accel、四类 virtio 设备齐、-serial mon:stdio、-m 4g 等），"
@@ -681,7 +647,6 @@ def main() -> int:
         print("  下一步：去掉 --dry-run 在 Linux 主机上正式执行。")
         return 0
 
-    require_unix_pty()
 
     sess = Session(argv, cwd, log_path, verbose=not args.quiet)
 
