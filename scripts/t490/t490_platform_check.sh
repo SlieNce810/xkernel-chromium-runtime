@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # ============================================================================
 # scripts/t490/t490_platform_check.sh
 #   赛题六 第七节「统一评测平台与测量规范」的**合规预检**
@@ -25,7 +31,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 . "$HERE/platform.env"
 
 OUT="${1:-}"
-XKERNEL_DIR="${XKERNEL_DIR:-$HOME/x-kernel}"
+XKERNEL_DIR="${XKERNEL_DIR:-${KERNEL_REPO}}"
 export PATH="${QEMU_ROOT:-$HOME/qemu-root/usr/bin}:$HOME/.cargo/bin:$HOME/musl/aarch64-linux-musl-cross/bin:$PATH"
 
 BUF="$(mktemp)"

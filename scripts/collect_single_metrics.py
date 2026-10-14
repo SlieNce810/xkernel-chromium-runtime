@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import re
 import subprocess
 import sys
@@ -44,7 +45,8 @@ def first_passing_screenshot(evidence: Path, profile: str) -> float | None:
                 rows.append((elapsed, image))
     for elapsed, image in sorted(rows):
         result = subprocess.run(
-            [sys.executable, str(assert_script), str(image), "--profile", profile, "--strict", "--quiet"],
+            [sys.executable, str(assert_script), str(image), "--profile", profile,
+             "--expect-size", "1280x800", "--strict", "--quiet"],
             capture_output=True,
             text=True,
             check=False,
@@ -54,7 +56,7 @@ def first_passing_screenshot(evidence: Path, profile: str) -> float | None:
     return None
 
 
-def collect(evidence: Path, run: str, profile: str) -> list[dict[str, str]]:
+def collect(evidence: Path, run: str, profile: str, observer: Path | None = None) -> list[dict[str, str]]:
     log = read_text(find_guest_file(evidence, "_root_single-initial.log"))
     csv_path = find_guest_file(evidence, "_root_single-initial.csv")
     rows: list[dict[str, str]] = []
@@ -90,6 +92,17 @@ def collect(evidence: Path, run: str, profile: str) -> list[dict[str, str]]:
                     rss_values.append(value)
         if rss_values:
             rows.append({"metric": "peak_chromium_rss", "run": run, "value": f"{max(rss_values):.0f}", "unit": "kB", "evidence": str(evidence)})
+
+    if observer is not None and observer.exists():
+        try:
+            obs = json.loads(observer.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            obs = {}
+        if obs.get("samples"):
+            rss_kb = float(obs["qemu_peak_rss_kb"])
+            cpu_pct = float(obs["qemu_avg_cpu_percent_one_core_scale"])
+            rows.append({"metric": "peak_qemu_rss_kb", "run": run, "value": f"{rss_kb:.0f}", "unit": "kB", "evidence": str(evidence)})
+            rows.append({"metric": "qemu_cpu_percent_one_core", "run": run, "value": f"{cpu_pct:.3f}", "unit": "%", "evidence": str(evidence)})
     return rows
 
 
@@ -99,8 +112,10 @@ def main() -> int:
     parser.add_argument("--run", required=True)
     parser.add_argument("--csv", dest="csv_path", type=Path, required=True)
     parser.add_argument("--profile", default="official-index")
+    parser.add_argument("--observer", type=Path, default=None,
+                        help="observe_qemu.py summary.json (host peak RSS/CPU)")
     args = parser.parse_args()
-    rows = collect(args.evidence.resolve(), args.run, args.profile)
+    rows = collect(args.evidence.resolve(), args.run, args.profile, args.observer)
     args.csv_path.parent.mkdir(parents=True, exist_ok=True)
     exists = args.csv_path.exists()
     with args.csv_path.open("a", newline="", encoding="utf-8") as stream:

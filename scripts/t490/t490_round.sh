@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # T490 · 通用单轮会话编排（注入任意 probe + 任意 autorun，然后跑一轮会话）
 #
 # 用法：
@@ -57,7 +63,7 @@
 #
 # 产出：~/xk6/evidence/<date>_t490-<tag>/{console.log,cmd.txt,env.txt,manifest.txt,timestamps.csv,screenshots/}
 
-exec > "$HOME/xk6/tmp/t490_round_$1.log" 2>&1
+exec > "${XK6_ROOT}/tmp/t490_round_$1.log" 2>&1
 set -x
 
 export PATH="$HOME/qemu-root/usr/bin:$HOME/.cargo/bin:$HOME/musl/aarch64-linux-musl-cross/bin:$PATH"
@@ -69,13 +75,13 @@ AUTORUN="${4:?autorun filename required}"
 shift 4
 PROBES="$*"
 
-SRC_DIR="$HOME/xk6/scripts/t490"
+SRC_DIR="${SRC_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 # 该脚本的 autorun 注入流程针对旧 Weston 镜像；使用 agentos X11 镜像时，
 # 由调用方显式传 BASE_IMG，并先按 report/24 的 X11 启动路径验证。
-BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/p0-drmversion-fixed.img}"
+BASE_IMG="${BASE_IMG:-${KERNEL_REPO}/images/agentos-weston.img}"
 PKG_TARBALL="${PKG_TARBALL:-}"
 # ---- 测试页（组委会三页套）--------------------------------------------- #
-PAGE_DIR="${PAGE_DIR:-$HOME/xk6/scripts/testpage}"
+PAGE_DIR="${PAGE_DIR:-$(cd "$SRC_DIR/../testpage" && pwd)}"
 PAGE_FILES="${PAGE_FILES:-index.html interaction.html layout.html}"
 PAGE_URL="${PAGE_URL:-file:///usr/share/html-test/index.html}"
 PAGE_HTML="${PAGE_HTML:-}"              # 已弃用：单文件模式，见文件头说明
@@ -162,7 +168,7 @@ case " $PAGE_FILES " in
     *) echo "!! PAGE_URL 的入口页 $PAGE_ENTRY 不在 PAGE_FILES=[$PAGE_FILES] 内（会启动到不存在的文件）"; exit 1 ;;
 esac
 
-cd "$HOME/x-kernel" || exit 1
+cd "${KERNEL_REPO}" || exit 1
 
 # ---------------------------------------------------------------- 0. 前置（工具预检 + 会话互斥 + QEMU 探测）
 #
@@ -181,8 +187,8 @@ done
 [ -z "$PREFLIGHT_MISSING" ] || { echo "!! 工具预检失败，缺少:$PREFLIGHT_MISSING"; echo "   PATH=$PATH"; exit 1; }
 echo "=== 工具预检 OK: $(qemu-system-aarch64 --version | head -1) ==="
 
-LOCKF="$HOME/xk6/tmp/disk.img.lock"
-mkdir -p "$HOME/xk6/tmp"
+LOCKF="${XK6_ROOT}/tmp/disk.img.lock"
+mkdir -p "${XK6_ROOT}/tmp"
 exec 9>"$LOCKF" || { echo "!! 无法打开锁文件 $LOCKF"; exit 1; }
 if ! flock -n 9; then
     echo "!! 工作镜像已被另一轮会话锁定（$LOCKF）—— 拒绝并发写盘"
@@ -218,7 +224,7 @@ sha256sum "$BASE_IMG"
 # 同名 tag 在同一天重跑会覆盖已完成的证据（run-session.py 里 console.log/cmd.txt/
 # manifest.txt 都是 open(...,"w")，screenshots/ 也会撞同名）——AGENTS.md 明确要求
 # "不得覆盖已完成的 run，应新建 scenario 目录"。这里直接拒绝启动，逼出换 tag。
-EVID="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+EVID="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG"
 if [ -d "$EVID" ]; then
     echo "!! 证据目录已存在，拒绝覆盖已完成的 run: $EVID"
     echo "!! 请换 tag 重跑（例如 $TAG-r2），或先人工确认该轮无效后移走"
@@ -239,7 +245,7 @@ e2fsck -f -y disk.img 2>&1 | tail -3
 # 为什么必须支持动态：musl 的**静态**链接没有 ld.so，无法加载 libdrm.so.2，
 # 而"用 guest 真实 libdrm 走标准调用"这条证据只有动态链接才能拿到。
 # guestlibs 布局：apk/usr/include/libdrm/*.h + apk/usr/include/xf86drm*.h（Alpine libdrm-dev 解包）
-GUESTLIBS="${GUESTLIBS:-$HOME/xk6/guestlibs}"
+GUESTLIBS="${GUESTLIBS:-${XK6_ROOT}/guestlibs}"
 MUSL_GCC=aarch64-linux-musl-gcc
 COMPILED=""
 for p in $PROBES; do
@@ -383,13 +389,13 @@ if [ -n "$PAGE_HTML" ]; then
 else
     echo "=== 注入测试页（三页套）: $PAGE_DIR → /usr/share/html-test/ ==="
     echo "=== 入口: $PAGE_URL ==="
-    if ! bash "$HOME/xk6/scripts/t490/t490_inject_pages.sh" disk.img "$PAGE_DIR" "$PAGE_ENTRY" \
-            > "$HOME/xk6/tmp/pages-$TAG.txt" 2>&1; then
+    if ! bash "$SRC_DIR/t490_inject_pages.sh" disk.img "$PAGE_DIR" "$PAGE_ENTRY" \
+            > "${XK6_ROOT}/tmp/pages-$TAG.txt" 2>&1; then
         echo "!! 页面集注入/自证失败，硬失败（不得带病起会话）："
-        cat "$HOME/xk6/tmp/pages-$TAG.txt"
+        cat "${XK6_ROOT}/tmp/pages-$TAG.txt"
         exit 1
     fi
-    cat "$HOME/xk6/tmp/pages-$TAG.txt"
+    cat "${XK6_ROOT}/tmp/pages-$TAG.txt"
 fi
 
 # ---------------------------------------------------------------- 5. 校验
@@ -425,13 +431,21 @@ fi
 # ---------------------------------------------------------------- 6. 会话
 echo "=== 会话 tag=$TAG duration=$DUR interval=$IVL ==="
 echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE ==="
-bash "$HOME/xk6/scripts/t490/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
-echo "SESSION_RC=$?"
+session_rc=0
+bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL" || session_rc=$?
+echo "SESSION_RC=$session_rc"
+
+# Recover persistent guest logs before a subsequent round replaces disk.img.
+if [ -f "$SRC_DIR/pull_guest_logs.sh" ] && [ -d "$EVID" ]; then
+    if ! bash "$SRC_DIR/pull_guest_logs.sh" "$TAG"; then
+        echo "GUEST_LOG_RECOVERY_FAILED tag=$TAG"
+    fi
+fi
 
 # 页面溯源入证据目录：会话跑完后 EVID 已由 run-session.py 建好，把注入自证清单
 # 一并归档，这样"这一轮到底加载了哪几页、哪一页是入口、sha256 是多少"可独立复核。
-if [ -f "$HOME/xk6/tmp/pages-$TAG.txt" ] && [ -d "$EVID" ]; then
-    cp -f "$HOME/xk6/tmp/pages-$TAG.txt" "$EVID/pages.txt" \
+if [ -f "${XK6_ROOT}/tmp/pages-$TAG.txt" ] && [ -d "$EVID" ]; then
+    cp -f "${XK6_ROOT}/tmp/pages-$TAG.txt" "$EVID/pages.txt" \
         && echo "=== 页面清单已归档: $EVID/pages.txt ==="
 fi
 
@@ -440,8 +454,8 @@ fi
 # 内核"只能靠文件时间戳间接推断 —— 本轮就因此多花了一次核实（见 report/32 §5）。
 # 现在把 内核 / 基础镜像 / 页面集 / autorun / 关键脚本 的 sha256 与 git HEAD 一并归档。
 if [ -d "$EVID" ]; then
-    KERNEL_BIN="$HOME/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin"
-    [ -f "$KERNEL_BIN" ] || KERNEL_BIN="$HOME/x-kernel/xkernel_aarch64-qemu.bin"
+    KERNEL_BIN="${KERNEL_REPO}/target/xkmake/kplat-aarch64/release/kernel.bin"
+    [ -f "$KERNEL_BIN" ] || KERNEL_BIN="${KERNEL_REPO}/xkernel_aarch64-qemu.bin"
     {
         echo "### 本轮指纹（归档时间 $(date -Is)）"
         echo "ROUND_TAG    $TAG  DUR=$DUR IVL=$IVL"
@@ -459,7 +473,7 @@ if [ -d "$EVID" ]; then
         sha256sum "$SRC_DIR/$AUTORUN" "$SRC_DIR/t490_round.sh" "$SRC_DIR/run_session_t490.sh" \
                   "$SRC_DIR/round_assert.sh" "$SRC_DIR/ppm_assert.py" 2>/dev/null
         echo "--- 源码状态 ---"
-        ( cd "$HOME/x-kernel" && git rev-parse HEAD && git status --porcelain )
+        ( cd "${KERNEL_REPO}" && git rev-parse HEAD && git status --porcelain )
         echo "--- 平台参数（单一真源 platform.env 的实际取值）---"
         if [ -f "$SRC_DIR/platform.env" ]; then
             # 本脚本自身不 source platform.env（会话脚本才 source），
@@ -473,3 +487,4 @@ fi
 
 echo "ROUND_DONE tag=$TAG"
 echo "EVIDENCE=$EVID"
+exit "$session_rc"

@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # pull_guest_logs.sh —— 从 disk.img 回收 guest 内持久日志（QEMU 停机后执行）
 #
 # 为什么需要它
@@ -13,8 +19,8 @@ TAG="${1:?usage: pull_guest_logs.sh <tag> [extra files...]}"
 shift
 EXTRA="$*"
 
-IMG="$HOME/x-kernel/disk.img"
-OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
+IMG="${KERNEL_REPO}/disk.img"
+OUT="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
 mkdir -p "$OUT"
 
 for _ in $(seq 1 20); do
@@ -39,6 +45,11 @@ FILES="/root/full.log /root/chrome-full.log /root/chrome-snap.log /root/a0.log \
 # QEMU image is stopped.
 FILES="$FILES /root/mp-diag.log /root/mp-chromium.log /root/mp-weston.log \
 /root/mp-weston-stdout.log /root/mp-seatd.log /root/mp-udevd.log /root/mp-trace.*"
+FILES="$FILES /root/autostart.log /root/single-initial.log /root/single-initial.csv /root/single-chromium.log \
+/root/single-weston.log /root/single-weston-stdout.log /root/single-seatd.log /root/single-udevd.log \
+/root/submission-gaps.log /root/submission-gap-submission_gap_probe.out \
+/root/submission-gap-compatprobe.out /root/submission-gap-sandboxipcprobe.out \
+/root/submission-gap-fdprobe.out /root/submission-gap-seqpacketprobe.out /root/submission-gap-evprobe.out"
 
 for f in $FILES; do
     base=$(echo "$f" | tr '/' '_')

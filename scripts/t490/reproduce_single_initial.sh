@@ -5,10 +5,18 @@ set -u
 set -o pipefail
 
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
-PKG_TARBALL="${PKG_TARBALL:-$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PKG_TARBALL="${PKG_TARBALL:-}"
+if [ -z "$PKG_TARBALL" ]; then
+    if [ -f "$REPO_ROOT/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" ]; then
+        PKG_TARBALL="$REPO_ROOT/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz"
+    else
+        PKG_TARBALL="$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz"
+    fi
+fi
 TAG="${TAG:-single-reproduce-$(date +%H%M%S)}"
 
-cd "$HOME/xk6" || exit 1
+cd "$REPO_ROOT" || exit 1
 ASSERT_PROFILE=official-index \
 FIRST_SHOT=180 \
 BASE_IMG="$BASE_IMG" \

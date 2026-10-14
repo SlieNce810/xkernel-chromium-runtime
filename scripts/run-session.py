@@ -70,35 +70,9 @@ import subprocess
 import sys
 import time
 
-# pty / termios / tty 都是 Unix 专有模块，Windows 上不存在。
-# 这里做**惰性导入**：--dry-run 与参数校验在 Windows 上也能跑，
-# 只有真正要启动 QEMU 会话时才需要 Linux。
-_PTY_IMPORT_ERROR = None
-try:
-    import pty  # noqa: F401
-except ImportError as exc:  # pragma: no cover - Windows only
-    pty = None            # type: ignore[assignment]
-    _PTY_IMPORT_ERROR = exc
+# Native Linux QEMU orchestration uses a Unix pseudo-terminal.
+import pty
 
-
-def require_unix_pty() -> None:
-    if pty is None:
-        sys.stderr.write(
-            "\n".join([
-                "",
-                "=" * 70,
-                " 错误：本脚本需要 Unix 伪终端（pty/termios），当前 Python 环境不支持。",
-                f" 原始错误：{_PTY_IMPORT_ERROR}",
-                "",
-                " 原因：x-kernel 的构建与 QEMU 取证必须在 Linux 上进行",
-                "       （Windows 无 debugfs / musl 交叉工具链 / QEMU ≥8.0）。",
-                "",
-                " 正确做法：把本仓库 rsync/scp 到 Linux 主机后再运行；",
-                "           或先用 --dry-run 在当前环境校验参数与输出目录。",
-                "=" * 70,
-                "",
-            ]))
-        sys.exit(3)
 
 CTRL_A = b"\x01"
 TO_MONITOR = CTRL_A + b"c"
@@ -302,13 +276,6 @@ def host_fingerprint(git_cwd: str = ".") -> list[str]:
             lines.append(f"{tool:16s} : " + (first[0] if first else "?"))
         except Exception:
             lines.append(f"{tool:16s} : NOT FOUND")
-    try:
-        with open("/proc/sys/kernel/osrelease", encoding="utf-8") as fh:
-            rel = fh.read().strip()
-        if "microsoft" in rel.lower():
-            lines.append("wsl              : YES (xkmake 会排除 KVM，但建议用原生 Linux)")
-    except OSError:
-        pass
     # ---- git 追溯（赛题第七节(二)3）----
     # 用 `git -C <git_cwd>` 显式指定仓库，**不用 cwd=**：本脚本的工作目录是
     # x-kernel 之外的编排目录（T490 上是 ~/xk6），在那里跑 git 会静默失败。
@@ -326,14 +293,6 @@ def host_fingerprint(git_cwd: str = ".") -> list[str]:
         lines.append("disk_free        : %.1f GiB (%s)"
                      % (st.f_bavail * st.f_frsize / 1073741824,
                         os.path.abspath(os.path.expanduser(git_cwd))))
-    except AttributeError:                          # Windows
-        try:
-            import shutil as _sh
-            lines.append("disk_free        : %.1f GiB (%s)"
-                         % (_sh.disk_usage(git_cwd).free / 1073741824,
-                            os.path.abspath(os.path.expanduser(git_cwd))))
-        except Exception:  # noqa: BLE001
-            lines.append("disk_free        : ?")
     except OSError:
         lines.append("disk_free        : ?")
     return lines
@@ -539,11 +498,14 @@ def main() -> int:
     ap.add_argument("--qemu-args", default="",
                     help="额外传给 QEMU 的参数（会作为单个 QEMU_ARGS 变量传递，"
                          "避免值中的空格被拆成两个 argv）")
+    ap.add_argument("--display-mode", choices=("gtk", "none"),
+                    help="T490 显示模式：gtk 固定 X11 窗口，none 无窗口取证")
+    ap.add_argument("--display-size", default="1280x800", help="guest 显示区域（默认 1280x800）")
     ap.add_argument("--out", required=True, help="证据输出目录")
     ap.add_argument("--quiet", action="store_true", help="不把子进程输出回显到终端")
     ap.add_argument("--dry-run", action="store_true",
                     help="只校验参数、打印将执行的命令并写好输出目录，不启动 QEMU"
-                         "（可在 Windows 上运行）")
+                         "（在 T490 Linux 上执行）")
     ap.add_argument("--require-platform-compliance", action="store_true",
                     help="合规门禁：若实跑命令行不满足赛题第七节的平台要求"
                          "（无 -accel、四类 virtio 设备齐、-serial mon:stdio、-m 4g 等），"
@@ -551,6 +513,26 @@ def main() -> int:
     ap.add_argument("--skip-cmdline-capture", action="store_true",
                     help="跳过 xkmake 干跑抓取字面 QEMU 命令行（默认会抓，用于 cmd.txt 自证合规）")
     args = ap.parse_args()
+    try:
+        display_size = tuple(int(v) for v in args.display_size.split("x"))
+    except ValueError:
+        ap.error("--display-size requires WIDTHxHEIGHT")
+    if len(display_size) != 2 or min(display_size) <= 0:
+        ap.error("--display-size requires WIDTHxHEIGHT")
+    window_name = "xk6-session-%d" % os.getpid()
+    if args.display_mode:
+        import qemu_window
+        if args.no_make:
+            ap.error("--display-mode requires make mode")
+        if any(v in shlex.split(args.qemu_args) for v in ("-display", "-full-screen", "-S", "-name")):
+            ap.error("Use --display-mode instead of extra -display/-full-screen/-S/-name")
+        if args.display_mode == "gtk":
+            os.environ["GDK_BACKEND"] = "x11"
+            if not args.dry_run:
+                try:
+                    qemu_window.preflight()
+                except RuntimeError as exc:
+                    ap.error(str(exc))
 
     out = os.path.abspath(os.path.expanduser(args.out))
     shots_dir = os.path.join(out, "screenshots")
@@ -573,13 +555,21 @@ def main() -> int:
     #   ❌ 若经 shell 拆成两个 argv，后一个会被 make 当成构建目标
     # 这里直接构造字符串（不经过 shell），因此天然安全。
     extra = args.qemu_args.strip()
-    if args.with_input and "virtio-" not in extra:
+    if args.with_input:
         # --input-devices 收的是"设备名列表"（如 virtio-keyboard-pci virtio-mouse-pci），
         # 这里逐个补上 -device 前缀；需要更细粒度控制请直接用 --qemu-args。
         parts = []
         for token in args.input_devices.split():
-            parts += ["-device", token]
+            if token not in extra:
+                parts += ["-device", token]
         extra = (extra + " " + " ".join(parts)).strip()
+    if args.display_mode:
+        width, height = display_size
+        extra += f" -global virtio-gpu-pci.xres={width} -global virtio-gpu-pci.yres={height}"
+        if args.display_mode == "gtk":
+            extra += f" -display gtk,show-menubar=off,zoom-to-fit=off -name {window_name} -S"
+        else:
+            extra += " -display none"
     if extra:
         if args.no_make:
             print("警告: --qemu-args/--with-input 只在非 --no-make 模式下生效，已忽略",
@@ -688,7 +678,6 @@ def main() -> int:
         print("  下一步：去掉 --dry-run 在 Linux 主机上正式执行。")
         return 0
 
-    require_unix_pty()
 
     sess = Session(argv, cwd, log_path, verbose=not args.quiet)
 
@@ -701,6 +690,16 @@ def main() -> int:
     shot_idx = 0
     rc = 0
     try:
+        if args.display_mode == "gtk":
+            qemu_window.fix_window(window_name, *display_size,
+                                   os.path.join(out, "display-geometry.json"), sess.pump)
+            sess.write("### GTK client fixed at %dx%d; starting guest\n" % display_size)
+            sess.to_child(TO_MONITOR)
+            sess.pump(0.6)
+            sess.to_child(b"cont\n")
+            sess.pump(0.6)
+            sess.to_child(TO_MONITOR)
+            started = time.time()
         while True:
             sess.pump(0.25)
             elapsed = time.time() - started
@@ -722,6 +721,10 @@ def main() -> int:
                 name = "shot-%02d-at%04ds.ppm" % (shot_idx, int(elapsed))
                 path = os.path.join(shots_dir, name)
                 ok = sess.screendump(path)
+                if args.display_mode:
+                    if not ok:
+                        raise RuntimeError("Framebuffer capture failed: " + path)
+                    qemu_window.check_ppm(path, *display_size)
                 shots.append((round(elapsed, 1), name, ok))
                 next_shot = elapsed + args.interval if args.interval > 0 else float("inf")
 
@@ -732,6 +735,9 @@ def main() -> int:
     except KeyboardInterrupt:
         sess.write("\n### 收到 Ctrl-C，提前结束\n")
         rc = 130
+    except Exception as exc:  # Keep the QEMU cleanup path on setup/capture errors.
+        sess.write("### DISPLAY/SESSION ERROR: %s\n" % exc)
+        rc = 5
 
     # 收尾：先补一张最终状态截图，再优雅关停 QEMU
     if sess.alive():
@@ -739,9 +745,14 @@ def main() -> int:
             shot_idx += 1
             name = "shot-%02d-final.ppm" % shot_idx
             ok = sess.screendump(os.path.join(shots_dir, name))
+            if args.display_mode:
+                if not ok:
+                    raise RuntimeError("Final framebuffer capture failed")
+                qemu_window.check_ppm(os.path.join(shots_dir, name), *display_size)
             shots.append((round(time.time() - started, 1), name, ok))
         except Exception as exc:  # noqa: BLE001
             sess.write("### 收尾截图失败: %s\n" % exc)
+            rc = rc or 5
     stop_rc = sess.stop()
     if rc == 0:
         rc = stop_rc

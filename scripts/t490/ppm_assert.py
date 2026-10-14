@@ -1408,7 +1408,8 @@ def main(argv=None) -> int:
             print(f"⚠️ H={img.height} < {args.full_page_min_height}："
                   "棋盘/表格可能在视野之外，未纳入严格集——须人工目视复核")
         skipped_h = [c.name for c in info_set
-                     if c.group in ("viewport", "input") and img.height < (c.min_h or 0)]
+                     if not c.passed and c.group in ("viewport", "input")
+                     and img.height < (c.min_h or 0)]
         if skipped_h:
             print(f"⚠️ 取景不够：{skipped_h} 需要更高的画幅才可能入镜"
                   f"（当前 H={img.height}）——这不是渲染失败，但**必须**用更高的"

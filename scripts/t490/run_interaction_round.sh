@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # Run the single-process interaction page and drive it through QEMU QMP.
 #
 # The script is intended for the T490 Linux host.  It starts the existing
@@ -15,7 +21,7 @@ TAG="${1:-interaction-single}"
 DUR="${2:-300}"
 IVL="${3:-30}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-${TAG}.sock}"
-OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+OUT="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG"
 TMP_PREFIX="/tmp/xk6-interaction-${TAG}"
 ROUND_LOG="${TMP_PREFIX}-round.log"
 DRIVER_LOG="${TMP_PREFIX}-driver.log"
@@ -26,8 +32,8 @@ MANIFEST_TMP="${TMP_PREFIX}-manifest.txt"
 # single-process baseline.  The generic t490_round defaults point at an older
 # diagnostic image that has no Weston/eudev runtime and would fail before QMP
 # could ever reach Chromium.
-BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
-PKG_TARBALL="${PKG_TARBALL:-$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz}"
+BASE_IMG="${BASE_IMG:-${KERNEL_REPO}/images/agentos-weston.img}"
+PKG_TARBALL="${PKG_TARBALL:-${XK6_ROOT}/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz}"
 GL_VARIANT="${GL_VARIANT:-angle-swiftshader}"
 GPU_MODEL="${GPU_MODEL:-in-process}"
 INJECT_AUTOSTART="${INJECT_AUTOSTART:-1}"

@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+export XK6_ROOT KERNEL_REPO
+mkdir -p "$XK6_ROOT/tmp"
 # ============================================================================
 # T490 会话编排：平台合规预检 + run-session.py + QEMU(用户级解包) + 长时长取证
 #
@@ -12,7 +18,7 @@
 #   PLAT_ALLOW_NONCOMPLIANT=1   即使平台预检 FAIL 也继续（默认会告警但仍继续；
 #                               因为 run-session.py 内部已做命令行级硬断言）
 # ============================================================================
-exec > "$HOME/xk6/tmp/run_session_t490.log" 2>&1
+exec > "${XK6_ROOT}/tmp/run_session_t490.log" 2>&1
 set -x
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -24,11 +30,10 @@ TAG="${1:-run1}"
 DUR="${2:-2400}"
 IVL="${3:-120}"
 
-# Optional QMP endpoint used by the reproducible keyboard/mouse interaction
-# round.  Ordinary rendering rounds leave it unset and keep the platform
-# command line unchanged.  The path is validated because it becomes part of
-# the make-provided QEMU_ARGS value.
+# Optional QMP endpoint and extras for the interaction round.
+# Display options belong to QEMU_DISPLAY/platform.env, not QMP_EXTRA_ARGS.
 QMP_ARGS=()
+QMP_VALUE="${QMP_EXTRA_ARGS:-}"
 if [ -n "${QMP_SOCKET:-}" ]; then
     case "$QMP_SOCKET" in
         *[!A-Za-z0-9_./-]*)
@@ -38,17 +43,19 @@ if [ -n "${QMP_SOCKET:-}" ]; then
     esac
     rm -f "$QMP_SOCKET"
     QMP_VALUE="-qmp unix:${QMP_SOCKET},server=on,wait=off ${QMP_EXTRA_ARGS:-}"
-    case "$QMP_VALUE" in
-        *[\'\"\;\|\&\`\$]*)
-            echo "!! 非法 QMP_EXTRA_ARGS"
-            exit 1
-            ;;
-    esac
+fi
+case "$QMP_VALUE" in
+    *[\'\"\;\|\&\`\$]*)
+        echo "!! 非法 QMP_EXTRA_ARGS"
+        exit 1
+        ;;
+esac
+if [ -n "$QMP_VALUE" ]; then
     QMP_ARGS=(--qemu-args "$QMP_VALUE")
 fi
 
-mkdir -p "$HOME/xk6/tmp"
-OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+mkdir -p "${XK6_ROOT}/tmp"
+OUT="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG"
 
 # ① 交叉核验指纹：QEMU 版本（赛题第七节(一)2 要求 >= 8.0）
 "$PLAT_QEMU_BIN_NAME" --version | head -1
@@ -64,16 +71,17 @@ if [ "$CHECK_RC" -ne 0 ]; then
     fi
 fi
 
-cd "$HOME/xk6" || exit 1
+cd "${XK6_ROOT}" || exit 1
 
 # ③ 起会话：参数全部来自 platform.env；--require-platform-compliance 让
 #    run-session.py 对**实跑命令行**再做一次 第七节(一)3 的硬断言
 FIRST_SHOT="${FIRST_SHOT:-45}"
-python3 "$HOME/xk6/scripts/run-session.py" \
-  --cwd "$HOME/x-kernel" \
+python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/run-session.py" \
+  --cwd "$KERNEL_REPO" \
   --make-args "$PLAT_MAKE_ARGS" \
   --with-input \
   --input-devices "$PLAT_INPUT_DEVICES" \
+  --display-mode "$PLAT_DISPLAY_MODE" --display-size "$PLAT_DISPLAY_SIZE" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
   "${QMP_ARGS[@]}" \

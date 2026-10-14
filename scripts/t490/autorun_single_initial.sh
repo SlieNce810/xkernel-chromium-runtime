@@ -31,6 +31,7 @@ log() {
 epoch_sec() { date +%s 2>/dev/null || echo 0; }
 
 cleanup() {
+    sync 2>/dev/null || true   # 失败轮也落盘 guest 证据（2026-10-12 诊断时新增）
     if [ -n "${CHROME_PID:-}" ] && [ -d "/proc/$CHROME_PID" ]; then
         kill -TERM "$CHROME_PID" 2>/dev/null || true
         sleep 2
@@ -73,6 +74,19 @@ if command -v udevd >/dev/null 2>&1; then
     udevadm settle --timeout=8 >/root/single-udev-settle.log 2>&1 || true
 fi
 
+# 等待 udev 完成输入设备节点创建。Weston 启动时若无 /dev/input/event* 会
+# "failed to create input devices" 直接 fatal（2026-10-12 诊断轮实测：TCG 下
+# udev worker 处理 uevent 耗时波动大，settle 8s 可能不够，Weston 提前枚举）。
+INPUT_WAIT=0
+while [ "$INPUT_WAIT" -lt 30 ]; do
+    if ls /dev/input/event* >/dev/null 2>&1; then
+        break
+    fi
+    INPUT_WAIT=$((INPUT_WAIT + 1))
+    sleep 1
+done
+log "INPUT_DEVICES_READY=${INPUT_WAIT}s"
+
 # Minimal sysfs contract used by the existing agentos Weston setup.
 mkdir -p /sys/dev/char/226:0/device /sys/class/drm/card0 \
     /sys/devices/simpledrm /sys/bus/faux /sys/class/faux 2>/dev/null || true
@@ -90,7 +104,7 @@ sleep 1
 env XDG_RUNTIME_DIR="$RUNTIME_DIR" WESTON_DISABLE_ATOMIC=1 \
     LIBSEAT_BACKEND=seatd SEATD_SOCK=/run/seatd.sock \
     weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 \
-    --seat=seat0 --idle-time=0 --debug --log="$WLOG" \
+    --seat=seat0 --continue-without-input --idle-time=0 --debug --log="$WLOG" \
     >/root/single-weston-stdout.log 2>&1 &
 WESTON_PID=$!
 

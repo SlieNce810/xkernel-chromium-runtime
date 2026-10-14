@@ -1,5 +1,12 @@
 # Repository Guidelines
 
+## Initial-round submission policy (user decision, 2026-10-14)
+
+- WSL2 is only a development-stage validation environment. Never include WSL2 scripts, evidence, instructions, or validation reports in the initial-round submission.
+- Deliver only the T490 native Linux runtime and its required script dependencies. Exclude Windows automation and local transfer/recovery helpers.
+- Keep the submission concise: one curated, complete T490 evidence bundle, one full demonstration video, the technical solution, source/configuration, and the minimum reproduction scripts.
+- Preserve historical raw evidence outside the submission; do not rewrite original logs when curating. Registration forms remain excluded at the user's request.
+
 ## Project Structure & Module Organization
 
 This repository records work for the x-kernel Chromium environment task. Keep each artifact in its intended area:
@@ -42,5 +49,5 @@ Use concise imperative subjects such as `scripts: add DRM probe`, and keep each 
 
 Kept out of history, see `.gitignore`:
 
-- `agentos-disk.img.xz` (318 MB) exceeds GitHub's 100 MB per-file limit and is distributed as a GitHub Release asset instead.
-- `evidence/**/*.ppm` are raw QEMU framebuffer dumps (about 2.4 MB each) and are not human-readable verdicts. Their SHA-256 manifests (`evidence/_ppm-sha256-*.txt`) are committed in their place; the originals stay on the T490 host under `~/xk6/evidence`.
+- The 2 GiB base image agentos-weston.img (sha256 bb25e0b2..., the one every evidence round used) exceeds the GitHub per-file limit and is distributed as a GitHub Release asset instead. The stale agentos-disk.img.xz at repo root (decompresses to 441b4504...) predates the preinstalled Weston/Chromium stack and must NOT be used for reproduction.
+- `evidence/**/*.ppm` are raw QEMU framebuffer dumps (about 2.4 MB each). Rounds that carry verdicts or demo value (criteria rounds and demo rounds) are force-added with `git add -f` together with PNG conversions; pure diagnostic rounds stay on the T490 host under `~/xk6/evidence`, covered by the SHA-256 manifests (`evidence/_ppm-sha256-*.txt`). Note the rule only affects untracked files; already-tracked ppm are unaffected.
