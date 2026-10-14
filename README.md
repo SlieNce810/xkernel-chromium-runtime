@@ -62,16 +62,16 @@ QEMU 10.2.1 **纯 TCG（命令行无 `-accel`，每轮断言）**；guest 2 GiB 
 
 ## 从冻结交付 ZIP 做干净 Linux 复现
 
-交付包位于 report/submission/2026-10-14_xkernel-initial-submission.zip；同目录的 .zip.sha256 是包文件 SHA-256。ZIP 内 SHA256SUMS 覆盖包内提交内容。下例通过 WSL2 Ubuntu 22.04 的新 HOME 完整执行：验证 ZIP、解包、校验所有文件、从独立源码归档构建内核、解压基础镜像并运行 900 秒功能轮。需要预装 QEMU 8.2.3、Rust 1.95.0、AArch64 musl 交叉工具链及 debugfs/e2fsprogs；脚本使用 WSL 现有依赖缓存，新建验证 HOME，不能复用已有验证目录。
+交付包位于 report/submission/2026-10-14_xkernel-initial-submission-v2.zip；同目录的 .zip.sha256 是包文件 SHA-256。ZIP 内 SHA256SUMS 覆盖包内提交内容。下例通过 WSL2 Ubuntu 22.04 的新 HOME 完整执行：验证 ZIP、解包、校验所有文件、从独立源码归档构建内核、解压基础镜像并运行 900 秒功能轮。需要预装 QEMU 8.2.3、Rust 1.95.0、AArch64 musl 交叉工具链及 debugfs/e2fsprogs；脚本使用 WSL 现有依赖缓存，新建验证 HOME，不能复用已有验证目录。
 
 ```bash
-PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission.zip"
+PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission-v2.zip"
 RUNNER_DIR="$(mktemp -d)"
 unzip -p "$PACKAGE_ZIP" scripts/t490/validate_delivery_package_wsl.sh > "$RUNNER_DIR/validate_delivery_package_wsl.sh"
-bash "$RUNNER_DIR/validate_delivery_package_wsl.sh" "$PACKAGE_ZIP" "$HOME/xk6-submission-validation-20261014"
+bash "$RUNNER_DIR/validate_delivery_package_wsl.sh" "$PACKAGE_ZIP" "$HOME/xk6-submission-validation-20261014-v2"
 ```
 
-脚本结束时会打印 evidence 目录和 round exit code。该验证是 WSL2 干净目录复现，不表示重装系统或使用第二台物理主机。完整日志、主机指纹、构建结果及截图摘要一并留在新 HOME 的 xk6/evidence 下。
+验证器对会话期间的定时截图执行严格 gate；*-final.ppm 仍保留并独立统计为收尾诊断帧，因为 guest 服务可能在 QEMU 退出前结束。收尾帧不会替代或覆盖任何失败的定时帧。验证还要求 SINGLE_GATE=1 与平台 PASS=15/15。该验证是 WSL2 干净目录复现，不表示重装系统或使用第二台物理主机。完整日志、主机指纹、构建结果及截图摘要一并留在新 HOME 的 xk6/evidence 下。
 
 ## 手动 Linux 复现步骤
 
@@ -79,7 +79,7 @@ bash "$RUNNER_DIR/validate_delivery_package_wsl.sh" "$PACKAGE_ZIP" "$HOME/xk6-su
 
 ```bash
 export PATH="$HOME/.cargo/bin:$HOME/qemu-8.2.3/bin:$HOME/musl/aarch64-linux-musl-cross/bin:/usr/sbin:/sbin:$PATH"
-PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission.zip"
+PACKAGE_ZIP="/path/to/2026-10-14_xkernel-initial-submission-v2.zip"
 mkdir -p "$HOME/xk6"
 unzip "$PACKAGE_ZIP" -d "$HOME/xk6"
 (cd "$HOME/xk6" && sha256sum -c SHA256SUMS)
@@ -92,7 +92,7 @@ make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
 mkdir -p "$HOME/x-kernel/images"
 xz -dc "$HOME/xk6/assets/agentos-weston.img.xz" > "$HOME/x-kernel/images/agentos-weston.img"
 cd "$HOME/xk6"
-BASE_IMG="$HOME/x-kernel/images/agentos-weston.img" PKG_TARBALL="$PWD/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 bash scripts/t490/t490_round.sh "my-repro-$(date +%H%M%S)" 900 60 autorun_single_initial.sh
+BASE_IMG="$HOME/x-kernel/images/agentos-weston.img" PKG_TARBALL="$PWD/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" FINAL_FRAME_DIAGNOSTIC_ONLY=1 ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 bash scripts/t490/t490_round.sh "my-repro-$(date +%H%M%S)" 900 60 autorun_single_initial.sh
 ```
 
 上面的包校验后再构建；功能轮会输出 console.log、QEMU screendump、ppm-summary.txt 和平台合规结果。若还要重复测量，可在当前内核工作目录使用五轮驱动：

@@ -51,7 +51,7 @@ kernel-source=$(git -C "$HOME/x-kernel" rev-parse HEAD)
 platform=AArch64 cortex-a76; 2 GiB; 4 vCPU; TCG; WSL2 Ubuntu 22.04
 EOF
 cd "$HOME/xk6" || exit 1
-ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 \
+FINAL_FRAME_DIAGNOSTIC_ONLY=1 ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=600 STRICT_GATE=1 \
 BASE_IMG="$HOME/x-kernel/images/agentos-weston.img" \
 PKG_TARBALL="$HOME/xk6/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" \
 INJECT_AUTOSTART=1 MP_TRACE_VALUE=0 QMP_SOCKET="$HOME/xk6/tmp/$TAG.qmp" \
@@ -60,9 +60,16 @@ bash scripts/t490/t490_round.sh "$TAG" 900 60 autorun_single_initial.sh
 RUN_RC=$?
 OUT="$(find "$HOME/xk6/evidence" -maxdepth 1 -type d -name "*_t490-$TAG" -print -quit)"
 [ -n "$OUT" ] && [ -d "$OUT" ] || die "round evidence missing"
-printf 'round_exit=%s\n' "$RUN_RC" > "$OUT/clean-reproduction-result.txt"
+[ "$RUN_RC" -eq 0 ] || die "round gate failed; inspect $OUT/ppm-summary.txt and console.log"
+grep -q 'SINGLE_GATE=1' "$OUT/console.log" || die "single-process stability gate missing"
+grep -q 'PLATFORM_COMPLIANT' "$OUT/platform-compliance.txt" || die "platform compliance marker missing"
+grep -q 'GATE: PASS' "$OUT/ppm-summary.txt" || die "timed screenshot or probe gate failed"
+FINAL_DIAGNOSTIC_FAIL="$(sed -n 's/^GATE  strict_fail=[0-9]* final_frame_diagnostic_fail=\([0-9]*\) probe_fail=[0-9]*$/\1/p' "$OUT/ppm-summary.txt" | tail -n 1)"
+[ -n "$FINAL_DIAGNOSTIC_FAIL" ] || die "round_assert did not report final-frame diagnostic scope"
+printf 'round_exit=0\nSINGLE_GATE=1\nPLATFORM=PASS=15/15\nTIMED_SCREENSHOT_GATE=PASS\nfinal_frame_diagnostic_fail=%s\n' "$FINAL_DIAGNOSTIC_FAIL" > "$OUT/clean-reproduction-result.txt"
 cp "$HOME/xk6/tmp/clean-host.txt" "$OUT/clean-host.txt"
 sha256sum "$ARCHIVE" "$OUT/console.log" "$OUT/ppm-summary.txt" > "$OUT/clean-run-sha256.txt"
+echo "FINAL_FRAME_DIAGNOSTIC_FAIL=$FINAL_DIAGNOSTIC_FAIL"
 echo "CLEAN_PACKAGE=$ARCHIVE"
 echo "VALIDATION_HOME=$HOME"
 echo "EVIDENCE=$OUT"

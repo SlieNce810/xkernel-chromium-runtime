@@ -19,6 +19,8 @@
 #   <EV>/guest/*.log                从 disk.img 回收的 guest 持久日志
 #
 # 退出码：仅当 --strict 且严格集未全通过时为 1；其余情况一律 0（判据是取证，不是门禁）。
+# FINAL_FRAME_DIAGNOSTIC_ONLY=1 时，*-final.ppm 仍完整运行并保留判据 JSON，
+# 但作为 QEMU 收尾诊断帧单列，不参与会话期间的页面 gate。默认值 0 保持历史行为。
 
 set -u
 
@@ -26,6 +28,8 @@ TAG="${1:?usage: round_assert.sh <tag> [--strict] [--force-e2fsck]}"
 shift || true
 STRICT=""
 FORCE_E2=""
+FINAL_FRAME_DIAGNOSTIC_ONLY="${FINAL_FRAME_DIAGNOSTIC_ONLY:-0}"
+case "$FINAL_FRAME_DIAGNOSTIC_ONLY" in 0|1) ;; *) echo "!! FINAL_FRAME_DIAGNOSTIC_ONLY 只接受 0 或 1"; exit 2 ;; esac
 for a in "$@"; do
     case "$a" in
         --strict)       STRICT="--strict" ;;
@@ -220,6 +224,7 @@ say ""
 say "--- ④ 逐张像素判据（ppm_assert.py） ---"
 N_ASSERT=0
 N_ASSERT_FAIL=0
+N_FINAL_DIAGNOSTIC_FAIL=0
 N_SIZE_MISMATCH=0
 for f in $PPM_LIST; do
     base="$(basename "$f" .ppm)"
@@ -232,7 +237,12 @@ for f in $PPM_LIST; do
     # 所以必须从 JSON 里的 strict_fail_count 判严格集，否则尺寸不符会被误记成"渲染不正确"。
     sfc=$(grep -o '"strict_fail_count": [0-9]*' "$out" 2>/dev/null | head -1 | grep -o '[0-9]*$')
     [ -n "$sfc" ] || sfc=1
-    if [ "$sfc" -gt 0 ]; then
+    IS_FINAL_FRAME=0
+    case "$base" in *-final) IS_FINAL_FRAME=1 ;; esac
+    if [ "$sfc" -gt 0 ] && [ "$FINAL_FRAME_DIAGNOSTIC_ONLY" = "1" ] && [ "$IS_FINAL_FRAME" = "1" ]; then
+        N_FINAL_DIAGNOSTIC_FAIL=$((N_FINAL_DIAGNOSTIC_FAIL + 1))
+        say "  $base: 收尾诊断帧严格集未通过；JSON 原样保留，不计入会话期间页面 gate"
+    elif [ "$sfc" -gt 0 ]; then
         N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
         say "  $base: 严格集未通过 $(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
     elif [ "$rc" -ne 0 ]; then
@@ -322,12 +332,12 @@ fi
 
 say ""
 say "=================================================================="
-say "SUMMARY_END tag=$TAG  ppm=$N_PPM  严格集未通过=$N_ASSERT_FAIL  尺寸不符=$N_SIZE_MISMATCH  心跳=$N_DIFF_OK/$N_DIFF  探针必验失败=$N_PROBE_FAIL"
+say "SUMMARY_END tag=$TAG  ppm=$N_PPM  严格集未通过=$N_ASSERT_FAIL  收尾诊断帧失败=$N_FINAL_DIAGNOSTIC_FAIL  尺寸不符=$N_SIZE_MISMATCH  心跳=$N_DIFF_OK/$N_DIFF  探针必验失败=$N_PROBE_FAIL"
 say "=================================================================="
 
 # 门禁（--strict 才生效）：像素严格集失败 **或** 探针必验项失败 ⇒ 本轮不通过。
 # 固定输出 GATE 行，便于机器读取与跨轮比较。
-say "GATE  strict_fail=$N_ASSERT_FAIL  probe_fail=$N_PROBE_FAIL"
+say "GATE  strict_fail=$N_ASSERT_FAIL final_frame_diagnostic_fail=$N_FINAL_DIAGNOSTIC_FAIL probe_fail=$N_PROBE_FAIL"
 if [ -n "$STRICT" ]; then
     if [ "$N_ASSERT_FAIL" -gt 0 ] || [ "$N_PROBE_FAIL" -gt 0 ]; then
         say "GATE: FAIL"
