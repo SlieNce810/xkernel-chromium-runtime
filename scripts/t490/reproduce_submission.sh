@@ -92,6 +92,13 @@ if [ "$ACTION" = --dry-run ]; then
         --duration 900 --first-shot 180 --interval 60 --out "$ROOT/tmp/dry-run-$TAG"
     exit 0
 fi
+EVID="$ROOT/evidence/$(date +%F)_t490-$TAG"
 FINAL_FRAME_DIAGNOSTIC_ONLY=1 ASSERT_PROFILE=official-index FIRST_SHOT=180 \
     SINGLE_HOLD_VALUE=600 STRICT_GATE=1 \
     bash "$ROOT/scripts/t490/t490_round.sh" "$TAG" 900 60 autorun_single_initial.sh
+GUEST_LOG="$EVID/guest/_root_single-initial.log"
+grep -Fq 'SINGLE_GATE=1' "$GUEST_LOG" || die 'Guest single-process gate did not pass'
+HOLD_OBSERVED="$(sed -n 's/.*SINGLE_HOLD_REACHED elapsed=\([0-9][0-9]*\).*/\1/p' "$GUEST_LOG" | tail -1)"
+[ "${HOLD_OBSERVED:-0}" -ge 600 ] || die 'Guest hold is shorter than 600 seconds'
+grep -Eq '^PASS=15[[:space:]]+FAIL=0[[:space:]]*$' "$EVID/platform-compliance.txt" || die 'Platform gate did not pass'
+printf 'REPRODUCTION=PASS evidence=%s hold=%ss\n' "$EVID" "$HOLD_OBSERVED"
