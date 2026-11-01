@@ -2,7 +2,7 @@
 # 读 drmProcessPlatformDevice / drmParsePlatformFileInfo 确定平台总线所需文件
 exec > /mnt/e/02_competition/中电杯/tmp/libdrm_src4.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/xk6/tmp
+$SSH mo@10.249.11.192 'cd ~/xk6/tmp
 echo "======== drmProcessPlatformDevice ========"
 grep -n "drmProcessPlatformDevice\|drmParsePlatformDeviceInfo\|of_node\|compatible" xf86drm.c | head -20
 LN=$(grep -n "static drmDevicePtr \*drmProcessPlatformDevice" xf86drm.c | cut -d: -f1 | head -1)

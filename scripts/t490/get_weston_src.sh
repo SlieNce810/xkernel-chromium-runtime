@@ -3,7 +3,7 @@
 exec > /mnt/e/02_competition/中电杯/tmp/weston_src.log 2>&1
 set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 cd ~/xk6/tmp
 for URL in \
   "https://gitlab.freedesktop.org/wayland/weston/-/raw/14.0.2/libweston/backend-drm/drm.c" \

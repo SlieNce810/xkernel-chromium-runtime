@@ -2,7 +2,7 @@
 # 只读侦察：UserPtr 的空指针判断 API + devfs/procfs 的 Cargo.toml + workspace 结构
 exec > /mnt/e/02_competition/中电杯/tmp/recon_userptr.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel
+$SSH mo@10.249.11.192 'cd ~/x-kernel
 echo "=== UserPtr 定义文件 ==="
 grep -rln "pub struct UserPtr" --include=*.rs posix/ | head -3
 F=$(grep -rln "pub struct UserPtr" --include=*.rs posix/ | head -1)

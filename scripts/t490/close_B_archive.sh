@@ -7,10 +7,10 @@ DST=/mnt/e/02_competition/中电杯/evidence
 mkdir -p "$DST"
 
 # 1. T490 打包
-$SSH mo@10.249.63.140 'cd ~/xk6 && rm -f /tmp/t490-evidence.tgz && tar czf /tmp/t490-evidence.tgz evidence/ && ls -la /tmp/t490-evidence.tgz && echo "T490 内文件数: $(tar tzf /tmp/t490-evidence.tgz | wc -l)" && sha256sum /tmp/t490-evidence.tgz'
+$SSH mo@10.249.11.192 'cd ~/xk6 && rm -f /tmp/t490-evidence.tgz && tar czf /tmp/t490-evidence.tgz evidence/ && ls -la /tmp/t490-evidence.tgz && echo "T490 内文件数: $(tar tzf /tmp/t490-evidence.tgz | wc -l)" && sha256sum /tmp/t490-evidence.tgz'
 
 # 2. 拉回本地
-scp -o BatchMode=yes mo@10.249.63.140:/tmp/t490-evidence.tgz /mnt/e/02_competition/中电杯/tmp/t490-evidence.tgz
+scp -o BatchMode=yes mo@10.249.11.192:/tmp/t490-evidence.tgz /mnt/e/02_competition/中电杯/tmp/t490-evidence.tgz
 sha256sum /mnt/e/02_competition/中电杯/tmp/t490-evidence.tgz
 
 # 3. 解包到本地 evidence/

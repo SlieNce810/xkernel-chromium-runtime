@@ -2,7 +2,7 @@
 # P1 侦察：fs/boot/src/lib.rs 的 /proc 挂载段、MOUNT_FLAGS 常量、root.rs 结尾
 exec > /mnt/e/02_competition/中电杯/tmp/p1_recon.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel
+$SSH mo@10.249.11.192 'cd ~/x-kernel
 echo "=== fs/boot/src/lib.rs: 195-240 行（/proc 挂载段收尾）==="
 sed -n "195,240p" fs/boot/src/lib.rs
 echo "=== MOUNT_FLAGS 常量定义 ==="

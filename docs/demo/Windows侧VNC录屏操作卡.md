@@ -1,6 +1,6 @@
 # Windows 侧 VNC 录屏操作卡（赛题六 · 完整流程录屏）
 
-> 适用路线：`report/51` §路线 A —— QEMU 开 `-display vnc=192.168.1.217:0`，
+> 适用路线：`report/51` §路线 A —— QEMU 开 `-display vnc=10.249.11.192:0`，
 > 在 **Windows 侧**同时看到「SSH 终端 + guest 画面」，一次录屏覆盖完整流程。
 > 为什么选它：T490 不用装任何东西、不改当前会话，且画面是 QEMU 直出（非裁剪猜测）。
 
@@ -44,7 +44,7 @@ python3 scripts/run-session.py \
   --cwd /home/mo/x-kernel \
   --make-args 'GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n' \
   --with-input \
-  --qemu-args '-display vnc=192.168.1.217:0' \
+  --qemu-args '-display vnc=10.249.11.192:0' \
   --duration 600 --interval 60 --first-shot 60 \
   --out /home/mo/xk6/evidence/<你的演示轮名>
 ```
@@ -54,7 +54,7 @@ python3 scripts/run-session.py \
 ### 步骤 2 · Windows 连 VNC
 
 ```
-VNC Viewer → 地址栏输入：192.168.1.217:5900 → 回车
+VNC Viewer → 地址栏输入：10.249.11.192:5900 → 回车
 ```
 
 **预期现象**：
@@ -88,7 +88,7 @@ VNC Viewer → 地址栏输入：192.168.1.217:5900 → 回车
 
 ## 三、安全须知
 
-当前做法把 VNC 绑在 **T490 的局域网地址** `192.168.1.217:5900` 上，且**未设密码**。
+当前做法把 VNC 绑在 **T490 的局域网地址** `10.249.11.192:5900` 上，且**未设密码**。
 同一局域网内任何人都能看到 guest 画面。录完请：
 
 1. 立刻停掉 QEMU（`Ctrl-A x` 或跑完自动退出）；
@@ -101,7 +101,7 @@ VNC Viewer → 地址栏输入：192.168.1.217:5900 → 回车
 --qemu-args '-display vnc=127.0.0.1:0'
 
 # Windows 侧（另开一个终端，保持不关）
-ssh -i C:/Users/12697/.ssh/id_ed25519_t490 -N -L 5900:127.0.0.1:5900 mo@192.168.1.217
+ssh -i C:/Users/12697/.ssh/id_ed25519_t490 -N -L 5900:127.0.0.1:5900 mo@10.249.11.192
 # 然后 VNC Viewer 连 127.0.0.1:5900
 ```
 
@@ -112,7 +112,7 @@ ssh -i C:/Users/12697/.ssh/id_ed25519_t490 -N -L 5900:127.0.0.1:5900 mo@192.168.
 Windows 侧可以直接用工具核验 VNC 画面（不必靠肉眼）：
 
 ```bash
-python scripts/vnc_grab.py --host 192.168.1.217 --port 5900 --out tmp/vnc/check.png
+python scripts/vnc_grab.py --host 10.249.11.192 --port 5900 --out tmp/vnc/check.png
 # 预期：[OK] … 1280x800 … 非黑像素抽样 xx.x% -> 有内容
 # 若输出「全黑」或提示 Display output is not active，说明 guest 还没画东西
 ```

@@ -5,10 +5,10 @@ set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
 
 # 1. 停会话
-$SSH mo@10.249.63.140 'pkill -TERM -f qemu-system-aarch64; sleep 5; pgrep -f qemu-system-aarch64 >/dev/null && pkill -KILL -f qemu-system-aarch64; pkill -f run-session.py; sleep 1; cd ~/x-kernel && e2fsck -f -y disk.img 2>&1 | tail -2'
+$SSH mo@10.249.11.192 'pkill -TERM -f qemu-system-aarch64; sleep 5; pgrep -f qemu-system-aarch64 >/dev/null && pkill -KILL -f qemu-system-aarch64; pkill -f run-session.py; sleep 1; cd ~/x-kernel && e2fsck -f -y disk.img 2>&1 | tail -2'
 
 # 2. 提取 Alpine aarch64 strace（不走 apk solver）
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 mkdir -p ~/xk6/tmp/apk && cd ~/xk6/tmp/apk
 MIRROR=https://dl-cdn.alpinelinux.org/alpine
 echo "--- 查 strace 包名 ---"
@@ -21,8 +21,8 @@ mkdir -p unpack && tar -xzf strace.apk -C unpack 2>/dev/null || true
 find unpack -name "strace" -type f -exec file {} \; | head -3'
 
 # 3. 编译 drmprobe v2（动态链接，支持 dlopen）
-scp -o BatchMode=yes /mnt/e/02_competition/中电杯/scripts/t490/drmprobe.c mo@10.249.63.140:/home/mo/xk6/scripts/t490/drmprobe.c
-$SSH mo@10.249.63.140 'set -e
+scp -o BatchMode=yes /mnt/e/02_competition/中电杯/scripts/t490/drmprobe.c mo@10.249.11.192:/home/mo/xk6/scripts/t490/drmprobe.c
+$SSH mo@10.249.11.192 'set -e
 export PATH="$HOME/musl/aarch64-linux-musl-cross/bin:$PATH"
 cd ~/x-kernel
 aarch64-linux-musl-gcc -Os -o /tmp/drmprobe2 ~/xk6/scripts/t490/drmprobe.c

@@ -2,7 +2,7 @@
 # P1 侦察 2：memfs 的 SYSFS_TYPE 定义与 builder 机制
 exec > /mnt/e/02_competition/中电杯/tmp/p1_recon2.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel
+$SSH mo@10.249.11.192 'cd ~/x-kernel
 echo "=== memfs 里 SYSFS_TYPE 定义 ==="
 grep -rn "SYSFS_TYPE" --include=*.rs fs/filesystems/memfs/ | head -10
 echo "=== memfs/src 结构 ==="

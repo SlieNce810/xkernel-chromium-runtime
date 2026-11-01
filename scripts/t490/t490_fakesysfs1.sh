@@ -5,10 +5,10 @@ set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
 
 # 1. 停会话
-$SSH mo@10.249.63.140 'pkill -TERM -f qemu-system-aarch64; sleep 5; pgrep -f qemu-system-aarch64 >/dev/null && pkill -KILL -f qemu-system-aarch64; pkill -f run-session.py; sleep 1; cd ~/x-kernel && e2fsck -f -y disk.img 2>&1 | tail -2'
+$SSH mo@10.249.11.192 'pkill -TERM -f qemu-system-aarch64; sleep 5; pgrep -f qemu-system-aarch64 >/dev/null && pkill -KILL -f qemu-system-aarch64; pkill -f run-session.py; sleep 1; cd ~/x-kernel && e2fsck -f -y disk.img 2>&1 | tail -2'
 
 # 2. 构造伪造 sysfs 文件（libdrm 的 drmGetDevices2 / drmGetDeviceNameFromFd2 读取的文件）
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 W=~/xk6/tmp/fakesys
 rm -rf $W && mkdir -p $W
 printf "226:0\n" > $W/dev          # 关键：major:minor

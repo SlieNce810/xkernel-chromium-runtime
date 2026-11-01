@@ -9,12 +9,12 @@ chmod 600 ~/.ssh/id_ed25519
 ls -l ~/.ssh/id_ed25519
 
 # 2. 连通性
-ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 mo@10.249.63.140 'hostname; echo SSH_OK'
+ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 mo@10.249.11.192 'hostname; echo SSH_OK'
 
 # 3. 传 musl tgz（103MB）
 TGZ="$HOME/musl/aarch64-linux-musl-cross.tgz"
 ls -la "$TGZ"
-time scp -o BatchMode=yes -o StrictHostKeyChecking=accept-new "$TGZ" mo@10.249.63.140:/tmp/
-ssh -o BatchMode=yes mo@10.249.63.140 'ls -la /tmp/aarch64-linux-musl-cross.tgz; sha256sum /tmp/aarch64-linux-musl-cross.tgz'
+time scp -o BatchMode=yes -o StrictHostKeyChecking=accept-new "$TGZ" mo@10.249.11.192:/tmp/
+ssh -o BatchMode=yes mo@10.249.11.192 'ls -la /tmp/aarch64-linux-musl-cross.tgz; sha256sum /tmp/aarch64-linux-musl-cross.tgz'
 sha256sum "$TGZ"
 echo PUSH_MUSL_DONE

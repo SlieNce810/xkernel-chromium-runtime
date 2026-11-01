@@ -2,7 +2,7 @@
 # 收口E：T490 清理（先列清单，再删，最后复核）
 exec > /mnt/e/02_competition/中电杯/tmp/close_E.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 '
+$SSH mo@10.249.11.192 '
 set -u
 echo "=== 全盘占用（清理前）==="
 df -h /home | tail -1

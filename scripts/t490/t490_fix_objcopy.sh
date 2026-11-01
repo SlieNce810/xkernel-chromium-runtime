@@ -2,7 +2,7 @@
 # T490: 补 rust-objcopy（llvm-tools-preview + 软链），重跑 make build
 exec > /mnt/e/02_competition/中电杯/tmp/t490_fix_objcopy.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'export PATH="$HOME/.cargo/bin:$PATH"
+$SSH mo@10.249.11.192 'export PATH="$HOME/.cargo/bin:$PATH"
 set -x
 echo "=== WSL 对照：无（仅记录 T490 现状）==="
 command -v rust-objcopy || echo "rust-objcopy MISSING"

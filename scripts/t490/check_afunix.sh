@@ -2,7 +2,7 @@
 # 精确核查 AF_UNIX 支持 + 顺带看构建进度
 exec > /mnt/e/02_competition/中电杯/tmp/scm_check2.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel && \
+$SSH mo@10.249.11.192 'cd ~/x-kernel && \
   echo "=== AF_UNIX / Unix domain ==="; \
   grep -rn "AF_UNIX\|AF_LOCAL\|UnixSocket\|UnixDomain\|SockAddrUn" --include=*.rs . | head -20; \
   echo "(count:)"; grep -rn "AF_UNIX" --include=*.rs . | wc -l; \

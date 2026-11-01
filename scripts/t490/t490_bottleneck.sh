@@ -2,7 +2,7 @@
 # 判断 apk 瓶颈：块 I/O（写盘=解压中）vs 网络（下载中）
 exec > /mnt/e/02_competition/中电杯/tmp/t490_bottleneck.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'QP=$(pgrep -f qemu-system-aarch64 | head -1); echo "QEMU pid=$QP"
+$SSH mo@10.249.11.192 'QP=$(pgrep -f qemu-system-aarch64 | head -1); echo "QEMU pid=$QP"
 echo "=== 块 I/O 采样（间隔 10s）==="
 A=$(grep -E "^(read|write)_bytes" /proc/$QP/io); sleep 10; B=$(grep -E "^(read|write)_bytes" /proc/$QP/io)
 echo "T0: $A"; echo "T1: $B"

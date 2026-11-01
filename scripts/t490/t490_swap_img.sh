@@ -2,7 +2,7 @@
 # T490: 用 WSL 预装镜像替换 disk.img，并补注入 drmprobe + autorun v6
 exec > /mnt/e/02_competition/中电杯/tmp/t490_swap_img.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'set -x
+$SSH mo@10.249.11.192 'set -x
 export PATH="$HOME/musl/aarch64-linux-musl-cross/bin:$HOME/.cargo/bin:$PATH"
 cd "$HOME/x-kernel" || exit 1
 

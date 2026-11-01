@@ -2,7 +2,7 @@
 # 核查 x-kernel 的 unix socket SCM_RIGHTS / fd 传递支持（seatd 依赖）
 exec > /mnt/e/02_competition/中电杯/tmp/scm_check.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel && \
+$SSH mo@10.249.11.192 'cd ~/x-kernel && \
   echo "=== SCM_* 出现位置 ==="; \
   grep -rn "SCM_RIGHTS\|SCM_CREDENTIALS\|scm_rights" --include=*.rs . | head -20; \
   echo "=== sendmsg/recvmsg 支持 ==="; \

@@ -4,9 +4,9 @@ exec > /mnt/e/02_competition/中电杯/tmp/t490_fakesysfs2.log 2>&1
 set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
 
-scp -o BatchMode=yes /mnt/e/02_competition/中电杯/scripts/t490/autorun_v5.sh mo@10.249.63.140:/tmp/a11.sh
+scp -o BatchMode=yes /mnt/e/02_competition/中电杯/scripts/t490/autorun_v5.sh mo@10.249.11.192:/tmp/a11.sh
 
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 cd ~/x-kernel
 W=~/xk6/tmp/fakesys
 # --- 创建 sysfs 目录树 ---
@@ -35,5 +35,5 @@ debugfs -R "cat /sys/class/drm/card0/dev" disk.img 2>/dev/null
 echo "=== ls -lR /sys/class/drm/card0 ==="
 debugfs -R "ls -l /sys/class/drm/card0" disk.img 2>/dev/null
 debugfs -R "ls -l /sys/class/drm/card0/device" disk.img 2>/dev/null'
-$SSH mo@10.249.63.140 'setsid -f ~/xk6/scripts/t490/run_session_t490.sh v11-sysfs 900 45; echo RELAUNCHED'
+$SSH mo@10.249.11.192 'setsid -f ~/xk6/scripts/t490/run_session_t490.sh v11-sysfs 900 45; echo RELAUNCHED'
 echo T490_FAKESYSFS2_DONE

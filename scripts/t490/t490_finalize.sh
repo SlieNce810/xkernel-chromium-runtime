@@ -3,7 +3,7 @@
 exec > /mnt/e/02_competition/中电杯/tmp/t490_finalize.log 2>&1
 set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 pkill -TERM -f qemu-system-aarch64 2>/dev/null || true
 sleep 5
 pgrep -f qemu-system-aarch64 >/dev/null && pkill -KILL -f qemu-system-aarch64 || true
