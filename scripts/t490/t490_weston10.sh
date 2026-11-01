@@ -4,7 +4,7 @@
 exec > /mnt/e/02_competition/中电杯/tmp/t490_weston10.log 2>&1
 set -x
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'set -e
+$SSH mo@10.249.11.192 'set -e
 cd ~/xk6/tmp
 MIR23=https://dl-cdn.alpinelinux.org/alpine/v3.23/main/x86_64
 MIR17=https://dl-cdn.alpinelinux.org/alpine/v3.17

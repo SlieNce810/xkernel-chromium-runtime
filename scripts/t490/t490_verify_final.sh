@@ -2,7 +2,7 @@
 # 验证收尾结果
 exec > /mnt/e/02_competition/中电杯/tmp/t490_verify_final.log 2>&1
 SSH="ssh -o BatchMode=yes -o ConnectTimeout=10"
-$SSH mo@10.249.63.140 'cd ~/x-kernel
+$SSH mo@10.249.11.192 'cd ~/x-kernel
 echo "--- 进程 ---"; pgrep -a -f "qemu-system|run-session" | head -3 || echo "无残留进程"
 echo "--- 冻结镜像 ---"; ls -la images/ 2>/dev/null; sha256sum images/*.img 2>/dev/null | head -2
 echo "--- 内核产物 ---"; ls -la xkernel_aarch64-qemu.bin
