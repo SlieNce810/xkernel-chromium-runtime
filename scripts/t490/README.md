@@ -1,7 +1,7 @@
 # `scripts/t490/` 脚本索引与复现指南
 
 > 目标机：**T490 裸金属**（ThinkPad T490 · Ubuntu 26.04 LTS · i7-8665U 4C8T · 14G）
-> 连接：`mo@10.249.63.140`（IP 会变：`10.157.181.239` / `10.249.63.140` 交替，连不上先 ping 两个）
+> 活动连接入口：`scripts/t490/remote.env`，当前目标为 `mo@10.249.11.192`。历史报告和 evidence 中的旧地址只代表当时环境，不作为活动入口。
 > 执行通道：本机 Windows **原生 OpenSSH**（`ssh`/`scp`）直连；**不再依赖 WSL**
 > ⚠️ Windows 的 `scp` **不处理含中文的绝对本地路径**（`/e/…/中电杯/…` 会被转义报 No such file）
 > → **先 `cd` 进目标目录再用相对路径**。
@@ -10,6 +10,19 @@
 > 非交互 ssh 下必须显式
 > `export PATH="$HOME/.cargo/bin:$HOME/qemu-root/usr/bin:$HOME/musl/aarch64-linux-musl-cross/bin:$PATH"`
 > （否则 `rustc` 落到 `/usr/bin/rustc` 1.93.1，而 `rust-toolchain.toml` 要 1.95.0）
+
+## -1. 活动连接与基线检查
+
+不要在新脚本中硬编码 T490 地址。先复制配置模板，再通过统一入口执行只读检查：
+
+```bash
+cp scripts/t490/remote.env.example scripts/t490/remote.env
+bash scripts/t490/remote.sh show
+bash scripts/t490/remote.sh check
+bash scripts/t490/active-address-audit.sh
+```
+
+`remote.sh` 使用 `T490_SSH_KEY` 和 `T490_SSH_OPTIONS`，不会修改远端文件；`remote_baseline_check.sh` 只读取主机名、系统版本、QEMU 版本、目录存在性、内核描述和磁盘余量。活动地址审计只扫描 `scripts/t490` 与 `docs/demo`，不会改写历史 evidence。
 
 ---
 
