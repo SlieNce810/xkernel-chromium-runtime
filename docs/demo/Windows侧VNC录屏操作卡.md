@@ -13,7 +13,7 @@
 | 5900 端口监听 | ✅ `RFB 003.008` 版本串正常返回 |
 | RFB 握手 | ✅ 安全类型 `[1]`（None），服务端名称 `QEMU` |
 | 画面可取 | ✅ `scripts/vnc_grab.py` 成功抓到帧 |
-| 分辨率跟随 guest | ✅ T+60 s 时 640×480（内核启动阶段，画面是 QEMU 的 `Display output is not active.`）；T+120 s 起变 1280×800 |
+| 分辨率跟随 guest | ✅ 仅接受稳定后的 1280×800；启动阶段未达到该尺寸的画面不得截图或计入证据 |
 | screendump 通路 | ✅ 与 VNC **并存**，同轮 `screendumps 2 / 2 成功` |
 | 平台合规 | ✅ `PASS=15 FAIL=0 → PLATFORM_COMPLIANT`（含 `-display vnc` 与 `-serial mon:stdio`） |
 

@@ -58,7 +58,7 @@
           background: #f6f6f6; border: 1px solid #cccccc; padding: 8px 10px; }
 
   /* ---- v1.2 首屏状态条：紧随 banner，把「JS 是否执行」与「渲染心跳」放进第一屏 ----
-     动机：整页高约 1080 px，而 QEMU screendump 的常见画幅只有 640×480，
+     动机：整页高约 1080 px，而 决赛 QEMU screendump 固定为 1280×800，
      ⑤/⑦ 会落在视野之外 ⇒ 用「两帧像素差」证明 renderer 存活的最强判据会失效。
      放进首屏后，任何分辨率下都能判：banner 存在 + 绿字出现 + 双帧有差异。 */
   .statusbar {
@@ -85,7 +85,7 @@
 
 <div class="banner">XK-6 · 渲染自检页 v1.2 · marker=XK-CHROMIUM-OK</div>
 
-<!-- ⓪ 首屏状态条（v1.2 新增）：JS 状态 + 渲染心跳，保证在 640×480 画幅内也能判定 -->
+<!-- ⓪ 首屏状态条（v1.2 新增）：JS 状态 + 渲染心跳，保证在 1280×800 画幅内可判定 -->
 <div class="statusbar">
   <span class="sb-k">JS 状态</span>
   <span id="runtime">JS-NOT-RUNNING</span>
@@ -138,7 +138,7 @@
        因此「截图里出现绿色 #0b6b2f 文字」是 JS 确实执行过的**像素级硬证据**，
        而不是靠 CSS 写死颜色造成的假象。
        v1.2：权威副本已移到首屏状态条（id=runtime），此处改为副本 runtime2 —— 当画幅
-       只有 640×480 时这一节会落在视野外，首屏那条才始终可见。 -->
+       决赛固定 1280×800，首屏状态条必须始终可见。 -->
   <p class="note">
     运行时状态（副本）：<span id="runtime2">JS-NOT-RUNNING</span><br>
     渲染时间：<span id="clock">-</span>

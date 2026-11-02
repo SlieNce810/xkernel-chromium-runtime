@@ -31,8 +31,8 @@
 
 | 文件 | 用途 |
 |---|---|
-| `ref-official-<page>-1280x800.png` / `-640x480.png` | 本机无头 Chrome 渲染的"应该长什么样"，两种 screendump 画幅各一套 |
-| `ref-1280x800.png` / `ref-640x480*.png` | **legacy**：旧 `local-check.html`（v1.1）的参照图，保留供历史判据对照 |
+| `ref-official-<page>-1280x800.png` | 本机无头 Chrome 渲染的决赛固定画幅参照图 |
+| `ref-1280x800.png` | **legacy**：旧 `local-check.html`（v1.1）的参照图，仅供历史判据对照 |
 
 参考图是 `ppm_assert.py` 里**所有官方页判据常量的来源**（不是从 CSS 反推的）。
 重新生成：
@@ -45,7 +45,7 @@
   "file:///<repo>/中电杯/scripts/testpage/index.html"
 # 2) 转 PPM（判据只吃 P6），再跑判据
 python3 scripts/png2ppm.py --out-dir tmp/ref-ppm scripts/testpage/reference/ref-official-*.png
-python3 scripts/t490/ppm_assert.py tmp/ref-ppm/ref-official-index-640x480.ppm --profile official-index
+python3 scripts/t490/ppm_assert.py tmp/ref-ppm/ref-official-index-1280x800.ppm --profile official-index --expect-size 1280x800
 ```
 
 ## 4. 三条使用注意（都是实测踩出来的）

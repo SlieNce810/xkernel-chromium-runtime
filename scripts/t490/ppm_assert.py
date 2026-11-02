@@ -299,9 +299,8 @@ SWATCH_BOX = dict(w_lo=80, w_hi=300, h_lo=40, h_hi=180, aspect_max=3.0)
 DARK_MAX = 100
 
 # ---- 相对化阈值 ---------------------------------------------------------- #
-# 实测历史 351 张 screendump 里有两种画幅：640x480 与 1280x800。banner 与
-# table.data 是**流体宽度**（随窗口宽变），必须按屏宽取比例；而色块/棋盘/心跳盒
-# 是 CSS 固定尺寸，不能相对化。
+# 决赛固定 1280x800。banner 与 table.data 是**流体宽度**（随窗口宽变），
+# 必须按屏宽取比例；而色块/棋盘/心跳盒是 CSS 固定尺寸，不能相对化。
 BANNER_W_FRAC = 0.35        # banner 宽 ≥ 0.35*W（另设绝对下限 240）
 BANNER_W_MIN = 240
 BANNER_H_LO_FRAC = 0.04     # 64/800=0.08、64/480=0.13 都落带内
@@ -652,8 +651,7 @@ def analyze(img: PPM, non_white_min: float = 0.05,
       viewport — 只有 H ≥ full_page_min_h 才在视野内，否则降级为 INFO
       info     — 永远只作参考
 
-    为什么必须有分组：页面整页高约 1080 px，而历史 screendump 里有 640×480 与
-    1280×800 两种画幅。画幅不够高时"③表格/②棋盘检不到"是**取景问题**而不是
+    页面整页高约 1080 px，决赛固定使用 1280×800 画幅。画幅不够高时"③表格/②棋盘检不到"是**取景问题**而不是
     渲染失败，把它当 FAIL 会产生假阴性。
     """
     ch = img.channels()
@@ -768,7 +766,7 @@ def analyze(img: PPM, non_white_min: float = 0.05,
 # 下面所有常量都来自**参考图实测**（本机无头 Chrome 渲染三页，见 scripts/testpage/
 # reference/），不是从 CSS 反推的。实测记录（2026-09-22，Chrome 无头 DPR=1）：
 #
-#   banner #17456b   640x480: 608x84     1280x800: 848x84   （w/W = 0.95 / 0.66）
+#   banner #17456b   1280x800: 848x84   （w/W = 0.66）
 #   index 四色块     640: 131x64 ×4 同带 y196..259，间隙 17    1280: 192x64 ×4
 #   layout C1 三块   640: 182x56 ×3 同带 y167..222            1280: 262x56 ×3
 #   layout C2 网格   640: 287x48，两行 y299..346 / y357..404   1280: 407x48，同两行 y
@@ -1184,7 +1182,7 @@ def analyze_official(img: PPM, page: str, expect_input: bool = False,
             "此项是跨页鉴别：若列出红/绿/黄/紫块，说明这一帧其实是 index 或 layout 页",
             {"blocks": blocks}, group="core"))
 
-        # --- interaction：自检表横线（VIEW，640x480 下也在框内） ---------- #
+        # --- interaction：自检表横线（VIEW，1280x800 固定画幅） ---------- #
         # 为什么要 min_lines=7 而不是 4：index 的表格（6 条 ×31）会满足"≥4 条等距"，
         # 于是 interaction 档在 index 截图上误判通过（实测跨页负对照就是这里漏的）。
         # 官方 interaction 自检表是 8 行（表头 + T1–T6 + F1）→ 实测 9 条 ×29，留 2 条余量。
@@ -1281,7 +1279,7 @@ def main(argv=None) -> int:
                     help="差图模式：变化 bbox 覆盖率上限（超过视为整屏重绘 / 闪屏）")
     ap.add_argument("--non-white-min", type=float, default=0.05,
                     help="非白像素占比下限（默认 0.05）")
-    ap.add_argument("--expect-size", default=None, help="期望尺寸 WxH，如 1280x800")
+    ap.add_argument("--expect-size", default="1280x800", help="期望尺寸 WxH；决赛固定 1280x800")
     ap.add_argument("--full-page-min-height", type=int, default=FULL_PAGE_MIN_H,
                     help=f"画幅高 ≥ 此值才认为 viewport 组（棋盘/表格）在视野内"
                          f"（默认 {FULL_PAGE_MIN_H}）")
