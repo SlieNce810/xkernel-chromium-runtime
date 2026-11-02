@@ -178,6 +178,8 @@ if [ -f "$PULL" ]; then
         /root/single-initial.log /root/single-initial.csv /root/single-chromium.log \
         /root/single-weston.log /root/single-weston-stdout.log /root/single-seatd.log \
         /root/single-udevd.log /root/single-udev-trigger.log /root/single-udev-settle.log \
+        /root/mp-diag.log /root/mp-weston.log /root/mp-weston-stdout.log /root/mp-seatd.log \
+        /root/mp-udevd.log /root/mp-udev-trigger.log /root/mp-udev-settle.log /root/mp-chromium.log \
         >> "$SUMMARY" 2>&1
 else
     say "!! pull_guest_logs.sh 缺失，跳过"
