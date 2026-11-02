@@ -135,6 +135,7 @@ if command -v udevd >/dev/null 2>&1; then
     UDEVD_PID=$!
     sleep 1
     udevadm trigger --action=add --subsystem-match=input >/root/mp-udev-trigger.log 2>&1 || true
+    udevadm trigger --action=add --subsystem-match=drm >>/root/mp-udev-trigger.log 2>&1 || true
     udevadm settle --timeout=8 >/root/mp-udev-settle.log 2>&1 || true
 fi
 
