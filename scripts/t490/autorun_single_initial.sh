@@ -67,21 +67,16 @@ if command -v udevd >/dev/null 2>&1; then
     UDEVD_PID=$!
     sleep 1
     udevadm trigger --action=add --subsystem-match=input >/root/single-udev-trigger.log 2>&1 &
+    udevadm trigger --action=add --subsystem-match=drm >>/root/single-udev-trigger.log 2>&1 &
     UDEV_TRIGGER_PID=$!
     sleep 2
     kill -TERM "$UDEV_TRIGGER_PID" 2>/dev/null || true
     udevadm settle --timeout=8 >/root/single-udev-settle.log 2>&1 || true
 fi
 
-# Minimal sysfs contract used by the existing agentos Weston setup.
-mkdir -p /sys/dev/char/226:0/device /sys/class/drm/card0 \
-    /sys/devices/simpledrm /sys/bus/faux /sys/class/faux 2>/dev/null || true
-ln -sf ../../faux /sys/dev/char/226:0/device/subsystem 2>/dev/null || true
-printf 'MAJOR=226\nMINOR=0\nDEVNAME=dri/card0\nSUBSYSTEM=drm\nDEVTYPE=drm_minor\n' \
-    > /sys/class/drm/card0/uevent 2>/dev/null || true
-printf '226:0\n' > /sys/class/drm/card0/dev 2>/dev/null || true
-ln -sf ../../bus/faux /sys/class/drm/card0/subsystem 2>/dev/null || true
-printf 'drm 1.1.0 simpledrm 1.0.0\n' > /sys/class/drm/version 2>/dev/null || true
+# Use the real DRM sysfs topology; faux entries hide the actual simpledrm card.
+log "DRM_NODES=$(ls -l /dev/dri 2>&1 || true)"
+log "DRM_SYSFS=$(find /sys/class/drm -maxdepth 2 -type f -o -type l 2>&1 | sort)"
 
 SEATD_VTBOUND=0 seatd -l info > "$SEATD_LOG" 2>&1 &
 SEATD_PID=$!
