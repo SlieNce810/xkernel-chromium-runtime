@@ -153,7 +153,7 @@ fi
 env XDG_RUNTIME_DIR="$RUNTIME_DIR" WESTON_DISABLE_ATOMIC=1 \
     LIBSEAT_BACKEND=seatd SEATD_SOCK=/run/seatd.sock \
     weston --backend=drm-backend.so --renderer=pixman --drm-device=card0 \
-    --seat=seat0 --idle-time=0 --debug --log="$WLOG" \
+    --seat=seat0 --continue-without-input --idle-time=0 --debug --log="$WLOG" \
     >/root/mp-weston-stdout.log 2>&1 &
 WESTON_PID=$!
 if ! wait_for_wayland; then
