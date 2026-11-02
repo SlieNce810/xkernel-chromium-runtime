@@ -28,7 +28,7 @@ IVL="${3:-120}"
 # round.  Ordinary rendering rounds leave it unset and keep the platform
 # command line unchanged.  The path is validated because it becomes part of
 # the make-provided QEMU_ARGS value.
-QMP_ARGS=()
+QEMU_ARGS_VALUE="$PLAT_QEMU_ARGS"
 if [ -n "${QMP_SOCKET:-}" ]; then
     case "$QMP_SOCKET" in
         *[!A-Za-z0-9_./-]*)
@@ -44,8 +44,9 @@ if [ -n "${QMP_SOCKET:-}" ]; then
             exit 1
             ;;
     esac
-    QMP_ARGS=(--qemu-args "$QMP_VALUE")
+    QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $QMP_VALUE"
 fi
+QEMU_ARGS=(--qemu-args "$QEMU_ARGS_VALUE")
 
 mkdir -p "$HOME/xk6/tmp"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
@@ -76,7 +77,7 @@ python3 "$HOME/xk6/scripts/run-session.py" \
   --input-devices "$PLAT_INPUT_DEVICES" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
-  "${QMP_ARGS[@]}" \
+  "${QEMU_ARGS[@]}" \
   --out "$OUT"
 SESSION_RC=$?
 echo "SESSION_RC=$SESSION_RC"
