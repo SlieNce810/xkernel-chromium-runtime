@@ -234,6 +234,31 @@ class QmpClient:
             self.hmp(f"sendkey {qcode}")
             self._record("action", {"op": "key", "qcode": qcode, "transport": "hmp"})
 
+    def key_chord(self, qcodes: list[str]) -> None:
+        """Send a simultaneous modifier/key chord through the selected QMP path."""
+        if self.qmp_send_key:
+            self.command("send-key", {"keys": [{"type": "qcode", "data": code}
+                                                 for code in qcodes]})
+            self._record("action", {"op": "key-chord", "qcodes": qcodes,
+                                     "transport": "send-key-chord"})
+            return
+        if self.force_hmp:
+            self.hmp("sendkey " + "-".join(qcodes))
+            self._record("action", {"op": "key-chord", "qcodes": qcodes,
+                                     "transport": "hmp"})
+            return
+        # input-send-event has explicit key state, so press modifiers first and
+        # release in reverse order. This keeps the path equivalent to a real
+        # keyboard chord for QMP builds that do not implement send-key.
+        for code in qcodes:
+            self.event({"type": "key", "data": {"down": True,
+                                                   "key": {"type": "qcode", "data": code}}})
+        for code in reversed(qcodes):
+            self.event({"type": "key", "data": {"down": False,
+                                                   "key": {"type": "qcode", "data": code}}})
+        self._record("action", {"op": "key-chord", "qcodes": qcodes,
+                                 "transport": "qmp"})
+
     def relative(self, axis: str, value: int) -> None:
         if self.force_hmp:
             dx = value if axis == "x" else 0
@@ -312,6 +337,11 @@ def click_at(client: QmpClient, x: int, y: int, reason: str) -> None:
 def type_text(client: QmpClient, text: str, delay: float) -> None:
     qcodes = {" ": "spc", "-": "minus", "_": "shift-minus"}
     for char in text:
+        if char == "!":
+            client.key_chord(["shift", "1"])
+            if delay:
+                time.sleep(delay)
+            continue
         qcode = qcodes.get(char, char.lower())
         if len(qcode) != 1 and qcode != "shift-minus":
             client.key(qcode)
