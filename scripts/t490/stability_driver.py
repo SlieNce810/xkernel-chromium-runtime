@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Run a 30-minute QMP-driven page reload stability sequence.
+"""Run a QMP-driven page reload stability sequence with margin over the 30-minute minimum.
 
 The measured clock starts only after the initial official page passes its
 strict PPM profile. Ten real Ctrl+R key chords are scheduled two minutes apart;
 each reload must produce a new strictly passing QEMU screendump. QEMU status is
-sampled every 30 seconds for the full hold. Guest process liveness is recorded
-separately by autorun_mp_diag.sh and checked by stability_gate.py.
+sampled every 30 seconds for the full hold. Guest process liveness is recorded by
+the default observer and checked by stability_gate.py.
 """
 
 from __future__ import annotations
@@ -26,6 +26,31 @@ from qmp_input import QmpClient, QmpError
 
 SCHEMA = "xkernel.stability.v1"
 ASSERT_SCRIPT = Path(__file__).with_name("ppm_assert.py")
+
+
+def parse_family_snapshot(line: str) -> dict[str, Any] | None:
+    """Parse only a complete MP_FAMILY snapshot, excluding MP_FAMILY_COUNT."""
+
+    marker = re.search(r"\bMP_FAMILY\s+label=", line)
+    if marker is None:
+        return None
+    family_text = line[marker.start() + len("MP_FAMILY") :]
+    members = re.findall(
+        r"(\d+):([A-Za-z0-9_]+)/([A-Z?])/(\d+)",
+        family_text,
+    )
+    try:
+        count = int(re.search(r"\bn=(\d+)\b", family_text).group(1))  # type: ignore[union-attr]
+    except (AttributeError, ValueError):
+        count = len(members)
+    return {
+        "members": [
+            {"pid": int(pid), "kind": kind, "state": state, "threads": int(threads)}
+            for pid, kind, state, threads in members
+        ],
+        "roles": sorted({kind for _, kind, _, _ in members}),
+        "n": count,
+    }
 
 
 class StabilityError(RuntimeError):
@@ -59,7 +84,7 @@ def main() -> int:
     parser.add_argument("--events", required=True, type=Path)
     parser.add_argument("--console-log", required=True, type=Path,
                         help="live QEMU serial log written by t490_round.sh")
-    parser.add_argument("--duration-seconds", type=int, default=1800)
+    parser.add_argument("--duration-seconds", type=int, default=1805)
     parser.add_argument("--reload-count", type=int, default=10)
     parser.add_argument("--reload-interval-seconds", type=int, default=120)
     parser.add_argument("--reload-window-seconds", type=int, default=90)
@@ -153,22 +178,14 @@ def main() -> int:
                 latest_watchdog = sample
                 emit("guest_watchdog_observed", raw=line[-600:],
                      **{key: value for key, value in sample.items() if not key.startswith("_")})
-            if "MP_FAMILY" in line:
-                family_text = line.split("MP_FAMILY", 1)[1]
-                members = re.findall(r"(\d+):([A-Za-z0-9_]+)/([A-Z?])/(\d+)", family_text)
-                try:
-                    count = int(re.search(r"\bn=(\d+)\b", family_text).group(1))  # type: ignore[union-attr]
-                except (AttributeError, ValueError):
-                    count = len(members)
+            family_snapshot = parse_family_snapshot(line)
+            if family_snapshot is not None:
                 latest_family = {
-                    "members": [{"pid": int(pid), "kind": kind, "state": state, "threads": int(threads)}
-                                for pid, kind, state, threads in members],
-                    "roles": sorted({kind for _, kind, _, _ in members}),
-                    "n": count,
+                    **family_snapshot,
                     "_host_t_ns": time.monotonic_ns(),
                 }
                 emit("guest_process_snapshot", raw=line[-1000:],
-                     **{key: value for key, value in latest_family.items() if not key.startswith("_")})
+                     **family_snapshot)
             if "MP_PROC_EVENT event=exited" in line:
                 pid_match = re.search(r"\bpid=(\d+)", line)
                 kind_match = re.search(r"\bkind=([A-Za-z0-9_]+)", line)

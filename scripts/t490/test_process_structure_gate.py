@@ -132,10 +132,9 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn("--single-process", errors[0])
 
     def test_guest_observer_does_not_filter_ps_through_awk(self) -> None:
-        for observer_name in (
-            "autorun_mp_score_observe3.sh",
-            "autorun_mp_score_observe6.sh",
-        ):
+        observer_names = ("autorun_mp_score_observe6.sh",)
+        self.assertTrue((Path(__file__).with_name(observer_names[0])).is_file())
+        for observer_name in observer_names:
             with self.subTest(observer=observer_name):
                 observer = Path(__file__).with_name(observer_name)
                 source = observer.read_text(encoding="utf-8")
@@ -158,6 +157,9 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('stability_family_add "$zygote_pid" browser_child', observer_source)
         self.assertIn('stability_family_add "$renderer_pid" zygote_child', observer_source)
         self.assertIn('MP_FAMILY label=$family_label', observer_source)
+        self.assertIn("PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen", observer_source)
+        self.assertIn("family_watchdog_elapsed", observer_source)
+        self.assertIn('proc_start_ms "$pid"', observer_source)
         self.assertIn('MP_LEDGER_VALUE=0', runner_source)
         self.assertIn('MP_SAMPLE_SECONDS=5', runner_source)
         self.assertIn('STABILITY_AUTORUN=autorun_mp_score_observe6.sh', runner_source)

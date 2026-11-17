@@ -13,7 +13,7 @@ Weston 14（DRM/pixman）图形会话 + 单进程 Chromium 渲染组委会指定
 
 **浏览器功能：20/20 已有严格仓库验收记录**，使用 Chromium 149 默认 Browser → Zygote → Renderer、Wayland 和真实 QMP/HMP 输入；记录条件为 guest 4 GiB，见 [report/284](report/284-默认多进程真实键鼠与决赛20分闭环-20261117.md)。正式平台复验采用 `scripts/t490/platform.env` 的默认 2 GiB；指定首页已完成三次独立冷启动并通过 strict 像素判据，首个严格帧分别在 481 秒、420.8 秒和 420.8 秒出现，见 [report/287](report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md)、[report/288](report/288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md) 与 [report/289](report/289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md)。第三轮的 Browser → Zygote → Renderer 直接父链经原始 console 规范化复核通过；六项功能仍未全部在 2 GiB 下重验。
 
-**仍待完成**：双页签、真实输入、JavaScript、CSS 等其余功能在 2 GiB 下复验；30 分钟/10 次真实重载稳定性。stable-r1/r2 均在 readiness timeout 前没有 strict 首页帧，失败记录见 [report/290](report/290-T490-2GiB稳定性尝试r1页面门禁超时-20261118.md) 与 [report/291](report/291-T490-2GiB稳定性尝试r2页面门禁超时-20261118.md)；r3 将把初始页 QMP poll 单独降至 30 秒。兼容性矩阵中尚未按冻结版本复测的缺项、四项性能指标的有效生命周期事件与 RSS/PSS/USS 样本、before/after 各五轮也仍待完成，目前没有可宣称的优化收益。统一复现入口见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
+**仍待完成**：双页签、真实输入、JavaScript、CSS 等其余功能仍待在 2 GiB 下复验。稳定性 r1/r2 在 readiness timeout 失败；r3 首次通过 strict 首页并完成驱动报告的 1800 秒保持和 10/10 次重载，但正式事件区间短 14.538 ms，且两次 liveness 缺少新鲜完整进程家族快照，故稳定性门禁仍为 FAIL，详见 [report/292](report/292-T490-2GiB稳定性尝试r3计时完成但门禁失败-20261118.md)。r4 将增加计时余量并同步每 10 秒家族观测脚本。兼容性矩阵中尚有冻结版本复测缺项；四项性能指标的完整事件与 RSS/PSS/USS 数据、before/after 各五轮及优化结论仍待完成。统一复现入口见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
 

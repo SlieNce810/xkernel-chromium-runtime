@@ -24,9 +24,9 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
 Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interval]
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
-reloads every 120 seconds; 1800 seconds measured after first strict page PASS.
+reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
-The default observer uses lightweight family snapshots at each 5-second sample.
+The default observer uses lightweight process events at 5-second samples and an independent 10-second family watchdog.
 Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead; reload checks use 5 seconds.
 EOF
     exit 0
@@ -80,7 +80,7 @@ python3 "$HERE/stability_driver.py" \
     --out-dir "$DRIVER_DIR" \
     --events "$DRIVER_DIR/stability-events.jsonl" \
     --console-log "$EVID/console.log" \
-    --duration-seconds 1800 \
+    --duration-seconds 1805 \
     --reload-count 10 \
     --reload-interval-seconds 120 \
     --reload-window-seconds "${STABILITY_RELOAD_WINDOW:-90}" \
@@ -112,9 +112,18 @@ if [ -d "$EVID" ]; then
 fi
 
 GATE_RC=1
+NORMALIZER_RC=1
 if [ -d "$EVID" ] && [ -f "$EVID/stability/stability-events.jsonl" ]; then
+    python3 "$HERE/normalize_stability_events.py" \
+        "$EVID/stability/stability-events.jsonl" \
+        "$EVID/stability/stability-events.normalized.jsonl" \
+        --summary "$EVID/stability/stability-event-normalization.json" \
+        > "$EVID/stability-event-normalization.log" 2>&1
+    NORMALIZER_RC=$?
+fi
+if [ "$NORMALIZER_RC" -eq 0 ] && [ -d "$EVID" ]; then
     python3 "$HERE/stability_gate.py" "$EVID" \
-        --events "$EVID/stability/stability-events.jsonl" \
+        --events "$EVID/stability/stability-events.normalized.jsonl" \
         --console-log "$EVID/console.log" \
         --run-id "$TAG" \
         --out "$EVID/stability-gate.json" \
@@ -123,12 +132,13 @@ if [ -d "$EVID" ] && [ -f "$EVID/stability/stability-events.jsonl" ]; then
     GATE_RC=$?
 fi
 
-printf 'STABILITY_DRIVER_RC=%s\nSTABILITY_ROUND_RC=%s\nSTABILITY_GATE_RC=%s\n' \
-    "$DRIVER_RC" "$ROUND_RC" "$GATE_RC" | tee "$WORK/result.env"
+printf 'STABILITY_DRIVER_RC=%s\nSTABILITY_ROUND_RC=%s\nSTABILITY_NORMALIZER_RC=%s\nSTABILITY_GATE_RC=%s\n' \
+    "$DRIVER_RC" "$ROUND_RC" "$NORMALIZER_RC" "$GATE_RC" | tee "$WORK/result.env"
 cp -f "$WORK/result.env" "$EVID/stability-result.env" 2>/dev/null || true
 cat "$WORK/stability-driver.log" 2>/dev/null || true
 (
     cd "$EVID" || exit 1
     find . -type f ! -name stability-bundle-sha256.txt -print0 | sort -z | xargs -0 sha256sum
 ) > "$EVID/stability-bundle-sha256.txt"
-[ "$DRIVER_RC" -eq 0 ] && [ "$ROUND_RC" -eq 0 ] && [ "$GATE_RC" -eq 0 ]
+[ "$DRIVER_RC" -eq 0 ] && [ "$ROUND_RC" -eq 0 ] \
+    && [ "$NORMALIZER_RC" -eq 0 ] && [ "$GATE_RC" -eq 0 ]

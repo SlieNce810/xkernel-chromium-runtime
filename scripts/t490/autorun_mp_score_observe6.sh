@@ -45,6 +45,7 @@ SEATD_LOG=/root/mp-seatd.log
 UDEVD_LOG=/root/mp-udevd.log
 EVENT_LOG=/root/multiprocess-events.jsonl
 PROCESS_EVENTS_SEEN=/tmp/mp-process-events-seen
+PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen
 RUNTIME_DIR=/run/user/0
 PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
 # 以下四个由 t490_round.sh 在注入时烘焙；宿主环境变量本身不跨 QEMU 边界。
@@ -64,6 +65,7 @@ LEDGER_MAX_PIDS=${MP_LEDGER_MAX_PIDS:-40}
 : > "$CHROME_LOG"
 : > "$EVENT_LOG"
 : > "$PROCESS_EVENTS_SEEN"
+: > "$PROCESS_FAMILY_SEEN"
 
 log() {
     line="[mpdiag] $*"
@@ -123,6 +125,9 @@ emit_process_event() {
     event_json=$(printf '{"timestamp_monotonic":%s,"process_role":"%s","pid":%s,"ppid":%s,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"%s","status":"observed","error":"","observation_source":"%s"}' \
         "$event_time" "$event_role" "$event_pid" "$event_ppid" "$event_name" "$event_source")
     printf '%s\n' "$event_json" >> "$EVENT_LOG"
+    event_start_ms=$(proc_start_ms "$event_pid")
+    printf '%s %s %s %s\n' "$event_role" "$event_pid" "$event_ppid" "$event_start_ms" \
+        >> "$PROCESS_FAMILY_SEEN"
     echo "MP_EVENT $event_json" > /dev/console 2>/dev/null || true
     log "MP_PROCESS_OBSERVED role=$event_role event=$event_name pid=$event_pid ppid=$event_ppid"
 }
@@ -433,6 +438,7 @@ ledger_scan() {
 # 看门狗独立于主循环：它停 = 整机冻死；它继续而 weston/chrome 变 no = 单进程死亡。
 # 这两种情况的下一步完全不同，不能用"没输出"含糊过去。
 watchdog() {
+    family_watchdog_elapsed=0
     while :; do
         up=$(awk '{printf "%.0f", $1}' /proc/uptime 2>/dev/null || echo 0)
         mf=$(awk '/^MemFree:/{print $2}' /proc/meminfo 2>/dev/null || echo 0)
@@ -441,8 +447,58 @@ watchdog() {
         [ -n "${WESTON_PID:-}" ] && [ -d "/proc/$WESTON_PID" ] && w=yes
         [ -n "${BROWSER_PID:-}" ] && [ -d "/proc/$BROWSER_PID" ] && c=yes
         echo "[mpdiag] MP_WATCHDOG uptime_s=$up weston=$w chrome=$c memfree_kb=$mf" > /dev/console 2>/dev/null
+        family_watchdog_elapsed=$((family_watchdog_elapsed + 2))
+        if [ "$family_watchdog_elapsed" -ge 10 ]; then
+            stability_family_snapshot
+            family_watchdog_elapsed=0
+        fi
         sleep 2
     done
+}
+
+stability_family_snapshot() {
+    [ -s "$PROCESS_FAMILY_SEEN" ] || return 0
+    stability_live_zygotes=" "
+    while read -r role pid ppid start_ms; do
+        [ "$role" = "zygote" ] || continue
+        [ "$ppid" = "$BROWSER_PID" ] || continue
+        [ -d "/proc/$pid" ] || continue
+        [ "$(proc_start_ms "$pid")" = "$start_ms" ] || continue
+        [ "$(proc_ppid "$pid")" = "$BROWSER_PID" ] || continue
+        stability_live_zygotes="$stability_live_zygotes$pid "
+    done < "$PROCESS_FAMILY_SEEN"
+
+    stability_n=0
+    stability_members=""
+    while read -r role pid ppid start_ms; do
+        case "$role" in
+            zygote)
+                [ "$ppid" = "$BROWSER_PID" ] || continue
+                stability_kind=browser_child
+                ;;
+            renderer)
+                case "$stability_live_zygotes" in *" $ppid "*) ;; *) continue ;; esac
+                stability_kind=zygote_child
+                ;;
+            *)
+                continue
+                ;;
+        esac
+        [ -d "/proc/$pid" ] || continue
+        [ "$(proc_start_ms "$pid")" = "$start_ms" ] || continue
+        [ "$(proc_ppid "$pid")" = "$ppid" ] || continue
+        set -- $(proc_state_threads "$pid")
+        stability_state=$1
+        stability_threads=$2
+        case "$stability_threads" in
+            ''|*[!0-9]*) stability_threads=1 ;;
+        esac
+        stability_n=$((stability_n + 1))
+        stability_members="$stability_members $pid:$stability_kind/$stability_state/$stability_threads"
+    done < "$PROCESS_FAMILY_SEEN"
+    stability_label=$(mono_ms)
+    echo "[mpdiag] MP_FAMILY label=$stability_label n=$stability_n$stability_members" \
+        > /dev/console 2>/dev/null || true
 }
 
 dump_fd_table_once() {
