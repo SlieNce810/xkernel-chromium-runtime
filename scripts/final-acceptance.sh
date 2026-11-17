@@ -5,8 +5,10 @@ set -o pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 T490="$ROOT/scripts/t490"
-STAMP="$(date +%Y-%m-%d_%H%M%S)"
-OUT="${ACCEPTANCE_OUT:-$ROOT/evidence/${STAMP}_acceptance}"
+RUN_DATE="$(date +%Y-%m-%d)"
+RUN_TIME="$(date +%H%M%S)"
+STAMP="${RUN_DATE}_${RUN_TIME}"
+OUT="${ACCEPTANCE_OUT:-$ROOT/evidence/${RUN_DATE}_t490-acceptance-${RUN_TIME}}"
 SUMMARY="$OUT/acceptance.json"
 mkdir -p "$OUT"
 
@@ -43,7 +45,12 @@ One-command stage entry (long running on the pure-TCG T490):
 EOF
 }
 
-if [[ $# -ne 1 ]]; then usage; exit 64; fi
+if [[ $# -eq 1 ]]; then
+    case "$1" in
+        -h|--help) usage; exit 0 ;;
+    esac
+fi
+if [[ $# -ne 1 ]]; then usage >&2; exit 64; fi
 stage="$1"
 case "$stage" in baseline|precheck|score|score-process|html|multiprocess|tabs|input|javascript|css|sandbox|function|stability|perf|report|all) ;; *) usage; exit 64 ;; esac
 
@@ -78,7 +85,11 @@ run_default_stage() {
     case "$name" in
         function|html)
             run_remote_stage "$name" \
-                "env -u PLAT_MEM_OVERRIDE EXTRA_FLAGS_VALUE=--js-flags=--jitless bash scripts/t490/run_score_page_mp.sh html ${tag}-html 1800 60"
+                "env -u PLAT_MEM_OVERRIDE SCORE_AUTORUN=autorun_mp_score_observe6.sh PROCESS_STRUCTURE_GATE=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless bash scripts/t490/run_score_page_mp.sh html ${tag}-html 1800 60"
+            ;;
+        score-process)
+            run_remote_stage "$name" \
+                "env -u PLAT_MEM_OVERRIDE SCORE_AUTORUN=autorun_mp_score_observe6.sh PROCESS_STRUCTURE_GATE=1 PROCESS_STRUCTURE_ONLY=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless bash scripts/t490/run_score_page_mp.sh html ${tag}-process 1800 60"
             ;;
         tabs)
             run_remote_stage "$name" \
@@ -201,9 +212,8 @@ run_process_score_gate() {
                 --strict --summary "$summary"
             return $?
         fi
-        echo "缺少 ACCEPTANCE_EVENTS：多进程结构评分项不会伪造 PASS" >&2
-        results[score-process]=78
-        return 78
+        run_default_stage score-process
+        return $?
     fi
     local cmd=(python3 "$ROOT/scripts/multiprocess_eventlog.py" "$events" \
         --criterion process-structure --strict --summary "$summary")
@@ -215,8 +225,22 @@ run_process_score_gate() {
 # the broader system gates.  Each item has its own command and evidence so a
 # sandbox, stability, or performance investigation cannot hide a score item.
 run_browser_score_path() {
-    run_process_score_gate
     run_explicit html RUN_HTML_CMD
+    if [[ -z "${RUN_HTML_CMD:-}" ]]; then
+        if [[ "${ACCEPTANCE_DRY_RUN:-0}" == 1 ]]; then
+            results[score-process]=0
+        else
+            local process_rc="$(sed -n 's/^PROCESS_STRUCTURE_GATE_RC=//p' "$OUT/html.log" | tail -1)"
+            if [[ "$process_rc" =~ ^[0-9]+$ ]]; then
+                results[score-process]=$process_rc
+            else
+                echo "HTML runner did not produce PROCESS_STRUCTURE_GATE_RC" >&2
+                results[score-process]=78
+            fi
+        fi
+    else
+        run_process_score_gate
+    fi
     run_explicit tabs RUN_TABS_CMD
     run_explicit input RUN_INPUT_CMD
     run_explicit javascript RUN_JAVASCRIPT_CMD
