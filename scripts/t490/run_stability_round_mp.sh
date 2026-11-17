@@ -27,6 +27,7 @@ Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1800 seconds measured after first strict page PASS.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight family snapshots at each 5-second sample.
+Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead; reload checks use 5 seconds.
 EOF
     exit 0
 fi
@@ -42,7 +43,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN BOOTSTRAP_POLL=30 RELOAD_POLL=5"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -84,6 +85,7 @@ python3 "$HERE/stability_driver.py" \
     --reload-interval-seconds 120 \
     --reload-window-seconds "${STABILITY_RELOAD_WINDOW:-90}" \
     --ready-timeout-seconds "${STABILITY_READY_TIMEOUT:-2400}" \
+    --bootstrap-poll-seconds 30 \
     --poll-seconds 5 \
     --heartbeat-seconds 30 \
     --schedule-tolerance-seconds "${STABILITY_SCHEDULE_TOLERANCE:-10}" \

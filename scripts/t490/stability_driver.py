@@ -64,6 +64,12 @@ def main() -> int:
     parser.add_argument("--reload-interval-seconds", type=int, default=120)
     parser.add_argument("--reload-window-seconds", type=int, default=90)
     parser.add_argument("--ready-timeout-seconds", type=int, default=1800)
+    parser.add_argument(
+        "--bootstrap-poll-seconds",
+        type=float,
+        default=30.0,
+        help="initial strict-page screendump interval; reloads use --poll-seconds",
+    )
     parser.add_argument("--poll-seconds", type=float, default=5.0)
     parser.add_argument("--heartbeat-seconds", type=int, default=30)
     parser.add_argument("--profile", default="official-index")
@@ -185,7 +191,12 @@ def main() -> int:
         client.connect(args.connect_timeout_seconds)
         emit("qmp_connected", socket=args.socket)
 
-        def wait_for_page(label: str, navigation_id: str, deadline: float) -> tuple[Path | None, bool]:
+        def wait_for_page(
+            label: str,
+            navigation_id: str,
+            deadline: float,
+            poll_seconds: float,
+        ) -> tuple[Path | None, bool]:
             attempt = 0
             last_failed: Path | None = None
             while time.monotonic() < deadline:
@@ -203,14 +214,14 @@ def main() -> int:
                         strict=True,
                         capture_path=f"stability/{target.name}",
                         sha256=sha256(target),
-                        sampling_interval_ms=args.poll_seconds * 1000,
+                        sampling_interval_ms=poll_seconds * 1000,
                         attempt=attempt,
                     )
                     return target, True
                 last_failed = temp_ppm
                 emit("page_poll", navigation_id=navigation_id, attempt=attempt, pass_result=False, detail=detail)
                 heartbeat()
-                time.sleep(args.poll_seconds)
+                time.sleep(poll_seconds)
             if last_failed and last_failed.exists():
                 failure = out_dir / f"{label}-timeout.ppm"
                 shutil.copyfile(last_failed, failure)
@@ -253,7 +264,9 @@ def main() -> int:
         init_deadline = time.monotonic() + args.ready_timeout_seconds
         init_start_ns = time.monotonic_ns()
         emit("initial_page_wait", profile=args.profile, timeout_seconds=args.ready_timeout_seconds)
-        initial_path, initial_ok = wait_for_page("load-00-initial", "nav-00", init_deadline)
+        initial_path, initial_ok = wait_for_page(
+            "load-00-initial", "nav-00", init_deadline, args.bootstrap_poll_seconds
+        )
         if not initial_ok or initial_path is None:
             emit("result", pass_result=False, reason="initial strict page gate timed out", reloads_passed=0)
             request_qemu_quit("initial strict page gate timed out")
@@ -286,7 +299,9 @@ def main() -> int:
                 emit("navigation_error", navigation_id=navigation_id, error=str(exc))
                 break
             load_deadline = time.monotonic() + args.reload_window_seconds
-            path, passed = wait_for_page(f"load-{index:02d}-reload", navigation_id, load_deadline)
+            path, passed = wait_for_page(
+                f"load-{index:02d}-reload", navigation_id, load_deadline, args.poll_seconds
+            )
             if not passed or path is None:
                 break
             completed += 1
