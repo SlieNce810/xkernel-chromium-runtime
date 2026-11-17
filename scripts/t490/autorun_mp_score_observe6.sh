@@ -527,7 +527,7 @@ stability_family_snapshot() {
         stability_n=$((stability_n + 1))
         stability_members="$stability_members $pid:$stability_kind/$stability_state/$stability_threads"
     done < "$PROCESS_FAMILY_SEEN"
-    echo "[mpdiag] MP_FAMILY label=$stability_label n=$stability_n$stability_members" \
+    echo "[mpdiag] MP_FAMILY_WATCHDOG label=$stability_label n=$stability_n$stability_members" \
         > /dev/console 2>/dev/null || true
 }
 

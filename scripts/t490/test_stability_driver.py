@@ -15,7 +15,7 @@ from stability_driver import parse_family_snapshot
 class StabilityDriverFamilyParsingTests(unittest.TestCase):
     def test_full_family_snapshot_parses_roles_and_member_states(self) -> None:
         line = (
-            "\x1b[m[mpdiag] MP_FAMILY label=302775 n=3 "
+            "\x1b[m[mpdiag] MP_FAMILY_WATCHDOG label=302775 n=3 "
             "70:browser/R/38 171:browser_child/S/1 301:zygote_child/S/8"
         )
 
@@ -30,9 +30,17 @@ class StabilityDriverFamilyParsingTests(unittest.TestCase):
     def test_family_count_marker_does_not_replace_latest_role_snapshot(self) -> None:
         self.assertIsNone(parse_family_snapshot("[mpdiag] MP_FAMILY_COUNT=18"))
 
+    def test_non_watchdog_family_markers_are_not_stability_samples(self) -> None:
+        self.assertIsNone(
+            parse_family_snapshot(
+                "[mpdiag] MP_FAMILY label=302775 n=3 "
+                "70:browser/R/38 171:browser_child/S/1 301:zygote_child/S/8"
+            )
+        )
+
     def test_malformed_family_line_uses_observed_member_count(self) -> None:
         snapshot = parse_family_snapshot(
-            "[mpdiag] MP_FAMILY label=123 70:browser/R/38 171:browser_child/S/1"
+            "[mpdiag] MP_FAMILY_WATCHDOG label=123 70:browser/R/38 171:browser_child/S/1"
         )
 
         self.assertIsNotNone(snapshot)

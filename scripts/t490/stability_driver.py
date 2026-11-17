@@ -31,10 +31,10 @@ ASSERT_SCRIPT = Path(__file__).with_name("ppm_assert.py")
 def parse_family_snapshot(line: str) -> dict[str, Any] | None:
     """Parse only a complete MP_FAMILY snapshot, excluding MP_FAMILY_COUNT."""
 
-    marker = re.search(r"\bMP_FAMILY\s+label=", line)
+    marker = re.search(r"\bMP_FAMILY_WATCHDOG\s+label=", line)
     if marker is None:
         return None
-    family_text = line[marker.start() + len("MP_FAMILY") :]
+    family_text = line[marker.start() + len("MP_FAMILY_WATCHDOG") :]
     members = re.findall(
         r"(\d+):([A-Za-z0-9_]+)/([A-Z?])/(\d+)",
         family_text,

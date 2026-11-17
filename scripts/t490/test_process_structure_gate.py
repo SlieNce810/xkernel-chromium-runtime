@@ -161,6 +161,7 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('stability_family_add "$zygote_pid" browser_child', observer_source)
         self.assertIn('stability_family_add "$renderer_pid" zygote_child', observer_source)
         self.assertIn('MP_FAMILY label=$family_label', observer_source)
+        self.assertIn('MP_FAMILY_WATCHDOG label=$stability_label', observer_source)
         self.assertIn("PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen", observer_source)
         self.assertIn("family_watchdog_elapsed", observer_source)
         self.assertIn('proc_start_ms "$pid"', observer_source)
