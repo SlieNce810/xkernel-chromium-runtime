@@ -93,6 +93,22 @@ process_pid_from_line() {
     set +f
 }
 
+STABILITY_FAMILY_LINE=""
+STABILITY_FAMILY_COUNT=0
+stability_family_add() {
+    STABILITY_MEMBER_PID=$1
+    STABILITY_MEMBER_KIND=$2
+    [ -d "/proc/$STABILITY_MEMBER_PID" ] || return 0
+    set -- $(proc_state_threads "$STABILITY_MEMBER_PID")
+    STABILITY_MEMBER_STATE=$1
+    STABILITY_MEMBER_THREADS=$2
+    case "$STABILITY_MEMBER_THREADS" in
+        ''|*[!0-9]*) STABILITY_MEMBER_THREADS=1 ;;
+    esac
+    STABILITY_FAMILY_COUNT=$((STABILITY_FAMILY_COUNT + 1))
+    STABILITY_FAMILY_LINE="$STABILITY_FAMILY_LINE $STABILITY_MEMBER_PID:$STABILITY_MEMBER_KIND/$STABILITY_MEMBER_STATE/$STABILITY_MEMBER_THREADS"
+}
+
 MP_EVENT_SEQ=0
 emit_process_event() {
     event_role=$1
@@ -113,6 +129,9 @@ emit_process_event() {
 
 observe_process_tree() {
     dump_ppid_table
+    STABILITY_FAMILY_LINE=""
+    STABILITY_FAMILY_COUNT=0
+    stability_family_add "$BROWSER_PID" browser
     if ! grep -qxF "browser:$BROWSER_PID" "$PROCESS_EVENTS_SEEN" 2>/dev/null; then
         browser_ppid=$(snapshot_ppid "$BROWSER_PID")
         emit_process_event browser browser-start "$BROWSER_PID" "$browser_ppid" guest-launcher
@@ -133,6 +152,9 @@ observe_process_tree() {
         zygote_pid=$process_pid
         zygote_ppid=$(snapshot_ppid "$zygote_pid")
         echo "$zygote_pid" >> "$ZYGOTE_LIST"
+        if [ "$zygote_ppid" = "$BROWSER_PID" ]; then
+            stability_family_add "$zygote_pid" browser_child
+        fi
         if ! grep -qxF "zygote:$zygote_pid" "$PROCESS_EVENTS_SEEN" 2>/dev/null; then
             emit_process_event zygote zygote-observed "$zygote_pid" "$zygote_ppid" guest-ps-snapshot
             echo "zygote:$zygote_pid" >> "$PROCESS_EVENTS_SEEN"
@@ -150,11 +172,17 @@ observe_process_tree() {
             [ "$renderer_ppid" = "$zygote_pid" ] && renderer_parent_is_zygote=1
         done < "$ZYGOTE_LIST"
         [ "$renderer_parent_is_zygote" = "1" ] || continue
+        stability_family_add "$renderer_pid" zygote_child
         if ! grep -qxF "renderer:$renderer_pid" "$PROCESS_EVENTS_SEEN" 2>/dev/null; then
             emit_process_event renderer renderer-observed "$renderer_pid" "$renderer_ppid" guest-ps-snapshot
             echo "renderer:$renderer_pid" >> "$PROCESS_EVENTS_SEEN"
         fi
     done < /tmp/mp-ppid.txt
+    if [ "$LEDGER_MODE" = "0" ] && [ "$SAMPLE_SECONDS" -ge 20 ]; then
+        family_label=$(mono_ms)
+        echo "[mpdiag] MP_FAMILY label=$family_label n=$STABILITY_FAMILY_COUNT$STABILITY_FAMILY_LINE" \
+            > /dev/console 2>/dev/null || true
+    fi
 }
 
 # 阶段打点：只在 PHASE_DEBUG=1 时输出，用来把"循环停了"定位到具体语句。

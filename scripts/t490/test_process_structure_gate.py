@@ -148,6 +148,20 @@ class ProcessStructureGateTests(unittest.TestCase):
                 self.assertNotRegex(source, r"ps\s+2>/dev/null\s*\|\s*awk.*type=zygote")
                 self.assertNotIn('case "$process_line" in *"--type=renderer"*)', source)
 
+    def test_stability_light_observer_emits_browser_zygote_renderer_family_roles(self) -> None:
+        observer = Path(__file__).with_name("autorun_mp_score_observe6.sh")
+        runner = Path(__file__).with_name("run_stability_round_mp.sh")
+        observer_source = observer.read_text(encoding="utf-8")
+        runner_source = runner.read_text(encoding="utf-8")
+
+        self.assertIn('stability_family_add "$BROWSER_PID" browser', observer_source)
+        self.assertIn('stability_family_add "$zygote_pid" browser_child', observer_source)
+        self.assertIn('stability_family_add "$renderer_pid" zygote_child', observer_source)
+        self.assertIn('MP_FAMILY label=$family_label', observer_source)
+        self.assertIn('MP_LEDGER_VALUE=0', runner_source)
+        self.assertIn('MP_SAMPLE_SECONDS="$STABILITY_SAMPLE_SECONDS"', runner_source)
+        self.assertIn('STABILITY_AUTORUN=autorun_mp_score_observe6.sh', runner_source)
+
 
 if __name__ == "__main__":
     unittest.main()
