@@ -18,7 +18,6 @@ WORK="$HOME/xk6/tmp/stability-$TAG"
 ROUND_LOG="$WORK/round.log"
 DRIVER_DIR="$WORK/driver"
 STABILITY_AUTORUN=autorun_mp_score_observe6.sh
-STABILITY_SAMPLE_SECONDS=20
 
 die() { echo "STABILITY_ROUND_ABORT: $*" >&2; exit 2; }
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
@@ -27,14 +26,13 @@ Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interva
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1800 seconds measured after first strict page PASS.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
-The default observer uses lightweight 20-second family snapshots for stability.
+The default observer uses lightweight family snapshots at each 5-second sample.
 EOF
     exit 0
 fi
 [ "$(uname -s)" = Linux ] || die "只能在 T490/Linux 主机运行"
 [ -f "$BASE_IMG" ] || die "基础镜像不存在: $BASE_IMG"
 [ -d "$HERE" ] || die "T490 scripts directory missing"
-[ "$STABILITY_SAMPLE_SECONDS" -ge 20 ] 2>/dev/null || die "STABILITY_SAMPLE_SECONDS must be at least 20"
 [ ! -e "$EVID" ] || die "证据目录已存在，拒绝覆盖: $EVID"
 [ ! -e "$QMP_SOCKET" ] || die "QMP socket 已存在，拒绝覆盖: $QMP_SOCKET"
 ps -eo comm= 2>/dev/null | grep -qx 'qemu-system-aarch64' && die "已有 QEMU 在运行，拒绝并行"
@@ -44,7 +42,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN SAMPLE=$STABILITY_SAMPLE_SECONDS"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -55,7 +53,7 @@ INJECT_AUTOSTART=1 \
 OZ_PLATFORM=wayland \
 MP_TRACE_VALUE=0 \
 MP_LEDGER_VALUE=0 \
-MP_SAMPLE_SECONDS="$STABILITY_SAMPLE_SECONDS" \
+MP_SAMPLE_SECONDS=5 \
 MP_MAX_SECONDS="${MP_MAX_SECONDS:-$((DUR - 200))}" \
 MP_HOLD_SECONDS=40 \
 MP_WESTON_CONTINUE=0 \

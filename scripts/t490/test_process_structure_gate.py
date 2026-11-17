@@ -159,7 +159,7 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('stability_family_add "$renderer_pid" zygote_child', observer_source)
         self.assertIn('MP_FAMILY label=$family_label', observer_source)
         self.assertIn('MP_LEDGER_VALUE=0', runner_source)
-        self.assertIn('MP_SAMPLE_SECONDS="$STABILITY_SAMPLE_SECONDS"', runner_source)
+        self.assertIn('MP_SAMPLE_SECONDS=5', runner_source)
         self.assertIn('STABILITY_AUTORUN=autorun_mp_score_observe6.sh', runner_source)
 
 

@@ -178,7 +178,7 @@ observe_process_tree() {
             echo "renderer:$renderer_pid" >> "$PROCESS_EVENTS_SEEN"
         fi
     done < /tmp/mp-ppid.txt
-    if [ "$LEDGER_MODE" = "0" ] && [ "$SAMPLE_SECONDS" -ge 20 ]; then
+    if [ "$LEDGER_MODE" = "0" ]; then
         family_label=$(mono_ms)
         echo "[mpdiag] MP_FAMILY label=$family_label n=$STABILITY_FAMILY_COUNT$STABILITY_FAMILY_LINE" \
             > /dev/console 2>/dev/null || true
