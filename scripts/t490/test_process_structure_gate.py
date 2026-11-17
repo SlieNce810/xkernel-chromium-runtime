@@ -151,6 +151,7 @@ class ProcessStructureGateTests(unittest.TestCase):
         observer = Path(__file__).with_name("autorun_mp_score_observe6.sh")
         runner = Path(__file__).with_name("run_stability_round_mp.sh")
         observer_source = observer.read_text(encoding="utf-8")
+        self.assertIn("--js-flags=--jitless", observer_source)
         runner_source = runner.read_text(encoding="utf-8")
 
         self.assertIn('stability_family_add "$BROWSER_PID" browser', observer_source)
