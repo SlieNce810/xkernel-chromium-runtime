@@ -70,6 +70,28 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertEqual(summary["result"], "PASS")
         self.assertEqual(summary["score_points"], 4)
         self.assertTrue(summary["parent_links_verified"])
+        self.assertEqual(summary["parent_link_errors"], [])
+
+    def test_alternate_zygote_pairs_do_not_hide_a_valid_renderer_parent(self) -> None:
+        events = direct_process_chain()
+        events.insert(
+            1,
+            make_event(
+                timestamp=1.5,
+                role="zygote",
+                pid=160,
+                ppid=70,
+                name="zygote-observed",
+                observation_source="guest-ps-snapshot",
+            ),
+        )
+
+        summary = eventlog.summarize_process_structure(events, [])
+
+        self.assertEqual(summary["result"], "PASS")
+        self.assertTrue(summary["parent_links_verified"])
+        self.assertEqual(summary["parent_link_errors"], [])
+        self.assertTrue(summary["alternate_parent_link_mismatches"])
 
     def test_observed_roles_without_source_tag_are_rejected(self) -> None:
         events = direct_process_chain()

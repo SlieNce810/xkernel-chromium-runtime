@@ -423,6 +423,8 @@ def summarize_process_structure(
         if not parse_errors and not missing and process_tree is not None
         else "FAIL"
     )
+    alternate_parent_link_mismatches = parent_link_errors if process_tree is not None else []
+    reported_parent_link_errors = [] if process_tree is not None else parent_link_errors
     return {
         "schema": "xkernel.chromium.multiprocess-events.v1",
         "criterion": "process-structure",
@@ -436,7 +438,8 @@ def summarize_process_structure(
         "untrusted_observations": untrusted_observations,
         "process_tree": process_tree,
         "parent_links_verified": parent_links_verified,
-        "parent_link_errors": parent_link_errors,
+        "parent_link_errors": reported_parent_link_errors,
+        "alternate_parent_link_mismatches": alternate_parent_link_mismatches,
         "order_errors": order_errors,
         "ipc_event_count": len(ipc_events),
         "ipc_process_pids": sorted({int(event["pid"]) for event in ipc_events}),

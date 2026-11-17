@@ -27,7 +27,18 @@ validation="$OUT_DIR/events-validation.log"
 summary="$OUT_DIR/events-summary.json"
 # Keep the original console immutable; extraction is a separate derived file.
 grep -F 'MP_EVENT ' "$CONSOLE" > "$OUT_DIR/events.raw.log" || true
-python3 "$ROOT/scripts/multiprocess_eventlog.py" "$OUT_DIR/events.raw.log" \
+EVENTS_FILE="$OUT_DIR/events.raw.log"
+if [[ "$CRITERION" == "process-structure" ]]; then
+    EVENTS_FILE="$OUT_DIR/events.normalized.jsonl"
+    python3 "$ROOT/scripts/t490/normalize_process_eventlog.py" \
+        "$CONSOLE" "$EVENTS_FILE" \
+        --summary "$OUT_DIR/events-normalization.json" \
+        > "$OUT_DIR/events-normalizer.log" || {
+        echo "[FAIL] process event normalization failed; see $OUT_DIR/events-normalization.json" >&2
+        exit 1
+    }
+fi
+python3 "$ROOT/scripts/multiprocess_eventlog.py" "$EVENTS_FILE" \
     --criterion "$CRITERION" --summary "$summary" --strict > "$validation"
 rc=$?
 if [[ "$rc" -ne 0 ]]; then

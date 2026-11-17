@@ -51,7 +51,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK"
 rm -f "$ROUND_LOG"
 
-echo "SCORE_PAGE_MP_START=$(date -Is) item=$ITEM page=$PAGE tag=$TAG"
+echo "SCORE_PAGE_MP_START=$(date -Is) item=$ITEM page=$PAGE tag=$TAG" | tee -a "$ROUND_LOG"
 PAGE_URL="file:///usr/share/html-test/$PAGE" \
 BASE_IMG="$BASE_IMG" \
 PKG_TARBALL="$PKG_TARBALL" \
@@ -64,7 +64,7 @@ ASSERT_PROFILE="$PROFILE" \
 STRICT_GATE=0 \
 FIRST_SHOT="${FIRST_SHOT:-240}" \
 bash "$HERE/t490_round.sh" "$TAG" "$DUR" "$IVL" \
-    "$AUTORUN" > "$ROUND_LOG" 2>&1 &
+    "$AUTORUN" >> "$ROUND_LOG" 2>&1 &
 ROUND_PID=$!
 wait "$ROUND_PID"
 ROUND_RC=$?
@@ -138,8 +138,11 @@ if [ "$PROCESS_STRUCTURE_GATE" = "1" ] || [ "$PROCESS_STRUCTURE_ONLY" = "1" ]; t
         "$EVID/console.log" "$EVENTS_DIR" process-structure \
         > "$EVID/process-events-converter.log" 2>&1 || PROCESS_GATE_RC=1
     if [ "$PROCESS_GATE_RC" -eq 0 ]; then
+        EVENTS_FILE="$EVENTS_DIR/events.raw.log"
+        [ ! -f "$EVENTS_DIR/events.normalized.jsonl" ] || \
+            EVENTS_FILE="$EVENTS_DIR/events.normalized.jsonl"
         python3 "$ROOT/scripts/multiprocess_eventlog.py" \
-            "$EVENTS_DIR/events.raw.log" --criterion process-structure --strict \
+            "$EVENTS_FILE" --criterion process-structure --strict \
             --command "$EVID/cmd.txt" --summary "$EVID/process-structure-summary.json" \
             > "$EVID/process-structure-gate.log" 2>&1 || PROCESS_GATE_RC=$?
     fi
@@ -151,6 +154,9 @@ fi
 
 echo "PAGE_GATE_RC=$PAGE_GATE_RC"
 echo "PROCESS_STRUCTURE_GATE_RC=$PROCESS_GATE_RC"
+printf 'ROUND_RC=%s\nPAGE_GATE_RC=%s\nPROCESS_STRUCTURE_GATE_RC=%s\n' \
+    "$ROUND_RC" "$PAGE_GATE_RC" "$PROCESS_GATE_RC" >> "$ROUND_LOG"
+cp -f "$ROUND_LOG" "$EVID/score-page-round.log" 2>/dev/null || true
 if [ "$PROCESS_STRUCTURE_ONLY" = "1" ]; then
     [ "$PROCESS_GATE_RC" -eq 0 ]
 else
