@@ -152,6 +152,7 @@ class ProcessStructureGateTests(unittest.TestCase):
         runner = Path(__file__).with_name("run_stability_round_mp.sh")
         observer_source = observer.read_text(encoding="utf-8")
         self.assertIn("--js-flags=--jitless", observer_source)
+        self.assertIn("--ipc-connection-timeout=600", observer_source)
         runner_source = runner.read_text(encoding="utf-8")
 
         self.assertIn('stability_family_add "$BROWSER_PID" browser', observer_source)
