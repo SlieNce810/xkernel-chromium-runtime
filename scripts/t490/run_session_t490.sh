@@ -28,7 +28,20 @@ IVL="${3:-120}"
 # round.  Ordinary rendering rounds leave it unset and keep the platform
 # command line unchanged.  The path is validated because it becomes part of
 # the make-provided QEMU_ARGS value.
-QMP_ARGS=()
+QEMU_ARGS_VALUE="$PLAT_QEMU_ARGS"
+# Optional, explicitly scoped QEMU additions for an input A/B.  The formal
+# interaction runner uses this only for virtio-tablet-pci so QMP can send
+# deterministic absolute coordinates; ordinary rounds keep platform.env
+# unchanged.
+EXTRA_QEMU_ARGS_VALUE="${EXTRA_QEMU_ARGS:-}"
+case "$EXTRA_QEMU_ARGS_VALUE" in
+    ''|'-device virtio-tablet-pci') ;;
+    *)
+        echo "!! 非法 EXTRA_QEMU_ARGS=$EXTRA_QEMU_ARGS_VALUE（只允许空或 -device virtio-tablet-pci）"
+        exit 1
+        ;;
+esac
+[ -z "$EXTRA_QEMU_ARGS_VALUE" ] || QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $EXTRA_QEMU_ARGS_VALUE"
 if [ -n "${QMP_SOCKET:-}" ]; then
     case "$QMP_SOCKET" in
         *[!A-Za-z0-9_./-]*)
@@ -44,11 +57,25 @@ if [ -n "${QMP_SOCKET:-}" ]; then
             exit 1
             ;;
     esac
-    QMP_ARGS=(--qemu-args "$QMP_VALUE")
+    QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $QMP_VALUE"
 fi
+QEMU_ARGS=(--qemu-args "$QEMU_ARGS_VALUE")
 
 mkdir -p "$HOME/xk6/tmp"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+mkdir -p "$OUT"
+
+# Keep enough host swap available for Chromium builds and pure-TCG rounds.
+# The helper is idempotent: an already active /swap.img + swap-extra.img pair
+# is simply recorded. Set ENSURE_SWAP=0 only for a deliberately constrained
+# diagnostic; formal runs keep the default enabled.
+if [ "${ENSURE_SWAP:-1}" = "1" ]; then
+    SWAP_TOTAL_GIB="${SWAP_TOTAL_GIB:-12}" \
+    SWAP_STATUS_OUT="$OUT/swap-status.txt" \
+        bash "$HERE/ensure_swap.sh" "$OUT/swap-status.txt"
+else
+    printf 'SWAP_SKIPPED ENSURE_SWAP=0\n' | tee "$OUT/swap-status.txt"
+fi
 
 # ① 交叉核验指纹：QEMU 版本（赛题第七节(一)2 要求 >= 8.0）
 "$PLAT_QEMU_BIN_NAME" --version | head -1
@@ -69,14 +96,14 @@ cd "$HOME/xk6" || exit 1
 # ③ 起会话：参数全部来自 platform.env；--require-platform-compliance 让
 #    run-session.py 对**实跑命令行**再做一次 第七节(一)3 的硬断言
 FIRST_SHOT="${FIRST_SHOT:-45}"
-python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/run-session.py" \
-  --cwd "${KERNEL_REPO:-$HOME/x-kernel}" \
+python3 "$HOME/xk6/scripts/run-session.py" \
+  --cwd "$HOME/x-kernel" \
   --make-args "$PLAT_MAKE_ARGS" \
   --with-input \
   --input-devices "$PLAT_INPUT_DEVICES" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
-  "${QMP_ARGS[@]}" \
+  "${QEMU_ARGS[@]}" \
   --out "$OUT"
 SESSION_RC=$?
 echo "SESSION_RC=$SESSION_RC"

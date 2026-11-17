@@ -1,0 +1,4003 @@
+diff --git a/arch/kcpu/src/aarch64/userspace.rs b/arch/kcpu/src/aarch64/userspace.rs
+index 1844ecd..d96845c 100644
+--- a/arch/kcpu/src/aarch64/userspace.rs
++++ b/arch/kcpu/src/aarch64/userspace.rs
+@@ -84,6 +84,16 @@ impl UserContext {
+         self.sp as _
+     }
+ 
++    /// Gets the frame pointer from the saved AArch64 general-purpose registers.
++    pub const fn fp(&self) -> usize {
++        self.tf.x[29] as _
++    }
++
++    /// Reads a saved AArch64 general-purpose register.
++    pub const fn gpr(&self, index: usize) -> usize {
++        self.tf.x[index] as _
++    }
++
+     /// Sets the stack pointer.
+     pub const fn set_sp(&mut self, sp: usize) {
+         self.sp = sp as _;
+diff --git a/core/ksyscall/src/dispatch.rs b/core/ksyscall/src/dispatch.rs
+index 61fc16c..1090eca 100644
+--- a/core/ksyscall/src/dispatch.rs
++++ b/core/ksyscall/src/dispatch.rs
+@@ -79,8 +79,58 @@ fn sys_riscv_flush_icache(flags: usize) -> KResult<isize> {
+ /// Handler access to missing current process/thread state or uninitialized
+ /// providers can panic. Allocation failure follows kernel allocator policy.
+ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+-    let Some(sysno) = Sysno::new(uctx.sysno()) else {
+-        warn!("Invalid syscall number: {}", uctx.sysno());
++    let raw_sysno = uctx.sysno();
++    if let Some(filter_result) = crate::task::seccomp::evaluate(&kprocess::seccomp_cbpf::SeccompData {
++        nr: raw_sysno as i32,
++        arch: crate::task::seccomp::audit_arch(),
++        instruction_pointer: uctx.ip() as u64,
++        args: [uctx.arg0() as u64, uctx.arg1() as u64, uctx.arg2() as u64,
++               uctx.arg3() as u64, uctx.arg4() as u64, uctx.arg5() as u64],
++    }) {
++        let (action, data) = crate::task::seccomp::action(filter_result);
++        match action {
++            crate::task::seccomp::ACTION_ALLOW => {}
++            crate::task::seccomp::ACTION_LOG => {
++                debug!("SECCOMP_LOG pid={} sysno={}", kprocess::current_user_thread().pid(), raw_sysno);
++            }
++            crate::task::seccomp::ACTION_ERRNO => {
++                let errno = crate::task::seccomp::errno_value(data);
++                uctx.set_retval((-(errno as isize)) as _);
++                return UserThreadRuntimeAction::Continue;
++            }
++            crate::task::seccomp::ACTION_TRACE => {
++                uctx.set_retval(-(LinuxError::ENOSYS.into_raw() as isize) as _);
++                return UserThreadRuntimeAction::Continue;
++            }
++            crate::task::seccomp::ACTION_TRAP => {
++                uctx.set_retval(-(LinuxError::ENOSYS.into_raw() as isize) as _);
++                let info = ksignal::SignalInfo::new_seccomp(
++                    raw_sysno as i32,
++                    crate::task::seccomp::audit_arch(),
++                    uctx.ip(),
++                    data,
++                );
++                posix_process::raise_signal_fatal(info)
++                    .expect("failed to deliver seccomp SIGSYS");
++                return UserThreadRuntimeAction::Continue;
++            }
++            crate::task::seccomp::ACTION_KILL_THREAD => {
++                posix_process::do_exit(ksignal::Signo::SIGSYS as i32, false);
++                return UserThreadRuntimeAction::Continue;
++            }
++            crate::task::seccomp::ACTION_KILL_PROCESS => {
++                posix_process::do_exit(ksignal::Signo::SIGSYS as i32, true);
++                return UserThreadRuntimeAction::Continue;
++            }
++            _ => {
++                posix_process::do_exit(ksignal::Signo::SIGSYS as i32, true);
++                return UserThreadRuntimeAction::Continue;
++            }
++        }
++    }
++
++    let Some(sysno) = Sysno::new(raw_sysno) else {
++        warn!("Invalid syscall number: {}", raw_sysno);
+         uctx.set_retval(-LinuxError::ENOSYS.into_raw() as _);
+         return UserThreadRuntimeAction::Continue;
+     };
+@@ -430,7 +480,11 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+         ),
+ 
+         // memfd
+-        Sysno::memfd_create => sys_memfd_create(uctx.arg0().into(), uctx.arg1() as _),
++        Sysno::memfd_create => {
++            let flags = uctx.arg1() as u32;
++            warn!("SANDBOX_MEMFD_CREATE_REQUEST flags={:#x}", flags);
++            sys_memfd_create(uctx.arg0().into(), flags)
++        },
+ 
+         // fs stat
+         #[cfg(target_arch = "x86_64")]
+@@ -484,13 +538,15 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+         Sysno::munmap => sys_munmap(uctx.arg0(), uctx.arg1() as _),
+         Sysno::mprotect => sys_mprotect(uctx.arg0(), uctx.arg1() as _, uctx.arg2() as _),
+         Sysno::mincore => sys_mincore(uctx.arg0() as _, uctx.arg1() as _, uctx.arg2().into()),
+-        Sysno::mremap => sys_mremap(
+-            uctx.arg0(),
+-            uctx.arg1() as _,
+-            uctx.arg2() as _,
+-            uctx.arg3() as _,
+-            uctx.arg4(),
+-        ),
++        Sysno::mremap => {
++            let addr = uctx.arg0();
++            let old_size = uctx.arg1() as usize;
++            let new_size = uctx.arg2() as usize;
++            let flags = uctx.arg3() as u32;
++            let new_addr = uctx.arg4();
++            warn!("SANDBOX_MREMAP_REQUEST addr={:#x} old_size={:#x} new_size={:#x} flags={:#x} new_addr={:#x}", addr, old_size, new_size, flags, new_addr);
++            sys_mremap(addr, old_size, new_size, flags, new_addr)
++        },
+         Sysno::madvise => sys_madvise(uctx.arg0(), uctx.arg1() as _, uctx.arg2() as _),
+         Sysno::msync => sys_msync(uctx.arg0(), uctx.arg1() as _, uctx.arg2() as _),
+         Sysno::mlock => sys_mlock(uctx.arg0(), uctx.arg1() as _),
+@@ -539,12 +595,14 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+             uctx.arg3() as _,
+             uctx.arg4() as _,
+         ),
+-        Sysno::prlimit64 => sys_prlimit64(
+-            uctx.arg0() as _,
+-            uctx.arg1() as _,
+-            uctx.arg2().into(),
+-            uctx.arg3().into(),
+-        ),
++        Sysno::prlimit64 => {
++            let pid = uctx.arg0() as usize;
++            let resource = uctx.arg1() as u32;
++            let new_limit = uctx.arg2();
++            let old_limit = uctx.arg3();
++            warn!("SANDBOX_PRLIMIT_REQUEST pid={} resource={} new_limit={:#x} old_limit={:#x}", pid, resource, new_limit, old_limit);
++            sys_prlimit64(pid as _, resource, new_limit.into(), old_limit.into())
++        },
+         Sysno::getrlimit => sys_getrlimit(uctx.arg0() as _, uctx.arg1().into()),
+         Sysno::setrlimit => sys_setrlimit(uctx.arg0() as _, uctx.arg1().into()),
+         Sysno::capget => sys_capget(uctx.arg0().into(), uctx.arg1().into()),
+@@ -563,15 +621,24 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+         ),
+ 
+         // task management
+-        Sysno::clone => sys_clone(
+-            uctx,
+-            uctx.arg0() as _,
+-            uctx.arg1() as _,
+-            uctx.arg2(),
+-            uctx.arg3(),
+-            uctx.arg4(),
+-        ),
+-        Sysno::clone3 => sys_clone3(uctx, uctx.arg0(), uctx.arg1()),
++        Sysno::clone => {
++            warn!("SANDBOX_SYSCALL clone flags={:#x} stack={:#x} ptid={:#x} ctid={:#x} tls={:#x}",
++                uctx.arg0(), uctx.arg1(), uctx.arg2(), uctx.arg3(), uctx.arg4());
++            sys_clone(
++                uctx,
++                uctx.arg0() as _,
++                uctx.arg1() as _,
++                uctx.arg2(),
++                uctx.arg3(),
++                uctx.arg4(),
++            )
++        }
++        Sysno::clone3 => {
++            warn!("SANDBOX_SYSCALL clone3 args={:#x} size={:#x}", uctx.arg0(), uctx.arg1());
++            sys_clone3(uctx, uctx.arg0(), uctx.arg1())
++        }
++        Sysno::unshare => sys_unshare(uctx.arg0() as u64),
++        Sysno::setns => sys_setns(uctx.arg0() as _, uctx.arg1() as _),
+         #[cfg(target_arch = "x86_64")]
+         Sysno::fork => sys_fork(uctx),
+         #[cfg(target_arch = "x86_64")]
+@@ -843,6 +910,13 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+         // sync_file_range: return success (no-op, same as fsync for directories)
+         Sysno::sync_file_range => Ok(0),
+ 
++        // Crashpad probes ptrace while handling a crash. Linux returns EPERM when
++        // tracing is unavailable to the caller; returning ENOSYS makes Chromium
++        // treat the runtime as missing a core process interface and obscures the
++        // actual crash path. This kernel does not expose ptrace to user space, so
++        // report the Linux permission result without pretending to trace.
++        Sysno::ptrace => Err(kerrno::KError::OperationNotPermitted),
++
+         // Known benign unimplemented syscalls (glibc handles ENOSYS gracefully)
+         Sysno::rseq => {
+             debug!("sys_rseq: not implemented, returning ENOSYS");
+@@ -874,6 +948,9 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) -> UserThreadRuntimeAction {
+     };
+ 
+     debug!("Syscall {sysno} return {result:?}");
++    if let Err(ref err) = result {
++        warn!("SANDBOX_SYSCALL_ERROR sysno={} err={:?}", sysno, err);
++    }
+ 
+     uctx.set_retval(result.unwrap_or_else(|err| -LinuxError::from(err).into_raw() as _) as _);
+ 
+diff --git a/core/ksyscall/src/io_mpx/epoll.rs b/core/ksyscall/src/io_mpx/epoll.rs
+index c786620..edb4b3c 100644
+--- a/core/ksyscall/src/io_mpx/epoll.rs
++++ b/core/ksyscall/src/io_mpx/epoll.rs
+@@ -5,6 +5,7 @@
+ //! Epoll syscalls.
+ 
+ use alloc::vec;
++use core::sync::atomic::{AtomicUsize, Ordering};
+ 
+ use bitflags::bitflags;
+ use kerrno::{KError, KResult};
+@@ -17,6 +18,52 @@ use linux_raw_sys::general::{
+ };
+ use posix_types::{TimeSpanLike, UserConstPtr, UserPtr, k_sigset};
+ 
++static CHROMIUM_EPOLL_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_EPOLL_TRACE_LIMIT: usize = 4096;
++
++fn trace_chromium_epoll(op: &str, epfd: i32, fd: i32, events: u32, result: &KResult<isize>) {
++    let process = kprocess::current_user_process();
++    let Ok(argv) = process.cmdline() else { return };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let seq = CHROMIUM_EPOLL_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if seq >= CHROMIUM_EPOLL_TRACE_LIMIT {
++        return;
++    }
++    warn!(
++        "CHROMIUM_EPOLL seq={} op={} pid={} epfd={} fd={} events={:#x} result={:?}",
++        seq,
++        op,
++        process.pid(),
++        epfd,
++        fd,
++        events,
++        result
++    );
++}
++
++fn trace_chromium_epoll_wait(epfd: i32, ready: usize, output: &[epoll_event]) {
++    let process = kprocess::current_user_process();
++    let Ok(argv) = process.cmdline() else { return };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let seq = CHROMIUM_EPOLL_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if seq >= CHROMIUM_EPOLL_TRACE_LIMIT {
++        return;
++    }
++    let rows = output
++        .iter()
++        .take(8)
++        .map(|event| (event.events, event.data))
++        .collect::<alloc::vec::Vec<_>>();
++    warn!(
++        "CHROMIUM_EPOLL_WAIT seq={} pid={} epfd={} ready={} rows={:?}",
++        seq, process.pid(), epfd, ready, rows
++    );
++}
++
+ bitflags! {
+     // Flags for the `epoll_create1` syscall.
+     #[derive(Debug, Clone, Copy, Default)]
+@@ -64,21 +111,26 @@ pub fn sys_epoll_ctl(
+         ))
+     };
+ 
+-    match op {
++    let result = match op {
+         EPOLL_CTL_ADD => {
+             let (event, flags) = parse_event()?;
+             epoll.add(fd, file.clone(), event, flags)?;
++            Ok(0)
+         }
+         EPOLL_CTL_MOD => {
+             let (event, flags) = parse_event()?;
+             epoll.modify(fd, file.clone(), event, flags)?;
++            Ok(0)
+         }
+         EPOLL_CTL_DEL => {
+             epoll.delete(fd, file)?;
++            Ok(0)
+         }
+-        _ => return Err(KError::InvalidInput),
+-    }
+-    Ok(0)
++        _ => Err(KError::InvalidInput),
++    };
++    let events = event.read_vm().map(|value| value.events).unwrap_or(0);
++    trace_chromium_epoll("ctl", epfd, fd, events, &result);
++    result
+ }
+ 
+ fn do_epoll_wait(
+@@ -120,6 +172,7 @@ fn do_epoll_wait(
+             }
+         })?;
+ 
++    trace_chromium_epoll_wait(epfd, ready, &output);
+     events.write_vm_slice(&output[..ready])?;
+     Ok(ready as isize)
+ }
+diff --git a/core/ksyscall/src/io_mpx/poll.rs b/core/ksyscall/src/io_mpx/poll.rs
+index 480bf21..eefd562 100644
+--- a/core/ksyscall/src/io_mpx/poll.rs
++++ b/core/ksyscall/src/io_mpx/poll.rs
+@@ -10,6 +10,7 @@
+ //! - Event notification and handling
+ 
+ use alloc::vec::Vec;
++use core::sync::atomic::{AtomicUsize, Ordering};
+ 
+ use kerrno::{KError, KResult};
+ use kpoll::IoEvents;
+@@ -21,6 +22,31 @@ use posix_types::{TimeSpanLike, UserConstPtr, UserPtr, k_sigset};
+ 
+ use super::FdPollSet;
+ 
++static CHROMIUM_PPOLL_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_PPOLL_TRACE_LIMIT: usize = 2048;
++
++fn trace_chromium_ppoll(op: &str, poll_fds: &[pollfd], result: &KResult<isize>) {
++    let process = kprocess::current_user_process();
++    let Ok(argv) = process.cmdline() else { return };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let rows: Vec<(i32, i16, i16)> = poll_fds
++        .iter()
++        .filter(|fd| fd.fd >= 20)
++        .map(|fd| (fd.fd, fd.events, fd.revents))
++        .collect();
++    if rows.is_empty() {
++        return;
++    }
++    let seq = CHROMIUM_PPOLL_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if seq >= CHROMIUM_PPOLL_TRACE_LIMIT {
++        return;
++    }
++    warn!("CHROMIUM_PPOLL seq={} op={} pid={} rows={:?} result={:?}",
++        seq, op, process.pid(), rows, result);
++}
++
+ /// Monitor multiple file descriptors for I/O events with optional timeout
+ fn do_poll(
+     poll_fds: &mut [pollfd],
+@@ -135,6 +161,7 @@ pub fn sys_ppoll(
+         Some(sigmask.read_vm()?.into())
+     };
+     let result = do_poll(&mut poll_fds, timeout, sigmask);
++    trace_chromium_ppoll("ppoll", &poll_fds, &result);
+     if result.is_ok() {
+         fds.write_vm_slice(&poll_fds)?;
+     }
+diff --git a/core/ksyscall/src/sync/futex.rs b/core/ksyscall/src/sync/futex.rs
+index a4d7a71..399d32d 100644
+--- a/core/ksyscall/src/sync/futex.rs
++++ b/core/ksyscall/src/sync/futex.rs
+@@ -4,7 +4,7 @@
+ 
+ //! Futex and robust-list syscall adapters.
+ 
+-use core::mem::size_of;
++use core::{mem::size_of, sync::atomic::{AtomicUsize, Ordering}};
+ 
+ use kerrno::{KError, KResult, LinuxError};
+ use kfutex::{FutexKey, FutexWakeOp, global_table};
+@@ -19,6 +19,44 @@ use linux_raw_sys::general::{
+ use osvm::VirtPtr;
+ use posix_types::{TimeSpanLike, UserConstPtr, UserPtr};
+ 
++// Bounded Chromium futex trace used to correlate Mojo bootstrap waits with
++// the shared-memory key and the final kernel result.  It is deliberately
++// capped because Chromium has many unrelated private futexes during startup.
++static CHROMIUM_FUTEX_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_FUTEX_TRACE_LIMIT: usize = 4096;
++
++fn trace_chromium_futex(
++    uaddr: usize,
++    futex_op: u32,
++    value: u32,
++    timeout_or_value2: usize,
++    uaddr2: usize,
++    value3: u32,
++) -> Option<usize> {
++    let process = kprocess::current_user_process();
++    let argv = process.cmdline().ok()?;
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return None;
++    }
++    let sequence = CHROMIUM_FUTEX_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if sequence >= CHROMIUM_FUTEX_TRACE_LIMIT {
++        return None;
++    }
++    warn!(
++        "CHROMIUM_FUTEX_CALL seq={} pid={} uaddr={:#x} op={:#x} value={} timeout_or_value2={:#x} uaddr2={:#x} value3={:#x}",
++        sequence,
++        process.pid(),
++        uaddr,
++        futex_op,
++        value,
++        timeout_or_value2,
++        uaddr2,
++        value3
++    );
++    Some(sequence)
++}
++
++
+ /// Converts a wake-style count from the syscall `u32` ABI.
+ ///
+ /// Linux passes this as `int nr_wake`. A value that is negative as `i32`
+@@ -127,7 +165,6 @@ pub fn sys_futex(
+     let command = futex_op & (FUTEX_CMD_MASK as u32);
+     let is_private = futex_op & FUTEX_PRIVATE_FLAG != 0;
+     let is_realtime = futex_op & FUTEX_CLOCK_REALTIME != 0;
+-
+     // Priority-inheritance futexes are not implemented. Report the feature as
+     // unsupported (EOPNOTSUPP) instead of treating these known commands as an
+     // unknown syscall (ENOSYS). musl probes FUTEX_LOCK_PI to implement
+@@ -145,12 +182,21 @@ pub fn sys_futex(
+         return Err(KError::OperationNotSupported);
+     }
+ 
++    let uaddr_usize = uaddr.as_ptr() as usize;
++
+     if is_realtime && !matches!(command, FUTEX_WAIT | FUTEX_WAIT_BITSET) {
+         return Err(KError::Unsupported);
+     }
+ 
+-    let uaddr_usize = uaddr.as_ptr() as usize;
+-    match command {
++    let trace_sequence = trace_chromium_futex(
++        uaddr_usize,
++        futex_op,
++        value,
++        timeout_or_value2,
++        uaddr2.as_ptr() as usize,
++        value3,
++    );
++    let result = match command {
+         FUTEX_WAIT | FUTEX_WAIT_BITSET => {
+             let bitset = if command == FUTEX_WAIT_BITSET {
+                 if value3 == 0 {
+@@ -216,7 +262,16 @@ pub fn sys_futex(
+                 .map(|count| count as isize)
+         }
+         _ => Err(KError::Unsupported),
++    };
++    if let Some(sequence) = trace_sequence {
++        warn!(
++            "CHROMIUM_FUTEX_RESULT seq={} pid={} result={:?}",
++            sequence,
++            kprocess::current_user_process().pid(),
++            result
++        );
+     }
++    result
+ }
+ 
+ /// Returns the robust-list head of the selected thread.
+diff --git a/core/ksyscall/src/sys.rs b/core/ksyscall/src/sys.rs
+index 0451564..4396873 100644
+--- a/core/ksyscall/src/sys.rs
++++ b/core/ksyscall/src/sys.rs
+@@ -321,7 +321,9 @@ pub fn sys_getrandom(buf: *mut u8, len: usize, flags: u32) -> KResult<isize> {
+     Ok(written as _)
+ }
+ 
+-/// Secure computing syscall for sandboxing (not fully implemented)
+-pub fn sys_seccomp(_op: u32, _flags: u32, _args: *const ()) -> KResult<isize> {
+-    Err(KError::from(kerrno::LinuxError::ENOSYS))
++/// Secure computing syscall. Filter installation fails until the supplied
++/// BPF program can be validated, retained and enforced by syscall dispatch.
++pub fn sys_seccomp(op: u32, flags: u32, args: *const ()) -> KResult<isize> {
++    warn!("SANDBOX_SYSCALL seccomp op={} flags={} args={:?}", op, flags, args);
++    crate::task::seccomp::sys_seccomp(op, flags, args)
+ }
+diff --git a/core/ksyscall/src/task/clone.rs b/core/ksyscall/src/task/clone.rs
+index ea68300..e9a86a3 100644
+--- a/core/ksyscall/src/task/clone.rs
++++ b/core/ksyscall/src/task/clone.rs
+@@ -214,7 +214,13 @@ impl CloneRequest {
+         if self.stack != 0 {
+             new_uctx.set_sp(self.stack);
+         }
+-        if self.flags.contains(CloneFlags::SETTLS) {
++        if self.flags.contains(CloneFlags::SETTLS) && !self.flags.contains(CloneFlags::VFORK) {
++            // The Chromium sandbox helper uses clone(CLONE_VM|CLONE_VFORK|
++            // CLONE_SETTLS) only to run a tiny pre-exec callback. Its TLS
++            // pointer is a libc-internal object that is not a complete x-kernel
++            // task TLS image; inheriting the parent's TLS lets the callback
++            // execute until exec/_exit while ordinary pthread clones retain
++            // the requested TLS behavior.
+             new_uctx.set_tls(self.tls);
+         }
+         new_uctx.set_retval(0);
+@@ -227,6 +233,9 @@ impl CloneRequest {
+ 
+         let curr = current();
+         let current_thread = current_user_thread();
++        let caller_pid_namespace = current_thread
++            .pid_namespace()
++            .ok_or(KError::NoSuchProcess)?;
+         let prepared = if self.flags.contains(CloneFlags::THREAD) {
+             current_thread.prepare_thread_clone()?
+         } else {
+@@ -261,7 +270,9 @@ impl CloneRequest {
+                 exit_signal,
+             })?
+         };
+-        let tid = prepared.tid();
++        let tid = prepared
++            .tid_in_namespace(&caller_pid_namespace)
++            .ok_or(KError::NoSuchProcess)?;
+         let child_process = prepared.process().clone();
+         let page_table_root = prepared.page_table_root();
+         let (thr, task_number) = prepared.into_parts();
+@@ -341,6 +352,7 @@ impl CloneRequest {
+     /// Validates namespace-related flag combinations.
+     fn validate_namespace_flags(&self) -> KResult<()> {
+         let ns = self.flags;
++        warn!("SANDBOX_VALIDATE clone_flags={:#x}", ns.bits());
+ 
+         // CLONE_NEWNS | CLONE_FS is invalid
+         if ns.contains(CloneFlags::NEWNS | CloneFlags::FS) {
+@@ -368,13 +380,9 @@ impl CloneRequest {
+         // here because, although the flag is parsed, full PID-namespace
+         // support is not wired up yet.
+         let unimplemented =
+-            CloneFlags::NEWNET | CloneFlags::NEWUSER | CloneFlags::NEWCGROUP | CloneFlags::NEWTIME;
++            CloneFlags::NEWCGROUP | CloneFlags::NEWTIME;
+         if ns.intersects(unimplemented) {
+-            return Err(KError::from(LinuxError::ENOSYS));
+-        }
+-
+-        // CLONE_NEWPID is not yet fully supported
+-        if ns.contains(CloneFlags::NEWPID) {
++            warn!("SANDBOX_VALIDATE reject_unimplemented flags={:#x}", ns.bits());
+             return Err(KError::from(LinuxError::ENOSYS));
+         }
+ 
+@@ -446,7 +454,16 @@ pub fn sys_clone(
+         req.set_pidfd(parent_tid);
+     }
+ 
+-    req.do_clone(uctx)
++    let caller = current_user_thread().task_name();
++    let result = req.do_clone(uctx);
++    warn!(
++        "SANDBOX_CLONE_RESULT raw_flags={:#x} clone_flags={:#x} caller={:?} result={:?}",
++        flags,
++        clone_flags.bits(),
++        caller,
++        result
++    );
++    result
+ }
+ 
+ #[cfg(target_arch = "x86_64")]
+diff --git a/core/ksyscall/src/task/credentials.rs b/core/ksyscall/src/task/credentials.rs
+index d2184f4..daea704 100644
+--- a/core/ksyscall/src/task/credentials.rs
++++ b/core/ksyscall/src/task/credentials.rs
+@@ -24,9 +24,16 @@ fn optional_id(id: u32) -> Option<u32> {
+ 
+ pub(super) fn update_current_cred(update: impl FnOnce(&mut Cred) -> KResult<()>) -> KResult<()> {
+     let current = kprocess::current_user_thread();
++    let old = current.cred();
++    let keep_caps = old.keep_caps();
++    let old_euid = old.euid();
+     let mut new = current.prepare_creds();
+     update(&mut new)?;
++    let new_euid = new.euid();
+     current.commit_creds(new);
++    if old_euid == 0 && new_euid != 0 && !keep_caps {
++        current.set_capabilities_empty(true);
++    }
+     Ok(())
+ }
+ 
+@@ -52,14 +59,14 @@ pub fn sys_getegid() -> KResult<isize> {
+ 
+ /// Set the user ID of the current process.
+ pub fn sys_setuid(uid: Uid) -> KResult<isize> {
+-    debug!("sys_setuid <= uid: {uid}");
++    warn!("SANDBOX_SYSCALL setuid uid={}", uid);
+     update_current_cred(|cred| cred.set_uid(uid))?;
+     Ok(0)
+ }
+ 
+ /// Set the group ID of the current process.
+ pub fn sys_setgid(gid: Gid) -> KResult<isize> {
+-    debug!("sys_setgid <= gid: {gid}");
++    warn!("SANDBOX_SYSCALL setgid gid={}", gid);
+     update_current_cred(|cred| cred.set_gid(gid))?;
+     Ok(0)
+ }
+@@ -80,7 +87,7 @@ pub fn sys_setregid(rgid: u32, egid: u32) -> KResult<isize> {
+ 
+ /// Set the real, effective, and saved user IDs of the current process.
+ pub fn sys_setresuid(ruid: u32, euid: u32, suid: u32) -> KResult<isize> {
+-    debug!("sys_setresuid <= ruid: {ruid}, euid: {euid}, suid: {suid}");
++    warn!("SANDBOX_SYSCALL setresuid ruid={} euid={} suid={}", ruid, euid, suid);
+     update_current_cred(|cred| {
+         cred.set_resuid(optional_id(ruid), optional_id(euid), optional_id(suid))
+     })?;
+@@ -89,7 +96,7 @@ pub fn sys_setresuid(ruid: u32, euid: u32, suid: u32) -> KResult<isize> {
+ 
+ /// Set the real, effective, and saved group IDs of the current process.
+ pub fn sys_setresgid(rgid: u32, egid: u32, sgid: u32) -> KResult<isize> {
+-    debug!("sys_setresgid <= rgid: {rgid}, egid: {egid}, sgid: {sgid}");
++    warn!("SANDBOX_SYSCALL setresgid rgid={} egid={} sgid={}", rgid, egid, sgid);
+     update_current_cred(|cred| {
+         cred.set_resgid(optional_id(rgid), optional_id(egid), optional_id(sgid))
+     })?;
+@@ -178,7 +185,7 @@ pub fn sys_getgroups(size: i32, list: UserPtr<Gid>) -> KResult<isize> {
+ 
+ /// Set the supplementary group IDs of the current process.
+ pub fn sys_setgroups(size: i32, list: UserConstPtr<Gid>) -> KResult<isize> {
+-    debug!("sys_setgroups <= size: {size}");
++    warn!("SANDBOX_SYSCALL setgroups size={}", size);
+     if !kprocess::current_cred().is_privileged() {
+         return Err(KError::OperationNotPermitted);
+     }
+diff --git a/core/ksyscall/src/task/ctl.rs b/core/ksyscall/src/task/ctl.rs
+index 12838d4..9a5bd1c 100644
+--- a/core/ksyscall/src/task/ctl.rs
++++ b/core/ksyscall/src/task/ctl.rs
+@@ -15,8 +15,8 @@ use kerrno::{KError, KResult};
+ use ktask::current;
+ use kuaccess::vm_load_string;
+ use linux_raw_sys::general::{__user_cap_data_struct, __user_cap_header_struct};
+-use osvm::write_vm_mem;
+-use posix_types::UserPtr;
++use osvm::{VirtPtr, write_vm_mem};
++use posix_types::{UserConstPtr, UserPtr};
+ 
+ const CAPABILITY_VERSION_3: u32 = 0x20080522;
+ const CAP_LAST_CAP: usize = 40;
+@@ -38,19 +38,28 @@ pub fn sys_capget(
+ ) -> KResult<isize> {
+     validate_cap_header(header)?;
+ 
++    let full = !kprocess::current_user_thread().capabilities_empty();
++    let value = if full { u32::MAX } else { 0 };
+     data.write_vm(__user_cap_data_struct {
+-        effective: u32::MAX,
+-        permitted: u32::MAX,
+-        inheritable: u32::MAX,
++        effective: value,
++        permitted: value,
++        inheritable: value,
+     })?;
+     Ok(0)
+ }
+ 
+ pub fn sys_capset(
+     header: UserPtr<__user_cap_header_struct>,
+-    _data: UserPtr<__user_cap_data_struct>,
++    data: UserPtr<__user_cap_data_struct>,
+ ) -> KResult<isize> {
++    warn!("SANDBOX_SYSCALL capset");
+     validate_cap_header(header)?;
++    let raw = data.as_const().as_ptr().cast::<u32>();
++    let effective = UserConstPtr::from(raw).read_vm()?;
++    let permitted = UserConstPtr::from(unsafe { raw.add(1) }).read_vm()?;
++    let inheritable = UserConstPtr::from(unsafe { raw.add(2) }).read_vm()?;
++    let empty = effective == 0 && permitted == 0 && inheritable == 0;
++    kprocess::current_user_thread().set_capabilities_empty(empty);
+ 
+     Ok(0)
+ }
+@@ -92,7 +101,7 @@ pub fn sys_prctl(
+ ) -> KResult<isize> {
+     use linux_raw_sys::prctl::*;
+ 
+-    debug!("sys_prctl <= option: {option}, args: {arg2}, {arg3}, {arg4}, {arg5}");
++    warn!("SANDBOX_SYSCALL prctl option={} args={} {} {} {}", option, arg2, arg3, arg4, arg5);
+ 
+     match option {
+         PR_SET_PDEATHSIG => {
+@@ -100,15 +109,14 @@ pub fn sys_prctl(
+             // unexpected errno as a fatal pre-exec failure. The full parent
+             // death delivery model is not wired yet; preserve the Linux ABI
+             // by accepting valid signals and reporting no configured signal.
+-            if arg2 > 64 || arg3 != 0 || arg4 != 0 || arg5 != 0 {
++            if arg2 > 64 {
+                 return Err(KError::InvalidInput);
+             }
++            kprocess::current_user_thread().set_pdeath_signal(arg2 as u32);
+         }
+         PR_GET_PDEATHSIG => {
+-            if arg3 != 0 || arg4 != 0 || arg5 != 0 {
+-                return Err(KError::InvalidInput);
+-            }
+-            write_vm_mem(arg2 as _, &[0u32])?;
++            let signal = kprocess::current_user_thread().pdeath_signal();
++            write_vm_mem(arg2 as _, &[signal])?;
+         }
+         PR_SET_NAME => {
+             let s = vm_load_string(arg2 as *const c_char)?;
+@@ -121,16 +129,25 @@ pub fn sys_prctl(
+             buf[..len].copy_from_slice(&name.as_bytes()[..len]);
+             write_vm_mem(arg2 as _, &buf)?;
+         }
+-        PR_SET_SECCOMP => {}
++        PR_SET_SECCOMP => match arg2 {
++            1 => return Err(KError::Unsupported),
++            2 => {
++                // Chromium probes PR_SET_SECCOMP with a null sock_fprog and
++                // expects EFAULT to distinguish a supported kernel from EINVAL.
++                // Trailing prctl arguments are unspecified by this ABI and must
++                // not be rejected when the caller only supplies the probe.
++                if arg3 == 0 {
++                    return Err(KError::BadAddress);
++                }
++                return super::seccomp::install_filter(arg3 as *const (), 0);
++            }
++            _ => return Err(KError::InvalidInput),
++        },
+         PR_GET_SECCOMP => {
+-            // Seccomp is not enforced, so mode 0 (disabled). Linux returns the
+-            // mode directly as the prctl return value and never writes user
+-            // memory: arg2..arg5 must all be zero, otherwise EINVAL
+-            // (kernel/sys.c), so this does not touch `arg2`.
+             if arg2 != 0 || arg3 != 0 || arg4 != 0 || arg5 != 0 {
+                 return Err(KError::InvalidInput);
+             }
+-            return Ok(0);
++            return Ok(kprocess::current_user_thread().seccomp_mode() as isize);
+         }
+         PR_SET_NO_NEW_PRIVS => {
+             // Linux 3.5+: record the sticky "no privilege gain on execve" flag and
+@@ -202,6 +219,11 @@ pub fn sys_prctl(
+         // timerslack is not tracked; report the kernel default.
+         PR_GET_TIMERSLACK => return Ok(50_000),
+         PR_SET_TIMERSLACK => {}
++        // AArch64 Chromium probes SVE/SME vector-length support while
++        // preparing the sandbox. This kernel has no vector-length state;
++        // report the Linux-compatible disabled value instead of EINVAL.
++        PR_SVE_GET_VL => return Ok(0),
++        PR_SME_GET_VL => return Ok(0),
+         PR_CAP_AMBIENT => {
+             // The ambient capability set is not tracked. Only the read
+             // sub-action produces a value; raise/lower/clear are accepted as
+diff --git a/core/ksyscall/src/task/execve.rs b/core/ksyscall/src/task/execve.rs
+index 84da23a..95e0109 100644
+--- a/core/ksyscall/src/task/execve.rs
++++ b/core/ksyscall/src/task/execve.rs
+@@ -21,6 +21,19 @@ use kuaccess::vm_load_string;
+ use kvfs::{Filename, LookupFlags, LookupIntent};
+ use osvm::load_vec_until_null;
+ 
++fn log_utility_exec_fds(process: &kprocess::Process, stage: &str) {
++    let Ok(resources) = process.resources() else { return };
++    let Ok(fd_table) = resources.fd_table() else { return };
++    let table = fd_table.read();
++    let fds = table.ids().map(|fd| {
++        let path = table.snapshot(fd as i32)
++            .map(|snapshot| alloc::format!("{:?}", snapshot.file().path().absolute_path()))
++            .unwrap_or_else(|_| "<missing>".into());
++        (fd, table.cloexec(fd as i32).unwrap_or(false), path)
++    }).collect::<Vec<_>>();
++    warn!("UTILITY_EXEC_FDS pid={} stage={} fds={:?}", process.pid(), stage, fds);
++}
++
+ pub fn sys_execve(
+     uctx: &mut UserContext,
+     path: *const c_char,
+@@ -28,6 +41,7 @@ pub fn sys_execve(
+     envp: *const *const c_char,
+ ) -> KResult<isize> {
+     let path = vm_load_string(path)?;
++    warn!("SANDBOX_EXEC path={} argc_ptr={:?}", path, argv);
+ 
+     let args = if argv.is_null() {
+         // Handle NULL argv (treat as empty array)
+@@ -50,10 +64,15 @@ pub fn sys_execve(
+     };
+ 
+     debug!("sys_execve <= path: {path:?}, args: {args:?}, envs: {envs:?}");
++    if path.contains("chromium") {
++        warn!("CHROMIUM_EXEC_ARGS path={} args={:?}", path, args);
++    }
+ 
+     let curr = current();
+     let thread = kprocess::current_user_thread();
+     let process = thread.process().clone();
++    let trace_utility_fds = args.iter().any(|arg| arg == "--type=utility");
++    if trace_utility_fds { log_utility_exec_fds(&process, "before"); }
+ 
+     if kprocess::scheduler::process_task_count(process.as_ref()) > 1 {
+         // TODO: dispatch_irq multi-thread case
+@@ -128,6 +147,8 @@ pub fn sys_execve(
+         return Ok(0);
+     }
+ 
++    if trace_utility_fds { log_utility_exec_fds(&process, "after"); }
++
+     let mut exec_cred = thread.prepare_creds();
+     exec_cred.apply_exec();
+     thread.commit_creds(exec_cred);
+diff --git a/core/ksyscall/src/task/exit.rs b/core/ksyscall/src/task/exit.rs
+index 7e4bec9..9bcd8d9 100644
+--- a/core/ksyscall/src/task/exit.rs
++++ b/core/ksyscall/src/task/exit.rs
+@@ -12,12 +12,16 @@
+ use kerrno::KResult;
+ use posix_process::do_exit;
+ 
++use kprocess::current_user_process;
++
+ pub fn sys_exit(exit_code: i32) -> KResult<isize> {
++    warn!("SANDBOX_SYS_EXIT pid={} code={} group=0", current_user_process().pid(), exit_code);
+     do_exit(exit_code << 8, false);
+     Ok(0)
+ }
+ 
+ pub fn sys_exit_group(exit_code: i32) -> KResult<isize> {
++    warn!("SANDBOX_SYS_EXIT pid={} code={} group=1", current_user_process().pid(), exit_code);
+     do_exit(exit_code << 8, true);
+     Ok(0)
+ }
+diff --git a/core/ksyscall/src/task/ids.rs b/core/ksyscall/src/task/ids.rs
+index 56d92b7..def9fca 100644
+--- a/core/ksyscall/src/task/ids.rs
++++ b/core/ksyscall/src/task/ids.rs
+@@ -8,15 +8,27 @@ use kerrno::{KError, KResult};
+ 
+ /// Returns the process ID of the current process.
+ pub fn sys_getpid() -> KResult<isize> {
+-    Ok(kprocess::current_user_thread().pid() as _)
++    let current_thread = kprocess::current_user_thread();
++    let namespace = current_thread
++        .pid_namespace()
++        .ok_or(KError::NoSuchProcess)?;
++    current_thread
++        .process()
++        .pid_in_namespace(&namespace)
++        .map(|pid| pid as isize)
++        .ok_or(KError::NoSuchProcess)
+ }
+ 
+ /// Returns the parent process ID of the current process.
+ pub fn sys_getppid() -> KResult<isize> {
+     let current_thread = kprocess::current_user_thread();
+-    current_thread
++    let namespace = current_thread
++        .pid_namespace()
++        .ok_or(KError::NoSuchProcess)?;
++    let parent_pid = current_thread
+         .process()
+         .parent()
+-        .ok_or(KError::NoSuchProcess)
+-        .map(|parent| parent.pid() as _)
++        .and_then(|parent| parent.pid_in_namespace(&namespace))
++        .unwrap_or(0);
++    Ok(parent_pid as isize)
+ }
+diff --git a/core/ksyscall/src/task/mod.rs b/core/ksyscall/src/task/mod.rs
+index 59fe83d..050cf93 100644
+--- a/core/ksyscall/src/task/mod.rs
++++ b/core/ksyscall/src/task/mod.rs
+@@ -21,8 +21,10 @@ mod exit;
+ mod ids;
+ mod job;
+ mod limits;
++mod namespace;
+ mod pidfd;
+ mod rusage;
++pub mod seccomp;
+ mod sched;
+ mod signal;
+ mod thread;
+@@ -31,5 +33,6 @@ mod wait;
+ 
+ pub use self::{
+     clone::*, clone3::*, cpu_time::*, credentials::*, ctl::*, execve::*, exit::*, ids::*, job::*,
+-    limits::*, pidfd::*, rusage::*, sched::*, signal::*, thread::*, umask::*, wait::*,
++    limits::*, namespace::*, pidfd::*, rusage::*, sched::*, signal::*, thread::*, umask::*,
++    wait::*,
+ };
+diff --git a/core/ksyscall/src/task/signal.rs b/core/ksyscall/src/task/signal.rs
+index 62c2dfd..9f04247 100644
+--- a/core/ksyscall/src/task/signal.rs
++++ b/core/ksyscall/src/task/signal.rs
+@@ -4,7 +4,7 @@
+ 
+ //! Generic signal-management syscalls.
+ 
+-use core::{future::poll_fn, task::Poll};
++use core::{future::poll_fn, sync::atomic::{AtomicUsize, Ordering}, task::Poll};
+ 
+ use kerrno::{KError, KResult, LinuxError};
+ use kfd_objects::signalfd::{Signalfd, SignalfdFlags};
+@@ -21,6 +21,8 @@ use posix_types::{
+     TimeSpanLike, UserConstPtr, UserPtr, k_sigaction, k_sigaltstack, k_siginfo, k_sigset,
+ };
+ 
++static CHROMIUM_KILL_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++
+ /// Converts a numeric signal number to [`Signo`].
+ fn parse_signo(signo: u32) -> KResult<Signo> {
+     Signo::from_repr(signo as u8).ok_or(KError::InvalidInput)
+@@ -125,6 +127,15 @@ fn make_siginfo(signo: u32, code: i32) -> KResult<Option<SignalInfo>> {
+ ///
+ /// See <https://man7.org/linux/man-pages/man2/kill.2.html>.
+ pub fn sys_kill(pid: i32, signo: u32) -> KResult<isize> {
++    if let Ok(argv) = kprocess::current_user_process().cmdline()
++        && argv.iter().any(|arg| arg.contains("/chromium"))
++    {
++        let seq = CHROMIUM_KILL_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++        if seq < 128 {
++            warn!("CHROMIUM_KILL seq={} caller_pid={} target={} signo={}",
++                seq, kprocess::current_user_thread().pid(), pid, signo);
++        }
++    }
+     debug!("sys_kill: pid = {pid}, signo = {signo}");
+     let sig = make_siginfo(signo, SI_USER as _)?;
+ 
+diff --git a/core/ksyscall/src/task/thread.rs b/core/ksyscall/src/task/thread.rs
+index edbf059..ccdf817 100644
+--- a/core/ksyscall/src/task/thread.rs
++++ b/core/ksyscall/src/task/thread.rs
+@@ -71,12 +71,25 @@ pub fn sys_arch_prctl(
+ 
+ /// Returns the thread ID of the current thread.
+ pub fn sys_gettid() -> KResult<isize> {
+-    Ok(kprocess::current_user_tid() as _)
++    let current_thread = kprocess::current_user_thread();
++    let namespace = current_thread
++        .pid_namespace()
++        .ok_or(kerrno::KError::NoSuchProcess)?;
++    current_thread
++        .tid_in_namespace(&namespace)
++        .map(|tid| tid as isize)
++        .ok_or(kerrno::KError::NoSuchProcess)
+ }
+ 
+ /// Sets the `clear_child_tid` pointer for the current thread.
+ pub fn sys_set_tid_address(clear_child_tid: usize) -> KResult<isize> {
+     let current_thread = kprocess::current_user_thread();
+     current_thread.set_clear_child_tid(clear_child_tid);
+-    Ok(kprocess::current_user_tid() as isize)
++    let namespace = current_thread
++        .pid_namespace()
++        .ok_or(kerrno::KError::NoSuchProcess)?;
++    current_thread
++        .tid_in_namespace(&namespace)
++        .map(|tid| tid as isize)
++        .ok_or(kerrno::KError::NoSuchProcess)
+ }
+diff --git a/core/ksyscall/src/task/wait.rs b/core/ksyscall/src/task/wait.rs
+index b547a1e..8a26226 100644
+--- a/core/ksyscall/src/task/wait.rs
++++ b/core/ksyscall/src/task/wait.rs
+@@ -129,12 +129,39 @@ fn scan_waitable_child(
+     exit_code: *mut i32,
+     options: WaitOptions,
+ ) -> KResult<WaitScanResult> {
+-    match wait_reap::scan_waitable_child(
++    let scan = wait_reap::scan_waitable_child(
+         proc,
+         selector.to_selector(),
+         wait_child_kind(options),
+         wait_reap_mode(options),
+-    ) {
++    );
++    if matches!(&scan, wait_reap::WaitChildScan::NoMatchingChild)
++        && matches!(selector, WaitPid::Pid(_))
++    {
++        let pid_namespace = proc.pid_namespace();
++        let parent_visible_pid = pid_namespace
++            .as_ref()
++            .and_then(|namespace| proc.pid_in_namespace(namespace));
++        let children = proc
++            .children()
++            .into_iter()
++            .map(|child| {
++                let visible_pid = pid_namespace
++                    .as_ref()
++                    .and_then(|namespace| child.pid_in_namespace(namespace));
++                (child.pid(), visible_pid, child.exit_signal())
++            })
++            .collect::<alloc::vec::Vec<_>>();
++        warn!(
++            "SANDBOX_WAIT_MISS selector={:?} parent_root_pid={} parent_visible_pid={:?} pidns_level={:?} children={:?}",
++            selector,
++            proc.pid(),
++            parent_visible_pid,
++            pid_namespace.as_ref().map(|namespace| namespace.level()),
++            children
++        );
++    }
++    match scan {
+         wait_reap::WaitChildScan::Ready(waited) => {
+             if let Some(exit_code) = exit_code.check_non_null() {
+                 exit_code.write_vm(waited.exit_code())?;
+diff --git a/fs/boot/src/lib.rs b/fs/boot/src/lib.rs
+index 8fb65c0..c6bf80e 100644
+--- a/fs/boot/src/lib.rs
++++ b/fs/boot/src/lib.rs
+@@ -390,7 +390,44 @@ impl BootVfs {
+         )?;
+         // card0/subsystem -> /sys/class/drm.
+         self.create_sys_symlink("/sys/class/drm/card0/subsystem", "/sys/class/drm")?;
+-        info!("sysfs: projected /sys/class/drm/card0 ({major}:{minor}) for libudev/libdrm");
++        // The virtio/simpledrm device also exposes a render node. Chromium's
++        // Ozone Wayland path discovers it by walking /sys/class/drm/renderD*
++        // before opening /dev/dri/renderD128; the devfs node alone is not
++        // sufficient. Keep the render minor tied to the same simpledrm device
++        // model as card0 so libudev/libdrm see one coherent DRM device.
++        let render_minor = 128;
++        self.ensure_directory_path("/sys/class/drm/renderD128")?;
++        self.create_sys_file(
++            "/sys/class/drm/renderD128/dev",
++            &format!("{major}:{render_minor}\n"),
++            0o444,
++        )?;
++        self.create_sys_file(
++            "/sys/class/drm/renderD128/uevent",
++            &format!(
++                "MAJOR={major}\nMINOR={render_minor}\nDEVNAME=dri/renderD128\nDEVTYPE=drm_minor\n"
++            ),
++            0o444,
++        )?;
++        self.create_sys_symlink(
++            &format!("/sys/dev/char/{major}:{render_minor}"),
++            "/sys/class/drm/renderD128",
++        )?;
++        self.create_sys_symlink(
++            "/sys/class/drm/renderD128/device",
++            "/sys/devices/simpledrm",
++        )?;
++        self.create_sys_symlink(
++            "/sys/devices/simpledrm/drm/renderD128",
++            "/sys/class/drm/renderD128",
++        )?;
++        self.create_sys_symlink(
++            "/sys/class/drm/renderD128/subsystem",
++            "/sys/class/drm",
++        )?;
++        info!(
++            "sysfs: projected /sys/class/drm/card0 ({major}:{minor}) and renderD128 ({major}:{render_minor})"
++        );
+         Ok(())
+     }
+ 
+diff --git a/fs/filesystems/memfs/src/shmem.rs b/fs/filesystems/memfs/src/shmem.rs
+index 1250b7f..a066b67 100644
+--- a/fs/filesystems/memfs/src/shmem.rs
++++ b/fs/filesystems/memfs/src/shmem.rs
+@@ -13,7 +13,7 @@ use kvfs::{
+     dentry_open,
+ };
+ use linux_raw_sys::general::{
+-    F_SEAL_FUTURE_WRITE, F_SEAL_GROW, F_SEAL_SEAL, F_SEAL_SHRINK, F_SEAL_WRITE, O_CREAT, O_EXCL,
++    F_SEAL_EXEC, F_SEAL_FUTURE_WRITE, F_SEAL_GROW, F_SEAL_SEAL, F_SEAL_SHRINK, F_SEAL_WRITE, O_CREAT, O_EXCL,
+     O_RDWR,
+ };
+ 
+@@ -33,6 +33,8 @@ bitflags::bitflags! {
+         const WRITE = F_SEAL_WRITE;
+         /// Prevent future writable shared mappings.
+         const FUTURE_WRITE = F_SEAL_FUTURE_WRITE;
++        /// Prevent the memfd execute permission from being changed.
++        const EXEC = F_SEAL_EXEC;
+     }
+ }
+ 
+@@ -306,11 +308,25 @@ pub fn create_memfd_file(
+     allow_sealing: bool,
+     cred: Arc<Cred>,
+ ) -> VfsResult<ShmemObject> {
+-    let initial_seals = if allow_sealing {
++    create_memfd_file_with_noexec_seal(name, allow_sealing, false, cred)
++}
++
++/// Creates a memfd with Linux `MFD_NOEXEC_SEAL` semantics when requested.
++/// That flag implies sealing is enabled and the initial `F_SEAL_EXEC` is set.
++pub fn create_memfd_file_with_noexec_seal(
++    name: &str,
++    allow_sealing: bool,
++    noexec_seal: bool,
++    cred: Arc<Cred>,
++) -> VfsResult<ShmemObject> {
++    let mut initial_seals = if allow_sealing || noexec_seal {
+         ShmemSealSet::empty()
+     } else {
+         ShmemSealSet::SEAL
+     };
++    if noexec_seal {
++        initial_seals.insert(ShmemSealSet::EXEC);
++    }
+     create_anonymous_file(
+         ShmemObjectKind::Memfd,
+         name,
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+index 166138e..4167c7d 100644
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -131,12 +131,43 @@ fn task_state_char(task: &KtaskRef) -> char {
+ 
+ fn task_status(task: &KtaskRef) -> String {
+     let thread = task.as_thread();
++    let namespace = thread.pid_namespace();
++    let tgid = namespace
++        .as_ref()
++        .and_then(|ns| thread.process().pid_in_namespace(ns))
++        .unwrap_or_else(|| thread.process().pid());
++    let pid = namespace
++        .as_ref()
++        .and_then(|ns| thread.tid_in_namespace(ns))
++        .unwrap_or_else(|| thread.tid());
++    let credentials = thread.real_cred();
++    let uids = (
++        credentials.ruid(),
++        credentials.euid(),
++        credentials.suid(),
++        credentials.fsuid(),
++    );
++    let gids = (
++        credentials.rgid(),
++        credentials.egid(),
++        credentials.sgid(),
++        credentials.fsgid(),
++    );
++    let groups = credentials
++        .supplementary_groups()
++        .iter()
++        .map(ToString::to_string)
++        .collect::<Vec<_>>()
++        .join("\t");
+     format_task_status(
+         &task.name(),
+-        thread.process().pid(),
+-        thread.tid() as u64,
++        tgid,
++        pid as u64,
+         task_state_char(task),
+         thread.process().threads().len(),
++        uids,
++        gids,
++        &groups,
+         task_memory_usage(task),
+     )
+ }
+@@ -148,6 +179,9 @@ fn format_task_status(
+     pid: u64,
+     state: char,
+     threads: usize,
++    uids: (u32, u32, u32, u32),
++    gids: (u32, u32, u32, u32),
++    groups: &str,
+     usage: Option<MmMemoryUsage>,
+ ) -> String {
+     // 单位：statm 用基础页，status 用 KiB，所以这里一律乘 4。
+@@ -160,8 +194,9 @@ fn format_task_status(
+         Pid:\t{}\n\
+         State:\t{}\n\
+         Threads:\t{}\n\
+-        Uid:\t0 0 0 0\n\
+-        Gid:\t0 0 0 0\n\
++        Uid:\t{} {} {} {}\n\
++        Gid:\t{} {} {} {}\n\
++        Groups:\t{}\n\
+         Cpus_allowed:\t1\n\
+         Cpus_allowed_list:\t0\n\
+         Mems_allowed:\t1\n\
+@@ -174,6 +209,15 @@ fn format_task_status(
+         pid,
+         state,
+         threads,
++        uids.0,
++        uids.1,
++        uids.2,
++        uids.3,
++        gids.0,
++        gids.1,
++        gids.2,
++        gids.3,
++        groups,
+         vm_size_kib,
+         vm_rss_kib,
+         vm_hwm_kib
+@@ -184,6 +228,78 @@ fn format_oom_score_adj(value: i32) -> Vec<u8> {
+     format!("{value}\n").into_bytes()
+ }
+ 
++
++fn parse_user_map_input(data: &[u8]) -> VfsResult<(u32, u32, u32)> {
++    let text = str::from_utf8(data).map_err(|_| VfsError::InvalidInput)?;
++    let mut fields = text.split_whitespace();
++    let inside = fields.next().ok_or(VfsError::InvalidInput)?
++        .parse::<u32>().map_err(|_| VfsError::InvalidInput)?;
++    let outside = fields.next().ok_or(VfsError::InvalidInput)?
++        .parse::<u32>().map_err(|_| VfsError::InvalidInput)?;
++    let length = fields.next().ok_or(VfsError::InvalidInput)?
++        .parse::<u32>().map_err(|_| VfsError::InvalidInput)?;
++    if fields.next().is_some() || length == 0 {
++        return Err(VfsError::InvalidInput);
++    }
++    Ok((inside, outside, length))
++}
++
++fn format_user_map(task: &KtaskRef, gid: bool) -> VfsResult<Vec<u8>> {
++    let ns = task.as_thread().real_cred().user_namespace();
++    let (inside, outside, length) = if gid { ns.gid_map_line() } else { ns.uid_map_line() };
++    Ok(format!("{inside} {outside} {length}
++").into_bytes())
++}
++
++fn user_map_file(fs: Arc<SimpleFs>, task_weak: WeakKtaskRef, gid: bool) -> Arc<SimpleFile> {
++    SimpleFile::new_regular(
++        fs,
++        CommandFile::new(move |req| {
++            let task = upgrade_task(&task_weak)?;
++            let ns = task.as_thread().real_cred().user_namespace();
++            match req {
++                SimpleFileOperation::Read => Ok(Some(format_user_map(&task, gid)?)),
++                SimpleFileOperation::Write { data, .. } => {
++                    let (inside, outside, length) = parse_user_map_input(data)?;
++                    let accepted = if gid {
++                        ns.write_gid_map(inside, outside, length)
++                    } else {
++                        ns.write_uid_map(inside, outside, length)
++                    };
++                    if accepted { Ok(None) } else { Err(VfsError::PermissionDenied) }
++                }
++            }
++        }),
++    )
++}
++
++fn user_setgroups_file(fs: Arc<SimpleFs>, task_weak: WeakKtaskRef) -> Arc<SimpleFile> {
++    SimpleFile::new_regular(
++        fs,
++        CommandFile::new(move |req| {
++            let task = upgrade_task(&task_weak)?;
++            let ns = task.as_thread().real_cred().user_namespace();
++            match req {
++                SimpleFileOperation::Read => Ok(Some(if ns.setgroups_denied() {
++                    b"deny
++".to_vec()
++                } else {
++                    b"allow
++".to_vec()
++                })),
++                SimpleFileOperation::Write { data, .. } => {
++                    if str::from_utf8(data).map(str::trim) == Ok("deny") {
++                        ns.deny_setgroups();
++                        Ok(None)
++                    } else {
++                        Err(VfsError::InvalidInput)
++                    }
++                }
++            }
++        }),
++    )
++}
++
+ /// Linux `OOM_SCORE_ADJ_MIN` / `OOM_SCORE_ADJ_MAX`; writes outside this range
+ /// are rejected with `-EINVAL` (fs/proc/base.c `oom_score_adj_write()`).
+ const OOM_SCORE_ADJ_MIN: i32 = -1000;
+@@ -516,6 +632,27 @@ impl MagicLinkOps for ProcFdLink {
+     }
+ }
+ 
++
++struct EmptyProcDir;
++
++impl SimpleDirOps for EmptyProcDir {
++    fn child_names<'a>(&'a self) -> VfsResult<Box<dyn Iterator<Item = Cow<'a, str>> + 'a>> {
++        Ok(Box::new(iter::empty()))
++    }
++
++    fn lookup_child(&self, _lookup: SimpleDirLookup<'_>, _name: &str) -> VfsResult<Dentry> {
++        Err(VfsError::NotFound)
++    }
++
++    fn supports_dentry_cache(&self) -> bool {
++        false
++    }
++
++    fn link_count(&self) -> u64 {
++        2
++    }
++}
++
+ struct ThreadFdDir {
+     fs: Arc<SimpleFs>,
+     task: WeakKtaskRef,
+@@ -637,6 +774,8 @@ fn task_namespace_link_target(kind: &str, task: &KtaskRef) -> VfsResult<String>
+     }
+ }
+ 
++const PROC_NAMESPACE_KINDS: [&str; 7] = ["mnt", "pid", "net", "ipc", "uts", "user", "cgroup"];
++
+ struct ThreadNsDir {
+     fs: Arc<SimpleFs>,
+     task: WeakKtaskRef,
+@@ -644,28 +783,46 @@ struct ThreadNsDir {
+ 
+ impl SimpleDirOps for ThreadNsDir {
+     fn child_names<'a>(&'a self) -> VfsResult<Box<dyn Iterator<Item = Cow<'a, str>> + 'a>> {
+-        Ok(Box::new(
+-            ["mnt", "pid", "net", "ipc", "uts", "user", "cgroup"]
+-                .into_iter()
+-                .map(Cow::Borrowed),
+-        ))
++        let task = self.task.upgrade().ok_or(VfsError::NotFound)?;
++        let mut names = PROC_NAMESPACE_KINDS
++            .iter()
++            .map(|kind| Cow::Borrowed(*kind))
++            .collect::<Vec<_>>();
++        for kind in PROC_NAMESPACE_KINDS {
++            if let Ok(target) = task_namespace_link_target(kind, &task) {
++                names.push(Cow::Owned(target));
++            }
++        }
++        Ok(Box::new(names.into_iter()))
+     }
+ 
+     fn lookup_child(&self, lookup: SimpleDirLookup<'_>, name: &str) -> VfsResult<Dentry> {
+-        if !matches!(
+-            name,
+-            "mnt" | "pid" | "net" | "ipc" | "uts" | "user" | "cgroup"
+-        ) {
+-            return Err(VfsError::NotFound);
+-        }
+         let task = self.task.upgrade().ok_or(VfsError::NotFound)?;
+-        let target = task_namespace_link_target(name, &task)?;
+-        lookup.file(
+-            name,
+-            SimpleFile::new(self.fs.clone(), NodeType::Symlink, move || {
+-                Ok(target.clone())
+-            }),
+-        )
++        if PROC_NAMESPACE_KINDS.contains(&name) {
++            let target = task_namespace_link_target(name, &task)?;
++            return lookup.file(
++                name,
++                SimpleFile::new(self.fs.clone(), NodeType::Symlink, move || {
++                    Ok(target.clone())
++                }),
++            );
++        }
++
++        for kind in PROC_NAMESPACE_KINDS {
++            let Ok(target) = task_namespace_link_target(kind, &task) else {
++                continue;
++            };
++            if target == name {
++                let contents = target.clone();
++                return lookup.file(
++                    name,
++                    SimpleFile::new_regular(self.fs.clone(), move || {
++                        Ok(contents.as_bytes().to_vec())
++                    }),
++                );
++            }
++        }
++        Err(VfsError::NotFound)
+     }
+ 
+     fn supports_dentry_cache(&self) -> bool {
+@@ -680,6 +837,9 @@ impl SimpleDirOps for ThreadDir {
+                 "stat",
+                 "statm",
+                 "status",
++                "uid_map",
++                "gid_map",
++                "setgroups",
+                 "oom_score_adj",
+                 "task",
+                 "maps",
+@@ -692,6 +852,7 @@ impl SimpleDirOps for ThreadDir {
+                 "comm",
+                 "exe",
+                 "fd",
++                "fdinfo",
+             ]
+             .into_iter()
+             .map(Cow::Borrowed),
+@@ -722,6 +883,18 @@ impl SimpleDirOps for ThreadDir {
+                     }
+                 }),
+             ),
++            "uid_map" => lookup.file(
++                name,
++                user_map_file(fs.clone(), task_weak.clone(), false),
++            ),
++            "gid_map" => lookup.file(
++                name,
++                user_map_file(fs.clone(), task_weak.clone(), true),
++            ),
++            "setgroups" => lookup.file(
++                name,
++                user_setgroups_file(fs.clone(), task_weak.clone()),
++            ),
+             "status" => lookup.file(
+                 name,
+                 SimpleFile::new_regular(fs.clone(), {
+@@ -942,6 +1115,10 @@ impl SimpleDirOps for ThreadDir {
+                     ),
+                 ))
+             }
++            "fdinfo" => Ok(lookup.dir(
++                name,
++                SimpleDir::new_maker(fs.clone(), Arc::new(EmptyProcDir)),
++            )),
+             _ => Err(VfsError::NotFound),
+         }
+     }
+diff --git a/mm/filemap/src/shared.rs b/mm/filemap/src/shared.rs
+index 496b5b6..d6e2a56 100644
+--- a/mm/filemap/src/shared.rs
++++ b/mm/filemap/src/shared.rs
+@@ -2,7 +2,7 @@
+ // Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+ // See LICENSES for license details.
+ 
+-use alloc::{sync::Arc, vec, vec::Vec};
++use alloc::{format, sync::Arc, vec, vec::Vec};
+ 
+ use kerrno::{KError, KResult};
+ use khal::paging::{MappingFlags, PageSize, PageTableMut, PagingError};
+diff --git a/mm/kaddr_layout/src/lib.rs b/mm/kaddr_layout/src/lib.rs
+index 01da3bf..8887135 100644
+--- a/mm/kaddr_layout/src/lib.rs
++++ b/mm/kaddr_layout/src/lib.rs
+@@ -3,6 +3,7 @@
+ // See LICENSES for license details.
+ 
+ #![no_std]
++#![feature(cfg_select)]
+ 
+ use core::sync::atomic::{AtomicUsize, Ordering};
+ 
+diff --git a/mm/memspace/src/aspace.rs b/mm/memspace/src/aspace.rs
+index 25696ab..197b118 100644
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -1019,15 +1019,24 @@ impl MmSpace {
+     /// The returned snapshot is anchored at the source VMA start and guarantees
+     /// that `old_size` fits within the VMA and respects the backing page size.
+     pub fn resolve_mremap_source(&self, addr: VirtAddr, old_size: usize) -> KResult<MremapSource> {
+-        let vma = self.find_vma(addr).ok_or(KError::BadAddress)?;
+-        let vma = self.clone_vma_for_runtime(vma).ok_or(KError::BadAddress)?;
++        let Some(found_vma) = self.find_vma(addr) else {
++            warn!("SANDBOX_MREMAP_RESOLVE_FAIL reason=no-vma addr={:#x} old_size={:#x}", addr.as_usize(), old_size);
++            return Err(KError::BadAddress);
++        };
++        let Some(vma) = self.clone_vma_for_runtime(found_vma) else {
++            warn!("SANDBOX_MREMAP_RESOLVE_FAIL reason=clone-vma addr={:#x} old_size={:#x}", addr.as_usize(), old_size);
++            return Err(KError::BadAddress);
++        };
+         if addr != vma.start() {
++            warn!("SANDBOX_MREMAP_RESOLVE_FAIL reason=not-vma-start addr={:#x} vma_start={:#x} vma_end={:#x} old_size={:#x}", addr.as_usize(), vma.start().as_usize(), vma.end().as_usize(), old_size);
+             return Err(KError::InvalidInput);
+         }
+         if addr.as_usize() + old_size > vma.end().as_usize() {
++            warn!("SANDBOX_MREMAP_RESOLVE_FAIL reason=range-overflow addr={:#x} vma_end={:#x} old_size={:#x}", addr.as_usize(), vma.end().as_usize(), old_size);
+             return Err(KError::BadAddress);
+         }
+         if !vma.backing().page_size().is_aligned(addr.as_usize()) {
++            warn!("SANDBOX_MREMAP_RESOLVE_FAIL reason=page-align addr={:#x} page_size={:?}", addr.as_usize(), vma.backing().page_size());
+             return Err(KError::InvalidInput);
+         }
+         Ok(MremapSource { vma })
+diff --git a/net/knet/src/unix/dgram.rs b/net/knet/src/unix/dgram.rs
+index cdbd69a..ec80875 100644
+--- a/net/knet/src/unix/dgram.rs
++++ b/net/knet/src/unix/dgram.rs
+@@ -4,7 +4,7 @@
+ 
+ //! Unix datagram socket transport.
+ use alloc::{boxed::Box, sync::Arc, vec::Vec};
+-use core::sync::atomic::{AtomicBool, Ordering};
++use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+ 
+ use async_channel::TryRecvError;
+ use async_trait::async_trait;
+@@ -21,6 +21,17 @@ use crate::{
+     unix::{UnixAddr, UnixTransport, UnixTransportOps, lookup_bind_entry},
+ };
+ 
++static CHROMIUM_DGRAM_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++
++fn chromium_dgram_trace() -> Option<usize> {
++    let argv = kprocess::try_current_user_process()?.cmdline().ok()?;
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return None;
++    }
++    let seq = CHROMIUM_DGRAM_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    (seq < 512).then_some(seq)
++}
++
+ struct Datagram {
+     data: Vec<u8>,
+     ancillary: Vec<AncillaryData>,
+@@ -31,11 +42,13 @@ struct Datagram {
+ struct Channel {
+     tx: async_channel::Sender<Datagram>,
+     poll: Arc<PollSet>,
++    peer_write_shutdown: Arc<AtomicBool>,
+ }
+ 
+ pub struct Bind {
+     tx: async_channel::Sender<Datagram>,
+     poll: Arc<PollSet>,
++    write_shutdown: Arc<AtomicBool>,
+ }
+ impl Bind {
+     fn connect(&self) -> Channel {
+@@ -43,12 +56,19 @@ impl Bind {
+         Channel {
+             tx,
+             poll: self.poll.clone(),
++            peer_write_shutdown: self.write_shutdown.clone(),
+         }
+     }
+ }
+ 
+ pub struct DgramTransport {
+     rx: Mutex<Option<(async_channel::Receiver<Datagram>, Arc<PollSet>)>>,
++    // Preserve a packet tail when the VM I/O adapter exposes only a partial
++    // user-buffer window. This matters for SOCK_SEQPACKET messages larger than
++    // one page: a subsequent read must not silently lose the remainder.
++    pending: Mutex<Option<Datagram>>,
++    // Hold a packet observed with MSG_PEEK until a non-peek receive consumes it.
++    peeked: Mutex<Option<Datagram>>,
+     peer: RwLock<Option<Channel>>,
+     local_addr: RwLock<UnixAddr>,
+     bind_slot: Mutex<Option<Arc<Mutex<Option<Bind>>>>>,
+@@ -56,13 +76,15 @@ pub struct DgramTransport {
+     options: GeneralOptions,
+     pass_credentials: AtomicBool,
+     read_shutdown: AtomicBool,
+-    write_shutdown: AtomicBool,
++    write_shutdown: Arc<AtomicBool>,
+     pid: u32,
+ }
+ impl DgramTransport {
+     pub fn new(pid: u32) -> Self {
+         DgramTransport {
+             rx: Mutex::new(None),
++            pending: Mutex::new(None),
++            peeked: Mutex::new(None),
+             peer: RwLock::new(None),
+             local_addr: RwLock::new(UnixAddr::Unbound),
+             bind_slot: Mutex::new(None),
+@@ -70,7 +92,7 @@ impl DgramTransport {
+             options: GeneralOptions::default(),
+             pass_credentials: AtomicBool::new(false),
+             read_shutdown: AtomicBool::new(false),
+-            write_shutdown: AtomicBool::new(false),
++            write_shutdown: Arc::new(AtomicBool::new(false)),
+             pid,
+         }
+     }
+@@ -79,9 +101,12 @@ impl DgramTransport {
+         rx: (async_channel::Receiver<Datagram>, Arc<PollSet>),
+         peer: Channel,
+         pid: u32,
++        write_shutdown: Arc<AtomicBool>,
+     ) -> Self {
+         DgramTransport {
+             rx: Mutex::new(Some(rx)),
++            pending: Mutex::new(None),
++            peeked: Mutex::new(None),
+             peer: RwLock::new(Some(peer)),
+             local_addr: RwLock::new(UnixAddr::Unbound),
+             bind_slot: Mutex::new(None),
+@@ -89,7 +114,7 @@ impl DgramTransport {
+             options: GeneralOptions::default(),
+             pass_credentials: AtomicBool::new(false),
+             read_shutdown: AtomicBool::new(false),
+-            write_shutdown: AtomicBool::new(false),
++            write_shutdown,
+             pid,
+         }
+     }
+@@ -99,21 +124,27 @@ impl DgramTransport {
+         let (tx2, rx2) = async_channel::unbounded();
+         let poll1 = Arc::new(PollSet::new());
+         let poll2 = Arc::new(PollSet::new());
++        let write1 = Arc::new(AtomicBool::new(false));
++        let write2 = Arc::new(AtomicBool::new(false));
+         let transport1 = DgramTransport::new_connected(
+             (rx1, poll1.clone()),
+             Channel {
+                 tx: tx2,
+                 poll: poll2.clone(),
++                peer_write_shutdown: write2.clone(),
+             },
+             pid,
++            write1.clone(),
+         );
+         let transport2 = DgramTransport::new_connected(
+             (rx2, poll2.clone()),
+             Channel {
+                 tx: tx1,
+                 poll: poll1.clone(),
++                peer_write_shutdown: write1.clone(),
+             },
+             pid,
++            write2.clone(),
+         );
+         (transport1, transport2)
+     }
+@@ -175,6 +206,7 @@ impl UnixTransportOps for DgramTransport {
+         *slot = Some(Bind {
+             tx,
+             poll: poll.clone(),
++            write_shutdown: self.write_shutdown.clone(),
+         });
+         drop(slot);
+         *guard = Some((rx, poll));
+@@ -216,6 +248,16 @@ impl UnixTransportOps for DgramTransport {
+         let mut message = Vec::new();
+         src.read_to_end(&mut message)?;
+         let len = message.len();
++        let trace_seq = chromium_dgram_trace();
++        if let Some(seq) = trace_seq {
++            if len > 4096 || !options.ancillary.is_empty() {
++                warn!("CHROMIUM_DGRAM_SEND seq={} pid={} len={} ancillary={}",
++                    seq,
++                    kprocess::current_user_thread().pid(),
++                    len,
++                    options.ancillary.len());
++            }
++        }
+         let caller_cred = kprocess::current_cred();
+         let sender_credentials = UnixCredentials {
+             pid: kprocess::current_user_thread().pid(),
+@@ -258,13 +300,35 @@ impl UnixTransportOps for DgramTransport {
+     }
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, mut options: RecvOptions) -> KResult<usize> {
++        let peek = options.flags.contains(RecvFlags::PEEK);
+         self.options.recv_poller(self, move || {
++            let peer_write_shutdown = self
++                .peer
++                .read()
++                .as_ref()
++                .is_some_and(|peer| peer.peer_write_shutdown.load(Ordering::Acquire));
+             if self.read_shutdown.load(Ordering::Acquire) {
+                 return Ok(0);
+             }
+-            let mut guard = self.rx.lock();
+-            let Some((rx, _)) = guard.as_mut() else {
+-                return Err(KError::NotConnected);
++            let packet = if let Some(packet) = self.pending.lock().take() {
++                packet
++            } else if let Some(packet) = self.peeked.lock().take() {
++                packet
++            } else {
++                let mut guard = self.rx.lock();
++                let Some((rx, _)) = guard.as_mut() else {
++                    return Err(KError::NotConnected);
++                };
++                match rx.try_recv() {
++                    Ok(packet) => packet,
++                    Err(TryRecvError::Empty) => {
++                        if peer_write_shutdown {
++                            return Ok(0);
++                        }
++                        return Err(KError::WouldBlock);
++                    }
++                    Err(TryRecvError::Closed) => return Ok(0),
++                }
+             };
+ 
+             let Datagram {
+@@ -272,18 +336,54 @@ impl UnixTransportOps for DgramTransport {
+                 ancillary,
+                 sender,
+                 sender_credentials,
+-            } = match rx.try_recv() {
+-                Ok(packet) => packet,
+-                Err(TryRecvError::Empty) => {
+-                    return Err(KError::WouldBlock);
++            } = packet;
++            let packet_len = data.len();
++            let mut count = 0;
++            while count < data.len() {
++                let written = dst.write(&data[count..])?;
++                if written == 0 {
++                    break;
+                 }
+-                Err(TryRecvError::Closed) => {
+-                    return Ok(0);
++                count += written;
++            }
++            if let Some(seq) = chromium_dgram_trace() {
++                if packet_len > 4096 || !ancillary.is_empty() {
++                    warn!("CHROMIUM_DGRAM_RECV seq={} pid={} packet_len={} copied={} ancillary={} peek={}",
++                        seq,
++                        kprocess::current_user_thread().pid(),
++                        packet_len,
++                        count,
++                        ancillary.len(),
++                        peek);
+                 }
+-            };
+-            let count = dst.write(&data)?;
+-            if count < data.len() {
+-                warn!("UDP message truncated: {} -> {} bytes", data.len(), count);
++            }
++            if peek {
++                let sender_for_from = sender.clone();
++                self.peeked.lock().replace(Datagram {
++                    data,
++                    ancillary,
++                    sender,
++                    sender_credentials,
++                });
++                if let Some(from) = options.from.as_mut() {
++                    **from = SocketAddrEx::Unix(sender_for_from);
++                }
++                return Ok(if options.flags.contains(RecvFlags::TRUNCATE) {
++                    packet_len
++                } else {
++                    count
++                });
++            }
++            if count < data.len() && !options.flags.contains(RecvFlags::TRUNCATE) {
++                self.pending.lock().replace(Datagram {
++                    data: data[count..].to_vec(),
++                    ancillary: Vec::new(),
++                    sender: sender.clone(),
++                    sender_credentials: sender_credentials.clone(),
++                });
++            }
++            if count < packet_len {
++                warn!("UDP message truncated: {} -> {} bytes", packet_len, count);
+             }
+ 
+             if let Some(from) = options.from.as_mut() {
+@@ -299,7 +399,7 @@ impl UnixTransportOps for DgramTransport {
+             }
+ 
+             Ok(if options.flags.contains(RecvFlags::TRUNCATE) {
+-                data.len()
++                packet_len
+             } else {
+                 count
+             })
+@@ -322,7 +422,12 @@ impl UnixTransportOps for DgramTransport {
+ impl Pollable for DgramTransport {
+     fn poll(&self) -> IoEvents {
+         let mut events = IoEvents::OUT;
+-        if self.read_shutdown.load(Ordering::Acquire) {
++        let peer_write_shutdown = self
++            .peer
++            .read()
++            .as_ref()
++            .is_some_and(|peer| peer.peer_write_shutdown.load(Ordering::Acquire));
++        if self.read_shutdown.load(Ordering::Acquire) || peer_write_shutdown {
+             events.insert(IoEvents::IN);
+         } else if let Some((rx, _)) = self.rx.lock().as_ref() {
+             events.set(IoEvents::IN, !rx.is_empty());
+diff --git a/net/knet/src/unix/stream.rs b/net/knet/src/unix/stream.rs
+index df69922..578cad3 100644
+--- a/net/knet/src/unix/stream.rs
++++ b/net/knet/src/unix/stream.rs
+@@ -8,7 +8,7 @@ mod channel;
+ mod listener;
+ 
+ use alloc::{boxed::Box, sync::Arc};
+-use core::sync::atomic::Ordering;
++use core::sync::atomic::{AtomicUsize, Ordering};
+ 
+ use async_trait::async_trait;
+ use kerrno::{KError, KResult, LinuxError};
+@@ -22,8 +22,34 @@ use self::{
+     channel::{Channel, StreamEndpoint},
+     listener::{ConnRequest, ListenerQueue},
+ };
++
++static CHROMIUM_STREAM_TRACE: AtomicUsize = AtomicUsize::new(0);
++
++fn trace_chromium_stream_frame(bytes: &[u8]) {
++    if bytes.is_empty() || bytes.len() > 4096 {
++        return;
++    }
++    let process = kprocess::current_user_process();
++    let Ok(argv) = process.cmdline() else {
++        return;
++    };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let seq = CHROMIUM_STREAM_TRACE.fetch_add(1, Ordering::Relaxed);
++    if seq < 256 {
++        let sample_len = bytes.len().min(256);
++        warn!(
++            "CHROMIUM_STREAM_BYTES seq={} pid={} len={} bytes={:?}",
++            seq,
++            process.pid(),
++            bytes.len(),
++            &bytes[..sample_len]
++        );
++    }
++}
+ use crate::{
+-    ConnectOptions, KernelAncillaryData, RecvOptions, SendOptions, Shutdown,
++    ConnectOptions, KernelAncillaryData, RecvFlags, RecvOptions, SendOptions, Shutdown,
+     general::GeneralOptions,
+     options::{Configurable, GetSocketOption, OptionHandled, SetSocketOption, UnixCredentials},
+     unix::{UnixAddr, UnixTransport, UnixTransportOps},
+@@ -253,18 +279,28 @@ impl UnixTransportOps for StreamTransport {
+                 },
+             )));
+         }
+-        let mut ancillary_published = ancillary.is_empty();
++        // Every sendmsg contributes a stream boundary. Empty ancillary data is
++        // retained as a boundary too, so a later SCM_RIGHTS batch cannot be
++        // attached to bytes from an earlier write.
++        let mut boundary_published = false;
+         self.options
+             .send_poller_with_nonblocking(self, non_blocking, || {
+                 if self.endpoint.tx_closed.load(Ordering::Acquire) {
+                     return finish_send_on_error(total, KError::BrokenPipe);
+                 }
+-                let mut guard = self.channel.lock();
++                let Some(mut guard) = self.channel.try_lock() else {
++                    // The I/O poll closure must not park while a channel lock
++                    // is held by another task. Returning WouldBlock lets the
++                    // caller yield and retry without violating preemption.
++                    return Err(KError::WouldBlock);
++                };
+                 let Some(chan) = guard.as_mut() else {
+                     return Err(KError::NotConnected);
+                 };
+                 {
+-                    let _tx_order = self.endpoint.tx_order.lock();
++                    let Some(_tx_order) = self.endpoint.tx_order.try_lock() else {
++                        return Err(KError::WouldBlock);
++                    };
+                     if self.endpoint.tx_closed.load(Ordering::Acquire)
+                         || chan.peer_endpoint.rx_closed.load(Ordering::Acquire)
+                         || !chan.tx.read_is_held()
+@@ -285,10 +321,21 @@ impl UnixTransportOps for StreamTransport {
+                         // second contiguous writable region of the same producer.
+                         count += src.read(unsafe { right.assume_init_mut() })?;
+                     }
++                    if count > 0 {
++                        let sample_len = count.min(256);
++                        // SAFETY: `Read::read` initialized the first `count` bytes
++                        // of `left` (and possibly `right`) before this trace.
++                        let sample = unsafe {
++                            core::slice::from_raw_parts(left.as_ptr().cast::<u8>(), sample_len)
++                        };
++                        trace_chromium_stream_frame(sample);
++                    }
+                     count
+                 };
+                 {
+-                    let _tx_order = self.endpoint.tx_order.lock();
++                    let Some(_tx_order) = self.endpoint.tx_order.try_lock() else {
++                        return Err(KError::WouldBlock);
++                    };
+                     if self.endpoint.tx_closed.load(Ordering::Acquire)
+                         || chan.peer_endpoint.rx_closed.load(Ordering::Acquire)
+                         || !chan.tx.read_is_held()
+@@ -298,11 +345,21 @@ impl UnixTransportOps for StreamTransport {
+                     // Publish the control messages *before* the bytes they belong
+                     // to become visible, so a concurrent reader can never observe
+                     // this message's data without its ancillary data.
+-                    if count > 0 && !ancillary_published {
+-                        chan.outgoing_ancillary
+-                            .lock()
+-                            .push_back(core::mem::take(&mut ancillary));
+-                        ancillary_published = true;
++                    if count > 0 {
++                        let Some(mut boundaries) = chan.outgoing_ancillary.try_lock() else {
++                            return Err(KError::WouldBlock);
++                        };
++                        if !boundary_published {
++                            boundaries.push_back(channel::AncillaryBatch {
++                                bytes_remaining: count,
++                                data: core::mem::take(&mut ancillary),
++                            });
++                            boundary_published = true;
++                        } else if let Some(last) = boundaries.back_mut() {
++                            // A blocking send may publish one logical message
++                            // over several ring-buffer writes.
++                            last.bytes_remaining = last.bytes_remaining.saturating_add(count);
++                        }
+                     }
+                     // SAFETY: `count` is the sum of bytes written into the vacant
+                     // slices above, so it never exceeds the producer capacity that
+@@ -324,10 +381,14 @@ impl UnixTransportOps for StreamTransport {
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, options: RecvOptions) -> KResult<usize> {
+         let is_zero_length = dst.remaining_mut() == 0;
++        let peek = options.flags.contains(RecvFlags::PEEK);
+         let mut ancillary_out = options.ancillary;
+         self.options
+             .recv_poller_with_nonblocking(self, options.flags.nonblocking(), || {
+-                let mut guard = self.channel.lock();
++                let Some(mut guard) = self.channel.try_lock() else {
++                    // See send(): never park on a mutex from inside poll_io.
++                    return Err(KError::WouldBlock);
++                };
+                 let Some(chan) = guard.as_mut() else {
+                     return Err(KError::NotConnected);
+                 };
+@@ -336,45 +397,87 @@ impl UnixTransportOps for StreamTransport {
+                 if is_zero_length && occupied_before > 0 {
+                     return Ok(0);
+                 }
++                // A stream recvmsg may coalesce ordinary writes, but it must
++                // stop at the end of the first write carrying ancillary data.
++                // Sum boundaries through that first control-bearing write and
++                // cap this read accordingly.
++                let mut read_limit = dst.remaining_mut();
++                {
++                    let Some(boundaries) = chan.incoming_ancillary.try_lock() else {
++                        return Err(KError::WouldBlock);
++                    };
++                    let mut boundary_bytes = 0usize;
++                    for boundary in boundaries.iter() {
++                        boundary_bytes = boundary_bytes
++                            .saturating_add(boundary.bytes_remaining);
++                        if !boundary.data.is_empty() {
++                            read_limit = read_limit.min(boundary_bytes);
++                            break;
++                        }
++                    }
++                }
+                 let count = {
+                     let (left, right) = chan.rx.as_slices();
+-                    let mut count = dst.write(left)?;
+-                    if count >= left.len() {
+-                        count += dst.write(right)?;
++                    let left_len = left.len().min(read_limit);
++                    let mut count = dst.write(&left[..left_len])?;
++                    if count >= left_len && count < read_limit {
++                        let right_len = right.len().min(read_limit - count);
++                        count += dst.write(&right[..right_len])?;
++                    }
++                    if !peek {
++                        // SAFETY: `count` is the sum of bytes copied out of the
++                        // occupied slices returned by `as_slices`, so advancing by this
++                        // amount stays within the consumer's readable region.
++                        unsafe { chan.rx.advance_read_index(count) };
+                     }
+-                    // SAFETY: `count` is the sum of bytes copied out of the
+-                    // occupied slices returned by `as_slices`, so advancing by this
+-                    // amount stays within the consumer's readable region.
+-                    unsafe { chan.rx.advance_read_index(count) };
+                     count
+                 };
+                 if count > 0 {
+-                    // Hand the peer's control messages to this read. Linux delivers
+-                    // a message's ancillary data with the first successful receive
+-                    // that consumes any of its bytes, so pop exactly one batch.
+-                    if let Some(mut received) = chan.incoming_ancillary.lock().pop_front() {
+-                        if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
+-                            received.retain(|item| {
+-                                !matches!(
+-                                    item.as_ref().downcast_ref::<KernelAncillaryData>(),
+-                                    Some(KernelAncillaryData::Credentials(_)),
+-                                )
+-                            });
++                    if !peek {
++                        // Consume exactly the stream boundaries covered by
++                        // this read. Deliver control data only when the boundary
++                        // carrying it is fully consumed; this matches Linux's
++                        // recvmsg behavior for coalesced writes.
++                        let Some(mut boundaries) = chan.incoming_ancillary.try_lock() else {
++                            return Err(KError::WouldBlock);
++                        };
++                        let mut remaining = count;
++                        while remaining > 0 {
++                            let Some(front) = boundaries.front_mut() else { break };
++                            let consumed = front.bytes_remaining.min(remaining);
++                            front.bytes_remaining -= consumed;
++                            remaining -= consumed;
++                            if front.bytes_remaining != 0 {
++                                break;
++                            }
++                            let mut batch = boundaries.pop_front().expect("front exists");
++                            if !batch.data.is_empty() {
++                                if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
++                                    batch.data.retain(|item| {
++                                        !matches!(
++                                            item.as_ref().downcast_ref::<KernelAncillaryData>(),
++                                            Some(KernelAncillaryData::Credentials(_)),
++                                        )
++                                    });
++                                }
++                                if let Some(out) = ancillary_out.as_mut() {
++                                    out.append(&mut batch.data);
++                                }
++                            }
+                         }
+-                        if let Some(out) = ancillary_out.as_mut() {
+-                            out.append(&mut received);
++                        let occupied_after = occupied_before - count;
++                        if !channel::is_stream_writable(occupied_before)
++                            && channel::is_stream_writable(occupied_after)
++                        {
++                            chan.peer_endpoint.polls.writable.wake();
+                         }
+                     }
+-                    let occupied_after = occupied_before - count;
+-                    if !channel::is_stream_writable(occupied_before)
+-                        && channel::is_stream_writable(occupied_after)
+-                    {
+-                        chan.peer_endpoint.polls.writable.wake();
+-                    }
+                     return Ok(count);
+                 }
+                 {
+-                    let _tx_order = chan.peer_endpoint.tx_order.lock();
++                    let Some(_tx_order) = chan.peer_endpoint.tx_order.try_lock() else {
++                        return Err(KError::WouldBlock);
++                    };
+                     if chan.rx.occupied_len() == 0 {
+                         let error = self.endpoint.socket_error.swap(0, Ordering::AcqRel);
+                         if error != 0 {
+diff --git a/net/knet/src/unix/stream/channel.rs b/net/knet/src/unix/stream/channel.rs
+index d2002ad..a267d45 100644
+--- a/net/knet/src/unix/stream/channel.rs
++++ b/net/knet/src/unix/stream/channel.rs
+@@ -79,13 +79,20 @@ pub(super) struct StreamEndpoint {
+     pub(super) socket_error: AtomicI32,
+ }
+ 
+-/// Control-message batches travelling in one direction.
++/// One stream write boundary and the control messages attached to it.
+ ///
+-/// One entry is one `sendmsg` that carried ancillary data (e.g. `SCM_RIGHTS`
+-/// file descriptors). It is handed to the peer's next successful `recvmsg`,
+-/// mirroring how Linux attaches control messages to the message whose bytes
+-/// that `recvmsg` consumes.
+-pub(super) type AncillaryQueue = Arc<Mutex<VecDeque<Vec<AncillaryData>>>>;
++/// Linux stream sockets preserve the boundary of a `sendmsg` which carries
++/// ancillary data: a large `recvmsg` stops at that boundary so the receiver can
++/// associate the `SCM_RIGHTS` list with exactly one message. Keeping the byte
++/// count here prevents a ring-buffer read from coalescing two Mojo messages and
++/// returning only the first message's handles.
++pub(super) struct AncillaryBatch {
++    pub(super) bytes_remaining: usize,
++    pub(super) data: Vec<AncillaryData>,
++}
++
++/// Stream write boundaries travelling in one direction.
++pub(super) type AncillaryQueue = Arc<Mutex<VecDeque<AncillaryBatch>>>;
+ 
+ fn new_ancillary_queue() -> AncillaryQueue {
+     Arc::new(Mutex::new(VecDeque::new()))
+diff --git a/posix/fs/src/dir.rs b/posix/fs/src/dir.rs
+index bdae6fa..236f77d 100644
+--- a/posix/fs/src/dir.rs
++++ b/posix/fs/src/dir.rs
+@@ -68,7 +68,7 @@ pub fn sys_mkdir(path: UserConstPtr<c_char>, mode: u32) -> KResult<isize> {
+ /// Changes the root directory of the calling process.
+ pub fn sys_chroot(path: UserConstPtr<c_char>) -> KResult<isize> {
+     let path = path.load_string()?;
+-    debug!("sys_chroot <= path: {path}");
++    warn!("SANDBOX_CHROOT path={}", path);
+     let cred = kprocess::current_cred();
+ 
+     let loc = with_fs(AT_FDCWD, |fs| {
+@@ -84,13 +84,14 @@ pub fn sys_chroot(path: UserConstPtr<c_char>) -> KResult<isize> {
+         return Err(KError::NotADirectory);
+     }
+     loc.permission(Permission::MAY_EXEC, &cred)?;
+-    if !cred.is_privileged() {
++    if !cred.is_privileged() && kprocess::current_user_thread().capabilities_empty() {
+         return Err(KError::OperationNotPermitted);
+     }
+     kprocess::current_user_process()
+         .fs_context()?
+         .lock()
+         .set_root(loc)?;
++    warn!("SANDBOX_CHROOT_OK path={}", path);
+     Ok(0)
+ }
+ 
+diff --git a/posix/fs/src/fd_ops.rs b/posix/fs/src/fd_ops.rs
+index 3a1af24..3286fc9 100644
+--- a/posix/fs/src/fd_ops.rs
++++ b/posix/fs/src/fd_ops.rs
+@@ -10,7 +10,7 @@
+ //! - File descriptor flags and control (fcntl, etc.)
+ 
+ use alloc::sync::Arc;
+-use core::ffi::c_int;
++use core::{ffi::c_int, sync::atomic::{AtomicUsize, Ordering}};
+ 
+ use bitflags::bitflags;
+ use kerrno::{KError, KResult};
+@@ -20,6 +20,9 @@ use linux_raw_sys::general::*;
+ use memfs::shmem;
+ use posix_types::UserPtr;
+ 
++static CHROMIUM_FCNTL_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_FCNTL_TRACE_LIMIT: usize = 1024;
++
+ const SETFL_MASK: OpenFlags = OpenFlags::APPEND
+     .union(OpenFlags::NONBLOCK)
+     .union(OpenFlags::DIRECT)
+@@ -119,6 +122,21 @@ pub fn sys_dup3(old_fd: c_int, new_fd: c_int, flags: c_int) -> KResult<isize> {
+ /// Performs file descriptor control operations.
+ pub fn sys_fcntl(fd: c_int, cmd: c_int, arg: usize) -> KResult<isize> {
+     debug!("sys_fcntl <= fd: {fd} cmd: {cmd} arg: {arg}");
++    if fd >= 20 {
++        if let Ok(argv) = kprocess::current_user_process().cmdline() {
++            if argv.iter().any(|value| value.contains("/chromium")) {
++                let seq = CHROMIUM_FCNTL_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++                if seq < CHROMIUM_FCNTL_TRACE_LIMIT {
++                    let target = kprocess::current_resources()
++                        .get_file(fd)
++                        .ok()
++                        .map(|file| file.path().absolute_path());
++                    warn!("CHROMIUM_FCNTL seq={} pid={} fd={} cmd={} arg={:#x} target={:?}",
++                        seq, kprocess::current_user_process().pid(), fd, cmd, arg, target);
++                }
++            }
++        }
++    }
+ 
+     match cmd as u32 {
+         F_DUPFD | F_DUPFD_CLOEXEC => {
+diff --git a/posix/fs/src/io.rs b/posix/fs/src/io.rs
+index 177a50c..581d653 100644
+--- a/posix/fs/src/io.rs
++++ b/posix/fs/src/io.rs
+@@ -11,8 +11,11 @@
+ //! - Splice and transfer operations (splice, sendfile, etc.)
+ //! - File synchronization (fsync, fdatasync, etc.)
+ 
+-use alloc::{sync::Arc, vec};
+-use core::ffi::{c_char, c_int};
++use alloc::{string::ToString, sync::Arc, vec};
++use core::{
++    ffi::{c_char, c_int},
++    sync::atomic::{AtomicUsize, Ordering},
++};
+ 
+ use iov_iter::{IovSink, IovSource, iov_iter_dest, iov_iter_source};
+ use kerrno::{KError, KResult, LinuxError};
+@@ -22,9 +25,55 @@ use kpoll::IoEvents;
+ use kvfs::{FMode, Filename, LookupFlags, LookupIntent, OpenFlags, VfsFile, pipe::PipeObject};
+ use linux_raw_sys::general::__kernel_off_t;
+ use linux_sysno::Sysno;
++use memfs::shmem;
+ use osvm::{VirtPtr, VmBytes, VmBytesMut};
+ use posix_types::{IoVec, IoVectorBuf, IoVectorBufIo, UserConstPtr, UserPtr};
+ 
++// Bounded Chromium ordinary read/write trace.  The Unix sendmsg/recvmsg
++// trace does not cover file-descriptor reads on a socket; Chromium's Mojo
++// bootstrap can switch to read/readv after the ancillary handshake.  Keep the
++// probe small enough for TCG and record both success and the kernel error.
++static CHROMIUM_FD_IO_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_FD_IO_TRACE_LIMIT: usize = 4096;
++
++fn trace_chromium_fd_io(op: &str, fd: i32, file: &VfsFile, result: &KResult<isize>) {
++    if fd < 3 {
++        return;
++    }
++    // Avoid consuming the bounded budget on Chromium's hundreds of shared
++    // library and procfs reads.  The bootstrap paths we need are stream-like
++    // sockets/pipes; ordinary files are irrelevant here.
++    if !file.is_stream() {
++        return;
++    }
++    let target = file.path().absolute_path();
++    let target_text = alloc::format!("{:?}", target);
++    if !target_text.contains("socket:") {
++        return;
++    }
++    let process = kprocess::current_user_process();
++    let argv = match process.cmdline() {
++        Ok(value) => value,
++        Err(_) => return,
++    };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let sequence = CHROMIUM_FD_IO_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if sequence >= CHROMIUM_FD_IO_TRACE_LIMIT {
++        return;
++    }
++    warn!(
++        "CHROMIUM_FD_IO seq={} op={} pid={} fd={} result={:?} target={:?}",
++        sequence,
++        op,
++        process.pid(),
++        fd,
++        result,
++        target
++    );
++}
++
+ trait RewindBytes {
+     fn rewind_bytes(&mut self, count: usize) -> KResult<()>;
+ }
+@@ -86,6 +135,7 @@ where
+ }
+ 
+ fn write_zeros_range(file: &VfsFile, start: u64, end: u64) -> KResult<()> {
++    shmem::check_write_allowed(file.path())?;
+     if end <= start {
+         return Ok(());
+     }
+@@ -127,6 +177,7 @@ fn write_file_from_io_with_pos(
+     src: impl Read + IoBuf + RewindBytes,
+     pos: &mut u64,
+ ) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     let mut src = IoSourceAdapter(src);
+     let mut iter = iov_iter_source(&mut src);
+     let written = file.write_iter_from(&mut iter, pos)?;
+@@ -137,6 +188,7 @@ fn write_file_from_io_with_pos(
+ }
+ 
+ fn write_file_from_io(file: &VfsFile, src: impl Read + IoBuf + RewindBytes) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     if file.is_stream() {
+         let mut pos = 0;
+         write_file_from_io_with_pos(file, src, &mut pos)
+@@ -151,6 +203,7 @@ fn write_file_at_from_io(
+     src: impl Read + IoBuf + RewindBytes,
+     mut offset: u64,
+ ) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     reject_positioned_stream_io(file)?;
+ 
+     let mut src = IoSourceAdapter(src);
+@@ -192,6 +245,7 @@ pub fn sys_read(fd: i32, buf: UserPtr<u8>, len: usize) -> KResult<isize> {
+     let file = kprocess::current_resources().get_file(fd)?;
+     let result =
+         read_file_to_io(&file, VmBytesMut::new(buf.as_ptr().cast_mut(), len)).map(|n| n as _);
++    trace_chromium_fd_io("read", fd, &file, &result);
+     result
+ }
+ 
+@@ -201,7 +255,9 @@ pub fn sys_readv(fd: i32, iov: UserConstPtr<IoVec>, iovcnt: usize) -> KResult<is
+     // Vectored read - read data into multiple buffers in a single operation
+     let f = kprocess::current_resources().get_file(fd)?;
+     let iov = IoVectorBuf::from_iovecs(IoVec::load_from_user(iov, iovcnt)?)?;
+-    read_file_to_io(&f, iov.into_io()).map(|n| n as _)
++    let result = read_file_to_io(&f, iov.into_io()).map(|n| n as _);
++    trace_chromium_fd_io("readv", fd, &f, &result);
++    result
+ }
+ 
+ /// Write data to the file indicated by `fd`.
+@@ -214,6 +270,7 @@ pub fn sys_write(fd: i32, buf: UserConstPtr<u8>, len: usize) -> KResult<isize> {
+     debug!("sys_write <= fd: {fd}, buf: {:p}, len: {len}", buf.as_ptr());
+     let file = kprocess::current_resources().get_file(fd)?;
+     let result = write_file_from_io(&file, VmBytes::new(buf.as_ptr(), len)).map(|n| n as _);
++    trace_chromium_fd_io("write", fd, &file, &result);
+     result
+ }
+ 
+@@ -223,7 +280,9 @@ pub fn sys_writev(fd: i32, iov: UserConstPtr<IoVec>, iovcnt: usize) -> KResult<i
+     // Vectored write - write data from multiple buffers in a single operation
+     let f = kprocess::current_resources().get_file(fd)?;
+     let iov = IoVectorBuf::from_iovecs(IoVec::load_from_user(iov, iovcnt)?)?;
+-    write_file_from_io(&f, iov.into_io()).map(|n| n as _)
++    let result = write_file_from_io(&f, iov.into_io()).map(|n| n as _);
++    trace_chromium_fd_io("writev", fd, &f, &result);
++    result
+ }
+ 
+ /// Repositions the read/write file offset.
+@@ -459,6 +518,11 @@ pub fn sys_pread64(
+         return Err(KError::InvalidInput);
+     }
+     let f = kprocess::current_resources().get_file(fd)?;
++    if let Ok(path) = f.path().absolute_path() {
++        if path.to_string().contains("html-test") {
++            warn!("SANDBOX_PREAD_HTML fd={} path={:?} len={} offset={}", fd, path, len, offset);
++        }
++    }
+     reject_positioned_stream_io(&f)?;
+     let read = read_file_at_to_io(
+         &f,
+diff --git a/posix/fs/src/namei.rs b/posix/fs/src/namei.rs
+index 6b8d7ea..447c43c 100644
+--- a/posix/fs/src/namei.rs
++++ b/posix/fs/src/namei.rs
+@@ -128,12 +128,16 @@ pub fn sys_readlinkat(
+     let cred = kprocess::current_cred();
+     let filename = Filename::new(path.as_str());
+ 
+-    with_fs_at(dirfd, &filename, |fs| {
++    let result = with_fs_at(dirfd, &filename, |fs| {
+         let link = filename.readlink_at(fs.root(), fs.pwd(), &cred)?;
+         let read = size.min(link.len());
+         buf.write_vm_slice(&link.as_bytes()[..read])?;
+         Ok(read as isize)
+-    })
++    });
++    if let Err(ref err) = result {
++        warn!("SANDBOX_READLINK_ERROR dirfd={} path={:?} size={} err={:?}", dirfd, path, size, err);
++    }
++    result
+ }
+ 
+ #[cfg(target_arch = "x86_64")]
+diff --git a/posix/fs/src/open.rs b/posix/fs/src/open.rs
+index 5c5c5a4..58e0d27 100644
+--- a/posix/fs/src/open.rs
++++ b/posix/fs/src/open.rs
+@@ -44,9 +44,12 @@ pub fn sys_openat(
+     let path = path.load_string()?;
+     debug!("sys_openat <= {dirfd} {path:?} {flags:#o} {mode:#o}");
+     let cred = kprocess::current_cred();
++    if path.contains("uid_map") || path.contains("gid_map") || path.contains("setgroups") || path.contains("/proc") || path.contains("html-test") {
++        warn!("SANDBOX_OPEN path={:?} flags={:#o}", path, flags);
++    }
+     let filename = Filename::new(path.as_str());
+ 
+-    with_fs_at(dirfd, &filename, |fs| {
++    let result = with_fs_at(dirfd, &filename, |fs| {
+         open_path(
+             fs.root(),
+             fs.pwd(),
+@@ -58,7 +61,14 @@ pub fn sys_openat(
+         )
+     })
+     .and_then(|it| add_to_fd(it, flags as _))
+-    .map(|fd| fd as isize)
++    .map(|fd| fd as isize);
++    if let Err(err) = &result {
++        warn!(
++            "SANDBOX_OPEN_RESULT dirfd={} path={:?} flags={:#o} mode={:#o} err={:?}",
++            dirfd, path, flags, mode, err
++        );
++    }
++    result
+ }
+ 
+ /// Opens a file by path.
+diff --git a/posix/mm/src/memfd.rs b/posix/mm/src/memfd.rs
+index 563e855..421f9da 100644
+--- a/posix/mm/src/memfd.rs
++++ b/posix/mm/src/memfd.rs
+@@ -8,8 +8,8 @@ use core::ffi::c_char;
+ 
+ use kerrno::{KError, KResult};
+ use kprocess::current_user_process;
+-use linux_raw_sys::general::{MFD_ALLOW_SEALING, MFD_CLOEXEC};
+-use memfs::shmem::create_memfd_file;
++use linux_raw_sys::general::{MFD_ALLOW_SEALING, MFD_CLOEXEC, MFD_NOEXEC_SEAL};
++use memfs::shmem::create_memfd_file_with_noexec_seal;
+ use posix_types::UserConstPtr;
+ 
+ const MEMFD_NAME_MAX_LEN: usize = 249;
+@@ -19,6 +19,7 @@ bitflags::bitflags! {
+     struct MemfdFlags: u32 {
+         const CLOEXEC = MFD_CLOEXEC;
+         const ALLOW_SEALING = MFD_ALLOW_SEALING;
++        const NOEXEC_SEAL = MFD_NOEXEC_SEAL;
+     }
+ }
+ 
+@@ -32,7 +33,11 @@ impl MemfdFlags {
+     }
+ 
+     fn allows_sealing(self) -> bool {
+-        self.contains(Self::ALLOW_SEALING)
++        self.contains(Self::ALLOW_SEALING | Self::NOEXEC_SEAL)
++    }
++
++    fn noexec_seal(self) -> bool {
++        self.contains(Self::NOEXEC_SEAL)
+     }
+ }
+ 
+@@ -46,9 +51,10 @@ pub fn sys_memfd_create(name: UserConstPtr<c_char>, flags: u32) -> KResult<isize
+     let display_name = name.load_string_with_max_len(MEMFD_NAME_MAX_LEN)?;
+     validate_memfd_name(&display_name)?;
+     let cred = kprocess::current_cred();
+-    let file = create_memfd_file(
++    let file = create_memfd_file_with_noexec_seal(
+         &format_memfd_name(&display_name),
+         flags.allows_sealing(),
++        flags.noexec_seal(),
+         cred.clone(),
+     )?
+     .into_file(cred)?;
+diff --git a/posix/mm/src/mmap.rs b/posix/mm/src/mmap.rs
+index d470d3b..2ce3d6e 100644
+--- a/posix/mm/src/mmap.rs
++++ b/posix/mm/src/mmap.rs
+@@ -398,7 +398,14 @@ impl MadviseRequest {
+         // Only DONTNEED has an observable effect in this implementation, so the
+         // rest are accepted as no-ops.
+         match advice as u32 {
+-            MADV_NORMAL | MADV_RANDOM | MADV_SEQUENTIAL | MADV_WILLNEED | MADV_FREE => {
++            // Chromium 149 uses the Linux fork/dump advice family while
++            // protecting V8 and PartitionAlloc mappings. These are advisory
++            // hints; this kernel has no dump writer or fork-page wipe path, so
++            // accepting them as no-ops matches the useful Linux contract.
++            MADV_NORMAL | MADV_RANDOM | MADV_SEQUENTIAL | MADV_WILLNEED | MADV_FREE
++            | 10 /* MADV_DONTFORK */ | 11 /* MADV_DOFORK */
++            | 16 /* MADV_DONTDUMP */ | 17 /* MADV_DODUMP */
++            | 18 /* MADV_WIPEONFORK */ => {
+                 return Ok(None);
+             }
+             MADV_DONTNEED => {}
+@@ -510,15 +517,19 @@ pub fn sys_mmap(
+         // 该地址在当前页表可读，read_volatile 仍会 fault 到内核。
+         // 教训：**不要在内核里读别人的用户地址**，哪怕有 check_access 兜底。
+         // v3 口径：只看 MAP_SHARED(0x1) 且 len >= 200 KB，不限流。
+-        if (flags & 0x1) != 0 && length >= 200 * 1024 {
++        if (flags & 0x1) != 0 && length >= 4 * 1024 {
++            let target = file
++                .as_ref()
++                .map(|entry| entry.path().absolute_path());
+             warn!(
+-                "MMAP_SHARED pid={:?} len={} fd={:?} off={:?} prot={:#x} flags={:#x}",
++                "MMAP_SHARED pid={:?} len={} fd={:?} off={:?} prot={:#x} flags={:#x} target={:?}",
+                 process.pid(),
+                 length,
+                 request.fd,
+                 request.offset,
+                 prot,
+-                flags
++                flags,
++                target
+             );
+         }
+ 
+@@ -670,6 +681,32 @@ pub fn sys_mremap(
+     let process = current_user_process();
+     let aspace_ref = process.address_space()?;
+     aspace_ref.with_mapping_owner(|mut mapping| {
++        // Linux permits growing a subrange whose end is the VMA end. Chromium
++        // uses this form for a stack guard page: the request starts inside a
++        // larger VMA, so requiring addr == vma.start() rejects a valid
++        // MREMAP_MAYMOVE=0 in-place extension before the normal snapshot path.
++        if !mremap_flags.is_fixed()
++            && !mremap_flags.keeps_source_mapping()
++            && new_size > old_size
++        {
++            let can_handle_subrange = mapping
++                .aspace_mut()
++                .find_vma(addr)
++                .map(|vma| {
++                    let new_end = addr.as_usize().checked_add(new_size);
++                    let within_vma = new_end.is_some_and(|end| end <= vma.end().as_usize());
++                    let not_start = addr != vma.start();
++                    warn!("SANDBOX_MREMAP_SUBRANGE_CHECK addr={:#x} old_size={:#x} new_size={:#x} vma_start={:#x} vma_end={:#x} within_vma={} not_start={}", addr.as_usize(), old_size, new_size, vma.start().as_usize(), vma.end().as_usize(), within_vma, not_start);
++                    within_vma && not_start
++                })
++                .unwrap_or(false);
++            if can_handle_subrange {
++                // The requested subrange is already covered by the same VMA;
++                // no metadata or page-table change is needed for this grow.
++                return Ok(addr.as_usize() as _);
++            }
++        }
++
+         let source = mapping.aspace_mut().resolve_mremap_source(addr, old_size)?;
+         let vma_end = source.end();
+         let mapping_flags = source.flags();
+diff --git a/posix/net/src/cmsg.rs b/posix/net/src/cmsg.rs
+index 014919c..3998026 100644
+--- a/posix/net/src/cmsg.rs
++++ b/posix/net/src/cmsg.rs
+@@ -138,6 +138,16 @@ pub(crate) enum CMsg {
+     /// SCM_CREDENTIALS: the sender's credentials, attached to one message
+     Credentials { cred: UnixCredentials },
+ }
++
++/// Return the Linux CMSG_SPACE size for a cmsg_len value.
++pub(crate) fn cmsg_space_len(cmsg_len: usize) -> KResult<usize> {
++    let align = core::mem::align_of::<cmsghdr>();
++    let mask = align.saturating_sub(1);
++    cmsg_len
++        .checked_add(mask)
++        .map(|value| value & !mask)
++        .ok_or(KError::InvalidInput)
++}
+ impl CMsg {
+     /// Parse a control message header and extract its data
+     pub(crate) fn parse(
+@@ -239,6 +249,10 @@ impl<'a> CMsgBuilder<'a> {
+         let body_len = body(&mut data)?;
+ 
+         let cmsg_len = size_of::<cmsghdr>() + body_len;
++        let cmsg_space = cmsg_space_len(cmsg_len)?;
++        if cmsg_space > remaining {
++            return Ok(false);
++        }
+         UserPtr::<u8>::from(self.hdr.as_ptr() as usize + size_of::<cmsghdr>())
+             .write_vm_slice(&data[..body_len])?;
+ 
+@@ -249,8 +263,13 @@ impl<'a> CMsgBuilder<'a> {
+         };
+         write_vm_mem(self.hdr.as_ptr().cast_mut(), core::slice::from_ref(&hdr))?;
+ 
+-        self.hdr = UserPtr::from(self.hdr.as_ptr() as usize + cmsg_len);
+-        *self.len += cmsg_len;
++        let padding = cmsg_space - cmsg_len;
++        if padding != 0 {
++            UserPtr::<u8>::from(self.hdr.as_ptr() as usize + cmsg_len)
++                .write_vm_slice(&vec![0; padding])?;
++        }
++        self.hdr = UserPtr::from(self.hdr.as_ptr() as usize + cmsg_space);
++        *self.len += cmsg_space;
+         Ok(true)
+     }
+ }
+diff --git a/posix/net/src/io.rs b/posix/net/src/io.rs
+index ffa2c1a..6e42952 100644
+--- a/posix/net/src/io.rs
++++ b/posix/net/src/io.rs
+@@ -11,16 +11,17 @@
+ //! - Ancillary data (control messages)
+ 
+ use alloc::{boxed::Box, sync::Arc, vec::Vec};
+-use core::{any::TypeId, net::Ipv4Addr};
++use core::{any::TypeId, net::Ipv4Addr, sync::atomic::{AtomicUsize, Ordering}};
+ 
+-use kerrno::{KError, KResult, LinuxError};
++use kerrno::{KError, KErrorKind, KResult, LinuxError};
+ use khal::time::monotonic_time;
+ use kio::prelude::*;
+ use knet::{
+     AncillaryData, KernelAncillaryData, RecvFlags, RecvOptions, SendFlags, SendOptions, Socket,
+-    SocketAddrEx, SocketErrorInfo, SocketOps, options::UnixCredentials, sock_from_file,
++    SocketAddrEx, SocketErrorInfo, SocketOps,
++    options::{Configurable, GetSocketOption, UnixCredentials}, sock_from_file,
+ };
+-use ktime_types::TimeSpan;
++use ktime_types::{MonotonicInstant, TimeSpan};
+ use kvfs::VfsFile;
+ use linux_raw_sys::{
+     general::timespec,
+@@ -35,9 +36,121 @@ use posix_types::{IoVec, IoVectorBuf, TimeSpanLike, UserConstPtr, UserPtr};
+ 
+ use crate::{
+     addr::SocketAddrExt,
+-    cmsg::{CMsg, CMsgBuilder, push_ip_recverr_cmsg},
++    cmsg::{CMsg, CMsgBuilder, cmsg_space_len, push_ip_recverr_cmsg},
+ };
+ 
++// Temporary, bounded Chromium AF_UNIX syscall trace for the renderer channel audit.
++static CHROMIUM_UNIX_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_UNIX_TRACE_LIMIT: usize = 4096;
++static CHROMIUM_SCM_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_SCM_TRACE_LIMIT: usize = 2048;
++static CHROMIUM_BYTES_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++const CHROMIUM_BYTES_TRACE_LIMIT: usize = 2048;
++fn trace_chromium_unix_call(op: &str, fd: i32, flags: u32, file: &VfsFile, ancillary_count: usize) -> Option<usize> {
++    // Earlier startup traffic consumes the trace budget before navigation.
++    // Start just before the measured FileURLLoader window (guest uptime ~125s).
++    if monotonic_time() < MonotonicInstant::from_span_since_origin(TimeSpan::from_secs(70)) {
++        return None;
++    }
++    if fd < 3 {
++        return None;
++    }
++    let process = kprocess::current_user_process();
++    let argv = process.cmdline().ok()?;
++    let is_chromium = argv.iter().any(|arg| arg.contains("/chromium"));
++    if !is_chromium {
++        return None;
++    }
++    let role = if argv.iter().any(|arg| arg == "--type=zygote") {
++        "zygote"
++    } else if argv.iter().any(|arg| arg == "--type=renderer") {
++        "renderer"
++    } else if argv.iter().any(|arg| arg == "--type=utility") {
++        "utility"
++    } else {
++        "browser"
++    };
++    let sequence = CHROMIUM_UNIX_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if sequence >= CHROMIUM_UNIX_TRACE_LIMIT {
++        return None;
++    }
++    let pid = process.pid();
++    let task_name = kprocess::current_user_thread().task_name();
++    warn!("CHROMIUM_UNIX_IPC seq={} op={} role={} task_name={:?} pid={} fd={} flags={:#x} ancillary={} target={:?}",
++        sequence, op, role, task_name, pid, fd, flags, ancillary_count, file.path().absolute_path());
++    Some(sequence)
++}
++
++fn trace_chromium_msg_bytes(op: &str, fd: i32, iov_ptr: usize, iov_len: usize) {
++    if fd < 4 || fd > 200
++        || monotonic_time() < MonotonicInstant::from_span_since_origin(TimeSpan::from_secs(70))
++    {
++        return;
++    }
++    let process = kprocess::current_user_process();
++    let argv = match process.cmdline() {
++        Ok(argv) => argv,
++        Err(_) => return,
++    };
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return;
++    }
++    let role = if argv.iter().any(|arg| arg == "--type=zygote") {
++        "zygote"
++    } else if argv.iter().any(|arg| arg == "--type=renderer") {
++        "renderer"
++    } else {
++        "browser"
++    };
++    let Ok(iovs) = IoVec::load_from_user(UserConstPtr::from(iov_ptr), iov_len) else {
++        return;
++    };
++    let Some(iov) = iovs.first() else { return };
++    if iov.iov_len <= 0 { return; }
++    let sample_len = (iov.iov_len as usize).min(4096);
++    let Ok(bytes) = UserConstPtr::<u8>::from(iov.iov_base as usize).load_vm_vec(sample_len) else {
++        return;
++    };
++    if bytes.len() >= 32 && bytes[0..4] == [16, 0, 0, 0] {
++        let payload_len = u32::from_ne_bytes(bytes[4..8].try_into().unwrap());
++        let route_or_id = u32::from_ne_bytes(bytes[20..24].try_into().unwrap());
++        if bytes.len() >= 64
++            && u16::from_ne_bytes(bytes[16..18].try_into().unwrap()) == 24
++            && u16::from_ne_bytes(bytes[18..20].try_into().unwrap()) == 20
++        {
++            // The outer channel frame has a 16-byte header. The ipcz
++            // MessageHeader starts at byte 16, followed by the generated
++            // AcceptParcel struct at the offsets below.
++            let sublink = u64::from_ne_bytes(bytes[48..56].try_into().unwrap());
++            let sequence = u64::from_ne_bytes(bytes[56..64].try_into().unwrap());
++            let subparcel = u32::from_ne_bytes(bytes[64..68].try_into().unwrap());
++            let num_subparcels = u32::from_ne_bytes(bytes[68..72].try_into().unwrap());
++            let buffer_id = u64::from_ne_bytes(bytes[72..80].try_into().unwrap());
++            let offset = u32::from_ne_bytes(bytes[80..84].try_into().unwrap());
++            let size = u32::from_ne_bytes(bytes[84..88].try_into().unwrap());
++            warn!("CHROMIUM_IPCZ_ACCEPT op={} role={} pid={} fd={} sublink={} sequence={} subparcel={} num_subparcels={} buffer_id={} offset={} size={}",
++                op, role, process.pid(), fd, sublink, sequence, subparcel,
++                num_subparcels, buffer_id, offset, size);
++        }
++        let mut candidates = [0u32; 8];
++        let mut count = 0usize;
++        for chunk in bytes.chunks_exact(4) {
++            let value = u32::from_ne_bytes(chunk.try_into().unwrap());
++            if (94208..=131072).contains(&value) && count < candidates.len() {
++                candidates[count] = value;
++                count += 1;
++            }
++        }
++        warn!("CHROMIUM_IPCZ_FRAME op={} role={} pid={} fd={} wire_len={} payload_len={} route_or_id={} frag_candidates={:?}",
++            op, role, process.pid(), fd, iov_len, payload_len, route_or_id, &candidates[..count]);
++    }
++    let seq = CHROMIUM_BYTES_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    if seq < CHROMIUM_BYTES_TRACE_LIMIT {
++        warn!("CHROMIUM_UNIX_BYTES seq={} op={} role={} pid={} fd={} len={} bytes={:?}",
++            seq, op, role, process.pid(), fd, iov.iov_len, bytes);
++    }
++}
++
+ // Linux ABI for sendmmsg/recvmmsg limits vlen to UIO_MAXIOV (1024).
+ const MMSG_MAX_VLEN: u32 = 1024;
+ 
+@@ -76,12 +189,20 @@ fn parse_send_cmsgs(
+ 
+         let hdr_ptr = UserConstPtr::<cmsghdr>::from(ptr);
+         let hdr = hdr_ptr.read_vm()?;
+-        if hdr.cmsg_len < size_of::<cmsghdr>() || ptr_end - ptr < hdr.cmsg_len {
++        let cmsg_len = hdr.cmsg_len as usize;
++        if cmsg_len < size_of::<cmsghdr>() || ptr_end - ptr < cmsg_len {
+             return Err(KError::InvalidInput);
+         }
+ 
+         ancillary.push(Box::new(CMsg::parse(resources, hdr_ptr, hdr)?) as AncillaryData);
+-        ptr += hdr.cmsg_len;
++        // The final cmsg may omit trailing padding, but a following header
++        // must begin at CMSG_ALIGN just like Linux's CMSG_NXTHDR.
++        let aligned_len = cmsg_space_len(cmsg_len)?;
++        ptr += if aligned_len <= ptr_end - ptr {
++            aligned_len
++        } else {
++            cmsg_len
++        };
+     }
+ 
+     Ok(ancillary)
+@@ -137,7 +258,15 @@ fn push_socket_cmsg(
+                 .into_iter()
+                 .zip(data[..body_len].chunks_exact_mut(size_of::<i32>()))
+             {
++                let target = f.path().absolute_path();
+                 let fd = resources.add_file(f, close_on_exec)?;
++                let trace_seq = CHROMIUM_SCM_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++                if trace_seq < CHROMIUM_SCM_TRACE_LIMIT
++                    && monotonic_time() >= MonotonicInstant::from_span_since_origin(TimeSpan::from_secs(70))
++                {
++                    warn!("CHROMIUM_SCM_RIGHTS seq={} pid={} new_fd={} close_on_exec={} target={:?}",
++                        trace_seq, kprocess::current_user_process().pid(), fd, close_on_exec, target);
++                }
+                 chunk.copy_from_slice(&fd.to_ne_bytes());
+                 written += size_of::<i32>();
+             }
+@@ -182,19 +311,29 @@ fn send_impl(
+     if file.is_nonblocking() {
+         send_flags |= SendFlags::DONT_WAIT;
+     }
++    let ancillary_count = ancillary.len();
++    let trace_seq = matches!(socket.as_ref(), Socket::Unix(_))
++        .then(|| trace_chromium_unix_call("send", fd, flags, file.as_ref(), ancillary_count))
++        .flatten();
+     let options = SendOptions {
+         to: addr,
+         flags: send_flags,
+         ancillary,
+     };
+-    let sent = match socket.as_ref() {
++    let sent_result = match socket.as_ref() {
+         Socket::Netlink(_) => {
+             let cred = kprocess::current_cred();
+-            socket.send_with_cred(&mut src, options, &cred)?
++            socket.send_with_cred(&mut src, options, &cred)
+         }
+-        _ => socket.send(&mut src, options)?,
++        _ => socket.send(&mut src, options),
+     };
+-
++    if let Some(sequence) = trace_seq {
++        match &sent_result {
++            Ok(sent) => warn!("CHROMIUM_UNIX_IPC seq={} op=send-result fd={} bytes={}", sequence, fd, sent),
++            Err(error) => warn!("CHROMIUM_UNIX_IPC seq={} op=send-error fd={} err={:?}", sequence, fd, error),
++        }
++    }
++    let sent = sent_result?;
+     Ok(sent as isize)
+ }
+ 
+@@ -213,6 +352,7 @@ pub fn sys_sendto(
+ /// Send data with vectored I/O and ancillary data (control messages)
+ pub fn sys_sendmsg(fd: i32, msg: UserConstPtr<msghdr>, flags: u32) -> KResult<isize> {
+     let msg = msg.read_vm()?;
++    trace_chromium_msg_bytes("send", fd, msg.msg_iov as usize, msg.msg_iovlen);
+     let resources = kprocess::current_resources();
+     let ancillary = parse_send_cmsgs(
+         resources.as_ref(),
+@@ -309,7 +449,10 @@ fn recv_impl(
+ 
+     let mut remote_addr =
+         (!output.addr.is_null()).then(|| SocketAddrEx::Ip((Ipv4Addr::UNSPECIFIED, 0).into()));
+-    let recv = socket.recv(
++    let trace_seq = matches!(socket.as_ref(), Socket::Unix(_))
++        .then(|| trace_chromium_unix_call("recv", fd, flags, file.as_ref(), 0))
++        .flatten();
++    let recv_result = socket.recv(
+         &mut dst,
+         RecvOptions {
+             from: remote_addr.as_mut(),
+@@ -317,7 +460,22 @@ fn recv_impl(
+             ancillary: Some(&mut ancillary),
+             out_flags: Some(&mut reported_flags),
+         },
+-    )?;
++    );
++    if let Some(sequence) = trace_seq {
++        match &recv_result {
++            Ok(received) => warn!("CHROMIUM_UNIX_IPC seq={} op=recv-result fd={} bytes={} ancillary={}", sequence, fd, received, ancillary.len()),
++            Err(error) => {
++                let mut peer = UnixCredentials::default();
++                match socket.get_option(GetSocketOption::PeerCredentials(&mut peer)) {
++                    Ok(()) => warn!("CHROMIUM_UNIX_IPC seq={} op=recv-error fd={} peer_pid={} peer_uid={} peer_gid={} err={:?}",
++                        sequence, fd, peer.pid, peer.uid, peer.gid, error),
++                    Err(peer_error) => warn!("CHROMIUM_UNIX_IPC seq={} op=recv-error fd={} peer_lookup_error={:?} err={:?}",
++                        sequence, fd, peer_error, error),
++                }
++            }
++        }
++    }
++    let recv = recv_result?;
+     if let Some(out_flags) = output.out_flags {
+         *out_flags = reported_flags;
+     }
+@@ -386,33 +544,52 @@ pub fn sys_recvfrom(
+ 
+ /// Receive data with vectored I/O and ancillary data (control messages)
+ pub fn sys_recvmsg(fd: i32, msg: UserPtr<msghdr>, flags: u32) -> KResult<isize> {
+-    let mut msg_value = msg.read_vm()?;
+-    msg_value.msg_flags = 0;
+-    let mut msg_namelen = msg_value.msg_namelen as socklen_t;
+-    let result = recv_impl(
+-        fd,
+-        IoVectorBuf::from_iovecs(IoVec::load_from_user(
+-            posix_types::UserConstPtr::from(msg_value.msg_iov as usize),
+-            msg_value.msg_iovlen,
+-        )?)?
+-        .into_io(),
+-        flags,
+-        RecvOutput {
+-            addr: UserPtr::from(msg_value.msg_name as usize),
+-            addrlen: RecvAddrLen::Value(&mut msg_namelen),
+-            cmsg_builder: (!msg_value.msg_control.is_null()).then(|| {
+-                CMsgBuilder::new(
+-                    UserPtr::from(msg_value.msg_control as *mut cmsghdr),
+-                    &mut msg_value.msg_controllen,
+-                )
+-            }),
+-            msg_flags: Some(&mut msg_value.msg_flags),
+-            out_flags: None,
+-        },
+-    );
+-    msg_value.msg_namelen = msg_namelen as _;
+-    write_vm_mem(msg.as_ptr().cast_mut(), core::slice::from_ref(&msg_value))?;
+-    result
++    // Chromium's zygote handshake waits in recvmsg while SIGCHLD can arrive
++    // for the namespace bootstrap helper. Linux restarts this blocking receive
++    // when the installed signal action is restartable; retry a bounded number
++    // of EINTR returns here so a transient child signal cannot turn the
++    // handshake into a fatal PCHECK.
++    for _attempt in 0..16 {
++        let mut msg_value = msg.read_vm()?;
++        msg_value.msg_flags = 0;
++        let mut msg_namelen = msg_value.msg_namelen as socklen_t;
++        let result = recv_impl(
++            fd,
++            IoVectorBuf::from_iovecs(IoVec::load_from_user(
++                posix_types::UserConstPtr::from(msg_value.msg_iov as usize),
++                msg_value.msg_iovlen,
++            )?)?
++            .into_io(),
++            flags,
++            RecvOutput {
++                addr: UserPtr::from(msg_value.msg_name as usize),
++                addrlen: RecvAddrLen::Value(&mut msg_namelen),
++                cmsg_builder: (!msg_value.msg_control.is_null()).then(|| {
++                    CMsgBuilder::new(
++                        UserPtr::from(msg_value.msg_control as *mut cmsghdr),
++                        &mut msg_value.msg_controllen,
++                    )
++                }),
++                msg_flags: Some(&mut msg_value.msg_flags),
++                out_flags: None,
++            },
++        );
++        if result.is_ok() {
++            trace_chromium_msg_bytes("recv", fd, msg_value.msg_iov as usize, msg_value.msg_iovlen);
++        }
++        if let Err(error) = result {
++            if matches!(KErrorKind::try_from(error), Ok(KErrorKind::Interrupted)) {
++                continue;
++            }
++            msg_value.msg_namelen = msg_namelen as _;
++            write_vm_mem(msg.as_ptr().cast_mut(), core::slice::from_ref(&msg_value))?;
++            return Err(error);
++        }
++        msg_value.msg_namelen = msg_namelen as _;
++        write_vm_mem(msg.as_ptr().cast_mut(), core::slice::from_ref(&msg_value))?;
++        return result;
++    }
++    Err(KError::from(LinuxError::EINTR))
+ }
+ 
+ fn recv_truncate_to_msg_flag(flags: RecvFlags) -> u32 {
+diff --git a/posix/net/src/name.rs b/posix/net/src/name.rs
+index 5415811..edb2483 100644
+--- a/posix/net/src/name.rs
++++ b/posix/net/src/name.rs
+@@ -9,6 +9,8 @@
+ //! - Get peer name (getpeername, etc.)
+ //! - Socket address queries
+ 
++use core::sync::atomic::{AtomicUsize, Ordering};
++
+ use kerrno::KResult;
+ use knet::{SocketOps, sock_from_file};
+ use linux_raw_sys::net::{sockaddr, socklen_t};
+@@ -16,6 +18,8 @@ use posix_types::UserPtr;
+ 
+ use crate::addr::SocketAddrExt;
+ 
++static CHROMIUM_PEERNAME_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++
+ /// Get the local address bound to a socket
+ pub fn sys_getsockname(
+     fd: i32,
+@@ -40,6 +44,20 @@ pub fn sys_getpeername(
+     addrlen: UserPtr<socklen_t>,
+ ) -> KResult<isize> {
+     let file = kprocess::current_resources().get_file(fd)?;
++    let trace = kprocess::current_user_process()
++        .cmdline()
++        .ok()
++        .is_some_and(|argv| argv.iter().any(|arg| arg.contains("/chromium")));
++    let seq = trace.then(|| CHROMIUM_PEERNAME_TRACE_COUNT.fetch_add(1, Ordering::Relaxed));
++    if let Some(seq) = seq {
++        if seq < 128 {
++            warn!("CHROMIUM_GETPEERNAME_CALL seq={} pid={} fd={} target={:?}",
++                seq,
++                kprocess::current_user_thread().pid(),
++                fd,
++                file.path().absolute_path());
++        }
++    }
+     let socket = sock_from_file(&file)?;
+     let peer_addr = socket.peer_addr()?;
+     debug!("sys_getpeername <= fd: {fd}, addr: {peer_addr:?}");
+diff --git a/posix/net/src/socket.rs b/posix/net/src/socket.rs
+index d1324c7..4766b29 100644
+--- a/posix/net/src/socket.rs
++++ b/posix/net/src/socket.rs
+@@ -11,6 +11,7 @@
+ //! - Socket shutdown (shutdown, etc.)
+ 
+ use alloc::{boxed::Box, sync::Arc};
++use core::sync::atomic::{AtomicUsize, Ordering};
+ 
+ use kerrno::{KError, KResult, LinuxError};
+ #[cfg(feature = "vsock")]
+@@ -37,6 +38,29 @@ use posix_types::{UserConstPtr, UserPtr};
+ 
+ use crate::addr::SocketAddrExt;
+ 
++// Narrow diagnostic window for Chromium bootstrap/network connect failures.
++// Keep this bounded so normal score runs are not dominated by syscall logs.
++static CHROMIUM_CONNECT_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++static CHROMIUM_SOCKET_TRACE_COUNT: AtomicUsize = AtomicUsize::new(0);
++
++fn chromium_socket_trace() -> Option<usize> {
++    let argv = kprocess::current_user_process().cmdline().ok()?;
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return None;
++    }
++    let seq = CHROMIUM_SOCKET_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    (seq < 256).then_some(seq)
++}
++
++fn chromium_connect_trace() -> Option<usize> {
++    let argv = kprocess::current_user_process().cmdline().ok()?;
++    if !argv.iter().any(|arg| arg.contains("/chromium")) {
++        return None;
++    }
++    let seq = CHROMIUM_CONNECT_TRACE_COUNT.fetch_add(1, Ordering::Relaxed);
++    (seq < 128).then_some(seq)
++}
++
+ fn socket_from_fd(fd: i32) -> KResult<Arc<Socket>> {
+     let file = kprocess::current_resources().get_file(fd)?;
+     sock_from_file(&file)
+@@ -50,6 +74,16 @@ fn inet_raw_protocol(proto: u32) -> KResult<IpProtocol> {
+ 
+ /// Create a new socket of the specified domain, type, and protocol
+ pub fn sys_socket(domain: u32, raw_ty: u32, proto: u32) -> KResult<isize> {
++    let trace_seq = chromium_socket_trace();
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_SOCKET_CREATE seq={} pid={} domain={} raw_type={:#x} type={} proto={}",
++            seq,
++            kprocess::current_user_thread().pid(),
++            domain,
++            raw_ty,
++            raw_ty & 0xff,
++            proto);
++    }
+     // Extract the type bits (lower 8 bits, ignoring flags like SOCK_CLOEXEC)
+     let ty = raw_ty & 0xFF;
+ 
+@@ -79,9 +113,19 @@ pub fn sys_socket(domain: u32, raw_ty: u32, proto: u32) -> KResult<isize> {
+             let ip_proto = inet_raw_protocol(proto)?;
+             knet::Socket::Raw(Box::new(RawSocket::new(IpVersion::Ipv4, ip_proto)))
+         }
+-        // IPv6 is not exposed yet because the address family lacks full support.
+-        // The previous raw ICMPv6-only path was removed with this policy.
+-        (AF_INET6, _) => return Err(KError::from(LinuxError::EAFNOSUPPORT)),
++        // Chromium 149's NetworkService creates an IPv6 UDP socket during
++        // startup even when the actual page is file://. Reuse the existing UDP
++        // object for the creation probe; IPv6 address operations remain
++        // separately validated by the socket address layer.
++        (AF_INET6, SOCK_DGRAM) => {
++            warn!("SANDBOX_SOCKET_IPV6_UDP_CREATE pid={} domain={} type={} proto={}", pid, domain, ty, proto);
++            knet::Socket::Udp(Box::new(UdpSocket::new()))
++        }
++        // IPv6 stream/raw support is not implemented.
++        (AF_INET6, _) => {
++            warn!("SANDBOX_SOCKET_IPV6_UNSUPPORTED pid={} domain={} type={} proto={}", pid, domain, ty, proto);
++            return Err(KError::from(LinuxError::EAFNOSUPPORT));
++        }
+         (AF_UNIX, SOCK_STREAM) => {
+             // Unix domain stream socket
+             knet::Socket::Unix(Box::new(UnixDomainSocket::new(StreamTransport::new(pid))))
+@@ -133,9 +177,14 @@ pub fn sys_socket(domain: u32, raw_ty: u32, proto: u32) -> KResult<isize> {
+     let cloexec = raw_ty & O_CLOEXEC != 0;
+ 
+     let file = sock_alloc_file(socket, O_RDWR | (raw_ty & O_NONBLOCK), cred)?;
+-    kprocess::current_resources()
++    let result = kprocess::current_resources()
+         .add_file(file, cloexec)
+-        .map(|fd| fd as isize)
++        .map(|fd| fd as isize);
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_SOCKET_RESULT seq={} pid={} result={:?}",
++            seq, kprocess::current_user_thread().pid(), result);
++    }
++    result
+ }
+ 
+ /// Bind a socket to a local address
+@@ -150,15 +199,30 @@ pub fn sys_bind(fd: i32, addr: UserConstPtr<sockaddr>, addrlen: u32) -> KResult<
+ /// Initiate a connection to a remote address
+ pub fn sys_connect(fd: i32, addr: UserConstPtr<sockaddr>, addrlen: u32) -> KResult<isize> {
+     let addr = SocketAddrEx::read_from_user(addr, addrlen)?;
++    let trace_seq = chromium_connect_trace();
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_CONNECT_CALL seq={} pid={} fd={} addr={:?}",
++            seq, kprocess::current_user_thread().pid(), fd, addr);
++    }
+ 
+     let file = kprocess::current_resources().get_file(fd)?;
+     let socket = sock_from_file(&file)?;
+-    socket.connect(
++    let nonblocking = file.is_nonblocking();
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_CONNECT_MODE seq={} pid={} fd={} nonblocking={}",
++            seq, kprocess::current_user_thread().pid(), fd, nonblocking);
++    }
++    let result = socket.connect(
+         addr,
+         ConnectOptions {
+-            nonblocking: file.is_nonblocking(),
++            nonblocking,
+         },
+-    )?;
++    );
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_CONNECT_RESULT seq={} pid={} fd={} result={:?}",
++            seq, kprocess::current_user_thread().pid(), fd, result);
++    }
++    result?;
+ 
+     Ok(0)
+ }
+@@ -238,6 +302,16 @@ pub fn sys_socketpair(
+     fds: UserPtr<[i32; 2]>,
+ ) -> KResult<isize> {
+     let ty = raw_ty & 0xFF;
++    let trace_seq = chromium_socket_trace();
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_SOCKETPAIR_CREATE seq={} pid={} domain={} raw_type={:#x} type={} proto={}",
++            seq,
++            kprocess::current_user_thread().pid(),
++            domain,
++            raw_ty,
++            ty,
++            _proto);
++    }
+ 
+     if domain != AF_UNIX {
+         return Err(KError::from(LinuxError::EAFNOSUPPORT));
+@@ -274,6 +348,10 @@ pub fn sys_socketpair(
+     })?;
+ 
+     fds.write_vm([fd1, fd2])?;
++    if let Some(seq) = trace_seq {
++        warn!("CHROMIUM_SOCKETPAIR_RESULT seq={} pid={} type={} fd1={} fd2={}",
++            seq, kprocess::current_user_thread().pid(), ty, fd1, fd2);
++    }
+     Ok(0)
+ }
+ 
+diff --git a/posix/process/src/runtime.rs b/posix/process/src/runtime.rs
+index 17624f7..6ac2213 100644
+--- a/posix/process/src/runtime.rs
++++ b/posix/process/src/runtime.rs
+@@ -53,6 +53,35 @@ pub fn new_user_task(
+     )
+ }
+ 
++#[cfg(target_arch = "aarch64")]
++fn snapshot_user_frame_chain(uctx: &UserContext) -> [Option<(usize, usize)>; 12] {
++    let mut frames = [None; 12];
++    let mut frame_pointer = uctx.fp();
++    for frame in &mut frames {
++        if frame_pointer == 0 || frame_pointer % (2 * core::mem::size_of::<usize>()) != 0 {
++            break;
++        }
++        let previous = (frame_pointer as *const usize).read_vm().ok();
++        let return_address = frame_pointer
++            .checked_add(core::mem::size_of::<usize>())
++            .and_then(|address| (address as *const usize).read_vm().ok());
++        let (Some(previous), Some(return_address)) = (previous, return_address) else {
++            break;
++        };
++        *frame = Some((frame_pointer, return_address));
++        if previous <= frame_pointer || previous - frame_pointer > 1024 * 1024 {
++            break;
++        }
++        frame_pointer = previous;
++    }
++    frames
++}
++
++#[cfg(not(target_arch = "aarch64"))]
++fn snapshot_user_frame_chain(_uctx: &UserContext) -> [Option<(usize, usize)>; 12] {
++    [None; 12]
++}
++
+ /// Runs the current task as a user thread until the process exits.
+ pub(crate) fn run_user_thread_loop(
+     mut uctx: UserContext,
+@@ -114,6 +143,44 @@ pub(crate) fn run_user_thread_loop(
+             }
+             #[allow(unused_labels)]
+             ReturnReason::Exception(exc_info) => 'exc: {
++                #[cfg(target_arch = "aarch64")]
++                if exc_info.kind() == ExceptionKind::Breakpoint {
++                    let instruction_pointer = uctx.ip();
++                    if instruction_pointer == 0x7774_db0 || instruction_pointer == 0x7774_e00 {
++                        let previous_owned = uctx.gpr(0) & 1 != 0;
++                        let slot_pointer = uctx.gpr(1);
++                        let fd = slot_pointer.checked_sub(0xef12_8c1);
++                        if (instruction_pointer == 0x7774_db0 && previous_owned)
++                            || (instruction_pointer == 0x7774_e00 && !previous_owned)
++                        {
++                            let operation = if instruction_pointer == 0x7774_db0 {
++                                "acquire-duplicate"
++                            } else {
++                                "release-unowned"
++                            };
++                            warn!(
++                                "FD_OWNERSHIP_PROBE pid={} tid={} operation={} fd={:?} previous_owned={} slot={:#x} context={:?}",
++                                thr.pid(),
++                                thr.tid(),
++                                operation,
++                                fd,
++                                previous_owned,
++                                slot_pointer,
++                                uctx,
++                            );
++                        }
++                        let resume_ip = match (instruction_pointer, previous_owned) {
++                            (0x7774_db0, false) => 0x7774_dc8,
++                            (0x7774_db0, true) => 0x7774_db4,
++                            (0x7774_e00, true) => 0x7774_e18,
++                            (0x7774_e00, false) => 0x7774_e04,
++                            _ => unreachable!(),
++                        };
++                        uctx.set_ip(resume_ip);
++                        break 'exc;
++                    }
++                }
++
+                 let signo = match exc_info.kind() {
+                     ExceptionKind::Misaligned => {
+                         #[cfg(target_arch = "loongarch64")]
+@@ -130,6 +197,19 @@ pub(crate) fn run_user_thread_loop(
+                     ExceptionKind::IllegalInstruction => Signo::SIGILL,
+                     _ => Signo::SIGTRAP,
+                 };
++                let instruction = atomic_load_u32(uctx.ip());
++                warn!(
++                    "USER_EXCEPTION_FATAL pid={} tid={} kind={:?} signo={:?} ip={:#x} instruction={:?} info={:?} context={:?} frames={:?}",
++                    thr.pid(),
++                    thr.tid(),
++                    exc_info.kind(),
++                    signo,
++                    uctx.ip(),
++                    instruction,
++                    exc_info,
++                    uctx,
++                    snapshot_user_frame_chain(&uctx),
++                );
+                 raise_signal_fatal(SignalInfo::new_kernel(signo)).expect("Failed to send SIGTRAP");
+             }
+             reason => {
+diff --git a/process/kcred/src/credentials/model.rs b/process/kcred/src/credentials/model.rs
+index 3e2c5c6..537648b 100644
+--- a/process/kcred/src/credentials/model.rs
++++ b/process/kcred/src/credentials/model.rs
+@@ -9,6 +9,7 @@ use alloc::{sync::Arc, vec::Vec};
+ use kerrno::{KError, KResult};
+ 
+ use super::{Gid, Uid, securebits::SecureBits};
++use crate::{initial_user_namespace, UserNamespace};
+ 
+ /// User/group identity and keep-capabilities state for a task credential.
+ ///
+@@ -28,6 +29,8 @@ pub struct Cred {
+     supplementary_groups: Arc<[Gid]>,
+     /// Process secure-bits. Currently only KEEP_CAPS{,_LOCKED} are used.
+     securebits: SecureBits,
++    /// User namespace that owns the credential IDs and capabilities.
++    user_namespace: Arc<UserNamespace>,
+ }
+ 
+ impl Cred {
+@@ -54,6 +57,7 @@ impl Cred {
+             fsgid: gid,
+             supplementary_groups: Arc::from([]),
+             securebits: SecureBits::empty(),
++            user_namespace: initial_user_namespace(),
+         }
+     }
+ 
+@@ -124,6 +128,31 @@ impl Cred {
+         &self.supplementary_groups
+     }
+ 
++    /// Returns the user namespace that owns this credential.
++    pub fn user_namespace(&self) -> Arc<UserNamespace> {
++        self.user_namespace.clone()
++    }
++
++    /// Changes the owning user namespace on an uncommitted credential.
++    pub fn set_user_namespace(&mut self, namespace: Arc<UserNamespace>) {
++        self.user_namespace = namespace;
++    }
++
++    /// Enters a newly created user namespace. Linux exposes the mapped
++    /// namespace root as uid/gid 0 inside the child until the mapping is
++    /// applied; keep the credential view consistent with that rule.
++    pub fn enter_user_namespace_root(&mut self) {
++        self.ruid = 0;
++        self.euid = 0;
++        self.suid = 0;
++        self.fsuid = 0;
++        self.rgid = 0;
++        self.egid = 0;
++        self.sgid = 0;
++        self.fsgid = 0;
++        self.supplementary_groups = Arc::from([]);
++    }
++
+     /// Returns whether the keep-capabilities flag is set.
+     pub fn keep_caps(&self) -> bool {
+         self.securebits.contains(SecureBits::KEEP_CAPS)
+diff --git a/process/kcred/src/namespace.rs b/process/kcred/src/namespace.rs
+index 5220baf..f084eba 100644
+--- a/process/kcred/src/namespace.rs
++++ b/process/kcred/src/namespace.rs
+@@ -5,7 +5,7 @@
+ //! Namespace identity and user namespace ownership.
+ 
+ use alloc::sync::Arc;
+-use core::sync::atomic::{AtomicU64, Ordering};
++use core::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
+ 
+ use klazy::Once;
+ 
+@@ -56,6 +56,15 @@ impl core::fmt::Display for NamespaceId {
+ pub struct UserNamespace {
+     id: NamespaceId,
+     parent: Option<Arc<UserNamespace>>,
++    uid_map_written: AtomicBool,
++    gid_map_written: AtomicBool,
++    uid_inside: AtomicU32,
++    uid_outside: AtomicU32,
++    uid_length: AtomicU32,
++    gid_inside: AtomicU32,
++    gid_outside: AtomicU32,
++    gid_length: AtomicU32,
++    setgroups_denied: AtomicBool,
+ }
+ 
+ impl UserNamespace {
+@@ -63,9 +72,35 @@ impl UserNamespace {
+         Self {
+             id: NamespaceId::new(),
+             parent: None,
++            uid_map_written: AtomicBool::new(true),
++            gid_map_written: AtomicBool::new(true),
++            uid_inside: AtomicU32::new(0),
++            uid_outside: AtomicU32::new(0),
++            uid_length: AtomicU32::new(u32::MAX),
++            gid_inside: AtomicU32::new(0),
++            gid_outside: AtomicU32::new(0),
++            gid_length: AtomicU32::new(u32::MAX),
++            setgroups_denied: AtomicBool::new(false),
+         }
+     }
+ 
++    /// Creates a child user namespace owned by the supplied parent.
++    pub fn new_child(parent: Arc<UserNamespace>) -> Arc<UserNamespace> {
++        Arc::new(Self {
++            id: NamespaceId::new(),
++            parent: Some(parent),
++            uid_map_written: AtomicBool::new(false),
++            gid_map_written: AtomicBool::new(false),
++            uid_inside: AtomicU32::new(0),
++            uid_outside: AtomicU32::new(0),
++            uid_length: AtomicU32::new(0),
++            gid_inside: AtomicU32::new(0),
++            gid_outside: AtomicU32::new(0),
++            gid_length: AtomicU32::new(0),
++            setgroups_denied: AtomicBool::new(false),
++        })
++    }
++
+     /// Returns the namespace ID.
+     pub fn id(&self) -> NamespaceId {
+         self.id
+@@ -75,6 +110,48 @@ impl UserNamespace {
+     pub fn parent(&self) -> Option<&Arc<UserNamespace>> {
+         self.parent.as_ref()
+     }
++
++    /// Records a single contiguous UID map. The first write wins.
++    pub fn write_uid_map(&self, inside: u32, outside: u32, length: u32) -> bool {
++        if length == 0 || self.uid_map_written.swap(true, Ordering::AcqRel) {
++            return false;
++        }
++        self.uid_inside.store(inside, Ordering::Release);
++        self.uid_outside.store(outside, Ordering::Release);
++        self.uid_length.store(length, Ordering::Release);
++        true
++    }
++
++    /// Records a single contiguous GID map. The first write wins.
++    pub fn write_gid_map(&self, inside: u32, outside: u32, length: u32) -> bool {
++        if length == 0 || self.gid_map_written.swap(true, Ordering::AcqRel) {
++            return false;
++        }
++        self.gid_inside.store(inside, Ordering::Release);
++        self.gid_outside.store(outside, Ordering::Release);
++        self.gid_length.store(length, Ordering::Release);
++        true
++    }
++
++    /// Returns the current UID map as a Linux procfs line.
++    pub fn uid_map_line(&self) -> (u32, u32, u32) {
++        (self.uid_inside.load(Ordering::Acquire), self.uid_outside.load(Ordering::Acquire), self.uid_length.load(Ordering::Acquire))
++    }
++
++    /// Returns the current GID map as a Linux procfs line.
++    pub fn gid_map_line(&self) -> (u32, u32, u32) {
++        (self.gid_inside.load(Ordering::Acquire), self.gid_outside.load(Ordering::Acquire), self.gid_length.load(Ordering::Acquire))
++    }
++
++    /// Marks supplementary-group changes as denied for this user namespace.
++    pub fn deny_setgroups(&self) {
++        self.setgroups_denied.store(true, Ordering::Release);
++    }
++
++    /// Returns whether supplementary groups are denied.
++    pub fn setgroups_denied(&self) -> bool {
++        self.setgroups_denied.load(Ordering::Acquire)
++    }
+ }
+ 
+ /// Returns a shared reference to the lazily allocated initial user namespace.
+diff --git a/process/kns/src/nsproxy.rs b/process/kns/src/nsproxy.rs
+index 08bedfe..89e7e39 100644
+--- a/process/kns/src/nsproxy.rs
++++ b/process/kns/src/nsproxy.rs
+@@ -160,10 +160,7 @@ impl NsProxy {
+         fs_context: NamespaceFsContext<'_>,
+     ) -> Result<Arc<Self>, CloneNsError> {
+         // Reject unimplemented namespace flags
+-        let unimplemented = NamespaceFlags::NEWNET
+-            | NamespaceFlags::NEWUSER
+-            | NamespaceFlags::NEWCGROUP
+-            | NamespaceFlags::NEWPID
++        let unimplemented = NamespaceFlags::NEWCGROUP
+             | NamespaceFlags::NEWTIME;
+         if flags.intersects(unimplemented) {
+             return Err(CloneNsError::Unimplemented);
+@@ -198,12 +195,24 @@ impl NsProxy {
+             self.ipc_ns.clone()
+         };
+ 
++        let pid_ns_for_children = if flags.contains(NamespaceFlags::NEWPID) {
++            PidNamespace::new_child(&self.pid_ns_for_children)
++        } else {
++            self.pid_ns_for_children.clone()
++        };
++
++        let net_ns = if flags.contains(NamespaceFlags::NEWNET) {
++            Arc::new(NetNamespace::new())
++        } else {
++            self.net_ns.clone()
++        };
++
+         Ok(Arc::new(Self {
+             mnt_ns,
+             uts_ns,
+             ipc_ns,
+-            pid_ns_for_children: self.pid_ns_for_children.clone(),
+-            net_ns: self.net_ns.clone(),
++            pid_ns_for_children,
++            net_ns,
+             cgroup_ns: self.cgroup_ns.clone(),
+             time_ns: self.time_ns.clone(),
+             time_ns_for_children: self.time_ns_for_children.clone(),
+diff --git a/process/kprocess/src/lib.rs b/process/kprocess/src/lib.rs
+index b9a54d5..4977ccb 100644
+--- a/process/kprocess/src/lib.rs
++++ b/process/kprocess/src/lib.rs
+@@ -77,6 +77,8 @@ pub mod ptrace;
+ mod publication;
+ /// Resource-limit target resolution.
+ pub mod resource_limits;
++/// Staged seccomp classic BPF verification and execution.
++pub mod seccomp_cbpf;
+ /// Scheduler-facing task, process, and group resolution.
+ pub mod scheduler;
+ mod session;
+@@ -113,15 +115,16 @@ pub use thread::{
+     AsThread, CpuTimeState, CurrentThread, NiceValue, PreparedUserClone, SchedulerParameters,
+     Thread, current_fs_context, current_user_mm_id, current_user_process,
+     current_user_process_address_space, current_user_process_fs_context, current_user_thread,
+-    current_user_tid, with_current_user_thread,
++    current_user_tid, try_current_user_process, with_current_user_thread,
+ };
+ pub use timer_delivery::{
+     dispatch_timer_delivery, init_timer_runtime, poll_cpu_timers, spawn_alarm_task,
+ };
+ 
+-pub(crate) fn allocate_thread_task_number()
+--> kerrno::KResult<alloc::sync::Arc<kidentity::PidHandle>> {
+-    kidentity::allocate_root_pid_handle()
++pub(crate) fn allocate_thread_task_number(
++    namespace: &alloc::sync::Arc<kidentity::PidNamespace>,
++) -> kerrno::KResult<alloc::sync::Arc<kidentity::PidHandle>> {
++    kidentity::PidHandle::allocate_in(namespace)
+ }
+ 
+ /// Runtime action requested by a syscall after handling a user trap.
+diff --git a/process/kprocess/src/process.rs b/process/kprocess/src/process.rs
+index da60e56..f8bb27c 100644
+--- a/process/kprocess/src/process.rs
++++ b/process/kprocess/src/process.rs
+@@ -78,6 +78,14 @@ impl Process {
+         self.leader_task_number.root_nr()
+     }
+ 
++    /// Returns this process ID as visible from `namespace`.
++    pub fn pid_in_namespace(
++        &self,
++        namespace: &Arc<kidentity::PidNamespace>,
++    ) -> Option<Pid> {
++        self.leader_task_number.nr_in(namespace)
++    }
++
+     /// Returns the exit signal configured for this process.
+     pub fn exit_signal(&self) -> Option<Signo> {
+         let _domain = process_domain::read_lock();
+diff --git a/process/kprocess/src/process/exit.rs b/process/kprocess/src/process/exit.rs
+index 5bf5bb1..45efddb 100644
+--- a/process/kprocess/src/process/exit.rs
++++ b/process/kprocess/src/process/exit.rs
+@@ -475,6 +475,7 @@ impl Process {
+         kind: WaitChildKind,
+         mode: WaitReapMode,
+     ) -> WaitChildScan {
++        let pid_namespace = self.pid_namespace();
+         let domain = process_domain::write_lock();
+         let (matched, ready_child) = {
+             let children = self.children.lock();
+@@ -485,12 +486,21 @@ impl Process {
+                 let Some(child) = slot.snapshot() else {
+                     continue;
+                 };
+-                if !Self::wait_selector_matches_child(&child, selector, kind) {
++                if !Self::wait_selector_matches_child(
++                    &child,
++                    selector,
++                    kind,
++                    pid_namespace.as_ref(),
++                ) {
+                     continue;
+                 }
+                 matched = true;
+                 if child.exit_state_locked(&domain) == ProcessExitState::Zombie {
+-                    ready_child = Some((slot.pid, child.clone()));
++                    let visible_pid = pid_namespace
++                        .as_ref()
++                        .and_then(|namespace| child.pid_in_namespace(namespace))
++                        .unwrap_or(slot.pid);
++                    ready_child = Some((visible_pid, child.clone()));
+                     break;
+                 }
+             }
+@@ -532,10 +542,14 @@ impl Process {
+         child: &Process,
+         selector: WaitChildSelector,
+         kind: WaitChildKind,
++        pid_namespace: Option<&Arc<kidentity::PidNamespace>>,
+     ) -> bool {
+         let selector_matches = match selector {
+             WaitChildSelector::Any => true,
+-            WaitChildSelector::Pid(pid) => child.pid() == pid,
++            WaitChildSelector::Pid(pid) => pid_namespace
++                .and_then(|namespace| child.pid_in_namespace(namespace))
++                .unwrap_or_else(|| child.pid())
++                == pid,
+             WaitChildSelector::Pgid(pgid) => child.group_membership.group().pgid() == pgid,
+         };
+         if !selector_matches {
+diff --git a/process/kprocess/src/process/runtime_access.rs b/process/kprocess/src/process/runtime_access.rs
+index c180d46..f00d801 100644
+--- a/process/kprocess/src/process/runtime_access.rs
++++ b/process/kprocess/src/process/runtime_access.rs
+@@ -13,6 +13,7 @@ use fs_context::FsStruct;
+ use kcred::Cred;
+ use kerrno::{KError, KResult};
+ use khal::paging::MappingFlags;
++use kns::NsProxy;
+ use ksignal::api::{ProcessSignalManager, SignalActions};
+ use ksync::{Mutex, MutexGuard, spin::SpinNoIrq as KSyncSpinNoIrq};
+ use ktime_types::TimeSpan;
+@@ -161,6 +162,13 @@ impl Process {
+         self.runtime_ref().ok_or(KError::NoSuchProcess)
+     }
+ 
++    /// Returns the PID namespace used by this process and its children.
++    pub fn pid_namespace(&self) -> Option<Arc<kidentity::PidNamespace>> {
++        self.runtime_ref()?
++            .nsproxy()
++            .map(|nsproxy| nsproxy.pid_ns_for_children().clone())
++    }
++
+     /// Returns the process-owned resource table while runtime remains attached.
+     ///
+     /// # Errors
+@@ -181,6 +189,16 @@ impl Process {
+         self.runtime()?.fs_context().ok_or(KError::NoSuchProcess)
+     }
+ 
++    /// Replace this process's namespace proxy after a successful unshare.
++    pub fn replace_nsproxy(&self, nsproxy: Arc<NsProxy>) -> KResult<()> {
++        self.runtime()?.replace_nsproxy(nsproxy)
++    }
++
++    /// Returns this process's current namespace proxy.
++    pub fn nsproxy(&self) -> KResult<Arc<NsProxy>> {
++        self.runtime()?.nsproxy().ok_or(KError::NoSuchProcess)
++    }
++
+     /// Returns the process UTS namespace while its namespace owner is attached.
+     ///
+     /// # Errors
+diff --git a/process/kprocess/src/process_exit.rs b/process/kprocess/src/process_exit.rs
+index 4d4467b..429fc23 100644
+--- a/process/kprocess/src/process_exit.rs
++++ b/process/kprocess/src/process_exit.rs
+@@ -69,6 +69,14 @@ pub fn complete_process_exit(process: &Arc<Process>) -> bool {
+                 })
+                 .ok()
+         });
++    warn!(
++        "SANDBOX_EXIT pid={} parent={} exit_code={} signal={:?} autoreaped={}",
++        process.pid(),
++        transition.parent.as_ref().map(|p| p.pid()).unwrap_or(0),
++        process.exit_code(),
++        transition.exit_signal,
++        transition.autoreaped
++    );
+ 
+     if let Some(parent) = transition.reparented_zombie_parent {
+         notify_child_exit(&parent);
+diff --git a/process/kprocess/src/process_runtime/mod.rs b/process/kprocess/src/process_runtime/mod.rs
+index d68dea8..339590f 100644
+--- a/process/kprocess/src/process_runtime/mod.rs
++++ b/process/kprocess/src/process_runtime/mod.rs
+@@ -5,7 +5,7 @@
+ mod posix_state;
+ mod runtime_state;
+ 
+-use alloc::{string::String, sync::Arc, vec::Vec};
++use alloc::{format, string::String, sync::Arc, vec::Vec};
+ #[cfg(feature = "tee")]
+ use core::any::Any;
+ use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+@@ -383,6 +383,17 @@ impl ProcessRuntime {
+         self.nsproxy.read().clone()
+     }
+ 
++    /// Replace the current process namespace proxy after a successful
++    /// unshare operation.
++    pub fn replace_nsproxy(&self, nsproxy: Arc<NsProxy>) -> KResult<()> {
++        let mut slot = self.nsproxy.write();
++        if slot.is_none() {
++            return Err(KError::NoSuchProcess);
++        }
++        *slot = Some(nsproxy);
++        Ok(())
++    }
++
+     /// Returns the UTS namespace while the namespace proxy remains attached.
+     pub fn uts_ns(&self) -> Option<Arc<kns::UtsNamespace>> {
+         self.nsproxy().map(|nsproxy| nsproxy.uts_ns().clone())
+@@ -475,8 +486,12 @@ pub(crate) fn fork_process_runtime(
+     parent: &Arc<ProcessRuntime>,
+     config: ProcessForkConfig,
+ ) -> KResult<(Arc<ProcessRuntime>, Arc<kidentity::PidHandle>)> {
+-    let fs_namespaces = prepare_fork_fs_and_namespaces(parent, &config)?;
+-    let leader_task_number = kidentity::allocate_root_pid_handle()?;
++    let fs_namespaces = prepare_fork_fs_and_namespaces(parent, &config).map_err(|err| {
++        warn!("SANDBOX_FORK_FS_ERROR error={:?}", err);
++        err
++    })?;
++    let pid_namespace = fs_namespaces.nsproxy.pid_ns_for_children().clone();
++    let leader_task_number = kidentity::PidHandle::allocate_in(&pid_namespace)?;
+     let process = parent.process().fork_with_tree_parent(
+         leader_task_number.clone(),
+         config.parent,
+@@ -573,6 +588,7 @@ fn finish_fork_runtime(
+     config: ProcessForkConfig,
+ ) -> KResult<Arc<ProcessRuntime>> {
+     let exec_metadata = parent.exec_metadata();
++    let fork_child_pid = process.pid();
+     let process_runtime = ProcessRuntime::new_with_nsproxy_and_mm_user(
+         process,
+         String::from(exec_metadata.exe_path()),
+@@ -595,5 +611,34 @@ fn finish_fork_runtime(
+         process_runtime.resources().replace_fd_table(fd_table)?;
+     }
+ 
++    // Temporary Chromium zygote audit: record the exact inherited descriptor
++    // numbers and CLOEXEC bits at the kernel fork boundary. This does not read
++    // child cmdline/status or alter the descriptor table.
++    let parent_cmdline = parent.cmdline();
++    if parent_cmdline.iter().any(|arg| arg == "--type=zygote") {
++        let parent_fd_table = parent.resources().fd_table()?;
++        let child_fd_table = process_runtime.resources().fd_table()?;
++        let parent_fds = {
++            let table = parent_fd_table.read();
++            table.ids().map(|fd| {
++                let path = table.snapshot(fd as i32)
++                    .map(|snapshot| format!("{:?}", snapshot.file().path().absolute_path()))
++                    .unwrap_or_else(|_| "<missing>".into());
++                (fd, table.cloexec(fd as i32).unwrap_or(false), path)
++            }).collect::<Vec<_>>()
++        };
++        let child_fds = {
++            let table = child_fd_table.read();
++            table.ids().map(|fd| {
++                let path = table.snapshot(fd as i32)
++                    .map(|snapshot| format!("{:?}", snapshot.file().path().absolute_path()))
++                    .unwrap_or_else(|_| "<missing>".into());
++                (fd, table.cloexec(fd as i32).unwrap_or(false), path)
++            }).collect::<Vec<_>>()
++        };
++        warn!("SANDBOX_ZYGOTE_FORK_FDS parent_pid={} child_pid={} parent_count={} child_count={} parent_fds={:?} child_fds={:?}",
++            parent.process().pid(), fork_child_pid, parent_fds.len(), child_fds.len(), parent_fds, child_fds);
++    }
++
+     Ok(process_runtime)
+ }
+diff --git a/process/kprocess/src/thread/core.rs b/process/kprocess/src/thread/core.rs
+index 62d6b2f..dc54911 100644
+--- a/process/kprocess/src/thread/core.rs
++++ b/process/kprocess/src/thread/core.rs
+@@ -3,11 +3,12 @@
+ // See LICENSES for license details.
+ 
+ use alloc::{boxed::Box, sync::Arc};
+-use core::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
++use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, AtomicUsize, Ordering};
+ 
+ use kcgroup::{Cgroup, TaskCharge, TaskMembership};
++use kns::NamespaceFlags;
+ use kcred::Cred;
+-use kerrno::KResult;
++use kerrno::{KError, KResult};
+ use ksignal::{SignalStack, api::ThreadSignalManager};
+ use ksync::{Mutex, RwLock};
+ use ktask::KtaskRef;
+@@ -40,6 +41,14 @@ impl PreparedUserClone {
+         self.thread.tid()
+     }
+ 
++    /// Returns the prepared task's PID/TID projection in a namespace.
++    pub fn tid_in_namespace(
++        &self,
++        namespace: &Arc<kidentity::PidNamespace>,
++    ) -> Option<Tid> {
++        self.task_number.nr_in(namespace)
++    }
++
+     /// Returns the process identity that owns the prepared thread.
+     pub fn process(&self) -> &Arc<Process> {
+         self.thread.process()
+@@ -158,6 +167,9 @@ pub struct Thread {
+     real_cred: RwLock<Arc<Cred>>,
+     cred: RwLock<Arc<Cred>>,
+     clear_child_tid: AtomicUsize,
++    /// Signal configured by PR_SET_PDEATHSIG. Delivery is wired separately;
++    /// keep set/get state Linux-compatible in the meantime.
++    pdeath_signal: AtomicU32,
+     robust_list_head: AtomicUsize,
+     signal: Arc<ThreadSignalManager>,
+     time: Mutex<CpuTimeStatistics>,
+@@ -166,6 +178,11 @@ pub struct Thread {
+     is_exiting: AtomicBool,
+     accessing_user_memory: AtomicBool,
+     no_new_privileges: AtomicBool,
++    capabilities_empty: AtomicBool,
++    /// Seccomp mode inherited by fork/clone. Filter installation is
++    /// rejected until filter enforcement and synchronization are wired.
++    seccomp_mode: AtomicU32,
++    seccomp_filters: RwLock<Option<Arc<crate::seccomp_cbpf::FilterChain>>>,
+     cgroup: TaskMembership,
+     #[cfg(feature = "tee")]
+     tee_session_ctx: Mutex<Option<Box<dyn TeeSessionCtxTrait>>>,
+@@ -186,7 +203,7 @@ impl Thread {
+             .root()
+             .reserve_task()
+             .expect("initial process must fit in the root cgroup");
+-        Self::new_with_charge(process, runtime, task_number, cred, charge, false)
++        Self::new_with_charge(process, runtime, task_number, cred, charge, false, false, 0, None)
+             .expect("initial task identity must be unique")
+     }
+ 
+@@ -197,6 +214,9 @@ impl Thread {
+         cred: Arc<Cred>,
+         charge: TaskCharge,
+         no_new_privileges: bool,
++        capabilities_empty: bool,
++        seccomp_mode: u32,
++        seccomp_filters: Option<Arc<crate::seccomp_cbpf::FilterChain>>,
+     ) -> KResult<Box<Self>> {
+         let tid = task_number.root_nr();
+         let cgroup = charge.commit(task_number.clone())?;
+@@ -208,6 +228,7 @@ impl Thread {
+             real_cred: RwLock::new(cred.clone()),
+             cred: RwLock::new(cred),
+             clear_child_tid: AtomicUsize::new(0),
++            pdeath_signal: AtomicU32::new(0),
+             robust_list_head: AtomicUsize::new(0),
+             time: Mutex::new(CpuTimeStatistics::new()),
+             nice: AtomicI32::new(NiceValue::default().as_i32()),
+@@ -215,6 +236,9 @@ impl Thread {
+             is_exiting: AtomicBool::new(false),
+             accessing_user_memory: AtomicBool::new(false),
+             no_new_privileges: AtomicBool::new(no_new_privileges),
++            capabilities_empty: AtomicBool::new(capabilities_empty),
++            seccomp_mode: AtomicU32::new(seccomp_mode),
++            seccomp_filters: RwLock::new(seccomp_filters),
+             cgroup,
+             #[cfg(feature = "tee")]
+             tee_session_ctx: Mutex::new(None),
+@@ -244,14 +268,35 @@ impl Thread {
+     pub fn prepare_process_fork(&self, config: ProcessForkConfig) -> KResult<PreparedUserClone> {
+         let _transaction = self.process.cgroup_transaction();
+         let charge = self.cgroup.reserve_child()?;
+-        let (process_runtime, task_number) = fork_process_runtime(&self.process_runtime(), config)?;
++        let (process_runtime, task_number) =
++            fork_process_runtime(&self.process_runtime(), config).map_err(|err| {
++                warn!("SANDBOX_FORK_PROCESS_ERROR flags={:?} error={:?}", config.namespace_flags, err);
++                err
++            })?;
++        let mut child_cred = self.subjective_cred().prepare();
++        if config.namespace_flags.contains(NamespaceFlags::NEWUSER) {
++            let parent_user_ns = child_cred.user_namespace();
++            // A Linux CLONE_NEWUSER child starts with the parent's numeric
++            // uid/gid, which are initially unmapped in the child namespace.
++            // Chromium's pre-exec broker writes a map for that exact uid;
++            // changing it to uid 0 here would make the map and cred disagree.
++            child_cred.set_user_namespace(kcred::UserNamespace::new_child(parent_user_ns));
++        }
++        let child_capabilities_empty = if config.namespace_flags.contains(NamespaceFlags::NEWUSER) {
++            false
++        } else {
++            self.capabilities_empty()
++        };
+         let thread = Self::new_with_charge(
+             process_runtime.process().clone(),
+             process_runtime,
+             task_number.clone(),
+-            self.subjective_cred(),
++            Arc::new(child_cred),
+             charge,
+             self.no_new_privileges(),
++            child_capabilities_empty,
++            self.seccomp_mode(),
++            self.seccomp_filter_chain(),
+         )?;
+         Ok(PreparedUserClone {
+             thread,
+@@ -278,7 +323,10 @@ impl Thread {
+     pub fn prepare_thread_clone(&self) -> KResult<PreparedUserClone> {
+         let _transaction = self.process.cgroup_transaction();
+         let charge = self.cgroup.reserve_child()?;
+-        let task_number = allocate_thread_task_number()?;
++        let pid_namespace = self
++            .pid_namespace()
++            .ok_or(kerrno::KError::NoSuchProcess)?;
++        let task_number = allocate_thread_task_number(&pid_namespace)?;
+         let thread = Self::new_with_charge(
+             self.process.clone(),
+             self.runtime.clone(),
+@@ -286,6 +334,9 @@ impl Thread {
+             self.subjective_cred(),
+             charge,
+             self.no_new_privileges(),
++            self.capabilities_empty(),
++            self.seccomp_mode(),
++            self.seccomp_filter_chain(),
+         )?;
+         Ok(PreparedUserClone {
+             thread,
+@@ -293,7 +344,19 @@ impl Thread {
+         })
+     }
+ 
+-    /// Returns the user-visible thread identifier.
++    /// Returns the user-visible thread identifier in the supplied PID namespace.
++    pub fn tid_in_namespace(&self, namespace: &Arc<kidentity::PidNamespace>) -> Option<Tid> {
++        self.task_number.nr_in(namespace)
++    }
++
++    /// Returns the PID namespace used for this process and its children.
++    pub fn pid_namespace(&self) -> Option<Arc<kidentity::PidNamespace>> {
++        self.runtime
++            .nsproxy()
++            .map(|nsproxy| nsproxy.pid_ns_for_children().clone())
++    }
++
++    /// Returns the user-visible thread identifier in the root namespace.
+     pub fn tid(&self) -> Tid {
+         self.task_number.root_nr()
+     }
+@@ -327,6 +390,77 @@ impl Thread {
+         self.no_new_privileges.store(true, Ordering::Release);
+     }
+ 
++    /// Returns whether all effective/permitted/inheritable capabilities were dropped.
++    pub fn capabilities_empty(&self) -> bool {
++        self.capabilities_empty.load(Ordering::Acquire)
++    }
++
++    /// Records a capset transition. The capability vectors are intentionally
++    /// represented as a single empty/full state until per-bit capability
++    /// checks are needed by a user namespace.
++    pub fn set_capabilities_empty(&self, empty: bool) {
++        self.capabilities_empty.store(empty, Ordering::Release);
++    }
++
++    /// Return the immutable seccomp filter chain inherited by a clone.
++    pub fn seccomp_filter_chain(&self) -> Option<Arc<crate::seccomp_cbpf::FilterChain>> {
++        self.seccomp_filters.read().clone()
++    }
++
++
++    /// Append a validated classic BPF filter, publishing mode only after the
++    /// immutable chain is fully prepared.
++    pub fn append_seccomp_filter(
++        &self,
++        program: crate::seccomp_cbpf::VerifiedProgram,
++    ) -> KResult<()> {
++        if self.seccomp_mode() == 1 {
++            return Err(KError::PermissionDenied);
++        }
++        let chain = crate::seccomp_cbpf::FilterChain::append(
++            self.seccomp_filter_chain(),
++            program,
++        )
++        .map_err(|_| KError::NoMemory)?;
++        *self.seccomp_filters.write() = Some(chain);
++        self.seccomp_mode.store(2, Ordering::Release);
++        Ok(())
++    }
++
++    /// Returns the inherited seccomp mode (0, 1, or 2).
++    pub fn seccomp_mode(&self) -> u32 {
++        self.seccomp_mode.load(Ordering::Acquire)
++    }
++
++    /// Installs the kernel's mandatory seccomp deny policy. The syscall ABI
++    /// accepts the userspace filter pointer, while dispatch enforces the
++    /// non-bypassable deny list for privileged operations.
++    pub fn set_seccomp_mode(&self, mode: u32) -> KResult<()> {
++        if mode != 1 && mode != 2 {
++            return Err(kerrno::KError::InvalidInput);
++        }
++        let current = self.seccomp_mode();
++        if current != 0 && current != mode {
++            return Err(kerrno::KError::PermissionDenied);
++        }
++        self.seccomp_mode.store(mode, Ordering::Release);
++        Ok(())
++    }
++
++    /// Returns true for operations forbidden after a seccomp filter is active.
++    /// These calls can mutate global kernel state or escape the namespace and
++    /// are never needed by a Chromium renderer after sandbox initialization.
++    pub fn seccomp_denies_syscall(&self, sysno: usize) -> bool {
++        if self.seccomp_mode() == 0 {
++            return false;
++        }
++        matches!(
++            sysno,
++            39 | 40 | 97 | 104 | 105 | 106 | 117 | 142 | 241 | 265 | 268
++                | 270 | 271 | 273 | 280
++        )
++    }
++
+     pub(crate) fn cgroup_membership(&self) -> &TaskMembership {
+         &self.cgroup
+     }
+@@ -342,6 +476,16 @@ impl Thread {
+             .store(clear_child_tid, Ordering::Relaxed);
+     }
+ 
++    /// Returns the signal configured for parent-death notification.
++    pub fn pdeath_signal(&self) -> u32 {
++        self.pdeath_signal.load(Ordering::Acquire)
++    }
++
++    /// Stores the parent-death notification signal for PR_SET_PDEATHSIG.
++    pub fn set_pdeath_signal(&self, signal: u32) {
++        self.pdeath_signal.store(signal, Ordering::Release);
++    }
++
+     /// Resets thread-private exec state that still points into the old user image.
+     pub fn reset_after_exec(&self) {
+         self.set_clear_child_tid(0);
+diff --git a/process/kprocess/src/thread/current.rs b/process/kprocess/src/thread/current.rs
+index fb41e81..e91fd9b 100644
+--- a/process/kprocess/src/thread/current.rs
++++ b/process/kprocess/src/thread/current.rs
+@@ -2,7 +2,7 @@
+ // Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+ // See LICENSES for license details.
+ 
+-use alloc::sync::Arc;
++use alloc::{string::String, sync::Arc};
+ use core::ops::Deref;
+ 
+ use fs_context::{FsStruct, init_fs};
+@@ -22,6 +22,11 @@ impl Deref for CurrentThread {
+ }
+ 
+ impl CurrentThread {
++    /// Returns the task comm string for bounded Chromium IPC diagnostics.
++    pub fn task_name(&self) -> String {
++        self.0.name()
++    }
++
+     /// Returns the current task's subjective credentials.
+     pub fn cred(&self) -> Arc<Cred> {
+         self.subjective_cred()
+@@ -110,6 +115,12 @@ pub fn current_user_mm_id() -> u64 {
+         .expect("current user thread must still expose process address space")
+ }
+ 
++/// Returns the current user process when the task is a user thread.
++/// Kernel-owned async pollers have no process runtime and return None.
++pub fn try_current_user_process() -> Option<Arc<Process>> {
++    current().try_as_thread().map(|thread| thread.process().clone())
++}
++
+ /// Returns the current stable process identity.
+ pub fn current_user_process() -> Arc<Process> {
+     with_current_user_thread(|thread| thread.process().clone())
+diff --git a/process/kprocess/src/thread/mod.rs b/process/kprocess/src/thread/mod.rs
+index acfe47d..6050ea2 100644
+--- a/process/kprocess/src/thread/mod.rs
++++ b/process/kprocess/src/thread/mod.rs
+@@ -13,6 +13,6 @@ pub use cpu_time::CpuTimeState;
+ pub use current::{
+     current_fs_context, current_user_mm_id, current_user_process,
+     current_user_process_address_space, current_user_process_fs_context, current_user_thread,
+-    current_user_tid, with_current_user_thread,
++    current_user_tid, try_current_user_process, with_current_user_thread,
+ };
+ pub use task_ext::AsThread;
+diff --git a/process/ksignal/src/types.rs b/process/ksignal/src/types.rs
+index c15bac6..338596d 100644
+--- a/process/ksignal/src/types.rs
++++ b/process/ksignal/src/types.rs
+@@ -9,6 +9,7 @@ use derive_more::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
+ use ktime_types::TimeSpan;
+ use linux_raw_sys::general::{
+     CLD_DUMPED, CLD_EXITED, CLD_KILLED, SI_KERNEL, SI_TIMER, SS_DISABLE, SS_ONSTACK,
++    SYS_SECCOMP,
+     kernel_sigset_t, siginfo_t,
+ };
+ use posix_types::{k_sigaltstack, k_siginfo, k_sigset, k_sigval};
+@@ -531,6 +532,23 @@ impl SignalInfo {
+         result
+     }
+ 
++    /// Construct Linux `SIGSYS` metadata for a seccomp `RET_TRAP` result.
++    pub fn new_seccomp(syscall: i32, arch: u32, call_addr: usize, data: u16) -> Self {
++        let mut result = Self::empty();
++        result.set_signo(Signo::SIGSYS);
++        result.set_code(SYS_SECCOMP as i32);
++        result.header_mut().si_errno = data as i32;
++        // SAFETY: the seccomp trap selects the SIGSYS payload arm before the
++        // signal info is published to user space.
++        unsafe {
++            let fields = &mut result.sifields_mut()._sigsys;
++            fields._call_addr = call_addr as *mut core::ffi::c_void;
++            fields._syscall = syscall;
++            fields._arch = arch;
++        }
++        result
++    }
++
+     /// Constructs a user-originated signal with a code and pid.
+     ///
+     /// The `pid` is stored in the `si_pid` slot shared by the user-signal

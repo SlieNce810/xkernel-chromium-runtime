@@ -1,0 +1,322 @@
+diff --git a/net/knet/src/unix/dgram.rs b/net/knet/src/unix/dgram.rs
+index cdbd69a..ea1b2f9 100644
+--- a/net/knet/src/unix/dgram.rs
++++ b/net/knet/src/unix/dgram.rs
+@@ -31,11 +31,13 @@ struct Datagram {
+ struct Channel {
+     tx: async_channel::Sender<Datagram>,
+     poll: Arc<PollSet>,
++    peer_write_shutdown: Arc<AtomicBool>,
+ }
+ 
+ pub struct Bind {
+     tx: async_channel::Sender<Datagram>,
+     poll: Arc<PollSet>,
++    write_shutdown: Arc<AtomicBool>,
+ }
+ impl Bind {
+     fn connect(&self) -> Channel {
+@@ -43,12 +45,19 @@ impl Bind {
+         Channel {
+             tx,
+             poll: self.poll.clone(),
++            peer_write_shutdown: self.write_shutdown.clone(),
+         }
+     }
+ }
+ 
+ pub struct DgramTransport {
+     rx: Mutex<Option<(async_channel::Receiver<Datagram>, Arc<PollSet>)>>,
++    // Preserve a packet tail when the VM I/O adapter exposes only a partial
++    // user-buffer window. This matters for SOCK_SEQPACKET messages larger than
++    // one page: a subsequent read must not silently lose the remainder.
++    pending: Mutex<Option<Datagram>>,
++    // Hold a packet observed with MSG_PEEK until a non-peek receive consumes it.
++    peeked: Mutex<Option<Datagram>>,
+     peer: RwLock<Option<Channel>>,
+     local_addr: RwLock<UnixAddr>,
+     bind_slot: Mutex<Option<Arc<Mutex<Option<Bind>>>>>,
+@@ -56,13 +65,15 @@ pub struct DgramTransport {
+     options: GeneralOptions,
+     pass_credentials: AtomicBool,
+     read_shutdown: AtomicBool,
+-    write_shutdown: AtomicBool,
++    write_shutdown: Arc<AtomicBool>,
+     pid: u32,
+ }
+ impl DgramTransport {
+     pub fn new(pid: u32) -> Self {
+         DgramTransport {
+             rx: Mutex::new(None),
++            pending: Mutex::new(None),
++            peeked: Mutex::new(None),
+             peer: RwLock::new(None),
+             local_addr: RwLock::new(UnixAddr::Unbound),
+             bind_slot: Mutex::new(None),
+@@ -70,7 +81,7 @@ impl DgramTransport {
+             options: GeneralOptions::default(),
+             pass_credentials: AtomicBool::new(false),
+             read_shutdown: AtomicBool::new(false),
+-            write_shutdown: AtomicBool::new(false),
++            write_shutdown: Arc::new(AtomicBool::new(false)),
+             pid,
+         }
+     }
+@@ -79,9 +90,12 @@ impl DgramTransport {
+         rx: (async_channel::Receiver<Datagram>, Arc<PollSet>),
+         peer: Channel,
+         pid: u32,
++        write_shutdown: Arc<AtomicBool>,
+     ) -> Self {
+         DgramTransport {
+             rx: Mutex::new(Some(rx)),
++            pending: Mutex::new(None),
++            peeked: Mutex::new(None),
+             peer: RwLock::new(Some(peer)),
+             local_addr: RwLock::new(UnixAddr::Unbound),
+             bind_slot: Mutex::new(None),
+@@ -89,7 +103,7 @@ impl DgramTransport {
+             options: GeneralOptions::default(),
+             pass_credentials: AtomicBool::new(false),
+             read_shutdown: AtomicBool::new(false),
+-            write_shutdown: AtomicBool::new(false),
++            write_shutdown,
+             pid,
+         }
+     }
+@@ -99,21 +113,27 @@ impl DgramTransport {
+         let (tx2, rx2) = async_channel::unbounded();
+         let poll1 = Arc::new(PollSet::new());
+         let poll2 = Arc::new(PollSet::new());
++        let write1 = Arc::new(AtomicBool::new(false));
++        let write2 = Arc::new(AtomicBool::new(false));
+         let transport1 = DgramTransport::new_connected(
+             (rx1, poll1.clone()),
+             Channel {
+                 tx: tx2,
+                 poll: poll2.clone(),
++                peer_write_shutdown: write2.clone(),
+             },
+             pid,
++            write1.clone(),
+         );
+         let transport2 = DgramTransport::new_connected(
+             (rx2, poll2.clone()),
+             Channel {
+                 tx: tx1,
+                 poll: poll1.clone(),
++                peer_write_shutdown: write1.clone(),
+             },
+             pid,
++            write2.clone(),
+         );
+         (transport1, transport2)
+     }
+@@ -175,6 +195,7 @@ impl UnixTransportOps for DgramTransport {
+         *slot = Some(Bind {
+             tx,
+             poll: poll.clone(),
++            write_shutdown: self.write_shutdown.clone(),
+         });
+         drop(slot);
+         *guard = Some((rx, poll));
+@@ -258,13 +279,35 @@ impl UnixTransportOps for DgramTransport {
+     }
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, mut options: RecvOptions) -> KResult<usize> {
++        let peek = options.flags.contains(RecvFlags::PEEK);
+         self.options.recv_poller(self, move || {
++            let peer_write_shutdown = self
++                .peer
++                .read()
++                .as_ref()
++                .is_some_and(|peer| peer.peer_write_shutdown.load(Ordering::Acquire));
+             if self.read_shutdown.load(Ordering::Acquire) {
+                 return Ok(0);
+             }
+-            let mut guard = self.rx.lock();
+-            let Some((rx, _)) = guard.as_mut() else {
+-                return Err(KError::NotConnected);
++            let packet = if let Some(packet) = self.pending.lock().take() {
++                packet
++            } else if let Some(packet) = self.peeked.lock().take() {
++                packet
++            } else {
++                let mut guard = self.rx.lock();
++                let Some((rx, _)) = guard.as_mut() else {
++                    return Err(KError::NotConnected);
++                };
++                match rx.try_recv() {
++                    Ok(packet) => packet,
++                    Err(TryRecvError::Empty) => {
++                        if peer_write_shutdown {
++                            return Ok(0);
++                        }
++                        return Err(KError::WouldBlock);
++                    }
++                    Err(TryRecvError::Closed) => return Ok(0),
++                }
+             };
+ 
+             let Datagram {
+@@ -272,18 +315,43 @@ impl UnixTransportOps for DgramTransport {
+                 ancillary,
+                 sender,
+                 sender_credentials,
+-            } = match rx.try_recv() {
+-                Ok(packet) => packet,
+-                Err(TryRecvError::Empty) => {
+-                    return Err(KError::WouldBlock);
++            } = packet;
++            let packet_len = data.len();
++            let mut count = 0;
++            while count < data.len() {
++                let written = dst.write(&data[count..])?;
++                if written == 0 {
++                    break;
+                 }
+-                Err(TryRecvError::Closed) => {
+-                    return Ok(0);
++                count += written;
++            }
++            if peek {
++                let sender_for_from = sender.clone();
++                self.peeked.lock().replace(Datagram {
++                    data,
++                    ancillary,
++                    sender,
++                    sender_credentials,
++                });
++                if let Some(from) = options.from.as_mut() {
++                    **from = SocketAddrEx::Unix(sender_for_from);
+                 }
+-            };
+-            let count = dst.write(&data)?;
+-            if count < data.len() {
+-                warn!("UDP message truncated: {} -> {} bytes", data.len(), count);
++                return Ok(if options.flags.contains(RecvFlags::TRUNCATE) {
++                    packet_len
++                } else {
++                    count
++                });
++            }
++            if count < data.len() && !options.flags.contains(RecvFlags::TRUNCATE) {
++                self.pending.lock().replace(Datagram {
++                    data: data[count..].to_vec(),
++                    ancillary: Vec::new(),
++                    sender: sender.clone(),
++                    sender_credentials: sender_credentials.clone(),
++                });
++            }
++            if count < packet_len {
++                warn!("UDP message truncated: {} -> {} bytes", packet_len, count);
+             }
+ 
+             if let Some(from) = options.from.as_mut() {
+@@ -299,7 +367,7 @@ impl UnixTransportOps for DgramTransport {
+             }
+ 
+             Ok(if options.flags.contains(RecvFlags::TRUNCATE) {
+-                data.len()
++                packet_len
+             } else {
+                 count
+             })
+@@ -322,7 +390,12 @@ impl UnixTransportOps for DgramTransport {
+ impl Pollable for DgramTransport {
+     fn poll(&self) -> IoEvents {
+         let mut events = IoEvents::OUT;
+-        if self.read_shutdown.load(Ordering::Acquire) {
++        let peer_write_shutdown = self
++            .peer
++            .read()
++            .as_ref()
++            .is_some_and(|peer| peer.peer_write_shutdown.load(Ordering::Acquire));
++        if self.read_shutdown.load(Ordering::Acquire) || peer_write_shutdown {
+             events.insert(IoEvents::IN);
+         } else if let Some((rx, _)) = self.rx.lock().as_ref() {
+             events.set(IoEvents::IN, !rx.is_empty());
+diff --git a/net/knet/src/unix/stream.rs b/net/knet/src/unix/stream.rs
+index df69922..7a70ea1 100644
+--- a/net/knet/src/unix/stream.rs
++++ b/net/knet/src/unix/stream.rs
+@@ -23,7 +23,7 @@ use self::{
+     listener::{ConnRequest, ListenerQueue},
+ };
+ use crate::{
+-    ConnectOptions, KernelAncillaryData, RecvOptions, SendOptions, Shutdown,
++    ConnectOptions, KernelAncillaryData, RecvFlags, RecvOptions, SendOptions, Shutdown,
+     general::GeneralOptions,
+     options::{Configurable, GetSocketOption, OptionHandled, SetSocketOption, UnixCredentials},
+     unix::{UnixAddr, UnixTransport, UnixTransportOps},
+@@ -324,6 +324,7 @@ impl UnixTransportOps for StreamTransport {
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, options: RecvOptions) -> KResult<usize> {
+         let is_zero_length = dst.remaining_mut() == 0;
++        let peek = options.flags.contains(RecvFlags::PEEK);
+         let mut ancillary_out = options.ancillary;
+         self.options
+             .recv_poller_with_nonblocking(self, options.flags.nonblocking(), || {
+@@ -342,35 +343,39 @@ impl UnixTransportOps for StreamTransport {
+                     if count >= left.len() {
+                         count += dst.write(right)?;
+                     }
+-                    // SAFETY: `count` is the sum of bytes copied out of the
+-                    // occupied slices returned by `as_slices`, so advancing by this
+-                    // amount stays within the consumer's readable region.
+-                    unsafe { chan.rx.advance_read_index(count) };
++                    if !peek {
++                        // SAFETY: `count` is the sum of bytes copied out of the
++                        // occupied slices returned by `as_slices`, so advancing by this
++                        // amount stays within the consumer's readable region.
++                        unsafe { chan.rx.advance_read_index(count) };
++                    }
+                     count
+                 };
+                 if count > 0 {
+-                    // Hand the peer's control messages to this read. Linux delivers
+-                    // a message's ancillary data with the first successful receive
+-                    // that consumes any of its bytes, so pop exactly one batch.
+-                    if let Some(mut received) = chan.incoming_ancillary.lock().pop_front() {
+-                        if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
+-                            received.retain(|item| {
+-                                !matches!(
+-                                    item.as_ref().downcast_ref::<KernelAncillaryData>(),
+-                                    Some(KernelAncillaryData::Credentials(_)),
+-                                )
+-                            });
++                    if !peek {
++                        // Hand the peer's control messages to this read. Linux delivers
++                        // a message's ancillary data with the first successful receive
++                        // that consumes any of its bytes, so pop exactly one batch.
++                        if let Some(mut received) = chan.incoming_ancillary.lock().pop_front() {
++                            if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
++                                received.retain(|item| {
++                                    !matches!(
++                                        item.as_ref().downcast_ref::<KernelAncillaryData>(),
++                                        Some(KernelAncillaryData::Credentials(_)),
++                                    )
++                                });
++                            }
++                            if let Some(out) = ancillary_out.as_mut() {
++                                out.append(&mut received);
++                            }
+                         }
+-                        if let Some(out) = ancillary_out.as_mut() {
+-                            out.append(&mut received);
++                        let occupied_after = occupied_before - count;
++                        if !channel::is_stream_writable(occupied_before)
++                            && channel::is_stream_writable(occupied_after)
++                        {
++                            chan.peer_endpoint.polls.writable.wake();
+                         }
+                     }
+-                    let occupied_after = occupied_before - count;
+-                    if !channel::is_stream_writable(occupied_before)
+-                        && channel::is_stream_writable(occupied_after)
+-                    {
+-                        chan.peer_endpoint.polls.writable.wake();
+-                    }
+                     return Ok(count);
+                 }
+                 {

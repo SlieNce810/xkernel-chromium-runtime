@@ -78,6 +78,22 @@ PKG_TARBALL="${PKG_TARBALL:-}"
 PAGE_DIR="${PAGE_DIR:-$(cd "$SRC_DIR/../testpage" && pwd)}"
 PAGE_FILES="${PAGE_FILES:-index.html interaction.html layout.html}"
 PAGE_URL="${PAGE_URL:-file:///usr/share/html-test/index.html}"
+# Use the competition page profile automatically for the official three-page
+# set. Callers can still override ASSERT_PROFILE explicitly for legacy or
+# diagnostic pages.
+if [ -z "${ASSERT_PROFILE:-}" ]; then
+    case "$PAGE_URL" in
+        *'/interaction.html'*) ASSERT_PROFILE=official-interaction ;;
+        *'/layout.html'*) ASSERT_PROFILE=official-layout ;;
+        *'/index.html'*) ASSERT_PROFILE=official-index ;;
+        *) ASSERT_PROFILE=legacy ;;
+    esac
+fi
+export ASSERT_PROFILE
+# 第二个页签的入口（E5 双页签用）。空 = 单页签，与历史轮次完全一致。
+# ⚠️ 必须**烘焙**进 autorun：宿主 env 不跨 QEMU 边界（report/75 的教训），
+#    只在宿主 export 是无效的。
+SECOND_URL="${SECOND_URL:-}"
 PAGE_HTML="${PAGE_HTML:-}"              # 已弃用：单文件模式，见文件头说明
 
 # ---- Ozone 运行期三元组（阶段 A）--------------------------------------- #
@@ -94,9 +110,66 @@ OBS_WINDOW="${OBS_WINDOW:-$(( DUR - 100 ))}"
 [ "$OBS_WINDOW" -ge 20 ] 2>/dev/null || OBS_WINDOW=20
 
 RUN_A0="${RUN_A0:-0}"                   # 1 = 开启 guest 内 A0 探针（默认关，见文件头说明）
-MP_TRACE_VALUE="${MP_TRACE_VALUE:-1}"   # 1 = guest strace diagnostics; 0 = normal run
+HEADLESS_SANDBOX_TRACE_VALUE="${HEADLESS_SANDBOX_TRACE_VALUE:-1}" # 0=skip broken guest strace probe
+HEADLESS_OVERLAY_VALUE="${HEADLESS_OVERLAY_VALUE:-0}" # 1=explicitly unpack /pkgs.tar.gz for headless diagnostics
+MP_TRACE_VALUE="${MP_TRACE_VALUE:-1}"   # 1 = guest narrow lifecycle trace; 0 = normal run
 MP_GL_VALUE="${MP_GL_VALUE:-angle}"     # angle or legacy Chromium GL selection
 MP_NET_VALUE="${MP_NET_VALUE:-normal}"   # normal or disable NetworkService feature
+MP_LEDGER_VALUE="${MP_LEDGER_VALUE:-1}"   # 1=deep procfs ledger, 0=lightweight lifecycle mode
+MP_EXTRACT_OVERLAY_VALUE="${MP_EXTRACT_OVERLAY_VALUE:-0}" # 1=explicitly unpack /pkgs.tar.gz
+MP_DATAPIPE_FIX_VALUE="${MP_DATAPIPE_FIX_VALUE:-0}" # 1=enable Chromium FixDataPipeTrapBug experiment
+MP_MOJO_LEGACY_VALUE="${MP_MOJO_LEGACY_VALUE:-0}" # 1=disable MemV2, 2=disable PosixUseWritev, 3=both
+MP_FD_DUMP_VALUE="${MP_FD_DUMP_VALUE:-0}" # 1=one-shot browser/renderer /proc fd snapshot
+# 帧探针轮的模式：mp=默认多进程（被测），single=单进程成功对照。
+# 之所以做成占位符而不是改脚本：两个模式必须**同一份 autorun**，差异只允许 argv。
+FRAME_MODE_VALUE="${FRAME_MODE_VALUE:-mp}"
+# profile 生命周期模式：new=每轮清空（历史行为），seed=本轮先跑一次 seed 建立目录
+# 再进入观测（P3/P4），reuse=保留既有目录（跨轮无效，仅当轮内目录已存在时有意义）。
+PROFILE_MODE_VALUE="${PROFILE_MODE_VALUE:-new}"
+# seed 阶段固定等待秒数。只给"建立 profile"用，不做任何渲染判断。
+SEED_HOLD_VALUE="${SEED_HOLD_VALUE:-45}"
+# profile 标识：只作标签写进标记，不改变路径（换路径会破坏与历史轮次的可比性）。
+PROFILE_ID_VALUE="${PROFILE_ID_VALUE:-$TAG}"
+# seed 阶段的进程模型。**刻意只允许 single**：seed 只负责建立 profile，不承担观测；
+# 让它跟随观测模型会把"seed 模型"变成混杂变量（P3 与 P4 就成了对角线）。
+# 要支持 mp seed，必须同时补 single→mp 与 mp→single 两个交叉轮，而不是放开这一个开关。
+PROFILE_SEED_MODE_VALUE="${PROFILE_SEED_MODE_VALUE:-single}"
+# 观测阶段在 launch 之后多久受控退出浏览器。默认 150 与历史一致；
+# 怀疑 trace 文件写入延迟时调大它（如 240），不要靠猜。
+TRACE_EXIT_AFTER_VALUE="${TRACE_EXIT_AFTER_VALUE:-150}"
+# trace 记录窗口长度（秒）。默认 45 与历史一致；要看 225 s 的转折必须放大。
+TRACE_DURATION_VALUE="${TRACE_DURATION_VALUE:-45}"
+# GPU 进程模型：默认**空**（与 p2 矩阵及所有已验证轮次的实际 argv 一致）。
+# ⚠️ 2026-11-06 修正：这里原为 "${GPU_FLAG_VALUE--in-process-gpu}"，少了一个横线。
+# 单横线不是 Chromium 开关，会被当成**位置参数**；实测三轮回调 ab-base01 /
+# ab-repro01 / ab-crash01 都在 145-150 s 以 SIGTRAP(133) 退出，去掉后
+# （ab-crash02）browser 活到 549 s 且白屏正常复现。所以默认必须为空，
+# 需要用 in-process GPU 时显式传 "--in-process-gpu"（双横线）。
+# 注意用 ${VAR-default} 而不是 ${VAR:-default}：空字符串是合法的"去掉该参数"。
+GPU_FLAG_VALUE="${GPU_FLAG_VALUE-}"
+# 追加任意 Chromium 开关，用于渲染路径 A/B。空值合法。
+EXTRA_FLAGS_VALUE="${EXTRA_FLAGS_VALUE-}"
+# Chromium executable inside the guest. The installed package remains the
+# default; an alternate absolute path is an explicit version-alignment A/B.
+CHROMIUM_BIN_VALUE="${CHROMIUM_BIN_VALUE:-/usr/lib/chromium/chromium}"
+# 分辨率：默认 1280x800（赛题口径）。降低它可判断"白屏是否与每帧数据量相关"。
+RES_W_VALUE="${RES_W_VALUE-1280}"
+RES_H_VALUE="${RES_H_VALUE-800}"
+# 1 = 让 Weston 打印服务端收到的 Wayland 协议消息（WAYLAND_DEBUG=server）。
+# 默认关：日志量随帧数线性增长（每帧多条），只在定位"compositor 收到 buffer 没有"时开。
+MP_WLDEBUG_VALUE="${MP_WLDEBUG_VALUE:-0}"
+# 追加到 --vmodule 的额外规则（形如 ",*render_process_host*=3"）。
+# 默认空字符串：默认行为必须与历史轮次逐字一致，否则可比性就没了。
+MP_VMODULE_EXTRA_VALUE="${MP_VMODULE_EXTRA_VALUE:-}"
+# 正式轮默认**不**给 Weston 传 --continue-without-input：那会把"没有真实输入设备"
+# 掩盖成"Weston 起来了"。只有做 A/B 对照时才允许显式打开。
+MP_WESTON_CONTINUE="${MP_WESTON_CONTINUE:-0}"
+WESTON_SHELL_VALUE="${WESTON_SHELL_VALUE:-none}"
+# guest 侧浏览器观察窗与尾部保留时间（秒）。默认按会话时长推算：留 150 s 给
+# guest 启动 + Weston + Chromium 起来，尾部 40 s 留给收尾截图。
+MP_MAX_SECONDS="${MP_MAX_SECONDS:-$(( DUR - 150 ))}"
+[ "$MP_MAX_SECONDS" -ge 60 ] 2>/dev/null || MP_MAX_SECONDS=60
+MP_HOLD_SECONDS="${MP_HOLD_SECONDS:-40}"
 SINGLE_HOLD_VALUE="${SINGLE_HOLD_VALUE:-600}"       # __SINGLE_HOLD_SECONDS__
 SINGLE_SAMPLE_VALUE="${SINGLE_SAMPLE_VALUE:-15}"     # __SINGLE_SAMPLE_SECONDS__
 
@@ -114,6 +187,16 @@ case "$GPU_MODEL" in
     in-process|separate) ;;
     *) echo "!! 非法 GPU_MODEL=$GPU_MODEL（允许 in-process|separate）"; exit 1 ;;
 esac
+case "$CHROMIUM_BIN_VALUE" in
+    /*) ;;
+    *) echo "!! CHROMIUM_BIN_VALUE 必须是绝对路径: $CHROMIUM_BIN_VALUE"; exit 1 ;;
+esac
+case "$CHROMIUM_BIN_VALUE" in
+    *' '*|*'|'*|*'"'*|*'`'*|*'\$'*)
+        echo "!! CHROMIUM_BIN_VALUE 含有未允许字符: $CHROMIUM_BIN_VALUE"
+        exit 1
+        ;;
+esac
 case "$OBS_WINDOW" in
     ''|*[!0-9]*) echo "!! 非法 OBS_WINDOW=$OBS_WINDOW（须为正整数秒）"; exit 1 ;;
 esac
@@ -126,12 +209,87 @@ case "$MP_TRACE_VALUE" in
     *) echo "!! 非法 MP_TRACE_VALUE=$MP_TRACE_VALUE（允许 0|1）"; exit 1 ;;
 esac
 case "$MP_GL_VALUE" in
-    angle|legacy) ;;
-    *) echo "!! 非法 MP_GL_VALUE=$MP_GL_VALUE（允许 angle|legacy）"; exit 1 ;;
+    # none = --disable-gpu 定位轮。autorun 里本来就有这个分支（并明确标注
+    # "不得写入功能验收结论"），但白名单一直没放行，导致 GL_MODE=none 永远跑不起来。
+    angle|legacy|none) ;;
+    *) echo "!! 非法 MP_GL_VALUE=$MP_GL_VALUE（允许 angle|legacy|none）"; exit 1 ;;
 esac
 case "$MP_NET_VALUE" in
     normal|disable) ;;
     *) echo "!! 非法 MP_NET_VALUE=$MP_NET_VALUE（允许 normal|disable）"; exit 1 ;;
+esac
+case "$FRAME_MODE_VALUE" in
+    mp|single) ;;
+    *) echo "!! 非法 FRAME_MODE_VALUE=$FRAME_MODE_VALUE（允许 mp|single）"; exit 1 ;;
+esac
+case "$PROFILE_MODE_VALUE" in
+    new|seed) ;;
+    reuse)
+        echo "!! PROFILE_MODE=reuse 已禁用：跨轮 reuse 恒等于 new（每轮从 BASE_IMG 重制磁盘），"
+        echo "   静默跑完会让报告无法判断这轮是 fresh 还是复用。需要'被用过的 profile'请用 seed。"
+        exit 1
+        ;;
+    *) echo "!! 非法 PROFILE_MODE_VALUE=$PROFILE_MODE_VALUE（允许 new|seed）"; exit 1 ;;
+esac
+case "$SEED_HOLD_VALUE" in
+    ''|*[!0-9]*) echo "!! 非法 SEED_HOLD_VALUE=$SEED_HOLD_VALUE（须为正整数秒）"; exit 1 ;;
+esac
+case "$TRACE_EXIT_AFTER_VALUE" in
+    ''|*[!0-9]*) echo "!! 非法 TRACE_EXIT_AFTER_VALUE=$TRACE_EXIT_AFTER_VALUE（须为正整数秒）"; exit 1 ;;
+esac
+case "$TRACE_DURATION_VALUE" in
+    ''|*[!0-9]*) echo "!! 非法 TRACE_DURATION_VALUE=$TRACE_DURATION_VALUE（须为正整数秒）"; exit 1 ;;
+esac
+case "$PROFILE_SEED_MODE_VALUE" in
+    single) ;;
+    *)
+        echo "!! PROFILE_SEED_MODE=$PROFILE_SEED_MODE_VALUE 被拒绝："
+        echo "   seed 统一 single 是当前四组对照的前提。要引入 mp seed，"
+        echo "   必须同时补 single→mp 与 mp→single 两个交叉轮（共六组），不是放开这个变量。"
+        exit 1
+        ;;
+esac
+case "$MP_LEDGER_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_LEDGER_VALUE=$MP_LEDGER_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_EXTRACT_OVERLAY_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_EXTRACT_OVERLAY_VALUE=$MP_EXTRACT_OVERLAY_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$HEADLESS_OVERLAY_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 HEADLESS_OVERLAY_VALUE=$HEADLESS_OVERLAY_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_DATAPIPE_FIX_VALUE" in
+    0) MP_DATAPIPE_FIX_FLAG_VALUE="" ;;
+    1) MP_DATAPIPE_FIX_FLAG_VALUE="--enable-features=FixDataPipeTrapBug" ;;
+    *) echo "!! 非法 MP_DATAPIPE_FIX_VALUE=$MP_DATAPIPE_FIX_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_MOJO_LEGACY_VALUE" in
+    0) MP_MOJO_LEGACY_FEATURE_VALUE="" ;;
+    1) MP_MOJO_LEGACY_FEATURE_VALUE=",MojoIpczMemV2" ;;
+    2) MP_MOJO_LEGACY_FEATURE_VALUE=",MojoPosixUseWritev" ;;
+    3) MP_MOJO_LEGACY_FEATURE_VALUE=",MojoIpczMemV2,MojoPosixUseWritev" ;;
+    *) echo "!! 非法 MP_MOJO_LEGACY_VALUE=$MP_MOJO_LEGACY_VALUE（允许 0|1|2|3）"; exit 1 ;;
+esac
+case "$MP_FD_DUMP_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_FD_DUMP_VALUE=$MP_FD_DUMP_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_WESTON_CONTINUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_WESTON_CONTINUE=$MP_WESTON_CONTINUE（允许 0|1）"; exit 1 ;;
+esac
+case "$WESTON_SHELL_VALUE" in
+    none|kiosk) ;;
+    *) echo "!! 非法 WESTON_SHELL_VALUE=$WESTON_SHELL_VALUE（允许 none|kiosk）"; exit 1 ;;
+esac
+case "$MP_MAX_SECONDS" in
+    ''|*[!0-9]*) echo "!! 非法 MP_MAX_SECONDS=$MP_MAX_SECONDS（须为正整数秒）"; exit 1 ;;
+esac
+case "$MP_HOLD_SECONDS" in
+    ''|*[!0-9]*) echo "!! 非法 MP_HOLD_SECONDS=$MP_HOLD_SECONDS（须为正整数秒）"; exit 1 ;;
 esac
 case "$SINGLE_HOLD_VALUE" in
     ''|*[!0-9]*) echo "!! 非法 SINGLE_HOLD_VALUE=$SINGLE_HOLD_VALUE"; exit 1 ;;
@@ -148,6 +306,16 @@ esac
 case "$PAGE_URL" in
     *..*) echo "!! 非法 PAGE_URL（含 .. 路径回溯）: $PAGE_URL"; exit 1 ;;
 esac
+# SECOND_URL 走同一套白名单（它同样会进 guest 命令行）。
+if [ -n "$SECOND_URL" ]; then
+    case "$SECOND_URL" in
+        *..*) echo "!! 非法 SECOND_URL（含 .. 路径回溯）: $SECOND_URL"; exit 1 ;;
+    esac
+    case "$SECOND_URL" in
+        file:///usr/share/html-test/*.html) ;;
+        *) echo "!! 非法 SECOND_URL=$SECOND_URL（须形如 file:///usr/share/html-test/<page>.html）"; exit 1 ;;
+    esac
+fi
 case "$PAGE_URL" in
     file:///usr/share/html-test/*.html|file:///usr/share/html-test/*.html\?e2e=1) ;;
     *) echo "!! 非法 PAGE_URL=$PAGE_URL（须形如 file:///usr/share/html-test/<page>.html[?e2e=1]）"; exit 1 ;;
@@ -191,23 +359,44 @@ if ! flock -n 9; then
 fi
 echo "=== 已取得工作镜像互斥锁: $LOCKF ==="
 
+# 并发 QEMU 门禁：只把"引用本镜像的 QEMU"判成冲突。
+#
+# 为什么不再广谱拦截：这道门的原意是"改镜像前必须先停"（避免两个会话同时写
+# disk.img）。宿主机上可能有跑别的实验的 QEMU（例如 riscv64 -nographic 的
+# RustSBI/OS 实验），它们不碰这张镜像，拦下来只会让人去 kill 别人的进程。
+# 现在的判据是 cmdline 里出现 BASE_IMG 或 agentos；其他 QEMU 只登记不拦，
+# 因为它们会抢 CPU，必须在证据里留痕（TCG 下会拖慢 guest，影响时序口径）。
 QEMU_FOUND=0
+QEMU_OTHER=0
 for p in /proc/[0-9]*; do
     pid="${p#/proc/}"
     exe="$(readlink -f "$p/exe" 2>/dev/null)" || continue
     case "${exe##*/}" in
         qemu-system-*)
-            QEMU_FOUND=1
-            echo "   qemu pid=$pid exe=$exe"
-            echo "        cmdline=$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null | cut -c1-180)"
+            cmdline="$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null)"
+            case "$cmdline" in
+                *"$BASE_IMG"*|*agentos*)
+                    QEMU_FOUND=1
+                    echo "   CONFLICT qemu pid=$pid exe=$exe"
+                    echo "        cmdline=$(printf '%s' "$cmdline" | cut -c1-180)"
+                    ;;
+                *)
+                    QEMU_OTHER=$((QEMU_OTHER + 1))
+                    echo "   OTHER_QEMU pid=$pid exe=$exe（不引用本镜像，仅登记 CPU 竞争）"
+                    echo "        cmdline=$(printf '%s' "$cmdline" | cut -c1-160)"
+                    ;;
+            esac
             ;;
     esac
 done
 if [ "$QEMU_FOUND" -eq 1 ]; then
-    echo "!! 检测到运行中的 QEMU（见上，按 /proc/<pid>/exe 判定）—— 改镜像前必须先停"
+    echo "!! 检测到正在使用本镜像的 QEMU（见上）—— 改镜像前必须先停"
     exit 1
 fi
-echo "=== 无运行中的 QEMU 会话 ==="
+if [ "$QEMU_OTHER" -gt 0 ]; then
+    echo "=== 另有 $QEMU_OTHER 个不相关 QEMU 在跑：不拦，但登记 CPU 竞争 ==="
+fi
+echo "=== 无运行中的 QEMU 会话（本镜像） ==="
 [ -f "$BASE_IMG" ] || { echo "!! 基础镜像不存在: $BASE_IMG"; exit 1; }
 [ -f "$SRC_DIR/$AUTORUN" ] || { echo "!! autorun 不存在: $SRC_DIR/$AUTORUN"; exit 1; }
 
@@ -225,7 +414,7 @@ if [ -d "$EVID" ]; then
     exit 1
 fi
 echo "=== 证据目录（本轮将新建）: $EVID ==="
-echo "=== 三元组: oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE ==="
+echo "=== 三元组: oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE mpweston=$MP_WESTON_CONTINUE mpwin=$MP_MAX_SECONDS ==="
 
 # ---------------------------------------------------------------- 1. 换镜像
 cp -f "$BASE_IMG" disk.img
@@ -267,7 +456,10 @@ for p in $PROBES; do
             name="$name.so"
             ;;
         *)
-            $MUSL_GCC -static -O2 -Wall -Wextra -pthread -o "/tmp/$name" "$SRC_DIR/$p" \
+            # -no-pie：musl-gcc 默认产出 static-pie（ET_DYN + 自重定位），
+            # 而 xkernel 是否支持 PIE 加载从未验证过。探针必须是基础 ET_EXEC，
+            # 否则"加载器不支持 PIE"会被误读成"探针跑完但全 SKIP"。
+            $MUSL_GCC -static -no-pie -O2 -Wall -Wextra -pthread -o "/tmp/$name" "$SRC_DIR/$p" \
                 || { echo "!! 编译失败: $p"; exit 1; }
             ;;
     esac
@@ -285,11 +477,37 @@ tr -d "\r" < "$SRC_DIR/$AUTORUN" \
         -e "s|__GPU_MODEL__|$GPU_MODEL|g" \
         -e "s|__OBS_WINDOW__|$OBS_WINDOW|g" \
         -e "s|__RUN_A0__|$RUN_A0|g" \
+        -e "s|__HEADLESS_SANDBOX_TRACE__|$HEADLESS_SANDBOX_TRACE_VALUE|g" \
+        -e "s|__HEADLESS_OVERLAY__|$HEADLESS_OVERLAY_VALUE|g" \
         -e "s|__MP_TRACE__|$MP_TRACE_VALUE|g" \
         -e "s|__MP_GL__|$MP_GL_VALUE|g" \
         -e "s|__MP_NET__|$MP_NET_VALUE|g" \
+        -e "s|__MP_LEDGER__|$MP_LEDGER_VALUE|g" \
+        -e "s|__MP_EXTRACT_OVERLAY__|$MP_EXTRACT_OVERLAY_VALUE|g" \
+        -e "s|__MP_DATAPIPE_FIX__|$MP_DATAPIPE_FIX_FLAG_VALUE|g" \
+        -e "s|__MP_MOJO_LEGACY__|$MP_MOJO_LEGACY_FEATURE_VALUE|g" \
+        -e "s|__MP_FD_DUMP__|$MP_FD_DUMP_VALUE|g" \
+        -e "s|__FRAME_MODE__|$FRAME_MODE_VALUE|g" \
+        -e "s|__PROFILE_MODE__|$PROFILE_MODE_VALUE|g" \
+        -e "s|__SEED_HOLD__|$SEED_HOLD_VALUE|g" \
+        -e "s|__PROFILE_ID__|$PROFILE_ID_VALUE|g" \
+        -e "s|__PROFILE_SEED_MODE__|$PROFILE_SEED_MODE_VALUE|g" \
+        -e "s|__TRACE_EXIT_AFTER__|$TRACE_EXIT_AFTER_VALUE|g" \
+        -e "s|__TRACE_DURATION__|$TRACE_DURATION_VALUE|g" \
+        -e "s|__GPU_FLAG__|$GPU_FLAG_VALUE|g" \
+        -e "s|__EXTRA_FLAGS__|$EXTRA_FLAGS_VALUE|g" \
+        -e "s|__RES_W__|$RES_W_VALUE|g" \
+        -e "s|__RES_H__|$RES_H_VALUE|g" \
+        -e "s|__MP_WESTON_CONTINUE__|$MP_WESTON_CONTINUE|g" \
+        -e "s|__WESTON_SHELL__|$WESTON_SHELL_VALUE|g" \
+        -e "s|__MP_MAX_SECONDS__|$MP_MAX_SECONDS|g" \
+        -e "s|__MP_HOLD_SECONDS__|$MP_HOLD_SECONDS|g" \
+        -e "s|__MP_WLDEBUG__|$MP_WLDEBUG_VALUE|g" \
+        -e "s|__MP_VMODULE_EXTRA__|$MP_VMODULE_EXTRA_VALUE|g" \
         -e "s|__SINGLE_HOLD_SECONDS__|$SINGLE_HOLD_VALUE|g" \
-        -e "s|__SINGLE_SAMPLE_SECONDS__|$SINGLE_SAMPLE_VALUE|g" > /tmp/autorun_inj.sh
+        -e "s|__SINGLE_SAMPLE_SECONDS__|$SINGLE_SAMPLE_VALUE|g" \
+        -e "s|__SECOND_URL__|$SECOND_URL|g" \
+        -e "s|__CHROMIUM_BIN__|$CHROMIUM_BIN_VALUE|g" > /tmp/autorun_inj.sh
 [ -s /tmp/autorun_inj.sh ] || { echo "!! autorun 生成为空"; exit 1; }
 # ⚠️ 正则必须含数字：占位符名里出现过 A0 这类带数字的（__RUN_A0__），
 #    用 '__[A-Z_]+__' 会漏检，导致未替换的占位符被当合法取值传进 chromium。
@@ -298,10 +516,30 @@ if grep -nE '__[A-Za-z0-9_]+__' /tmp/autorun_inj.sh; then
     exit 1
 fi
 chmod +x /tmp/autorun_inj.sh
+
+# ------------------------------------------------- 3a. trace 参数一致性硬断言
+# 为什么必须硬失败而不是记一行日志：
+#   历史 12 轮里出现 MP_TRACE_VALUE=0 却仍带 --trace-startup 的组合。原因是
+#   "--trace-startup" 走 __EXTRA_FLAGS__ 注入，而 TRACE_MODE 当时只控制 strace，
+#   两个语义共用一个变量名。后果是"干净 baseline"其实一直在 tracing 下跑，
+#   而 --trace-startup-duration=45 只覆盖 0-45s，白屏发生在 286-406s，等于零覆盖。
+#   这类轮次看起来 PASS/FAIL 都有，实际不可用于任何结论，所以在启动 QEMU 前杀掉。
+# 只看非注释行：模板注释里本来就会提到这些参数名，不能算泄漏。
+if [ "$MP_TRACE_VALUE" = "0" ]; then
+    TRACE_LEAK=$(grep -vE '^[[:space:]]*#' /tmp/autorun_inj.sh \
+        | grep -nE -- '--trace-startup(=|-duration=|-format=|-file=)' | head -3)
+    if [ -n "$TRACE_LEAK" ]; then
+        echo "!! TRACE_MODE=0 但注入后的脚本含 --trace-startup，拒绝启动 QEMU"
+        echo "$TRACE_LEAK"
+        echo "!! 干净 baseline 必须用源模板（不带 trace flags），不能用 prepare_frame_trace 生成的变体"
+        exit 1
+    fi
+fi
+
 echo "--- autorun 行数 ---"
 wc -l /tmp/autorun_inj.sh
 echo "--- 注入后三元组落点自证 ---"
-grep -nE "^OZ_PLATFORM=|^GL_VARIANT=|^GPU_MODEL=|^OBS_WINDOW=|^RUN_A0=" /tmp/autorun_inj.sh
+grep -nE "^OZ_PLATFORM=|^GL_VARIANT=|^GPU_MODEL=|^OBS_WINDOW=|^RUN_A0=|^WESTON_CONTINUE_WITHOUT_INPUT=|^MAX_SECONDS=|^HOLD_SECONDS=" /tmp/autorun_inj.sh
 
 # ---------------------------------------------------------------- 3b. 页面入口烘焙
 # 为什么不直接改 13 个 autorun 源文件里的启动 URL：那是一条"改一处漏一处"的老路
@@ -424,9 +662,10 @@ fi
 
 # ---------------------------------------------------------------- 6. 会话
 echo "=== 会话 tag=$TAG duration=$DUR interval=$IVL ==="
-echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE ==="
+echo "=== 三元组 oz=$OZ_PLATFORM gl=$GL_VARIANT gpu=$GPU_MODEL win=$OBS_WINDOW a0=$RUN_A0 trace=$MP_TRACE_VALUE mpgl=$MP_GL_VALUE net=$MP_NET_VALUE mpweston=$MP_WESTON_CONTINUE mpwin=$MP_MAX_SECONDS ==="
 bash "$SRC_DIR/run_session_t490.sh" "$TAG" "$DUR" "$IVL"
-echo "SESSION_RC=$?"
+SESSION_RC=$?
+echo "SESSION_RC=$SESSION_RC"
 
 # 页面溯源入证据目录：会话跑完后 EVID 已由 run-session.py 建好，把注入自证清单
 # 一并归档，这样"这一轮到底加载了哪几页、哪一页是入口、sha256 是多少"可独立复核。
@@ -452,6 +691,9 @@ if [ -d "$EVID" ]; then
         echo "--- 基础镜像 ---"
         echo "BASE_IMG     $BASE_IMG"
         sha256sum "$BASE_IMG" 2>/dev/null
+        echo "--- 用户态 overlay ---"
+        echo "PKG_TARBALL  ${PKG_TARBALL:-<none>}"
+        [ -z "$PKG_TARBALL" ] || sha256sum "$PKG_TARBALL" 2>/dev/null
         echo "--- 页面集 ---"
         echo "PAGE_DIR     $PAGE_DIR   PAGE_URL=$PAGE_URL"
         for f in $PAGE_FILES; do sha256sum "$PAGE_DIR/$f" 2>/dev/null; done
@@ -465,7 +707,7 @@ if [ -d "$EVID" ]; then
             # 本脚本自身不 source platform.env（会话脚本才 source），
             # 这里在子 shell 里 source 一次只为记录**派生后的**真实取值。
             # shellcheck disable=SC1090
-            ( . "$SRC_DIR/platform.env"; echo "PLAT_MAKE_ARGS=$PLAT_MAKE_ARGS" )
+            ( . "$SRC_DIR/platform.env"; echo "PLAT_MAKE_ARGS=$PLAT_MAKE_ARGS"; echo "PLAT_QEMU_ARGS=$PLAT_QEMU_ARGS" )
         fi
     } > "$EVID/build-manifest.txt" 2>&1
     echo "=== 本轮指纹已归档: $EVID/build-manifest.txt ==="
@@ -473,3 +715,6 @@ fi
 
 echo "ROUND_DONE tag=$TAG"
 echo "EVIDENCE=$EVID"
+# A session or strict pixel failure must reach the caller.  Keeping the manifest
+# archive above is intentional, but it must not turn a failed round into rc=0.
+exit "${SESSION_RC:-1}"

@@ -9,6 +9,12 @@ Weston 14（DRM/pixman）图形会话 + 单进程 Chromium 渲染组委会指定
 同步完成内核 Linux 兼容性修复（8 项缺口、17 个补丁候选、上游 MR !831 已合并）、
 可复现的性能测量方法与 400+ 轮归档证据。
 
+## 2026-11-17 决赛验收状态
+
+**浏览器功能：20/20 已有严格仓库验收记录**，使用 Chromium 149 默认 Browser → Zygote → Renderer、Wayland 和真实 QMP/HMP 输入；记录条件为 guest 4 GiB，见 [report/284](report/284-默认多进程真实键鼠与决赛20分闭环-20261117.md)。正式平台复验采用 `scripts/t490/platform.env` 的默认 2 GiB；2 GiB 第一轮首页冷启动已通过，strict 首帧在 481 秒出现，见 [report/287](report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md)。另外两轮、30 分钟/10 次重载和其余功能复验仍待完成。
+
+性能采集器会拒绝缺少同钟生命周期事件或 RSS/PSS/USS 进程树样本的 run；当前 kernel 工作树仍 dirty，尚无可用于 before/after 的有效四指标样本。统一复现入口和剩余门禁见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
+
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
 
 | 维度 | 结果 | 归档证据 |

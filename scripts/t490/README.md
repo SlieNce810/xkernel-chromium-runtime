@@ -102,6 +102,8 @@ ssh mo@T490 'grep -E "VERDICT|drmGet|Output |ERROR" ~/xk6/evidence/*/console.log
 |---|---|---|
 | **platform** | `platform.env` | **★ 平台参数单一真源**：赛题第七节(一)1/2/3 的全部取值 + 第八节参考资料链接。改 QEMU 参数只改这里 |
 | | `t490_platform_check.sh` | **★ 平台合规预检**：把第七节逐条变成 35 项 `[PASS]/[FAIL]` 断言，产出 `platform-check.txt`；`RC=0` 才算 `PLATFORM_COMPLIANT` |
+| | `ensure_swap.sh` | T490 宿主 swap 前置：默认确保 12 GiB 名义容量，记录 `swapon --show`/`free -h`；只缓解 TCG/构建内存压力，不计入浏览器得分 |
+| | `ipc_endpoint_report.py` | 按 zygote fork fd、socketpair/inode 和 child/browser peer IPC 关联 renderer bootstrap；区分 fd 复用与真实 endpoint 活动 |
 | **setup** | `probe_t490.sh` | 环境体检（工具/网络/sudo/磁盘） |
 | | `prepare_t490.sh` | 用户级装齐依赖：QEMU 10.2.1（`apt-get download`+`dpkg -x`，绕 sudo）、rust 1.95.0 + 双 target、musl、clone 仓库 |
 | | `push_musl_from_wsl.sh` | **musl.cc 在 T490 不可达** → 从 WSL 传 `aarch64-linux-musl-cross.tgz` |

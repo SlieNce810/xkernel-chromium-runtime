@@ -17,11 +17,22 @@ IMG="$HOME/x-kernel/disk.img"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
 mkdir -p "$OUT"
 
-for _ in $(seq 1 20); do
-    pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1 || break
+image_qemu_running() {
+    for proc in /proc/[0-9]*; do
+        [ -r "$proc/cmdline" ] || continue
+        exe=$(readlink -f "$proc/exe" 2>/dev/null || true)
+        case "${exe##*/}" in qemu-system-*) ;; *) continue ;; esac
+        cmdline=$(tr '\0' ' ' < "$proc/cmdline" 2>/dev/null || true)
+        case "$cmdline" in *"$IMG"*) return 0 ;; esac
+    done
+    return 1
+}
+
+for _ in $(seq 1 60); do
+    image_qemu_running || break
     sleep 1
 done
-if pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1; then
+if image_qemu_running; then
     echo "!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停"
     exit 1
 fi

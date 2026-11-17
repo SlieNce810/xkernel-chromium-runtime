@@ -1,0 +1,61 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-11-16T11:42:15.438
+hostname         : mo-ThinkPad-T490
+os               : Linux-7.0.0-42-generic-x86_64-with-glibc2.43
+guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+git_cwd          : /home/mo/x-kernel
+os_pretty        : Ubuntu 26.04.1 LTS
+machine          : x86_64
+host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+cpu_logical      : 8
+mem_total        : 14.7 GiB
+qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+git_describe     : basic-baseline-20260922-11-gb73e581-dirty
+git_commit       : b73e5814087c9d33c5f0a35b66cc56be689d3dee
+disk_free        : 163.0 GiB (/home/mo/x-kernel)
+
+--- 本次会话 ---
+out_dir          : /home/mo/xk6/evidence/2026-11-16_t490-input-mp-jitless
+cwd              : /home/mo/x-kernel
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=4g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1 -qmp unix:/tmp/xk6-qmp-input-mp-jitless.sock,server=on,wait=off'
+duration_sec     : 1500.0
+interval_sec     : 120.0
+actual_sec       : 1504.2
+screendumps      : 10 / 10 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt (含字面 qemu-system-aarch64 命令行)
+
+--- 赛题第七节 平台合规 ---
+platform_check   : PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+detail_file      : platform-compliance.txt
+guest_arch       : aarch64 (七(一)1)
+accel            : 无 -accel（纯 TCG，七(一)2）
+device_combo     : virtio-gpu-pci + virtio-input(keyboard/mouse) + virtio-blk + virtio-net (七(一)3)
+evidence_shots   : QEMU monitor screendump（七(一)3 唯一认可的截图方式）
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+e=0 group=1[m
+[m
+[37m[1502.308645 0:4250 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=4250 parent=4248 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[1502.329164 3:4251 ksyscall::dispatch:907] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[1502.331182 3:4251 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=4251 code=0 group=1[m
+[m[37m[1502.544362 2:349 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/stat" flags=0o2400000[m
+[m[37m[1502.633417 3:4251 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=4251 parent=4248 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[1502.634804 1:4248 ksyscall::dispatch:907] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[1502.652337 1:4248 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=4248 code=0 group=1[m
+[m[37m[1502.685736 1:4248 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=4248 parent=5 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[1502.688106 2:5 ksyscall::dispatch:580] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[1502.688605 2:5 ksyscall::task::clone:350] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[1502.697361 2:5 ksyscall::task::clone:454] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(4252)[m
+[mQEMU: Terminated
+
