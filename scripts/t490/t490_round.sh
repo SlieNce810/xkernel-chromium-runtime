@@ -116,6 +116,7 @@ MP_TRACE_VALUE="${MP_TRACE_VALUE:-1}"   # 1 = guest narrow lifecycle trace; 0 = 
 MP_GL_VALUE="${MP_GL_VALUE:-angle}"     # angle or legacy Chromium GL selection
 MP_NET_VALUE="${MP_NET_VALUE:-normal}"   # normal or disable NetworkService feature
 MP_LEDGER_VALUE="${MP_LEDGER_VALUE:-1}"   # 1=deep procfs ledger, 0=lightweight lifecycle mode
+MP_FAMILY_DIAGNOSTICS_VALUE="${MP_FAMILY_DIAGNOSTICS:-0}" # 1=log omitted family candidates in guest
 MP_EXTRACT_OVERLAY_VALUE="${MP_EXTRACT_OVERLAY_VALUE:-0}" # 1=explicitly unpack /pkgs.tar.gz
 MP_DATAPIPE_FIX_VALUE="${MP_DATAPIPE_FIX_VALUE:-0}" # 1=enable Chromium FixDataPipeTrapBug experiment
 MP_MOJO_LEGACY_VALUE="${MP_MOJO_LEGACY_VALUE:-0}" # 1=disable MemV2, 2=disable PosixUseWritev, 3=both
@@ -252,6 +253,10 @@ esac
 case "$MP_LEDGER_VALUE" in
     0|1) ;;
     *) echo "!! 非法 MP_LEDGER_VALUE=$MP_LEDGER_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_FAMILY_DIAGNOSTICS_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_FAMILY_DIAGNOSTICS_VALUE=$MP_FAMILY_DIAGNOSTICS_VALUE（允许 0|1）"; exit 1 ;;
 esac
 case "$MP_EXTRACT_OVERLAY_VALUE" in
     0|1) ;;
@@ -483,6 +488,7 @@ tr -d "\r" < "$SRC_DIR/$AUTORUN" \
         -e "s|__MP_GL__|$MP_GL_VALUE|g" \
         -e "s|__MP_NET__|$MP_NET_VALUE|g" \
         -e "s|__MP_LEDGER__|$MP_LEDGER_VALUE|g" \
+        -e "s|__MP_FAMILY_DIAGNOSTICS__|$MP_FAMILY_DIAGNOSTICS_VALUE|g" \
         -e "s|__MP_EXTRACT_OVERLAY__|$MP_EXTRACT_OVERLAY_VALUE|g" \
         -e "s|__MP_DATAPIPE_FIX__|$MP_DATAPIPE_FIX_FLAG_VALUE|g" \
         -e "s|__MP_MOJO_LEGACY__|$MP_MOJO_LEGACY_FEATURE_VALUE|g" \

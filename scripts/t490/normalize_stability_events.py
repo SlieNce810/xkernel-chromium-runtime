@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Normalize only empty family rows caused by MP_FAMILY_COUNT markers.
+"""Normalize only empty in-hold family rows caused by MP_FAMILY_COUNT markers.
 
 An actual MP_FAMILY snapshot with missing Browser/Zygote/Renderer roles is
 evidence of an incomplete process-family observation. It invalidates earlier
 snapshots for later liveness checks and must never be replaced with stale PIDs.
+Liveness samples before the first strict page or after monitor_end are outside
+the measured stability window and are preserved without grading.
 """
 
 from __future__ import annotations
@@ -30,6 +32,17 @@ def normalize_rows(
     latest_family: dict[str, Any] | None = None
     latest_family_t_ns = -1
     latest_family_event_id = ""
+    ready_rows = [row for row in rows if row.get("event") == "page_ready"]
+    end_rows = [row for row in rows if row.get("event") == "monitor_end"]
+    hold_window: tuple[int, int] | None = None
+    if len(ready_rows) == 1 and len(end_rows) == 1:
+        try:
+            hold_start_ns = int(ready_rows[0].get("t_ns", -1))
+            hold_end_ns = int(end_rows[0].get("t_ns", -1))
+        except (TypeError, ValueError):
+            hold_start_ns = hold_end_ns = -1
+        if 0 <= hold_start_ns < hold_end_ns:
+            hold_window = (hold_start_ns, hold_end_ns)
 
     for line_no, original in enumerate(rows, 1):
         row = copy.deepcopy(original)
@@ -69,6 +82,14 @@ def normalize_rows(
                 latest_family_event_id = str(row.get("event_id", ""))
 
         if row.get("event") == "host_liveness":
+            if hold_window is not None:
+                try:
+                    liveness_t_ns = int(row.get("t_ns", -1))
+                except (TypeError, ValueError):
+                    liveness_t_ns = -1
+                if not hold_window[0] <= liveness_t_ns <= hold_window[1]:
+                    normalized.append(row)
+                    continue
             family = row.get("guest_family")
             roles = family.get("roles", []) if isinstance(family, dict) else []
             family_age = row.get("guest_family_age_s")

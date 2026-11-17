@@ -156,6 +156,40 @@ class NormalizeStabilityEventTests(unittest.TestCase):
         self.assertIn("incomplete non-empty", summary["errors"][0])
         self.assertEqual(normalized[-1]["guest_family"], partial_family)
 
+    def test_pre_page_liveness_is_outside_the_measured_hold_window(self) -> None:
+        rows = [
+            family_snapshot(1, 10_000_000_000),
+            event(
+                2,
+                15_000_000_000,
+                "host_liveness",
+                guest_watchdog={"weston": "yes", "chrome": "yes"},
+                guest_family={"n": 2, "roles": ["browser", "browser_child"], "members": []},
+                guest_family_age_s=1.0,
+            ),
+            event(3, 20_000_000_000, "page_ready"),
+            family_snapshot(4, 25_000_000_000),
+            event(
+                5,
+                30_000_000_000,
+                "host_liveness",
+                guest_watchdog={"weston": "yes", "chrome": "yes"},
+                guest_family={
+                    "n": 3,
+                    "roles": ["browser", "browser_child", "zygote_child"],
+                    "members": [{"pid": 70, "kind": "browser"}],
+                },
+                guest_family_age_s=5.0,
+            ),
+            event(6, 40_000_000_000, "monitor_end"),
+        ]
+
+        normalized, summary = normalize_rows(rows)
+
+        self.assertEqual(summary["result"], "PASS")
+        self.assertEqual(summary["repaired_liveness_count"], 0)
+        self.assertEqual(normalized[1]["guest_family"]["roles"], ["browser", "browser_child"])
+
     def test_valid_fresh_family_is_preserved(self) -> None:
         family = {
             "n": 3,

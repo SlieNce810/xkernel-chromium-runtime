@@ -150,10 +150,12 @@ class ProcessStructureGateTests(unittest.TestCase):
     def test_stability_light_observer_emits_browser_zygote_renderer_family_roles(self) -> None:
         observer = Path(__file__).with_name("autorun_mp_score_observe6.sh")
         runner = Path(__file__).with_name("run_stability_round_mp.sh")
+        round_script = Path(__file__).with_name("t490_round.sh")
         observer_source = observer.read_text(encoding="utf-8")
         self.assertIn("--js-flags=--jitless", observer_source)
         self.assertIn("--ipc-connection-timeout=600", observer_source)
         runner_source = runner.read_text(encoding="utf-8")
+        round_source = round_script.read_text(encoding="utf-8")
 
         self.assertIn('stability_family_add "$BROWSER_PID" browser', observer_source)
         self.assertIn('stability_family_add "$zygote_pid" browser_child', observer_source)
@@ -164,6 +166,9 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('proc_start_ms "$pid"', observer_source)
         self.assertIn("family_diagnostic_skip", observer_source)
         self.assertIn("MP_FAMILY_SKIP", observer_source)
+        self.assertIn("MP_FAMILY_DIAGNOSTICS=__MP_FAMILY_DIAGNOSTICS__", observer_source)
+        self.assertIn("__MP_FAMILY_DIAGNOSTICS__|$MP_FAMILY_DIAGNOSTICS_VALUE", round_source)
+        self.assertIn("MP_FAMILY_DIAGNOSTICS_VALUE", round_source)
         self.assertIn('MP_LEDGER_VALUE=0', runner_source)
         self.assertIn('MP_SAMPLE_SECONDS=5', runner_source)
         self.assertIn('MP_FAMILY_DIAGNOSTICS="${MP_FAMILY_DIAGNOSTICS:-0}"', runner_source)
