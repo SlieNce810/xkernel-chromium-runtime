@@ -44,7 +44,15 @@ class NormalizeStabilityEventTests(unittest.TestCase):
     def test_empty_count_marker_is_repaired_from_fresh_family_snapshot(self) -> None:
         rows = [
             family_snapshot(1, 10_000_000_000),
-            event(2, 20_000_000_000, "guest_process_snapshot", n=0, roles=[], members=[]),
+            event(
+                2,
+                20_000_000_000,
+                "guest_process_snapshot",
+                n=0,
+                roles=[],
+                members=[],
+                raw="[mpdiag] MP_FAMILY_COUNT=18",
+            ),
             event(
                 3,
                 22_000_000_000,
@@ -86,6 +94,67 @@ class NormalizeStabilityEventTests(unittest.TestCase):
         self.assertEqual(summary["result"], "FAIL")
         self.assertIn("no fresh non-empty", summary["errors"][0])
         self.assertEqual(normalized[-1]["guest_family"]["roles"], [])
+
+    def test_incomplete_real_snapshot_blocks_repair_from_older_complete_snapshot(self) -> None:
+        partial = event(
+            2,
+            20_000_000_000,
+            "guest_process_snapshot",
+            n=3,
+            roles=["browser", "browser_child"],
+            members=[
+                {"pid": 70, "kind": "browser", "state": "S", "threads": 38},
+                {"pid": 171, "kind": "browser_child", "state": "S", "threads": 1},
+            ],
+            raw="[mpdiag] MP_FAMILY label=123 n=3 70:browser/S/38 171:browser_child/S/1",
+        )
+        rows = [
+            family_snapshot(1, 10_000_000_000),
+            partial,
+            event(
+                3,
+                22_000_000_000,
+                "host_liveness",
+                guest_watchdog={"weston": "yes", "chrome": "yes"},
+                guest_family={"n": 0, "roles": [], "members": []},
+                guest_family_age_s=1.0,
+            ),
+        ]
+
+        normalized, summary = normalize_rows(rows)
+
+        self.assertEqual(summary["result"], "FAIL")
+        self.assertEqual(summary["repaired_liveness_count"], 0)
+        self.assertIn("no fresh non-empty", summary["errors"][0])
+        self.assertEqual(normalized[-1]["guest_family"]["roles"], [])
+
+    def test_partial_liveness_family_is_never_replaced_with_complete_history(self) -> None:
+        partial_family = {
+            "n": 2,
+            "roles": ["browser", "browser_child"],
+            "members": [
+                {"pid": 70, "kind": "browser", "state": "S", "threads": 38},
+                {"pid": 171, "kind": "browser_child", "state": "S", "threads": 1},
+            ],
+        }
+        rows = [
+            family_snapshot(1, 10_000_000_000),
+            event(
+                2,
+                12_000_000_000,
+                "host_liveness",
+                guest_watchdog={"weston": "yes", "chrome": "yes"},
+                guest_family=partial_family,
+                guest_family_age_s=2.0,
+            ),
+        ]
+
+        normalized, summary = normalize_rows(rows)
+
+        self.assertEqual(summary["result"], "FAIL")
+        self.assertEqual(summary["repaired_liveness_count"], 0)
+        self.assertIn("incomplete non-empty", summary["errors"][0])
+        self.assertEqual(normalized[-1]["guest_family"], partial_family)
 
     def test_valid_fresh_family_is_preserved(self) -> None:
         family = {

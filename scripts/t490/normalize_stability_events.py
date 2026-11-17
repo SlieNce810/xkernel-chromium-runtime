@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""Repair empty stability family samples from the preceding live family line.
+"""Normalize only empty family rows caused by MP_FAMILY_COUNT markers.
 
-The guest console can emit both a detailed MP_FAMILY snapshot and a shorter
-MP_FAMILY_COUNT marker. Older drivers accepted both markers and sometimes
-replaced the latest usable family snapshot with an empty one. This rewriter
-keeps every source event and repairs only host_liveness rows whose family is
-empty, using the most recent non-empty snapshot within the gate's freshness
-window. It never invents a process or a PID.
+An actual MP_FAMILY snapshot with missing Browser/Zygote/Renderer roles is
+evidence of an incomplete process-family observation. It invalidates earlier
+snapshots for later liveness checks and must never be replaced with stale PIDs.
 """
 
 from __future__ import annotations
@@ -41,11 +38,16 @@ def normalize_rows(
         if row.get("event") == "guest_process_snapshot":
             family = row.get("roles")
             members = row.get("members")
+            raw_snapshot = row.get("raw")
             try:
                 family_t_ns = int(row.get("t_ns", -1))
             except (TypeError, ValueError):
                 family_t_ns = -1
-            if (
+            is_count_marker = isinstance(raw_snapshot, str) and "MP_FAMILY_COUNT=" in raw_snapshot
+            if is_count_marker:
+                # This legacy marker carries a process count, not a family tree.
+                pass
+            elif (
                 isinstance(family, list)
                 and REQUIRED_FAMILY_ROLES.issubset(set(family))
                 and isinstance(members, list)
@@ -57,6 +59,12 @@ def normalize_rows(
                     "roles": family,
                     "n": int(row.get("n", len(members))),
                 }
+                latest_family_t_ns = family_t_ns
+                latest_family_event_id = str(row.get("event_id", ""))
+            else:
+                # A real but incomplete snapshot supersedes any older complete
+                # one. Never carry old renderer PIDs across this observation.
+                latest_family = None
                 latest_family_t_ns = family_t_ns
                 latest_family_event_id = str(row.get("event_id", ""))
 
@@ -74,6 +82,18 @@ def normalize_rows(
                 and current_age_s <= 35.0
             )
             if not current_is_usable:
+                empty_family = (
+                    isinstance(family, dict)
+                    and family.get("roles") == []
+                    and family.get("members") == []
+                    and family.get("n") == 0
+                )
+                if not empty_family:
+                    errors.append(
+                        f"line {line_no}: liveness contains an incomplete non-empty family snapshot"
+                    )
+                    normalized.append(row)
+                    continue
                 try:
                     host_t_ns = int(row.get("t_ns", -1))
                 except (TypeError, ValueError):

@@ -162,8 +162,12 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn("PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen", observer_source)
         self.assertIn("family_watchdog_elapsed", observer_source)
         self.assertIn('proc_start_ms "$pid"', observer_source)
+        self.assertIn("family_diagnostic_skip", observer_source)
+        self.assertIn("MP_FAMILY_SKIP", observer_source)
         self.assertIn('MP_LEDGER_VALUE=0', runner_source)
         self.assertIn('MP_SAMPLE_SECONDS=5', runner_source)
+        self.assertIn('MP_FAMILY_DIAGNOSTICS="${MP_FAMILY_DIAGNOSTICS:-0}"', runner_source)
+        self.assertIn("STABILITY_GATE_SKIPPED", runner_source)
         self.assertIn('STABILITY_AUTORUN=autorun_mp_score_observe6.sh', runner_source)
 
 

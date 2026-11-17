@@ -27,6 +27,7 @@ Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 10-second family watchdog.
+Set MP_FAMILY_DIAGNOSTICS=1 to log why candidate process PIDs are omitted from a family snapshot.
 Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead; reload checks use 5 seconds.
 EOF
     exit 0
@@ -58,6 +59,7 @@ MP_SAMPLE_SECONDS=5 \
 MP_MAX_SECONDS="${MP_MAX_SECONDS:-$((DUR - 200))}" \
 MP_HOLD_SECONDS=40 \
 MP_WESTON_CONTINUE=0 \
+MP_FAMILY_DIAGNOSTICS="${MP_FAMILY_DIAGNOSTICS:-0}" \
 ASSERT_PROFILE=official-index \
 STRICT_GATE=0 \
 FIRST_SHOT=240 \
@@ -129,6 +131,9 @@ if [ "$NORMALIZER_RC" -eq 0 ] && [ -d "$EVID" ]; then
         --profile official-index \
         > "$EVID/stability-gate.log" 2>&1
     GATE_RC=$?
+elif [ -d "$EVID" ]; then
+    printf 'STABILITY_GATE_SKIPPED: normalization rc=%s; see stability-event-normalization.log\n' \
+        "$NORMALIZER_RC" > "$EVID/stability-gate.log"
 fi
 
 printf 'STABILITY_DRIVER_RC=%s\nSTABILITY_ROUND_RC=%s\nSTABILITY_NORMALIZER_RC=%s\nSTABILITY_GATE_RC=%s\n' \

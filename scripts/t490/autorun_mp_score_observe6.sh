@@ -458,13 +458,27 @@ watchdog() {
 
 stability_family_snapshot() {
     [ -s "$PROCESS_FAMILY_SEEN" ] || return 0
+    stability_label=$(mono_ms)
     stability_live_zygotes=" "
     while read -r role pid ppid start_ms; do
         [ "$role" = "zygote" ] || continue
         [ "$ppid" = "$BROWSER_PID" ] || continue
-        [ -d "/proc/$pid" ] || continue
-        [ "$(proc_start_ms "$pid")" = "$start_ms" ] || continue
-        [ "$(proc_ppid "$pid")" = "$BROWSER_PID" ] || continue
+        if [ ! -d "/proc/$pid" ]; then
+            family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" proc_missing "$start_ms" "" ""
+            continue
+        fi
+        stability_actual_start=$(proc_start_ms "$pid")
+        if [ "$stability_actual_start" != "$start_ms" ]; then
+            family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" starttime_mismatch \
+                "$start_ms" "$stability_actual_start" "$(proc_ppid "$pid")"
+            continue
+        fi
+        stability_actual_ppid=$(proc_ppid "$pid")
+        if [ "$stability_actual_ppid" != "$BROWSER_PID" ]; then
+            family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" ppid_mismatch \
+                "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
+            continue
+        fi
         stability_live_zygotes="$stability_live_zygotes$pid "
     done < "$PROCESS_FAMILY_SEEN"
 
@@ -477,16 +491,32 @@ stability_family_snapshot() {
                 stability_kind=browser_child
                 ;;
             renderer)
-                case "$stability_live_zygotes" in *" $ppid "*) ;; *) continue ;; esac
+                case "$stability_live_zygotes" in
+                    *" $ppid "*) ;;
+                    *) family_diagnostic_skip "$role" "$pid" "$ppid" zygote_parent_not_live "$start_ms" "" ""; continue ;;
+                esac
                 stability_kind=zygote_child
                 ;;
             *)
                 continue
                 ;;
         esac
-        [ -d "/proc/$pid" ] || continue
-        [ "$(proc_start_ms "$pid")" = "$start_ms" ] || continue
-        [ "$(proc_ppid "$pid")" = "$ppid" ] || continue
+        if [ ! -d "/proc/$pid" ]; then
+            family_diagnostic_skip "$role" "$pid" "$ppid" proc_missing "$start_ms" "" ""
+            continue
+        fi
+        stability_actual_start=$(proc_start_ms "$pid")
+        if [ "$stability_actual_start" != "$start_ms" ]; then
+            family_diagnostic_skip "$role" "$pid" "$ppid" starttime_mismatch \
+                "$start_ms" "$stability_actual_start" "$(proc_ppid "$pid")"
+            continue
+        fi
+        stability_actual_ppid=$(proc_ppid "$pid")
+        if [ "$stability_actual_ppid" != "$ppid" ]; then
+            family_diagnostic_skip "$role" "$pid" "$ppid" ppid_mismatch \
+                "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
+            continue
+        fi
         set -- $(proc_state_threads "$pid")
         stability_state=$1
         stability_threads=$2
@@ -496,8 +526,13 @@ stability_family_snapshot() {
         stability_n=$((stability_n + 1))
         stability_members="$stability_members $pid:$stability_kind/$stability_state/$stability_threads"
     done < "$PROCESS_FAMILY_SEEN"
-    stability_label=$(mono_ms)
     echo "[mpdiag] MP_FAMILY label=$stability_label n=$stability_n$stability_members" \
+        > /dev/console 2>/dev/null || true
+}
+
+family_diagnostic_skip() {
+    [ "${MP_FAMILY_DIAGNOSTICS:-0}" = "1" ] || return 0
+    echo "[mpdiag] MP_FAMILY_SKIP label=$stability_label role=$1 pid=$2 expected_ppid=$3 reason=$4 expected_start_ms=$5 actual_start_ms=$6 actual_ppid=$7" \
         > /dev/console 2>/dev/null || true
 }
 
