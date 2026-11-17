@@ -103,6 +103,17 @@ def normalize_rows(
                 and current_age_s <= 35.0
             )
             if not current_is_usable:
+                has_complete_roles = (
+                    isinstance(roles, list)
+                    and REQUIRED_FAMILY_ROLES.issubset(set(roles))
+                )
+                if has_complete_roles:
+                    errors.append(
+                        f"line {line_no}: complete family snapshot is stale "
+                        f"(age_s={current_age_s:.3f}, limit_s=35)"
+                    )
+                    normalized.append(row)
+                    continue
                 empty_family = (
                     isinstance(family, dict)
                     and family.get("roles") == []

@@ -26,7 +26,7 @@ Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interva
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
-The default observer uses lightweight process events at 5-second samples and an independent 10-second family watchdog.
+The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Set MP_FAMILY_DIAGNOSTICS=1 to log why candidate process PIDs are omitted from a family snapshot.
 Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead; reload checks use 5 seconds.
 EOF

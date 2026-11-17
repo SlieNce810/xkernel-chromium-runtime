@@ -95,6 +95,31 @@ class NormalizeStabilityEventTests(unittest.TestCase):
         self.assertIn("no fresh non-empty", summary["errors"][0])
         self.assertEqual(normalized[-1]["guest_family"]["roles"], [])
 
+    def test_complete_but_stale_liveness_family_is_reported_as_stale(self) -> None:
+        family = {
+            "n": 3,
+            "roles": ["browser", "browser_child", "zygote_child"],
+            "members": [{"pid": 70, "kind": "browser", "state": "S", "threads": 38}],
+        }
+        rows = [
+            family_snapshot(1, 10_000_000_000),
+            event(
+                2,
+                50_000_000_000,
+                "host_liveness",
+                guest_watchdog={"weston": "yes", "chrome": "yes"},
+                guest_family=family,
+                guest_family_age_s=40.0,
+            ),
+        ]
+
+        normalized, summary = normalize_rows(rows)
+
+        self.assertEqual(summary["result"], "FAIL")
+        self.assertEqual(summary["repaired_liveness_count"], 0)
+        self.assertIn("complete family snapshot is stale", summary["errors"][0])
+        self.assertEqual(normalized[-1]["guest_family"], family)
+
     def test_incomplete_real_snapshot_blocks_repair_from_older_complete_snapshot(self) -> None:
         partial = event(
             2,

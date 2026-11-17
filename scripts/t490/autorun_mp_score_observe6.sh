@@ -449,7 +449,7 @@ watchdog() {
         [ -n "${BROWSER_PID:-}" ] && [ -d "/proc/$BROWSER_PID" ] && c=yes
         echo "[mpdiag] MP_WATCHDOG uptime_s=$up weston=$w chrome=$c memfree_kb=$mf" > /dev/console 2>/dev/null
         family_watchdog_elapsed=$((family_watchdog_elapsed + 2))
-        if [ "$family_watchdog_elapsed" -ge 10 ]; then
+        if [ "$family_watchdog_elapsed" -ge 4 ]; then
             stability_family_snapshot
             family_watchdog_elapsed=0
         fi

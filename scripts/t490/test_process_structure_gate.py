@@ -164,6 +164,7 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('MP_FAMILY_WATCHDOG label=$stability_label', observer_source)
         self.assertIn("PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen", observer_source)
         self.assertIn("family_watchdog_elapsed", observer_source)
+        self.assertIn('[ "$family_watchdog_elapsed" -ge 4 ]', observer_source)
         self.assertIn('proc_start_ms "$pid"', observer_source)
         self.assertIn("family_diagnostic_skip", observer_source)
         self.assertIn("MP_FAMILY_SKIP", observer_source)
