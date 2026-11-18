@@ -50,6 +50,7 @@ Usage: run_input_final.sh [tag] [duration] [interval]
   EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
   INTERACTION_POINTER_MODE=step1|step3 selects a slower relative-pointer calibration.
   INTERACTION_COUNTER_TARGET=x,y and INTERACTION_NAV_TARGET=x,y override relative movement requests.
+  INTERACTION_COUNTER_RETRY_TARGETS='x,y;x,y' tries ordered real-click targets until the counter ROI changes.
   These are HMP move inputs after the off-screen reset, not absolute screen coordinates.
   Pointer mode defaults to historical HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.

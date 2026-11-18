@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 from typing import Mapping
 
-from interaction_score_gate import pixel_diff
+from interaction_score_gate import mouse_counter_diff, pixel_diff
 from qmp_input import QmpClient, click_at, type_text
 
 
@@ -89,6 +89,75 @@ def pointer_targets_from_env(
 
     return (parse("INTERACTION_COUNTER_TARGET", defaults[0]),
             parse("INTERACTION_NAV_TARGET", defaults[1]))
+
+
+def counter_retry_targets_from_env(env: Mapping[str, str]) -> tuple[tuple[int, int], ...]:
+    """Parse optional ordered retry requests, written as ``x,y;x,y``."""
+    raw = env.get("INTERACTION_COUNTER_RETRY_TARGETS", "").strip()
+    if not raw:
+        return ()
+    targets: list[tuple[int, int]] = []
+    for index, item in enumerate(raw.split(";"), 1):
+        parts = item.split(",")
+        if len(parts) != 2:
+            raise ValueError(
+                f"INTERACTION_COUNTER_RETRY_TARGETS item {index} must be x,y"
+            )
+        try:
+            x, y = (int(part.strip()) for part in parts)
+        except ValueError as exc:
+            raise ValueError(
+                f"INTERACTION_COUNTER_RETRY_TARGETS item {index} must contain integers"
+            ) from exc
+        if not all(0 <= value <= 4096 for value in (x, y)):
+            raise ValueError(
+                f"INTERACTION_COUNTER_RETRY_TARGETS item {index} must be in 0..4096"
+            )
+        targets.append((x, y))
+    return tuple(targets)
+
+
+def click_counter_with_retries(
+    c: QmpClient,
+    *,
+    pointer_click,
+    initial_target: tuple[int, int],
+    retry_targets: tuple[tuple[int, int], ...],
+    baseline: Path,
+    after_path: Path,
+    shot_dir: Path,
+) -> tuple[bool, int]:
+    """Try real pointer requests until the rendered counter ROI changes.
+
+    Every request is a fresh relative HMP path and two real button presses. A
+    screenshot is checked against the same pre-click frame before another
+    request is sent; the first passing frame becomes ``after_path``.
+    """
+    targets = (initial_target, *retry_targets)
+    last_shot: Path | None = None
+    for attempt, (x, y) in enumerate(targets, 1):
+        label = f"real-click-plus-one-attempt-{attempt}"
+        pointer_click(x, y, label, count=2)
+        time.sleep(2.0)
+        candidate = shot_dir / f"counter-attempt-{attempt}.ppm"
+        c.screendump(candidate)
+        passed, detail = mouse_counter_diff(candidate, baseline)
+        c._record("checkpoint", {
+            "name": "mouse-counter-attempt",
+            "attempt": attempt,
+            "x": x,
+            "y": y,
+            "screenshot": candidate.name,
+            "pass": passed,
+            "detail": detail,
+        })
+        last_shot = candidate
+        if passed:
+            candidate.replace(after_path)
+            return True, attempt
+    if last_shot is not None:
+        last_shot.replace(after_path)
+    return False, len(targets)
 
 
 def main() -> int:
@@ -196,9 +265,21 @@ def main() -> int:
                                       "settle_seconds": args.scroll_settle})
         c.screendump(args.shot_dir / "after-scroll.ppm")
         counter_target, nav_target = pointer_targets(pointer_mode)
-        pointer_click(*counter_target, "real-click-plus-one", count=2)
-        time.sleep(2.0)
-        c.screendump(args.shot_dir / "after-mouse-click.ppm")
+        retry_targets = counter_retry_targets_from_env(os.environ)
+        counter_pass, counter_attempts = click_counter_with_retries(
+            c,
+            pointer_click=pointer_click,
+            initial_target=counter_target,
+            retry_targets=retry_targets,
+            baseline=args.shot_dir / "after-scroll.ppm",
+            after_path=args.shot_dir / "after-mouse-click.ppm",
+            shot_dir=args.shot_dir,
+        )
+        c._record("checkpoint", {
+            "name": "mouse-counter-summary",
+            "pass": counter_pass,
+            "attempts": counter_attempts,
+        })
 
         pointer_click(*nav_target, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)

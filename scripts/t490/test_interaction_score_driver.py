@@ -4,9 +4,16 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from interaction_score_driver import click_step, pointer_targets_from_env
+from interaction_score_driver import (
+    click_counter_with_retries,
+    click_step,
+    counter_retry_targets_from_env,
+    pointer_targets_from_env,
+)
 
 
 class RecordingClient:
@@ -14,6 +21,7 @@ class RecordingClient:
         self.moves: list[tuple[str, int]] = []
         self.clicks = 0
         self.records: list[tuple[str, dict[str, object]]] = []
+        self.shots = 0
 
     def relative(self, axis: str, value: int) -> None:
         self.moves.append((axis, value))
@@ -23,6 +31,10 @@ class RecordingClient:
 
     def _record(self, kind: str, value: dict[str, object]) -> None:
         self.records.append((kind, value))
+
+    def screendump(self, path: Path) -> None:
+        self.shots += 1
+        path.write_text(f"screenshot-{self.shots}", encoding="utf-8")
 
 
 class ClickStepTests(unittest.TestCase):
@@ -75,6 +87,46 @@ class PointerTargetTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 pointer_targets_from_env(
                     "step3", {"INTERACTION_COUNTER_TARGET": value})
+
+    def test_counter_retry_targets_are_ordered_and_validated(self) -> None:
+        self.assertEqual(((350, 710), (150, 522)),
+                         counter_retry_targets_from_env(
+                             {"INTERACTION_COUNTER_RETRY_TARGETS":
+                              "350,710; 150,522"}))
+        with self.assertRaises(ValueError):
+            counter_retry_targets_from_env(
+                {"INTERACTION_COUNTER_RETRY_TARGETS": "1,2;bad"})
+
+    def test_counter_click_stops_on_first_screenshot_roi_pass(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            client = RecordingClient()
+            attempted: list[tuple[int, int]] = []
+
+            def record_click(x, y, _label, count=1):
+                self.assertEqual(2, count)
+                attempted.append((x, y))
+
+            with patch("interaction_score_driver.mouse_counter_diff",
+                          side_effect=[(False, "no counter change"),
+                                       (True, "counter changed")]), \
+                    patch("interaction_score_driver.time.sleep"):
+                passed, attempts = click_counter_with_retries(
+                    client, pointer_click=record_click,
+                    initial_target=(250, 540),
+                    retry_targets=((350, 710),), baseline=root / "baseline.ppm",
+                    after_path=root / "after-mouse-click.ppm", shot_dir=root,
+                    )
+
+            self.assertTrue(passed)
+            self.assertEqual(2, attempts)
+            self.assertEqual([(250, 540), (350, 710)], attempted)
+            self.assertEqual("screenshot-2",
+                             (root / "after-mouse-click.ppm").read_text(encoding="utf-8"))
+            self.assertTrue((root / "counter-attempt-1.ppm").is_file())
+            self.assertFalse((root / "counter-attempt-2.ppm").exists())
+            self.assertEqual("mouse-counter-attempt", client.records[-1][1]["name"])
+            self.assertEqual(2, client.records[-1][1]["attempt"])
 
     def test_step1_and_step4_keep_separate_calibrations(self) -> None:
         self.assertEqual(((281, 674), (350, 710)),
