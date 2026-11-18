@@ -1,0 +1,7 @@
+T490 post-fix preflight on 2026-11-18:
+bash -n run_input_final.sh run_javascript_round_mp.sh: PASS
+run_input_final.sh --help; run_javascript_round_mp.sh --help; qmp_input.py --help: PASS
+FORCE_HMP=1 ABS_POINTER=1 run_input_final.sh ...: rejected before startup with exit 2.
+QEMU process check: no qemu-system-aarch64 was running.
+T490 script hashes: run_input_final.sh d19be765a7d7c1ca3cb6d1850686c5d536777212e07384707200fdb1a934da5d; run_javascript_round_mp.sh a7925dffb1d49dac0a05af1502b1e91795dde85eddaff8fd559c1b19ee0908b8; qmp_input.py c2dcadb9c5c53fd856a4da1d64bc46e97fed56dd2a3e00b8d3075b37aea9a3b6.
+The final-acceptance input stage dry-run showed FORCE_HMP=1, ABS_POINTER=0, NO_CLAMP=1; no QEMU was launched. This is a configuration/preflight record, not an input pass.

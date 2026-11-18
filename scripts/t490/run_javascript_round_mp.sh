@@ -22,6 +22,9 @@ fi
 
 MULTIPROCESS=1 \
 INPUT_MODE=kbd \
+FORCE_HMP=1 \
+ABS_POINTER=0 \
+NO_CLAMP=1 \
 SELFTEST_ONLY=1 \
 KBD_ECHO=0 \
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}" \

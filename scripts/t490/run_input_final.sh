@@ -17,6 +17,15 @@ DUR="${2:-900}"
 IVL="${3:-60}"
 INPUT_MODE="${INPUT_MODE:-pointer}"   # pointer | kbd
 MULTIPROCESS="${MULTIPROCESS:-0}"
+# The competition platform exposes virtio-mouse-pci, a relative device.  QMP
+# input-send-event abs is unsupported there; use the previously validated HMP
+# mouse path and QMP send-key for keyboard events.  Set FORCE_HMP=0 and
+# ABS_POINTER=1 only for a session that actually attaches an absolute tablet.
+FORCE_HMP="${FORCE_HMP:-1}"
+ABS_POINTER="${ABS_POINTER:-0}"
+NO_CLAMP_DEFAULT=1
+[ "$ABS_POINTER" = "1" ] && NO_CLAMP_DEFAULT=0
+NO_CLAMP="${NO_CLAMP:-$NO_CLAMP_DEFAULT}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-${TAG}.sock}"
 CDP_PORT="${CDP_PORT:-61006}"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
@@ -37,10 +46,27 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
 Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
+  Default pointer mode uses HMP relative virtio-mouse + QMP send-key with no-clamp.
+  An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
   PKG_TARBALL is optional when BASE_IMG already contains the installed runtime.
 EOF
     exit 0
 fi
+
+case "$FORCE_HMP" in
+    0|1) ;;
+    *) die "FORCE_HMP must be 0 or 1" ;;
+esac
+case "$ABS_POINTER" in
+    0|1) ;;
+    *) die "ABS_POINTER must be 0 or 1" ;;
+esac
+case "$NO_CLAMP" in
+    0|1) ;;
+    *) die "NO_CLAMP must be 0 or 1" ;;
+esac
+[ "$FORCE_HMP" != 1 ] || [ "$ABS_POINTER" != 1 ] \
+    || die "FORCE_HMP=1 conflicts with ABS_POINTER=1; relative virtio-mouse and absolute tablet modes are separate"
 
 case "$MULTIPROCESS" in
     0) AUTORUN_SCRIPT="autorun_single_initial.sh" ;;
@@ -99,6 +125,7 @@ echo "T4P_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL"
 echo "OUT=$OUT"
 echo "QMP=$QMP_SOCKET CDP_PORT=$CDP_PORT"
 echo "RENDERER_MODE=$([ "$MULTIPROCESS" = 1 ] && echo default-multiprocess || echo single-process-comparison) AUTORUN=$AUTORUN_SCRIPT"
+echo "INPUT_KEYBOARD_TRANSPORT=QMP-send-key MOUSE_TRANSPORT=$([ "$FORCE_HMP" = 1 ] && echo HMP-relative-virtio-mouse || echo QMP-input-event) FORCE_HMP=$FORCE_HMP ABS_POINTER=$ABS_POINTER NO_CLAMP=$NO_CLAMP"
 
 PAGE_URL="file:///usr/share/html-test/interaction.html" \
 QMP_SOCKET="$QMP_SOCKET" \
@@ -160,7 +187,11 @@ BEFORE_RC=$?
 # libinput 加速放大——2026-11-03 实测 `rel(+271)` 把指针从 0 推到 1279.99，
 # `rel(+194)` 推到 799.99，点击全落在右下角，页面零变化。
 ABS_ARGS=""
-[ "${ABS_POINTER:-1}" = "1" ] && ABS_ARGS="--absolute-pointer"
+[ "$ABS_POINTER" = "1" ] && ABS_ARGS="--absolute-pointer"
+FORCE_HMP_ARGS=""
+[ "$FORCE_HMP" = "1" ] && FORCE_HMP_ARGS="--force-hmp"
+NO_CLAMP_ARGS=""
+[ "$NO_CLAMP" = "1" ] && NO_CLAMP_ARGS="--no-clamp"
 SELFTEST_ARGS=""
 [ "${SELFTEST_ONLY:-0}" = "1" ] && SELFTEST_ARGS="--self-test-only"
 ECHO_ARGS=""
@@ -179,7 +210,7 @@ if [ "$INPUT_MODE" = "kbd" ]; then
     mkdir -p "$WORK/kbd"
     python3 "$HERE/qmp_input.py" \
         --socket "$QMP_SOCKET" --output "$QMP_LOG" \
-        --qmp-send-key --kbd-probe --shot-dir "$WORK/kbd" \
+        --qmp-send-key $FORCE_HMP_ARGS $NO_CLAMP_ARGS --kbd-probe --shot-dir "$WORK/kbd" \
         --ready-wait 0 --kbd-settle 3 \
         --pre-click-x "${KBD_PRECLICK_X:-640}" --pre-click-y "${KBD_PRECLICK_Y:-400}" \
         > "$WORK/qmp-input.log" 2>&1
@@ -188,7 +219,7 @@ if [ "$INPUT_MODE" = "kbd" ]; then
 else
     python3 "$HERE/qmp_input.py" \
         --socket "$QMP_SOCKET" --output "$QMP_LOG" \
-        --qmp-send-key --skip-index --skip-layout-navigation $ABS_ARGS $SELFTEST_ARGS $ECHO_ARGS $ECHO_SHOTS $KBD_ECHO_ARGS \
+        --qmp-send-key $FORCE_HMP_ARGS $NO_CLAMP_ARGS --skip-index --skip-layout-navigation $ABS_ARGS $SELFTEST_ARGS $ECHO_ARGS $ECHO_SHOTS $KBD_ECHO_ARGS \
         --input-target "${QMP_INPUT_TARGET:-auto}" \
         --ready-wait 0 --interaction-hold 8 \
         --input-text "hello x-kernel" \
@@ -281,6 +312,10 @@ cat > "$GATE_JSON" <<EOF
   "renderer_mode": "$([ "$MULTIPROCESS" = 1 ] && echo default-multiprocess || echo single-process-comparison)",
   "sandbox_mode": "$([ "$MULTIPROCESS" = 1 ] && echo diagnostic-no-sandbox || echo single-process-comparison)",
   "input_mode": "$INPUT_MODE",
+  "keyboard_transport": "QMP-send-key",
+  "mouse_transport": "$([ "$FORCE_HMP" = 1 ] && echo HMP-relative-virtio-mouse || echo QMP-input-event)",
+  "absolute_pointer": $ABS_POINTER,
+  "no_clamp": $NO_CLAMP,
   "ready_rc": $READY_RC,
   "before_rc": $BEFORE_RC,
   "input_rc": $INPUT_RC,

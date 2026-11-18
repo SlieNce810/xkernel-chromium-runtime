@@ -126,7 +126,7 @@ run_default_stage() {
             ;;
         input)
             run_remote_stage "$name" \
-                "env -u PLAT_MEM_OVERRIDE MULTIPROCESS=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh ${tag}-input 2400 60"
+                "env -u PLAT_MEM_OVERRIDE MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh ${tag}-input 2400 60"
             ;;
         javascript)
             run_remote_stage "$name" \
