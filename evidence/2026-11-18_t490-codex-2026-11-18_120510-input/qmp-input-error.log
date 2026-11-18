@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 628, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 614, in main
+    run_scenario(client, args)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 478, in run_scenario
+    click_at(client, args.self_test_x, args.self_test_y, "run-selftest")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 400, in click_at
+    move_to(client, x, y)
+    ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 382, in move_to
+    client.absolute_pixel(x, y)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 366, in absolute_pixel
+    self.input_events([
+    ~~~~~~~~~~~~~~~~~^^
+        {"type": "abs", "data": {"axis": "x", "value": x_value}},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {"type": "abs", "data": {"axis": "y", "value": y_value}},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "/home/mo/xk6/scripts/t490/qmp_input.py", line 235, in input_events
+    stable_ids = os.environ.get("QMP_STABLE_INPUT_IDS", "0") == "1"
+                 ^^
+NameError: name 'os' is not defined. Did you forget to import 'os'?

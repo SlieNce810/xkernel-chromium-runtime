@@ -1,0 +1,29 @@
+{"kind": "rx", "ts": 1794975312.8025646, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1794975312.8026779, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-codex-2026-11-18_120510-input.sock"}}
+{"kind": "tx", "ts": 1794975312.8027484, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1794975312.8031168, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1794975312.803191, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1794975312.8036835, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1794975312.803743, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1794975312.8038, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1794975312.8043108, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1794975312.80437, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1794975312.8044293, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1794975312.8049443, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1794975312.805018, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1794975312.8050747, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1794975312.8065443, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1794975312.806631, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1794975312.8066936, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1794975312.8072698, "value": {"error": {"class": "GenericError", "desc": "Property 'qemu-fixed-text-console.device' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1794975312.8073409, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'qemu-fixed-text-console.device' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1794975312.8073964, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1794975312.8077016, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1794975312.8077796, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1794975312.8078635, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1794975312.8083444, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1794975312.808425, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1794975312.808523, "value": {"arguments": {"command-line": "mouse_set 2"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1794975312.808973, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1794975312.8090627, "value": {"index": 2}}
+{"kind": "sleep", "ts": 1794975312.809154, "value": {"reason": "wait for Weston and Chromium", "seconds": 0.0}}
