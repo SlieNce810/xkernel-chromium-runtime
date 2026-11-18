@@ -68,7 +68,9 @@ def gate_passes(path: Path) -> bool:
     data = load_json(path)
     if data is None:
         return False
-    if data.get("pass") is True or str(data.get("result", "")).upper() == "PASS":
+    passed = data.get("pass")
+    if (passed is True or (type(passed) is int and passed == 1)
+            or str(data.get("result", "")).upper() == "PASS"):
         return True
     if path.name == "score-page-gate.json":
         rows = data.get("screenshots", [])
@@ -76,6 +78,18 @@ def gate_passes(path: Path) -> bool:
             isinstance(row, dict) and int(row.get("rc", 1)) == 0 for row in rows
         )
     return False
+
+
+def input_gate_passes(path: Path) -> bool:
+    """A keyboard-only JavaScript run is not the scored mouse/input item."""
+    data = load_json(path)
+    if data is None or data.get("input_mode") != "pointer":
+        return False
+    try:
+        interaction_rc = int(data.get("interaction_score_gate_rc", 1))
+    except (TypeError, ValueError):
+        return False
+    return interaction_rc == 0 and gate_passes(path)
 
 
 def score_feature(root: Path, feature: str) -> dict[str, Any]:
@@ -104,7 +118,8 @@ def score_feature(root: Path, feature: str) -> dict[str, Any]:
         data = load_json(gate)
         if feature == "css" and data and data.get("item") != "css" and data.get("page_profile") != "official-layout":
             continue
-        if is_2g(directory) and gate_passes(gate):
+        passes = input_gate_passes(gate) if feature == "input" else gate_passes(gate)
+        if is_2g(directory) and passes:
             passing.append(str(gate.relative_to(root)))
     return {"status": "PASS" if passing else "INCOMPLETE", "evidence": passing}
 
