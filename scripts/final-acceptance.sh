@@ -62,6 +62,18 @@ if [[ -e "$OUT" ]]; then
     exit 73
 fi
 mkdir -p "$OUT"
+{
+    printf 'command='
+    if [[ -n "${T490_TARGET:-}" ]]; then printf 'T490_TARGET=%q ' "$T490_TARGET"; fi
+    printf 'bash scripts/final-acceptance.sh %q\n' "$stage"
+} > "$OUT/cmd.txt"
+{
+    printf 'started_at=%s\n' "$(date -Is)"
+    printf 'host_platform=%s\n' "$(uname -srm 2>/dev/null || uname -a)"
+    printf 'T490_TARGET=%s\n' "${T490_TARGET:-unset}"
+    printf 'ACCEPTANCE_DRY_RUN=%s\n' "${ACCEPTANCE_DRY_RUN:-0}"
+    printf 'PLAT_MEM_OVERRIDE=%s\n' "${PLAT_MEM_OVERRIDE:-unset}"
+} > "$OUT/env.txt"
 
 declare -A results
 run_stage() {
@@ -74,6 +86,11 @@ run_stage() {
         printf '\n' | tee -a "$log"
         rc=0
     else
+        {
+            printf '[%s] COMMAND=' "$(date -Is)"
+            printf '%q ' "$@"
+            printf '\n'
+        } | tee -a "$log"
         "$@" 2>&1 | tee -a "$log"
         rc=${PIPESTATUS[0]}
     fi
@@ -374,7 +391,12 @@ with open(out, "w", encoding="utf-8") as stream:
         "css": 2,
     }
     score_rows = {name: rows[name] for name in points if name in rows}
-    score_points = None if dry_run else sum(points[name] for name, rc in score_rows.items() if rc == 0)
+    score_stages = {"score", "function", "all", *points}
+    score_points = (
+        sum(points[name] for name, rc in score_rows.items() if rc == 0)
+        if not dry_run and stage in score_stages and score_rows
+        else None
+    )
     payload = {
         "stage": stage,
         "overall_rc": int(overall),
@@ -385,7 +407,7 @@ with open(out, "w", encoding="utf-8") as stream:
             "max_points": 20,
             "items": {
                 name: ({"points": points[name], "status": "NOT_RUN", "planned_rc": rc}
-                       if dry_run else {"points": points[name], "rc": rc})
+                       if dry_run or score_points is None else {"points": points[name], "rc": rc})
                 for name, rc in score_rows.items()
             },
         },
@@ -399,7 +421,7 @@ if [[ -f "$SUMMARY" ]]; then
 import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 score = data.get("browser_score", {})
-if data.get("dry_run"):
+if data.get("dry_run") or score.get("points") is None:
     print(f"BROWSER_SCORE=NOT_RUN/{score.get('max_points', 20)}")
 else:
     print(f"BROWSER_SCORE={score.get('points', 0)}/{score.get('max_points', 20)}")
@@ -415,8 +437,8 @@ lines = [
     "",
     f"- Stage: `{payload['stage']}`",
     f"- Overall exit code: `{payload['overall_rc']}`",
-    (f"- Browser score: NOT RUN / {payload['browser_score']['max_points']} (dry run)"
-     if payload.get("dry_run") else
+    (f"- Browser score: NOT RUN / {payload['browser_score']['max_points']}"
+     if payload.get("dry_run") or payload['browser_score']['points'] is None else
      f"- Browser score: {payload['browser_score']['points']}/{payload['browser_score']['max_points']}"),
     "",
     "| Stage | Exit code |",
