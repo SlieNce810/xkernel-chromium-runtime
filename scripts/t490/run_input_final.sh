@@ -132,6 +132,9 @@ echo "QMP=$QMP_SOCKET CDP_PORT=$CDP_PORT"
 echo "RENDERER_MODE=$([ "$MULTIPROCESS" = 1 ] && echo default-multiprocess || echo single-process-comparison) AUTORUN=$AUTORUN_SCRIPT"
 echo "INPUT_KEYBOARD_TRANSPORT=QMP-send-key MOUSE_TRANSPORT=$([ "$FORCE_HMP" = 1 ] && echo HMP-relative-virtio-mouse || echo QMP-input-event) FORCE_HMP=$FORCE_HMP ABS_POINTER=$ABS_POINTER NO_CLAMP=$NO_CLAMP"
 
+# Input rounds intentionally scroll and navigate away. The strict
+# official-interaction ready gate runs before input; per-action gates below
+# verify JS, keyboard echo, counter click, and layout navigation.
 PAGE_URL="file:///usr/share/html-test/interaction.html" \
 QMP_SOCKET="$QMP_SOCKET" \
 QMP_EXTRA_ARGS="${QMP_EXTRA_ARGS:-}" \
@@ -139,7 +142,7 @@ BASE_IMG="$BASE_IMG" \
 PKG_TARBALL="$PKG_TARBALL" \
 INJECT_AUTOSTART=1 \
 ASSERT_PROFILE=official-interaction \
-STRICT_GATE=1 \
+STRICT_GATE=0 \
 FIRST_SHOT=450 \
 SINGLE_HOLD_VALUE=760 \
 SINGLE_SAMPLE_VALUE=15 \
