@@ -6,7 +6,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from interaction_score_driver import click_step, pointer_targets
+from interaction_score_driver import click_step, pointer_targets_from_env
 
 
 class RecordingClient:
@@ -61,12 +61,26 @@ class ClickStepTests(unittest.TestCase):
 
 
 class PointerTargetTests(unittest.TestCase):
-    def test_step3_counter_target_compensates_observed_offset(self) -> None:
-        self.assertEqual(((250, 588), (350, 710)), pointer_targets("step3"))
+    def test_step3_uses_two_screenshot_measured_rounds(self) -> None:
+        self.assertEqual(((233, 1138), (287, 778)),
+                         pointer_targets_from_env("step3", {}))
+
+    def test_per_run_targets_override_without_editing_driver(self) -> None:
+        self.assertEqual(((280, 675), (350, 710)), pointer_targets_from_env(
+            "step3", {"INTERACTION_COUNTER_TARGET": "280,675",
+                      "INTERACTION_NAV_TARGET": "350,710"}))
+
+    def test_invalid_target_is_rejected(self) -> None:
+        for value in ("1", "x,2", "-1,2", "2,4097"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                pointer_targets_from_env(
+                    "step3", {"INTERACTION_COUNTER_TARGET": value})
 
     def test_step1_and_step4_keep_separate_calibrations(self) -> None:
-        self.assertEqual(((281, 674), (350, 710)), pointer_targets("step1"))
-        self.assertEqual(((247, 607), (292, 638)), pointer_targets("step4"))
+        self.assertEqual(((281, 674), (350, 710)),
+                         pointer_targets_from_env("step1", {}))
+        self.assertEqual(((247, 607), (292, 638)),
+                         pointer_targets_from_env("step4", {}))
 
 
 if __name__ == "__main__":

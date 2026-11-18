@@ -12,6 +12,7 @@ import argparse
 import os
 import time
 from pathlib import Path
+from typing import Mapping
 
 from interaction_score_gate import pixel_diff
 from qmp_input import QmpClient, click_at, type_text
@@ -49,16 +50,44 @@ def click_step(c: QmpClient, x: int, y: int, label: str, count: int = 1,
 
 
 def pointer_targets(pointer_mode: str) -> tuple[tuple[int, int], tuple[int, int]]:
-    """Return counter and CSS-link targets calibrated for each relative mode."""
+    """Return counter and CSS-link movement requests for each relative mode.
+
+    INTERACTION_COUNTER_TARGET and INTERACTION_NAV_TARGET may override a
+    request as ``x,y``. The step3 defaults use screenshot-measured HMP cursor
+    hot-spots from R17/R18 and a two-point linear estimate; they remain
+    candidates until the actual click gates pass.
+    """
+    return pointer_targets_from_env(pointer_mode, os.environ)
+
+
+def pointer_targets_from_env(
+    pointer_mode: str, env: Mapping[str, str]
+) -> tuple[tuple[int, int], tuple[int, int]]:
+    """Resolve per-run pointer targets without editing the driver."""
     if pointer_mode == "step3":
-        # R15's screenshot placed the cursor near (350,710) after a request to
-        # (281,674), a lower-right offset of about 69x36 pixels.
-        # R17's corrected-counter screenshot moved it near (243,724) after
-        # (212,638), so the next counter target adds the measured residual.
-        return (250, 588), (350, 710)
-    if pointer_mode == "step1":
-        return (281, 674), (350, 710)
-    return (247, 607), (292, 638)
+        defaults = ((233, 1138), (287, 778))
+    elif pointer_mode == "step1":
+        defaults = ((281, 674), (350, 710))
+    else:
+        defaults = ((247, 607), (292, 638))
+
+    def parse(name: str, fallback: tuple[int, int]) -> tuple[int, int]:
+        raw = env.get(name)
+        if raw is None:
+            return fallback
+        parts = raw.split(",")
+        if len(parts) != 2:
+            raise ValueError(f"{name} must be x,y, got {raw!r}")
+        try:
+            x, y = (int(part.strip()) for part in parts)
+        except ValueError as exc:
+            raise ValueError(f"{name} must contain two integers, got {raw!r}") from exc
+        if not all(0 <= value <= 4096 for value in (x, y)):
+            raise ValueError(f"{name} coordinates must be in 0..4096, got {raw!r}")
+        return x, y
+
+    return (parse("INTERACTION_COUNTER_TARGET", defaults[0]),
+            parse("INTERACTION_NAV_TARGET", defaults[1]))
 
 
 def main() -> int:
