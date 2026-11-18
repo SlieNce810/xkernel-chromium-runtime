@@ -37,6 +37,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R19 坐标外推反例**：第 45 次采样 ready、JS 和键盘通过；两点线性外推把 step3 相对光标移出画面底边，计数与 CSS 导航仍失败。R19 的跨日证据分置于 QEMU session 和 input work 两个原始目录，归档时保留二者并逐帧验证 PPM 哈希，见 [report/322](report/322-T490-2GiB输入尝试r19两点外推指针落至屏幕外计数与导航失败-20261119.md)。
 
+**R20 counter 触发、CSS 导航未过**：第 47 次采样 ready、JS 与键盘通过。计数阶段截图仍为 0，但后续导航请求把计数变为 2，说明第二个相对移动点落在 counter；CSS 页面仍未打开，评分 gate 保持失败。R21 将先复测这个 counter 落点，见 [report/323](report/323-T490-2GiB输入尝试r20第二请求命中计数但CSS导航失败-20261119.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）

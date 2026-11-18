@@ -1,0 +1,9 @@
+scp scripts/t490/interaction_score_driver.py -> mo@10.249.11.192:/home/mo/xk6/scripts/t490/interaction_score_driver.py
+scp scripts/t490/run_input_final.sh -> mo@10.249.11.192:/home/mo/xk6/scripts/t490/run_input_final.sh
+ssh sha256sum /home/mo/xk6/scripts/t490/interaction_score_driver.py /home/mo/xk6/scripts/t490/run_input_final.sh
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-19_002400-step3-counter-y540-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-19_002400-step3-counter-y540-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-19_002400-step3-counter-y540-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-19_002400-step3-counter-y540.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step3 INTERACTION_COUNTER_TARGET=250,540 INTERACTION_NAV_TARGET=350,710 INPUT_NAVIGATION_WAIT=60 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-19_002400-step3-counter-y540 2400 60
+step3 request coordinates: counter=250,540 CSS link=350,710
+R20 single-variable adjustment: counter y 588 -> 540; keep x=250 and restore prior CSS request (350,710).
