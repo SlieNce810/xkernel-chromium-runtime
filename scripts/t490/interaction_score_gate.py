@@ -21,6 +21,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 PPM_ASSERT = ROOT / "scripts" / "t490" / "ppm_assert.py"
+# The interaction page's `当前：N` counter sits here after two PageDowns.
+# Keep this ROI away from the button and pointer cursor so movement/hover cannot
+# be mistaken for a successful count increment.
+MOUSE_COUNTER_ROI = "220,625,600,655"
 
 
 def run_ppm(*args: str) -> tuple[bool, str, dict[str, Any]]:
@@ -72,6 +76,11 @@ def pixel_diff(after: Path, before: Path, roi: str, minimum: int) -> tuple[bool,
     )
     detail = (proc.stdout.strip() or proc.stderr.strip()).splitlines()
     return proc.returncode == 0, detail[-1] if detail else f"pixel diff rc={proc.returncode}"
+
+
+def mouse_counter_diff(after: Path, before: Path) -> tuple[bool, str]:
+    """Require a localized change in counter text, excluding cursor/button pixels."""
+    return pixel_diff(after, before, MOUSE_COUNTER_ROI, 20)
 
 
 def input_actions(path: Path) -> tuple[bool, str, dict[str, int]]:
@@ -130,9 +139,8 @@ def main() -> int:
     keyboard_ok, keyboard_detail = pixel_diff(
         shots / "after-keyboard-echo.ppm", shots / "before-keyboard-echo.ppm",
         "220,670,1045,765", 200)
-    mouse_ok, mouse_detail = pixel_diff(
-        shots / "after-mouse-click.ppm", shots / "after-scroll.ppm",
-        "180,610,1100,755", 20)
+    mouse_ok, mouse_detail = mouse_counter_diff(
+        shots / "after-mouse-click.ppm", shots / "after-scroll.ppm")
     navigation_path = shots / "after-mouse-navigation.ppm"
     navigation_ok, navigation_detail = layout_verdict(navigation_path)
     actions_ok, actions_detail, action_counts = input_actions(ledger)

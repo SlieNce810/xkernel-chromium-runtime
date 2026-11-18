@@ -10,7 +10,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from interaction_score_gate import layout_verdict
+from interaction_score_gate import (
+    MOUSE_COUNTER_ROI,
+    layout_verdict,
+    mouse_counter_diff,
+)
 
 
 class LayoutVerdictTests(unittest.TestCase):
@@ -49,6 +53,19 @@ class LayoutVerdictTests(unittest.TestCase):
         passed, detail = self._run_gate([], 0)
         self.assertTrue(passed)
         self.assertEqual("green verdict bar present", detail)
+
+
+class MouseCounterGateTests(unittest.TestCase):
+    def test_mouse_counter_roi_excludes_pointer_and_button(self) -> None:
+        after = Path("after-mouse-click.ppm")
+        before = Path("after-scroll.ppm")
+        with patch("interaction_score_gate.pixel_diff",
+                   return_value=(False, "counter text did not change")) as diff:
+            passed, detail = mouse_counter_diff(after, before)
+
+        self.assertFalse(passed)
+        self.assertIn("counter text", detail)
+        diff.assert_called_once_with(after, before, MOUSE_COUNTER_ROI, 20)
 
 
 if __name__ == "__main__":

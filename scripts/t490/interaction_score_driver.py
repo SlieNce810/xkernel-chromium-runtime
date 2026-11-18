@@ -149,11 +149,16 @@ def main() -> int:
                                       "screenshot": scroll_shot.name,
                                       "settle_seconds": args.scroll_settle})
         c.screendump(args.shot_dir / "after-scroll.ppm")
-        pointer_click(281, 674, "real-click-plus-one", count=2)
+        # Relative virtio-mouse acceleration moved the cursor to about
+        # (320, 749) for the earlier (281, 674) request. Compensate the
+        # measured lower-right drift before clicking the counter.
+        pointer_click(247, 607, "real-click-plus-one", count=2)
         time.sleep(2.0)
         c.screendump(args.shot_dir / "after-mouse-click.ppm")
 
-        pointer_click(350, 710, "mouse-click-navigation", count=2)
+        # The CSS link is centered near (350, 710); apply the same measured
+        # relative-pointer correction before the navigation click.
+        pointer_click(292, 638, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
         c._record("result", {"ok": True})

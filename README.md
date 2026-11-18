@@ -19,6 +19,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R10 探针复测**：`EVDEV_PROBE=1` 时 ready gate 在 2,000 秒后仍超时；sniffer 打开 keyboard/mouse event 节点，但因页面未 ready 没有输入事件。QMP 早退成功，QEMU 记录 2,013 秒即结束。R5 的 no-probe timeout 仍是反例，因此当前 probe-on/off 差异只作待复验线索，见 [report/313](report/313-T490-2GiB输入尝试r10探针开启ready超时及QMP早退-20261118.md)。
 
+**R11 鼠标复核**：动态键盘等待已在 10 秒采样捕获 `hello x-kernel`；旧 mouse ROI 把光标移动误判为计数变化。收窄到计数文字后的 post-hoc gate 确认计数仍是 0；截图还显示 step4 相对指针落点与目标有明显偏差。已计算下一组候选坐标，尚待独立验证，见 [report/314](report/314-T490-2GiB输入尝试r11键盘回显通过鼠标计数ROI校正-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
