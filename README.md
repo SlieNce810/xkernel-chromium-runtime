@@ -25,6 +25,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R13 step1 校准请求未生效**：launcher 请求 step1，但 T490 旧 runner 仍写死 step4；QMP ledger 证明本轮实际为 step4，因此 R13 不计作单像素验证。仓库 runner 已支持透传模式，下一轮同步后会核对双方哈希，见 [report/316](report/316-T490-2GiB输入尝试r13单像素模式未同步仍运行step4-20261118.md)。
 
+**R14 真实 step1 试验**：runner/hash 已同步，ready 在第 46 次采样通过，Keyboard gate 通过；2,021 次相对移动后鼠标仍偏离目标，计数为 0，导航后截图出现 Page Unresponsive。下一轮改测 step3 中间步幅，见 [report/317](report/317-T490-2GiB输入尝试r14真实step1落点不足并出现页面无响应-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）

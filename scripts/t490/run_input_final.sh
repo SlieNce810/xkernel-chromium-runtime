@@ -48,8 +48,8 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
 Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
   EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
-  INTERACTION_POINTER_MODE=step1 uses one-pixel, 50 ms HMP steps for pointer calibration.
-  Pointer mode uses calibrated HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
+  INTERACTION_POINTER_MODE=step1|step3 selects a slower relative-pointer calibration.
+  Pointer mode defaults to historical HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.
   An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
   PKG_TARBALL is optional when BASE_IMG already contains the installed runtime.
@@ -254,10 +254,9 @@ if [ "$INPUT_MODE" = "kbd" ]; then
     INPUT_RC=$?
     AFTER="$WORK/kbd/after-enter.ppm"
 else
-    # The raw one-shot relative coordinates are accelerated by libinput and
-    # can scroll the page without reaching its controls.  Use the historical
-    # calibrated real-input driver: activate the window, exercise keyboard echo,
-    # step the HMP pointer in 4-pixel increments, click the counter, and navigate.
+    # Raw one-shot relative coordinates are accelerated by libinput and can
+    # miss controls. Use the selected real-input step mode for keyboard echo,
+    # the counter click, and CSS navigation.
     mkdir -p "$WORK/interaction-shots"
     INTERACTION_FORCE_HMP=1 \
     INTERACTION_POINTER_MODE="${INTERACTION_POINTER_MODE:-step4}" \

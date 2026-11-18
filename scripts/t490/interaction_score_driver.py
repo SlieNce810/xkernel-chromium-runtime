@@ -17,9 +17,9 @@ from interaction_score_gate import pixel_diff
 from qmp_input import QmpClient, click_at, type_text
 
 
-def click_step4(c: QmpClient, x: int, y: int, label: str,
-                count: int = 1) -> None:
-    """Click through the calibrated virtio-mouse path.
+def click_step(c: QmpClient, x: int, y: int, label: str, count: int = 1,
+               step_size: int = 4, step_delay: float = 0.02) -> None:
+    """Click through a real relative virtio-mouse path.
 
     The guest's relative pointer starts outside the Weston output.  A single
     large relative move is accelerated and often lands outside the Chromium
@@ -33,10 +33,10 @@ def click_step4(c: QmpClient, x: int, y: int, label: str,
     for axis, target in (("x", x), ("y", y)):
         remaining = target
         while remaining > 0:
-            step = min(4, remaining)
+            step = min(step_size, remaining)
             c.relative(axis, step)
             remaining -= step
-            time.sleep(0.02)
+            time.sleep(step_delay)
     for index in range(count):
         c.click()
         if index + 1 < count:
@@ -44,7 +44,7 @@ def click_step4(c: QmpClient, x: int, y: int, label: str,
             # the surface.  A second real press dispatches the page control.
             time.sleep(0.8)
     c._record("checkpoint", {"name": label, "x": x, "y": y,
-                              "pointer_mode": "step4",
+                              "pointer_mode": f"step{step_size}",
                               "click_count": count})
 
 
@@ -71,9 +71,12 @@ def main() -> int:
                   qmp_send_key=True,
                   absolute_pointer=absolute, no_clamp=not absolute)
     pointer_click = (lambda x, y, label, count=1: click_at(c, x, y, label))
-    if not absolute and pointer_mode == "step4":
-        pointer_click = lambda x, y, label, count=1: click_step4(
-            c, x, y, label, count=count)
+    if not absolute and pointer_mode in {"step1", "step3", "step4"}:
+        step_size = int(pointer_mode.removeprefix("step"))
+        step_delay = 0.05 if step_size == 1 else 0.02
+        pointer_click = lambda x, y, label, count=1: click_step(
+            c, x, y, label, count=count,
+            step_size=step_size, step_delay=step_delay)
     # The historical kiosk keyboard gate activates the surface with one
     # direct relative move.  Keep that activation separate from scored
     # controls, which use the slower step4 calibration and two presses.
@@ -149,16 +152,13 @@ def main() -> int:
                                       "screenshot": scroll_shot.name,
                                       "settle_seconds": args.scroll_settle})
         c.screendump(args.shot_dir / "after-scroll.ppm")
-        # Relative virtio-mouse acceleration moved the cursor to about
-        # (320, 749) for the earlier (281, 674) request. Compensate the
-        # measured lower-right drift before clicking the counter.
-        pointer_click(247, 607, "real-click-plus-one", count=2)
+        counter_target = (281, 674) if pointer_mode in {"step1", "step3"} else (247, 607)
+        pointer_click(*counter_target, "real-click-plus-one", count=2)
         time.sleep(2.0)
         c.screendump(args.shot_dir / "after-mouse-click.ppm")
 
-        # The CSS link is centered near (350, 710); apply the same measured
-        # relative-pointer correction before the navigation click.
-        pointer_click(292, 638, "mouse-click-navigation", count=2)
+        nav_target = (350, 710) if pointer_mode in {"step1", "step3"} else (292, 638)
+        pointer_click(*nav_target, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
         c._record("result", {"ok": True})

@@ -253,6 +253,8 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 
+R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 用 `step3`（3 像素、20 ms 间隔）作为中间步幅；`test_interaction_score_driver.py` 检查 step1/step3 保持真实相对 move 与 click 序列。
+
 ### 本轮新增 autorun
 | 文件 | 场景 |
 |---|---|
