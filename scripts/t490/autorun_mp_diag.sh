@@ -706,7 +706,8 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
         #   /proc_ledger   —— 全程不 fork，只读 stat，给出 created/exited/summary；
         #   /procfs_latency —— 只量延迟，用于对齐历史数据。
         n_family=$(ps 2>/dev/null | awk 'NR > 1 { n++ } END { print n + 0 }')
-        renderer_pids=$(ps 2>/dev/null | awk '/type=renderer/ { print $1 }' | tr '\n' ',')
+        # Avoid matching the observer's own awk argv, which contains the old renderer pattern.
+        renderer_pids=$(ps 2>/dev/null | grep '[t]ype=renderer' | awk '{ print $1 }' | tr '\n' ',')
         renderer_count=0
         [ -n "$renderer_pids" ] && renderer_count=$(printf '%s' "$renderer_pids" | awk -F, '{print NF-1}')
         echo "MP_LIGHT_SAMPLE elapsed=${elapsed}s family=${n_family} renderer_count=${renderer_count} renderer_pids=${renderer_pids}" >> "$LOG"
