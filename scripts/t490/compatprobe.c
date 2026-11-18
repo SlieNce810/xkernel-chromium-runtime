@@ -183,6 +183,110 @@ static void probe_timerfd(void)
 	close(fd);
 }
 
+static void probe_scm_rights_shortread(void)
+{
+	int sv[2] = {-1, -1};
+	int src_fd = -1, received_fd = -1;
+	char payload[100], received[100];
+	int first_read_rights = 0, later_read_rights = 0;
+	size_t bytes_read = 0;
+	int read_errno = 0;
+
+	for (size_t i = 0; i < sizeof(payload); i++)
+		payload[i] = (char)('a' + (i % 26));
+
+	errno = 0;
+	int pair_rc = socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sv);
+	chk("shortread socketpair(STREAM|CLOEXEC)", pair_rc, errno, pair_rc == 0);
+	if (pair_rc != 0)
+		goto cleanup;
+
+	errno = 0;
+	src_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+	chk("shortread open(/dev/null)", src_fd, errno, src_fd >= 0);
+	if (src_fd < 0)
+		goto cleanup;
+
+	struct iovec send_iov = {.iov_base = payload, .iov_len = sizeof(payload)};
+	char send_control[CMSG_SPACE(sizeof(int))];
+	struct msghdr send_msg;
+	memset(&send_msg, 0, sizeof(send_msg));
+	memset(send_control, 0, sizeof(send_control));
+	send_msg.msg_iov = &send_iov;
+	send_msg.msg_iovlen = 1;
+	send_msg.msg_control = send_control;
+	send_msg.msg_controllen = sizeof(send_control);
+	struct cmsghdr *send_cmsg = CMSG_FIRSTHDR(&send_msg);
+	send_cmsg->cmsg_level = SOL_SOCKET;
+	send_cmsg->cmsg_type = SCM_RIGHTS;
+	send_cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	memcpy(CMSG_DATA(send_cmsg), &src_fd, sizeof(src_fd));
+	errno = 0;
+	ssize_t sent = sendmsg(sv[0], &send_msg, 0);
+	int send_errno = errno;
+	chk("shortread sendmsg(100 bytes+SCM_RIGHTS)", sent, send_errno,
+	    sent == (ssize_t)sizeof(payload));
+	close(sv[0]);
+	sv[0] = -1;
+
+	for (size_t i = 0; i < sizeof(payload); i++) {
+		char byte = 0;
+		char recv_control[CMSG_SPACE(sizeof(int) * 4)];
+		struct iovec recv_iov = {.iov_base = &byte, .iov_len = 1};
+		struct msghdr recv_msg;
+		memset(&recv_msg, 0, sizeof(recv_msg));
+		memset(recv_control, 0, sizeof(recv_control));
+		recv_msg.msg_iov = &recv_iov;
+		recv_msg.msg_iovlen = 1;
+		recv_msg.msg_control = recv_control;
+		recv_msg.msg_controllen = sizeof(recv_control);
+		errno = 0;
+		ssize_t nread = recvmsg(sv[1], &recv_msg, 0);
+		int this_errno = errno;
+		if (nread != 1) {
+			read_errno = this_errno;
+			break;
+		}
+		received[bytes_read++] = byte;
+		for (struct cmsghdr *cmsg = CMSG_FIRSTHDR(&recv_msg); cmsg;
+		     cmsg = CMSG_NXTHDR(&recv_msg, cmsg)) {
+			if (cmsg->cmsg_level != SOL_SOCKET ||
+			    cmsg->cmsg_type != SCM_RIGHTS ||
+			    cmsg->cmsg_len < CMSG_LEN(sizeof(int)))
+				continue;
+			int fd_from_message = -1;
+			memcpy(&fd_from_message, CMSG_DATA(cmsg), sizeof(fd_from_message));
+			if (i == 0) {
+				first_read_rights++;
+				if (received_fd < 0)
+					received_fd = fd_from_message;
+				else
+					close(fd_from_message);
+			} else {
+				later_read_rights++;
+				close(fd_from_message);
+			}
+		}
+	}
+	chk("SCM_RIGHTS delivered on first 1-byte read", first_read_rights,
+	    read_errno, first_read_rights == 1 && received_fd >= 0);
+	chk("SCM_RIGHTS not repeated on later reads", later_read_rights, 0,
+	    later_read_rights == 0);
+	chk("stream payload preserved across 100 short reads", (long)bytes_read,
+	    read_errno, bytes_read == sizeof(payload) &&
+	    memcmp(payload, received, sizeof(payload)) == 0);
+
+cleanup:
+	if (src_fd >= 0)
+		close(src_fd);
+	if (received_fd >= 0)
+		close(received_fd);
+	if (sv[0] >= 0)
+		close(sv[0]);
+	if (sv[1] >= 0)
+		close(sv[1]);
+}
+
 int main(int argc, char **argv)
 {
 	int fds[2], fd, rc, err;
@@ -192,13 +296,21 @@ int main(int argc, char **argv)
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("[CP] pid=%d tid=%ld\n", (int)getpid(), syscall(SYS_gettid));
 	if (argc > 1 && strcmp(argv[1], "--help") == 0) {
-		printf("Usage: compatprobe [--inotify-timerfd]\n");
+		printf("Usage: compatprobe [--inotify-timerfd|--scm-rights-shortread]\n");
 		printf("  --inotify-timerfd: run only inotify create/read and timerfd set/poll/read checks\n");
+		printf("  --scm-rights-shortread: receive one fd with a 100-byte stream in 1-byte reads\n");
 		return 0;
 	}
 	if (argc > 1 && strcmp(argv[1], "--inotify-timerfd") == 0) {
 		probe_timerfd();
 		probe_inotify();
+		printf("[CPSUM] pass=%d fail=%d\n", oks, fails);
+		printf("[RESULT] fail=%d\n", fails);
+		printf("[RESULT] %s\n", fails == 0 ? "ALL_PASS" : "HAD_FAILURE");
+		return fails ? 1 : 0;
+	}
+	if (argc > 1 && strcmp(argv[1], "--scm-rights-shortread") == 0) {
+		probe_scm_rights_shortread();
 		printf("[CPSUM] pass=%d fail=%d\n", oks, fails);
 		printf("[RESULT] fail=%d\n", fails);
 		printf("[RESULT] %s\n", fails == 0 ? "ALL_PASS" : "HAD_FAILURE");

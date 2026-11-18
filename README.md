@@ -45,6 +45,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **inotify/timerfd Linux 基线**：扩展的 `compatprobe.c --inotify-timerfd` 在 WSL2 Linux 5.15.167.4 上 11/11 通过（inotify watch/create/read、timerfd set/poll/read）。该结果仅为 Linux 参考；T490 native Linux 与冻结版本 x-kernel 对照仍待 T490 恢复，见 [report/327](report/327-inotify-timerfd-WSL2-Linux基线与T490待补-20261119.md)。
 
+**SCM_RIGHTS short-read Linux 基线**：同一 focused probe 在 WSL2 Linux 上验证 fd 只随首个 1-byte `recvmsg` 交付，后续读取不重复，100-byte payload 完整（6/6）。T490 native Linux 与 x-kernel guest 复测仍待主机恢复，见 [report/328](report/328-SCM_RIGHTS-stream-shortread-WSL2-Linux基线与T490待补-20261119.md)。
+
 **统一 goal audit（2026-11-19）**：修正 audit 脚本对 JSON `pass: 1` 和 keyboard-only gate 的处理后，当前 2 GiB 得分汇总为 16/20（Input 仍不通过），稳定性 r10 通过；兼容性与四项性能仍未完成。详细状态与未结项见 [report/326](report/326-决赛统一goal-audit状态-20261119.md) 和 [本轮 audit JSON](evidence/2026-11-19_wsl2-goal-audit-r1/summary.json)。
 
 
