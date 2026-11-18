@@ -168,6 +168,8 @@ class ProcessStructureGateTests(unittest.TestCase):
         self.assertIn('proc_start_ms "$pid"', observer_source)
         self.assertIn("family_diagnostic_skip", observer_source)
         self.assertIn("MP_FAMILY_SKIP", observer_source)
+        self.assertIn("proc_family_stat()", observer_source)
+        self.assertIn('stability_fields=$(proc_family_stat "$pid")', observer_source)
         self.assertIn("MP_FAMILY_DIAGNOSTICS=__MP_FAMILY_DIAGNOSTICS__", observer_source)
         self.assertIn('log "MP_FAMILY_DIAGNOSTICS=$MP_FAMILY_DIAGNOSTICS"', observer_source)
         self.assertIn("__MP_FAMILY_DIAGNOSTICS__|$MP_FAMILY_DIAGNOSTICS_VALUE", round_source)

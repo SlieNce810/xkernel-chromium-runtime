@@ -457,76 +457,97 @@ watchdog() {
     done
 }
 
+proc_family_stat() {
+    family_stat_pid=$1
+    # Read stat once per candidate. Separate starttime/PPID/state reads run
+    # several awk processes per PID and made high-frequency TCG scans costly.
+    awk '{
+        line = $0
+        sub(/^.*\) /, "", line)
+        count = split(line, field, / +/)
+        if (count < 20 || field[1] !~ /^[A-Z?]$/ ||
+            field[2] !~ /^[0-9]+$/ || field[18] !~ /^[0-9]+$/ ||
+            field[20] !~ /^[0-9]+$/) exit 1
+        printf "%s %s %s %.0f\n", field[2], field[1], field[18], field[20] * 10
+    }' "/proc/$family_stat_pid/stat" 2>/dev/null
+}
+
 stability_family_snapshot() {
     [ -s "$PROCESS_FAMILY_SEEN" ] || return 0
     stability_label=$(mono_ms)
     stability_live_zygotes=" "
+    stability_n=0
+    stability_members=""
+
+    # Validate each browser-owned Zygote once, and keep its same-read fields.
     while read -r role pid ppid start_ms; do
         [ "$role" = "zygote" ] || continue
         [ "$ppid" = "$BROWSER_PID" ] || continue
-        if [ ! -d "/proc/$pid" ]; then
+        if [ ! -r "/proc/$pid/stat" ]; then
             family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" proc_missing "$start_ms" "" ""
             continue
         fi
-        stability_actual_start=$(proc_start_ms "$pid")
+        stability_fields=$(proc_family_stat "$pid") || {
+            family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" stat_unreadable "$start_ms" "" ""
+            continue
+        }
+        set -- $stability_fields
+        [ "$#" -eq 4 ] || continue
+        stability_actual_ppid=$1
+        stability_state=$2
+        stability_threads=$3
+        stability_actual_start=$4
         if [ "$stability_actual_start" != "$start_ms" ]; then
             family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" starttime_mismatch \
-                "$start_ms" "$stability_actual_start" "$(proc_ppid "$pid")"
+                "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
             continue
         fi
-        stability_actual_ppid=$(proc_ppid "$pid")
         if [ "$stability_actual_ppid" != "$BROWSER_PID" ]; then
             family_diagnostic_skip "$role" "$pid" "$BROWSER_PID" ppid_mismatch \
                 "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
             continue
         fi
         stability_live_zygotes="$stability_live_zygotes$pid "
+        stability_n=$((stability_n + 1))
+        stability_members="$stability_members $pid:browser_child/$stability_state/$stability_threads"
     done < "$PROCESS_FAMILY_SEEN"
 
-    stability_n=0
-    stability_members=""
+    # Renderer candidates are included only when their recorded Zygote parent
+    # remains live and PID, PPID, and starttime still match the observed child.
     while read -r role pid ppid start_ms; do
-        case "$role" in
-            zygote)
-                [ "$ppid" = "$BROWSER_PID" ] || continue
-                stability_kind=browser_child
-                ;;
-            renderer)
-                case "$stability_live_zygotes" in
-                    *" $ppid "*) ;;
-                    *) family_diagnostic_skip "$role" "$pid" "$ppid" zygote_parent_not_live "$start_ms" "" ""; continue ;;
-                esac
-                stability_kind=zygote_child
-                ;;
-            *)
-                continue
-                ;;
+        [ "$role" = "renderer" ] || continue
+        case "$stability_live_zygotes" in
+            *" $ppid "*) ;;
+            *) family_diagnostic_skip "$role" "$pid" "$ppid" zygote_parent_not_live "$start_ms" "" ""; continue ;;
         esac
-        if [ ! -d "/proc/$pid" ]; then
+        if [ ! -r "/proc/$pid/stat" ]; then
             family_diagnostic_skip "$role" "$pid" "$ppid" proc_missing "$start_ms" "" ""
             continue
         fi
-        stability_actual_start=$(proc_start_ms "$pid")
+        stability_fields=$(proc_family_stat "$pid") || {
+            family_diagnostic_skip "$role" "$pid" "$ppid" stat_unreadable "$start_ms" "" ""
+            continue
+        }
+        set -- $stability_fields
+        [ "$#" -eq 4 ] || continue
+        stability_actual_ppid=$1
+        stability_state=$2
+        stability_threads=$3
+        stability_actual_start=$4
         if [ "$stability_actual_start" != "$start_ms" ]; then
             family_diagnostic_skip "$role" "$pid" "$ppid" starttime_mismatch \
-                "$start_ms" "$stability_actual_start" "$(proc_ppid "$pid")"
+                "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
             continue
         fi
-        stability_actual_ppid=$(proc_ppid "$pid")
         if [ "$stability_actual_ppid" != "$ppid" ]; then
             family_diagnostic_skip "$role" "$pid" "$ppid" ppid_mismatch \
                 "$start_ms" "$stability_actual_start" "$stability_actual_ppid"
             continue
         fi
-        set -- $(proc_state_threads "$pid")
-        stability_state=$1
-        stability_threads=$2
-        case "$stability_threads" in
-            ''|*[!0-9]*) stability_threads=1 ;;
-        esac
         stability_n=$((stability_n + 1))
-        stability_members="$stability_members $pid:$stability_kind/$stability_state/$stability_threads"
+        stability_members="$stability_members $pid:zygote_child/$stability_state/$stability_threads"
     done < "$PROCESS_FAMILY_SEEN"
+
     echo "[mpdiag] MP_FAMILY_WATCHDOG label=$stability_label n=$stability_n$stability_members" \
         > /dev/console 2>/dev/null || true
 }
