@@ -43,6 +43,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R22 修正 mouse gate 假阳性**：as-run gate 将光标差分判成 counter 变化；原始 after-click 截图计数仍是 0。数字专用 ROI 复算为 0 像素变化，gate 已收窄并增加 cursor-only 与 digit-change 回归用例。CSS 导航仍失败，Input 仍 0/4；完整 session、QMP 与 PPM 哈希证据已归档，见 [report/325](report/325-T490-2GiB输入尝试r22数字ROI修正光标假阳性-20261119.md)。
 
+**inotify/timerfd Linux 基线**：扩展的 `compatprobe.c --inotify-timerfd` 在 WSL2 Linux 5.15.167.4 上 11/11 通过（inotify watch/create/read、timerfd set/poll/read）。该结果仅为 Linux 参考；T490 native Linux 与冻结版本 x-kernel 对照仍待 T490 恢复，见 [report/327](report/327-inotify-timerfd-WSL2-Linux基线与T490待补-20261119.md)。
+
 **统一 goal audit（2026-11-19）**：修正 audit 脚本对 JSON `pass: 1` 和 keyboard-only gate 的处理后，当前 2 GiB 得分汇总为 16/20（Input 仍不通过），稳定性 r10 通过；兼容性与四项性能仍未完成。详细状态与未结项见 [report/326](report/326-决赛统一goal-audit状态-20261119.md) 和 [本轮 audit JSON](evidence/2026-11-19_wsl2-goal-audit-r1/summary.json)。
 
 

@@ -22,10 +22,13 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/inotify.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
 #include <sys/signalfd.h>
@@ -35,6 +38,7 @@
 #include <sys/timerfd.h>
 #include <sys/uio.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 static int fails, oks;
@@ -55,7 +59,131 @@ static void chk(const char *name, long rc, int err, int pass)
 	rep(name, rc, err, pass);
 }
 
-int main(void)
+static void probe_inotify(void)
+{
+	char dir[] = "/tmp/xk6-inotify-XXXXXX";
+	char path[256] = {0};
+	int fd = -1, wd = -1, file_fd = -1;
+	int file_created = 0;
+	union {
+		struct inotify_event alignment;
+		char bytes[sizeof(struct inotify_event) + 128];
+	} events;
+
+	errno = 0;
+	if (!mkdtemp(dir)) {
+		chk("inotify mkdtemp", -1, errno, 0);
+		return;
+	}
+
+	errno = 0;
+	fd = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
+	chk("inotify_init1(CLOEXEC|NONBLOCK)", fd, errno, fd >= 0);
+	if (fd < 0)
+		goto cleanup;
+
+	errno = 0;
+	wd = inotify_add_watch(fd, dir, IN_CREATE | IN_CLOSE_WRITE);
+	chk("inotify_add_watch(create+close_write)", wd, errno, wd >= 0);
+	if (wd < 0)
+		goto cleanup;
+
+	if (snprintf(path, sizeof(path), "%s/probe-file", dir) >= (int)sizeof(path)) {
+		chk("inotify build watched path", -1, ENAMETOOLONG, 0);
+		goto cleanup;
+	}
+	errno = 0;
+	file_fd = open(path, O_CREAT | O_EXCL | O_WRONLY | O_CLOEXEC, 0600);
+	chk("inotify create watched file", file_fd, errno, file_fd >= 0);
+	if (file_fd < 0)
+		goto cleanup;
+	file_created = 1;
+	errno = 0;
+	ssize_t written = write(file_fd, "x", 1);
+	int write_errno = errno;
+	chk("inotify write watched file", written, write_errno, written == 1);
+	close(file_fd);
+	file_fd = -1;
+
+	struct pollfd pfd = { .fd = fd, .events = POLLIN };
+	errno = 0;
+	int poll_rc = poll(&pfd, 1, 1000);
+	int poll_errno = errno;
+	chk("inotify poll create event", poll_rc, poll_errno,
+	    poll_rc == 1 && (pfd.revents & POLLIN));
+	if (poll_rc != 1 || !(pfd.revents & POLLIN))
+		goto cleanup;
+
+	errno = 0;
+	ssize_t nread = read(fd, events.bytes, sizeof(events.bytes));
+	int read_errno = errno;
+	int found_create = 0;
+	if (nread >= (ssize_t)sizeof(struct inotify_event)) {
+		for (size_t offset = 0; offset + sizeof(struct inotify_event) <= (size_t)nread;) {
+			struct inotify_event *event =
+			    (struct inotify_event *)(events.bytes + offset);
+			if (event->wd == wd && (event->mask & IN_CREATE) &&
+			    event->len > 0 && memchr(event->name, '\0', event->len) &&
+			    strcmp(event->name, "probe-file") == 0)
+				found_create = 1;
+			size_t record_size = sizeof(*event) + event->len;
+			if (record_size == 0 || record_size > (size_t)nread - offset)
+				break;
+			offset += record_size;
+		}
+	}
+	chk("inotify read matching IN_CREATE", found_create, read_errno,
+	    found_create == 1);
+
+cleanup:
+	if (file_fd >= 0)
+		close(file_fd);
+	if (fd >= 0) {
+		if (wd >= 0) {
+			errno = 0;
+			int rm_rc = inotify_rm_watch(fd, wd);
+			chk("inotify_rm_watch", rm_rc, errno, rm_rc == 0);
+		}
+		close(fd);
+	}
+	if (file_created)
+		unlink(path);
+	rmdir(dir);
+}
+
+static void probe_timerfd(void)
+{
+	int fd;
+	errno = 0;
+	fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC | TFD_NONBLOCK);
+	chk("timerfd_create(CLOCK_MONOTONIC)", fd, errno, fd >= 0);
+	if (fd < 0)
+		return;
+
+	struct itimerspec spec;
+	memset(&spec, 0, sizeof(spec));
+	spec.it_value.tv_nsec = 50 * 1000 * 1000;
+	errno = 0;
+	int set_rc = timerfd_settime(fd, 0, &spec, NULL);
+	chk("timerfd_settime(one-shot 50ms)", set_rc, errno, set_rc == 0);
+	if (set_rc == 0) {
+		struct pollfd pfd = { .fd = fd, .events = POLLIN };
+		errno = 0;
+		int poll_rc = poll(&pfd, 1, 1000);
+		int poll_errno = errno;
+		chk("timerfd poll expiration", poll_rc, poll_errno,
+		    poll_rc == 1 && (pfd.revents & POLLIN));
+		uint64_t expirations = 0;
+		errno = 0;
+		ssize_t nread = read(fd, &expirations, sizeof(expirations));
+		int read_errno = errno;
+		chk("timerfd read expiration count", nread, read_errno,
+		    nread == (ssize_t)sizeof(expirations) && expirations >= 1);
+	}
+	close(fd);
+}
+
+int main(int argc, char **argv)
 {
 	int fds[2], fd, rc, err;
 	char buf[64];
@@ -63,6 +191,23 @@ int main(void)
 	/* ★ 无缓冲：r5 轮因 stdout 被接到 tee（管道）转全缓冲，进程退出时丢了后半段输出 */
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("[CP] pid=%d tid=%ld\n", (int)getpid(), syscall(SYS_gettid));
+	if (argc > 1 && strcmp(argv[1], "--help") == 0) {
+		printf("Usage: compatprobe [--inotify-timerfd]\n");
+		printf("  --inotify-timerfd: run only inotify create/read and timerfd set/poll/read checks\n");
+		return 0;
+	}
+	if (argc > 1 && strcmp(argv[1], "--inotify-timerfd") == 0) {
+		probe_timerfd();
+		probe_inotify();
+		printf("[CPSUM] pass=%d fail=%d\n", oks, fails);
+		printf("[RESULT] fail=%d\n", fails);
+		printf("[RESULT] %s\n", fails == 0 ? "ALL_PASS" : "HAD_FAILURE");
+		return fails ? 1 : 0;
+	}
+	if (argc > 1) {
+		fprintf(stderr, "Unknown argument: %s\n", argv[1]);
+		return 2;
+	}
 
 	/* ---------- 1. unix socket 家族 ---------- */
 	errno = 0; rc = socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
@@ -169,9 +314,8 @@ int main(void)
 		chk("eventfd(EFD_CLOEXEC|NONBLOCK)", fd, err, 0);
 	}
 
-	errno = 0; fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC | TFD_NONBLOCK);
-	chk("timerfd_create(CLOCK_MONOTONIC)", fd, errno, fd >= 0);
-	if (fd >= 0) close(fd);
+	probe_timerfd();
+	probe_inotify();
 
 	errno = 0; fd = epoll_create1(EPOLL_CLOEXEC);
 	err = errno;
@@ -277,6 +421,10 @@ int main(void)
 	{
 		int sv[2];
 		if (socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sv) == 0) {
+			int passcred = 1;
+			errno = 0; rc = setsockopt(sv[1], SOL_SOCKET, SO_PASSCRED,
+			                             &passcred, sizeof(passcred));
+			chk("setsockopt(SO_PASSCRED) on receiver", rc, errno, rc == 0);
 			char msg[8] = "c";
 			char cbuf[CMSG_SPACE(sizeof(struct ucred))];
 			struct msghdr mh;
