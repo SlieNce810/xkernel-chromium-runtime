@@ -17,6 +17,7 @@ DUR="${2:-900}"
 IVL="${3:-60}"
 INPUT_MODE="${INPUT_MODE:-pointer}"   # calibrated score path | kbd
 MULTIPROCESS="${MULTIPROCESS:-0}"
+EVDEV_PROBE="${EVDEV_PROBE:-1}"
 # The competition platform exposes virtio-mouse-pci, a relative device. QMP
 # input-send-event abs is unsupported there. Pointer mode uses the calibrated
 # HMP step4 score driver; keyboard-only mode uses QMP send-key for JS checks.
@@ -46,6 +47,7 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
 Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
+  EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
   Pointer mode uses calibrated HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.
   An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
@@ -69,6 +71,10 @@ esac
 case "$INPUT_MODE" in
     pointer|kbd) ;;
     *) die "INPUT_MODE must be pointer or kbd" ;;
+esac
+case "$EVDEV_PROBE" in
+    0|1) ;;
+    *) die "EVDEV_PROBE must be 0 or 1" ;;
 esac
 [ "$FORCE_HMP" != 1 ] || [ "$ABS_POINTER" != 1 ] \
     || die "FORCE_HMP=1 conflicts with ABS_POINTER=1; relative virtio-mouse and absolute tablet modes are separate"
@@ -150,7 +156,8 @@ MP_TRACE_VALUE=0 \
 MP_LEDGER_VALUE=0 \
 MP_WESTON_CONTINUE=0 \
 bash "$HERE/t490_round.sh" "$TAG" "$DUR" "$IVL" \
-    "$AUTORUN_SCRIPT" evdev_sniff.c > "$ROUND_LOG" 2>&1 &
+    "$AUTORUN_SCRIPT" $([ "$EVDEV_PROBE" = "1" ] && printf '%s' evdev_sniff.c) \
+    > "$ROUND_LOG" 2>&1 &
 ROUND_PID=$!
 
 # Wait for QMP without touching the disk lock or the guest.
@@ -180,7 +187,28 @@ python3 "$HERE/wait_page_ready.py" \
     > "$WORK/ready.log" 2>&1
 READY_RC=$?
 if [ "$READY_RC" -ne 0 ]; then
-    wait "$ROUND_PID"
+    # Stop the guest after the readiness failure is captured. Waiting for the
+    # normal session duration wastes many minutes without adding new evidence.
+    TIMEOUT_QUIT_RC=77
+    if [ -S "$QMP_SOCKET" ]; then
+        PYTHONPATH="$HERE" python3 - "$QMP_SOCKET" "$WORK/qmp-timeout-quit.jsonl" \
+            > "$WORK/qmp-timeout-quit.log" 2>&1 <<'PY'
+import sys
+from pathlib import Path
+from qmp_input import QmpClient
+
+client = QmpClient(sys.argv[1], Path(sys.argv[2]), force_hmp=True,
+                   qmp_send_key=True, no_clamp=True)
+client.connect(10.0)
+try:
+    print(client.command("quit"))
+finally:
+    client.close()
+PY
+        TIMEOUT_QUIT_RC=$?
+    fi
+    printf 'QMP_TIMEOUT_QUIT_RC=%s\n' "$TIMEOUT_QUIT_RC" >> "$WORK/round.log"
+    wait "$ROUND_PID" || true
     die "页面未在输入前达到 official-interaction 严格集，见 $WORK/ready.log"
 fi
 

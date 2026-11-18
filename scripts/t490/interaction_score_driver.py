@@ -13,6 +13,7 @@ import os
 import time
 from pathlib import Path
 
+from interaction_score_gate import pixel_diff
 from qmp_input import QmpClient, click_at, type_text
 
 
@@ -53,6 +54,10 @@ def main() -> int:
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--shot-dir", required=True, type=Path)
     ap.add_argument("--navigation-wait", type=float, default=45.0)
+    ap.add_argument("--keyboard-echo-timeout", type=float, default=120.0,
+                    help="maximum time to wait for guest keyboard echo under slow TCG")
+    ap.add_argument("--keyboard-echo-poll", type=float, default=10.0,
+                    help="screenshot interval while waiting for keyboard echo")
     ap.add_argument("--focus-settle", type=float, default=3.0,
                     help="delay after each Tab before saving the focus screenshot")
     ap.add_argument("--scroll-settle", type=float, default=5.0,
@@ -98,12 +103,39 @@ def main() -> int:
             c._record("checkpoint", {"name": f"focus-after-tab-{index}",
                                       "screenshot": focus_shot.name,
                                       "settle_seconds": args.focus_settle})
-        c.screendump(args.shot_dir / "before-keyboard-echo.ppm")
+        before_echo = args.shot_dir / "before-keyboard-echo.ppm"
+        after_echo = args.shot_dir / "after-keyboard-echo.ppm"
+        c.screendump(before_echo)
         type_text(c, "hello x-kernel", 0.08)
-        # Under pure TCG the QMP monitor accepts the keys immediately, but the
-        # Wayland client and renderer can consume the queued events much later.
-        time.sleep(30.0)
-        c.screendump(args.shot_dir / "after-keyboard-echo.ppm")
+        # Under pure TCG the QMP monitor accepts keys before Chromium consumes
+        # them. Keep sampling the same viewport until the text is visible, so
+        # the fixed keyboard ROI is compared before scrolling moves it.
+        echo_pass = False
+        echo_attempt = 0
+        deadline = time.monotonic() + max(0.0, args.keyboard_echo_timeout)
+        while time.monotonic() < deadline:
+            time.sleep(min(args.keyboard_echo_poll,
+                           max(0.0, deadline - time.monotonic())))
+            echo_attempt += 1
+            candidate = args.shot_dir / f"keyboard-echo-sample-{echo_attempt:02d}.ppm"
+            c.screendump(candidate)
+            echo_pass, echo_detail = pixel_diff(
+                candidate, before_echo, "220,670,1045,765", 200)
+            c._record("checkpoint", {
+                "name": "keyboard-echo-sample",
+                "attempt": echo_attempt,
+                "screenshot": candidate.name,
+                "pass": echo_pass,
+                "detail": echo_detail,
+            })
+            if echo_pass:
+                candidate.replace(after_echo)
+                break
+        if not echo_pass:
+            if echo_attempt:
+                candidate.replace(after_echo)
+            else:
+                c.screendump(after_echo)
 
         # End only moves the caret while the text field keeps focus.  PgDn
         # scrolls the document and brings the real-click button/link into the
@@ -121,7 +153,7 @@ def main() -> int:
         time.sleep(2.0)
         c.screendump(args.shot_dir / "after-mouse-click.ppm")
 
-        pointer_click(500, 710, "mouse-click-navigation", count=2)
+        pointer_click(350, 710, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
         c._record("result", {"ok": True})

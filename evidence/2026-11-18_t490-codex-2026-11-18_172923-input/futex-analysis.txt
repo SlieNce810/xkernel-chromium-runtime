@@ -1,0 +1,4 @@
+command=python3 scripts/t490/summarize_futex_trace.py evidence/2026-11-18_t490-codex-2026-11-18_172923-input/console.log --out evidence/2026-11-18_t490-codex-2026-11-18_172923-input/futex-trace-summary.json
+source=console.log from T490 run codex-2026-11-18_172923-input
+trace_scope=kernel bounded CHROMIUM_FUTEX_CALL/RESULT records, capped at 4096; dispatcher errors are counted separately and do not include futex_op
+notes=one result sequence has no parseable call because serial output interleaved; 12 calls have no result before trace end; do not infer page blocking from unmatched records

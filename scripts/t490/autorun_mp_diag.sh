@@ -43,7 +43,6 @@ WLOG=/root/mp-weston.log
 CHROME_LOG=/root/mp-chromium.log
 SEATD_LOG=/root/mp-seatd.log
 UDEVD_LOG=/root/mp-udevd.log
-EVDEV_LOG=/root/mp-evdev.log
 EVDEV_SNIFF_PID=""
 CHROMIUM_BIN=__CHROMIUM_BIN__
 RUNTIME_DIR=/run/user/0
@@ -150,8 +149,9 @@ start_evdev_sniffer() {
         log "EVDEV_SNIFF_SKIP=no_event_nodes"
         return 0
     fi
-    : > "$EVDEV_LOG"
-    /evdev_sniff "$@" > "$EVDEV_LOG" 2>&1 &
+    # /root logs are not consistently recoverable from the guest disk image;
+    # use the QEMU serial console as the durable evidence channel for this probe.
+    /evdev_sniff "$@" > /dev/console 2>&1 &
     EVDEV_SNIFF_PID=$!
     log "EVDEV_SNIFF_START pid=$EVDEV_SNIFF_PID nodes=$*"
 }

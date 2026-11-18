@@ -246,7 +246,10 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 | `childprobe.c` | Chromium 子进程启动通路（`/proc/self/exe`、fork、execve） | `[C1..C5] … PASS` |
 | `evprobe.c` | evdev 归类（EVIOCGNAME/EVIOCGID/EVIOCGBIT） | `[EVSUM]`、`[EVMAP]` |
 | `evdev_sniff.c` | 不抢占 event fd，旁路观察输入事件，用于区分 virtio-input/evdev 与 libinput/Weston 问题 | `EVDEV open_returned`、`EVDEV ev`；正式轮须把探针输出保存在 console 证据 |
+| `summarize_futex_trace.py` | 将内核 `CHROMIUM_FUTEX_CALL/RESULT` 按 sequence 配对，并统计无参数通用 syscall error | `python3 scripts/t490/summarize_futex_trace.py console.log --out futex-trace-summary.json` |
 | `drmprobe.c` | DRM open/ioctl errno + libdrm/libudev 能力 | `VERDICT_*` |
+
+`run_input_final.sh` 的 `EVDEV_PROBE=0` 可用于不注入旁路 observer 的 cold-start 对照；页面 ready 超时会先用 QMP quit 结束会话。`interaction_score_driver.py` 在目标 viewport 内轮询键盘回显，最多等待 120 秒；导航坐标依据 1280×800 滚动截图固定。
 
 ### 本轮新增 autorun
 | 文件 | 场景 |

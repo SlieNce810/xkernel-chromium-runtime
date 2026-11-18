@@ -1,0 +1,54 @@
+{
+  "schema": "xk.futex-trace-summary.v1",
+  "source": "evidence/2026-11-18_t490-codex-2026-11-18_172923-input/console.log",
+  "call_records": 4095,
+  "result_records": 4084,
+  "paired_records": 4083,
+  "calls_without_result": [
+    103,
+    164,
+    457,
+    502,
+    647,
+    648,
+    654,
+    659,
+    2901,
+    2904,
+    2990,
+    3581
+  ],
+  "results_without_call": [
+    2248
+  ],
+  "results": {
+    "Err(KErrorKind::Interrupted)": 3,
+    "Err(KErrorKind::TimedOut)": 613,
+    "Err(KErrorKind::WouldBlock)": 429,
+    "Ok(0)": 2211,
+    "Ok(1)": 827
+  },
+  "by_command": {
+    "FUTEX_WAIT": {
+      "Err(KErrorKind::Interrupted)": 3,
+      "Err(KErrorKind::TimedOut)": 613,
+      "Err(KErrorKind::WouldBlock)": 429,
+      "Ok(0)": 840
+    },
+    "FUTEX_WAKE": {
+      "Ok(0)": 1371,
+      "Ok(1)": 827
+    }
+  },
+  "syscall_error_log_counts": {
+    "Interrupted": 4,
+    "OperationNotSupported": 1,
+    "TimedOut": 95805,
+    "WouldBlock": 657
+  },
+  "interpretation": {
+    "WouldBlock": "For FUTEX_WAIT, x-kernel's observed value-mismatch path; Linux FUTEX_WAIT returns EAGAIN/EWOULDBLOCK for this race. This is not by itself a blocking failure.",
+    "TimedOut": "For a finite FUTEX_WAIT timeout, the expected ETIMEDOUT result. It is not by itself a blocking failure.",
+    "OperationNotSupported": "The dispatcher log lacks futex_op and the bounded Chromium trace skips early unsupported-command returns; do not attribute this count to a specific operation or page failure."
+  }
+}

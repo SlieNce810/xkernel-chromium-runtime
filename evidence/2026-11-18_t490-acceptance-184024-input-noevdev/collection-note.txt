@@ -1,0 +1,3 @@
+R9 run-control note
+
+The T490 precheck ran through scripts/final-acceptance.sh and passed 35 checks with one warning that the kernel source tree was dirty. The input round used the repository's run_input_final.sh in a detached T490 launcher because the R8 foreground SSH wrapper stayed open after the remote session ended. The launcher wrote its exit code to a dedicated rc file; R9 completed with rc=1 because the interaction score gate did not pass. QEMU itself quit normally (QMP_QUIT_RC=0), and the complete remote evidence bundle is authoritative.
