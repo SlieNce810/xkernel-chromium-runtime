@@ -48,6 +48,17 @@ def click_step(c: QmpClient, x: int, y: int, label: str, count: int = 1,
                               "click_count": count})
 
 
+def pointer_targets(pointer_mode: str) -> tuple[tuple[int, int], tuple[int, int]]:
+    """Return counter and CSS-link targets calibrated for each relative mode."""
+    if pointer_mode == "step3":
+        # R15's screenshot placed the cursor near (350,710) after a request to
+        # (281,674), a lower-right offset of about 69x36 pixels.
+        return (212, 638), (350, 710)
+    if pointer_mode == "step1":
+        return (281, 674), (350, 710)
+    return (247, 607), (292, 638)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--socket", required=True)
@@ -152,14 +163,17 @@ def main() -> int:
                                       "screenshot": scroll_shot.name,
                                       "settle_seconds": args.scroll_settle})
         c.screendump(args.shot_dir / "after-scroll.ppm")
-        counter_target = (281, 674) if pointer_mode in {"step1", "step3"} else (247, 607)
+        counter_target, nav_target = pointer_targets(pointer_mode)
         pointer_click(*counter_target, "real-click-plus-one", count=2)
         time.sleep(2.0)
         c.screendump(args.shot_dir / "after-mouse-click.ppm")
 
-        nav_target = (350, 710) if pointer_mode in {"step1", "step3"} else (292, 638)
         pointer_click(*nav_target, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)
+        c.key("home")
+        time.sleep(2.0)
+        c._record("checkpoint", {"name": "layout-return-to-top",
+                                  "settle_seconds": 2.0})
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
         c._record("result", {"ok": True})
         return 0
