@@ -1,0 +1,6 @@
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-18_231427-input-step3-adjusted-counter-pageup-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-18_231427-input-step3-adjusted-counter-pageup-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-18_231427-input-step3-adjusted-counter-pageup-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-18_231427-input-step3-adjusted-counter-pageup.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step3 INPUT_NAVIGATION_WAIT=60 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-18_231427-input-step3-adjusted-counter-pageup 2400 60
+step3_counter_target=250,588; css_link_target=350,710; after_navigation=3xPageUp
+driver_sha256=9c27fd547299a8b64f5b313cc16adf9fffa5237180b0d0014727958e3ffff8c5

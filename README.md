@@ -33,6 +33,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R17 交互复核**：ready、JS、Keyboard gate 通过；HMP step3 导航实际打开了 CSS 页，但 Home 未将 viewport 回到顶部。计数仍为 0，截图测得指针落点偏移后已更新下一轮 counter 候选坐标；导航后改用 PageUp，见 [report/320](report/320-T490-2GiB输入尝试r17step3计数仍为零CSS页打开home未回顶-20261118.md)。
 
+**R18 交互复核**：2 GiB 页面在第 47 次采样通过 ready，JS 与 Keyboard gate 通过；counter 仍为 0，HMP 点击未打开 CSS 页，因此不能判定 CSS 页面上的 PageUp 校正。QMP 正常退出；Input 仍为 0/4，见 [report/321](report/321-T490-2GiB输入尝试r18step3计数与导航仍失败-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
