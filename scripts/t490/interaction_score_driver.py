@@ -53,6 +53,10 @@ def main() -> int:
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--shot-dir", required=True, type=Path)
     ap.add_argument("--navigation-wait", type=float, default=45.0)
+    ap.add_argument("--focus-settle", type=float, default=3.0,
+                    help="delay after each Tab before saving the focus screenshot")
+    ap.add_argument("--scroll-settle", type=float, default=5.0,
+                    help="delay after each PageDown before saving the scroll screenshot")
     args = ap.parse_args()
     args.shot_dir.mkdir(parents=True, exist_ok=True)
     absolute = os.environ.get("INTERACTION_ABSOLUTE", "0") == "1"
@@ -86,9 +90,14 @@ def main() -> int:
 
         # The self-test button retains focus after Enter; Tab visits Reset and
         # then the text field, so two additional stops are sufficient here.
-        for _ in range(2):
+        for index in range(1, 3):
             c.key("tab")
-            time.sleep(0.3)
+            time.sleep(args.focus_settle)
+            focus_shot = args.shot_dir / f"focus-after-tab-{index}.ppm"
+            c.screendump(focus_shot)
+            c._record("checkpoint", {"name": f"focus-after-tab-{index}",
+                                      "screenshot": focus_shot.name,
+                                      "settle_seconds": args.focus_settle})
         c.screendump(args.shot_dir / "before-keyboard-echo.ppm")
         type_text(c, "hello x-kernel", 0.08)
         # Under pure TCG the QMP monitor accepts the keys immediately, but the
@@ -99,10 +108,14 @@ def main() -> int:
         # End only moves the caret while the text field keeps focus.  PgDn
         # scrolls the document and brings the real-click button/link into the
         # pointer viewport.
-        c.key("pgdn")
-        time.sleep(5.0)
-        c.key("pgdn")
-        time.sleep(5.0)
+        for index in range(1, 3):
+            c.key("pgdn")
+            time.sleep(args.scroll_settle)
+            scroll_shot = args.shot_dir / f"after-pgdn-{index}.ppm"
+            c.screendump(scroll_shot)
+            c._record("checkpoint", {"name": f"after-pgdn-{index}",
+                                      "screenshot": scroll_shot.name,
+                                      "settle_seconds": args.scroll_settle})
         c.screendump(args.shot_dir / "after-scroll.ppm")
         pointer_click(281, 674, "real-click-plus-one", count=2)
         time.sleep(2.0)
