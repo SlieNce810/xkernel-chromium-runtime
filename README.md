@@ -17,6 +17,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R9 输入复测**：关闭 evdev observer 后，`interaction.html` 在第 45 次采样通过 strict ready；JS 自检显示 6/6。30 秒 keyboard echo gate 未通过，但稍后的鼠标阶段截图中输入框和回显区都出现 `hello x-kernel`；HMP 点击后计数仍为 0，CSS 链接也没有导航，Input 继续为 0/4。R5 曾在无 observer 时 ready 超时，因此 R9/R8 还不能证明 observer 是启动失败的原因。报告与证据见 [report/312](report/312-T490-2GiB输入尝试r9交互页ready通过键盘回显延迟鼠标未通-20261118.md)。
 
+**R10 探针复测**：`EVDEV_PROBE=1` 时 ready gate 在 2,000 秒后仍超时；sniffer 打开 keyboard/mouse event 节点，但因页面未 ready 没有输入事件。QMP 早退成功，QEMU 记录 2,013 秒即结束。R5 的 no-probe timeout 仍是反例，因此当前 probe-on/off 差异只作待复验线索，见 [report/313](report/313-T490-2GiB输入尝试r10探针开启ready超时及QMP早退-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
