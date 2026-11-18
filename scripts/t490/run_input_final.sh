@@ -48,6 +48,7 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
 Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
   EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
+  INTERACTION_POINTER_MODE=step1 uses one-pixel, 50 ms HMP steps for pointer calibration.
   Pointer mode uses calibrated HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.
   An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
@@ -259,7 +260,7 @@ else
     # step the HMP pointer in 4-pixel increments, click the counter, and navigate.
     mkdir -p "$WORK/interaction-shots"
     INTERACTION_FORCE_HMP=1 \
-    INTERACTION_POINTER_MODE=step4 \
+    INTERACTION_POINTER_MODE="${INTERACTION_POINTER_MODE:-step4}" \
         python3 "$HERE/interaction_score_driver.py" \
         --socket "$QMP_SOCKET" --output "$QMP_LOG" \
         --shot-dir "$WORK/interaction-shots" \

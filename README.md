@@ -23,6 +23,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R12 指针坐标复测**：keyboard echo 与 JS gate 通过；新计数 ROI 确认鼠标仍未增加计数，CSS 链接也没有导航。更正后的按钮/链接坐标仍落在页面下缘，下一轮将改为单像素、较慢的相对步进，见 [report/315](report/315-T490-2GiB输入尝试r12修正坐标后鼠标点击仍未生效-20261118.md)。
 
+**R13 step1 校准请求未生效**：launcher 请求 step1，但 T490 旧 runner 仍写死 step4；QMP ledger 证明本轮实际为 step4，因此 R13 不计作单像素验证。仓库 runner 已支持透传模式，下一轮同步后会核对双方哈希，见 [report/316](report/316-T490-2GiB输入尝试r13单像素模式未同步仍运行step4-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
