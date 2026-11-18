@@ -33,13 +33,19 @@ def run_ppm(*args: str) -> tuple[bool, str, dict[str, Any]]:
 
 
 def layout_verdict(path: Path) -> tuple[bool, str]:
-    """Check the rendered CSS page's own 6/6 verdict in a scrolled viewport."""
+    """Require both CSS-specific geometry and the page's 6/6 verdict.
+
+    A green JavaScript self-test bar can appear on interaction.html too, so the
+    verdict color alone cannot prove that a real mouse click navigated to the
+    CSS page. Keep a separate assertion artifact and require the complete
+    official-layout strict profile before accepting navigation.
+    """
     if not path.is_file():
         return False, f"missing: {path}"
-    report = path.with_suffix(path.suffix + ".layout-assert.json")
+    report = path.with_suffix(path.suffix + ".layout-strict-validation.json")
     proc = subprocess.run(
         [sys.executable, str(PPM_ASSERT), str(path), "--profile", "official-layout",
-         "--json", str(report), "--quiet"],
+         "--strict", "--json", str(report), "--quiet"],
         text=True, capture_output=True, check=False,
     )
     try:
@@ -47,8 +53,12 @@ def layout_verdict(path: Path) -> tuple[bool, str]:
         check = next(row for row in data.get("checks", [])
                      if row.get("check") == "layout_verdict_pass")
     except (OSError, json.JSONDecodeError, StopIteration) as exc:
-        return False, f"layout verdict assertion unavailable: {exc}"
-    return bool(check.get("pass")), check.get("detail", f"ppm_assert rc={proc.returncode}")
+        return False, f"layout strict assertion unavailable: {exc}"
+    strict_failures = data.get("strict_fail_names", [])
+    detail = check.get("detail", f"ppm_assert rc={proc.returncode}")
+    if proc.returncode != 0 or strict_failures:
+        return False, f"official-layout strict failed {strict_failures}; {detail}"
+    return bool(check.get("pass")), detail
 
 
 def pixel_diff(after: Path, before: Path, roi: str, minimum: int) -> tuple[bool, str]:

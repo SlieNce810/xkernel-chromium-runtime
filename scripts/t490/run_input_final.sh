@@ -15,12 +15,12 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 TAG="${1:-input-final}"
 DUR="${2:-900}"
 IVL="${3:-60}"
-INPUT_MODE="${INPUT_MODE:-pointer}"   # pointer | kbd
+INPUT_MODE="${INPUT_MODE:-pointer}"   # calibrated score path | kbd
 MULTIPROCESS="${MULTIPROCESS:-0}"
-# The competition platform exposes virtio-mouse-pci, a relative device.  QMP
-# input-send-event abs is unsupported there; use the previously validated HMP
-# mouse path and QMP send-key for keyboard events.  Set FORCE_HMP=0 and
-# ABS_POINTER=1 only for a session that actually attaches an absolute tablet.
+# The competition platform exposes virtio-mouse-pci, a relative device. QMP
+# input-send-event abs is unsupported there. Pointer mode uses the calibrated
+# HMP step4 score driver; keyboard-only mode uses QMP send-key for JS checks.
+# Set FORCE_HMP=0 and ABS_POINTER=1 only with an attached absolute tablet.
 FORCE_HMP="${FORCE_HMP:-1}"
 ABS_POINTER="${ABS_POINTER:-0}"
 NO_CLAMP_DEFAULT=1
@@ -46,7 +46,8 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
 Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
-  Default pointer mode uses HMP relative virtio-mouse + QMP send-key with no-clamp.
+  Pointer mode uses calibrated HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
+  Kbd mode performs the keyboard-only JavaScript self-test.
   An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
   PKG_TARBALL is optional when BASE_IMG already contains the installed runtime.
 EOF
@@ -64,6 +65,10 @@ esac
 case "$NO_CLAMP" in
     0|1) ;;
     *) die "NO_CLAMP must be 0 or 1" ;;
+esac
+case "$INPUT_MODE" in
+    pointer|kbd) ;;
+    *) die "INPUT_MODE must be pointer or kbd" ;;
 esac
 [ "$FORCE_HMP" != 1 ] || [ "$ABS_POINTER" != 1 ] \
     || die "FORCE_HMP=1 conflicts with ABS_POINTER=1; relative virtio-mouse and absolute tablet modes are separate"
@@ -217,17 +222,20 @@ if [ "$INPUT_MODE" = "kbd" ]; then
     INPUT_RC=$?
     AFTER="$WORK/kbd/after-enter.ppm"
 else
-    python3 "$HERE/qmp_input.py" \
+    # The raw one-shot relative coordinates are accelerated by libinput and
+    # can scroll the page without reaching its controls.  Use the historical
+    # calibrated real-input driver: activate the window, exercise keyboard echo,
+    # step the HMP pointer in 4-pixel increments, click the counter, and navigate.
+    mkdir -p "$WORK/interaction-shots"
+    INTERACTION_FORCE_HMP=1 \
+    INTERACTION_POINTER_MODE=step4 \
+        python3 "$HERE/interaction_score_driver.py" \
         --socket "$QMP_SOCKET" --output "$QMP_LOG" \
-        --qmp-send-key $FORCE_HMP_ARGS $NO_CLAMP_ARGS --skip-index --skip-layout-navigation $ABS_ARGS $SELFTEST_ARGS $ECHO_ARGS $ECHO_SHOTS $KBD_ECHO_ARGS \
-        --input-target "${QMP_INPUT_TARGET:-auto}" \
-        --ready-wait 0 --interaction-hold 8 \
-        --input-text "hello x-kernel" \
-        --self-test-x 271 --self-test-y 194 \
-        --text-x "${ECHO_TEXT_X:-340}" --text-y "${ECHO_TEXT_Y:-698}" \
-        --final-screenshot "$AFTER" \
+        --shot-dir "$WORK/interaction-shots" \
+        --navigation-wait "${INPUT_NAVIGATION_WAIT:-180}" \
         > "$WORK/qmp-input.log" 2>&1
     INPUT_RC=$?
+    AFTER="$WORK/interaction-shots/after-selftest.ppm"
 fi
 
 # CDP 只作辅助：赛题只认 screendump，且当前 platform.env 没有 hostfwd，
@@ -240,6 +248,25 @@ if [ "${CDP_AUX:-1}" = "1" ]; then
         --output "$CDP_LOG" --connect-timeout 5 \
         > "$STATE_JSON" 2> "$WORK/cdp-probe.log"
     CDP_RC=$?
+fi
+
+QMP_QUIT_RC=77
+if [ "$INPUT_MODE" = "pointer" ]; then
+    # A score-page input round ends as soon as all real interactions are captured.
+    PYTHONPATH="$HERE" python3 - "$QMP_SOCKET" "$QMP_LOG" > "$WORK/qmp-quit.log" 2>&1 <<'PY'
+import sys
+from pathlib import Path
+from qmp_input import QmpClient
+client = QmpClient(sys.argv[1], Path(sys.argv[2]), force_hmp=True,
+                   qmp_send_key=True, no_clamp=True)
+client.connect(10.0)
+try:
+    print(client.command("quit"))
+finally:
+    client.close()
+PY
+    QMP_QUIT_RC=$?
+    echo "QMP_QUIT_RC=$QMP_QUIT_RC" >> "$WORK/round.log"
 fi
 
 PPM_RC=99
@@ -287,6 +314,17 @@ fi
 wait "$ROUND_PID"
 ROUND_RC=$?
 
+SCORE_GATE_RC=77
+if [ "$INPUT_MODE" = "pointer" ]; then
+    cp -f "$QMP_LOG" "$WORK/interaction-events.jsonl"
+    python3 "$HERE/interaction_score_gate.py" "$WORK" \
+        --out "$OUT/interaction-score-gate.json" \
+        --ready-rc "$READY_RC" --driver-rc "$INPUT_RC" \
+        --round-rc "$ROUND_RC" --strict \
+        > "$WORK/interaction-score-gate.log" 2>&1
+    SCORE_GATE_RC=$?
+fi
+
 # Copy evidence after the round; never delete the source trail.
 if [ -d "$OUT" ]; then
     cp -f "$ROUND_LOG" "$OUT/round-orchestrator.log" 2>/dev/null || true
@@ -296,15 +334,26 @@ if [ -d "$OUT" ]; then
     cp -f "$AFTER_JSON" "$OUT/after-assert.json" 2>/dev/null || true
     cp -f "$READY_DIR"/ready-*.ppm "$OUT/" 2>/dev/null || true
     cp -f "$WORK"/kbd/*.ppm "$OUT/" 2>/dev/null || true
+    if [ -d "$WORK/interaction-shots" ]; then cp -a "$WORK/interaction-shots" "$OUT/"; fi
+    if [ -f "$WORK/interaction-events.jsonl" ]; then cp -f "$WORK/interaction-events.jsonl" "$OUT/"; fi
+    if [ -f "$WORK/interaction-score-gate.log" ]; then cp -f "$WORK/interaction-score-gate.log" "$OUT/"; fi
+    if [ -f "$WORK/qmp-quit.log" ]; then cp -f "$WORK/qmp-quit.log" "$OUT/"; fi
     cp -f "$DIFF_JSON" "$OUT/input-diff.json" 2>/dev/null || true
     cp -f "$AFTER" "$OUT/input-after.ppm" 2>/dev/null || true
     cp -f "$BEFORE" "$OUT/input-before.ppm" 2>/dev/null || true
 fi
 
 PASS=0
-[ "$BEFORE_RC" -eq 0 ] && [ "$INPUT_RC" -eq 0 ] && \
-    [ "$PPM_RC" -eq 0 ] && [ "$PIXEL_RC" -eq 0 ] && \
-    [ "$DIFF_CHANGED" -eq 1 ] && [ "$ROUND_RC" -eq 0 ] && PASS=1
+if [ "$INPUT_MODE" = "pointer" ]; then
+    [ "$BEFORE_RC" -eq 0 ] && [ "$INPUT_RC" -eq 0 ] && \
+        [ "$PPM_RC" -eq 0 ] && [ "$PIXEL_RC" -eq 0 ] && \
+        [ "$DIFF_CHANGED" -eq 1 ] && [ "$SCORE_GATE_RC" -eq 0 ] && \
+        [ "$QMP_QUIT_RC" -eq 0 ] && [ "$ROUND_RC" -eq 0 ] && PASS=1
+else
+    [ "$BEFORE_RC" -eq 0 ] && [ "$INPUT_RC" -eq 0 ] && \
+        [ "$PPM_RC" -eq 0 ] && [ "$PIXEL_RC" -eq 0 ] && \
+        [ "$DIFF_CHANGED" -eq 1 ] && [ "$ROUND_RC" -eq 0 ] && PASS=1
+fi
 
 cat > "$GATE_JSON" <<EOF
 {
@@ -326,6 +375,8 @@ cat > "$GATE_JSON" <<EOF
   "input_changed_pixels": $DIFF_CHANGED,
   "dom_state_ok": $STATE_OK,
   "round_rc": $ROUND_RC,
+  "qmp_quit_rc": $QMP_QUIT_RC,
+  "interaction_score_gate_rc": $SCORE_GATE_RC,
   "pass": $PASS
 }
 EOF
