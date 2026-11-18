@@ -245,6 +245,7 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 | `fdprobe.c` | P1：SCM_RIGHTS 跨进程 fd 传递（T1–T4） | `[Tn] VERDICT_PASS` |
 | `childprobe.c` | Chromium 子进程启动通路（`/proc/self/exe`、fork、execve） | `[C1..C5] … PASS` |
 | `evprobe.c` | evdev 归类（EVIOCGNAME/EVIOCGID/EVIOCGBIT） | `[EVSUM]`、`[EVMAP]` |
+| `evdev_sniff.c` | 不抢占 event fd，旁路观察输入事件，用于区分 virtio-input/evdev 与 libinput/Weston 问题 | `EVDEV open_returned`、`EVDEV ev`；正式轮须把探针输出保存在 console 证据 |
 | `drmprobe.c` | DRM open/ioctl errno + libdrm/libudev 能力 | `VERDICT_*` |
 
 ### 本轮新增 autorun

@@ -212,6 +212,7 @@ if [ -f "$PULL" ]; then
         /root/single-udevd.log /root/single-udev-trigger.log /root/single-udev-settle.log \
         /root/mp-diag.log /root/mp-weston.log /root/mp-weston-stdout.log /root/mp-seatd.log \
         /root/mp-udevd.log /root/mp-udev-trigger.log /root/mp-udev-settle.log /root/mp-chromium.log \
+        /root/mp-evdev.log \
         /root/headless-sandbox.log /root/headless-sandbox.err /root/headless-sandbox.html \
         /root/headless-sandbox.maps \
         /tmp/headless-sandbox-child.identity /tmp/sandbox.strace \

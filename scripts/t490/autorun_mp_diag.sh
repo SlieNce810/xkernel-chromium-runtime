@@ -43,6 +43,8 @@ WLOG=/root/mp-weston.log
 CHROME_LOG=/root/mp-chromium.log
 SEATD_LOG=/root/mp-seatd.log
 UDEVD_LOG=/root/mp-udevd.log
+EVDEV_LOG=/root/mp-evdev.log
+EVDEV_SNIFF_PID=""
 CHROMIUM_BIN=__CHROMIUM_BIN__
 RUNTIME_DIR=/run/user/0
 PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
@@ -130,6 +132,28 @@ write_input_seat_metadata() {
         } > "$data"
         log "INPUT_SEAT dev=$dev major=$major minor=$minor name=$name data=$data"
     done
+}
+# When the round injects evdev_sniff.c, observe the real kernel event nodes
+# without grabbing them. This separates QEMU/virtio delivery from libinput,
+# Weston focus, and browser coordinate failures.
+start_evdev_sniffer() {
+    if [ ! -x /evdev_sniff ]; then
+        log "EVDEV_SNIFF_SKIP=probe_not_injected"
+        return 0
+    fi
+    set --
+    for dev in /dev/input/event*; do
+        [ -c "$dev" ] || continue
+        set -- "$@" "$dev"
+    done
+    if [ "$#" -eq 0 ]; then
+        log "EVDEV_SNIFF_SKIP=no_event_nodes"
+        return 0
+    fi
+    : > "$EVDEV_LOG"
+    /evdev_sniff "$@" > "$EVDEV_LOG" 2>&1 &
+    EVDEV_SNIFF_PID=$!
+    log "EVDEV_SNIFF_START pid=$EVDEV_SNIFF_PID nodes=$*"
 }
 
 # ---------------------------------------------------------------- 账本原语
@@ -406,6 +430,9 @@ cleanup() {
     if [ -n "${SEATD_PID:-}" ] && [ -d "/proc/$SEATD_PID" ]; then
         kill -TERM "$SEATD_PID" 2>/dev/null || true
     fi
+    if [ -n "${EVDEV_SNIFF_PID:-}" ] && [ -d "/proc/$EVDEV_SNIFF_PID" ]; then
+        kill -TERM "$EVDEV_SNIFF_PID" 2>/dev/null || true
+    fi
     if [ -n "${UDEVD_PID:-}" ] && [ -d "/proc/$UDEVD_PID" ]; then
         kill -TERM "$UDEVD_PID" 2>/dev/null || true
     fi
@@ -492,6 +519,7 @@ log "DRM_NODES=$(ls -l /dev/dri 2>&1 || true)"
 log "INPUT_NODES=$(ls -l /dev/input 2>&1 || true)"
 log "DRM_SYSFS=$(find /sys/class/drm -maxdepth 2 \( -type f -o -type l \) 2>&1 | sort)"
 write_input_seat_metadata
+start_evdev_sniffer
 
 if command -v seatd >/dev/null 2>&1; then
     SEATD_VTBOUND=0 seatd -l info > "$SEATD_LOG" 2>&1 &
