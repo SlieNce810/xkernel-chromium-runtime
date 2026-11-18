@@ -54,8 +54,9 @@ def pointer_targets(pointer_mode: str) -> tuple[tuple[int, int], tuple[int, int]
 
     INTERACTION_COUNTER_TARGET and INTERACTION_NAV_TARGET may override a
     request as ``x,y``. The step3 defaults use screenshot-measured HMP cursor
-    hot-spots from R17/R18 and a two-point linear estimate; they remain
-    candidates until the actual click gates pass.
+    hot-spots from the last in-frame R18 trial. R19's two-point extrapolation
+    left the viewport, so it is retained only as a failed experiment in the
+    report. Defaults remain candidates until the actual click gates pass.
     """
     return pointer_targets_from_env(pointer_mode, os.environ)
 
@@ -65,7 +66,7 @@ def pointer_targets_from_env(
 ) -> tuple[tuple[int, int], tuple[int, int]]:
     """Resolve per-run pointer targets without editing the driver."""
     if pointer_mode == "step3":
-        defaults = ((233, 1138), (287, 778))
+        defaults = ((250, 588), (350, 710))
     elif pointer_mode == "step1":
         defaults = ((281, 674), (350, 710))
     else:

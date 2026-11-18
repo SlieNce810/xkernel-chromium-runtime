@@ -49,6 +49,8 @@ Usage: run_input_final.sh [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
   EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
   INTERACTION_POINTER_MODE=step1|step3 selects a slower relative-pointer calibration.
+  INTERACTION_COUNTER_TARGET=x,y and INTERACTION_NAV_TARGET=x,y override relative movement requests.
+  These are HMP move inputs after the off-screen reset, not absolute screen coordinates.
   Pointer mode defaults to historical HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.
   An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.

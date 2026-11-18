@@ -61,8 +61,8 @@ class ClickStepTests(unittest.TestCase):
 
 
 class PointerTargetTests(unittest.TestCase):
-    def test_step3_uses_two_screenshot_measured_rounds(self) -> None:
-        self.assertEqual(((233, 1138), (287, 778)),
+    def test_step3_keeps_last_in_frame_candidate_after_extrapolation_failed(self) -> None:
+        self.assertEqual(((250, 588), (350, 710)),
                          pointer_targets_from_env("step3", {}))
 
     def test_per_run_targets_override_without_editing_driver(self) -> None:
