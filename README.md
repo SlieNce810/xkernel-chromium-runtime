@@ -15,6 +15,8 @@ Weston 14（DRM/pixman）图形会话 + 单进程 Chromium 渲染组委会指定
 
 **仍待完成**：双页签、真实输入、JavaScript、CSS 等其余功能仍待在 2 GiB 下复验。稳定性 r10 首次通过正式 gate：14 guest 秒 family watchdog 目标周期下，strict 首页采样上界 466.573 秒、保持 1,805.0005 秒、10/10 次真实重载通过，60 个 host liveness 样本中的 family 年龄最大 30.047 秒；详见 [report/299](report/299-T490-2GiB稳定性尝试r10完整保持及十次重载通过-20261118.md)。r9 的 4 秒目标周期首屏超时，与 r10 形成单变量观察，但每种配置都只有一轮，不构成性能收益结论。其余功能仍待 2 GiB 复验；兼容性矩阵仍有冻结版本复测缺项；四项性能指标的完整事件与 RSS/PSS/USS 数据、before/after 各五轮及优化结论仍待完成。
 
+统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
+
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
 
 | 维度 | 结果 | 归档证据 |

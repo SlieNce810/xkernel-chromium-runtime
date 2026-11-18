@@ -1,0 +1,9 @@
+bash -n scripts/final-acceptance.sh scripts/t490/remote.sh
+bash scripts/final-acceptance.sh --help
+python3 scripts/baseline_inventory.py --root . --out <evidence>/baseline-inventory.json
+python3 scripts/evidence_completeness.py evidence/2026-11-18_t490-goal2g-stability-r10 --stage stability --strict
+python3 scripts/goal_audit.py --root . --strict  # expected rc=1 while required work remains
+ACCEPTANCE_OUT=<evidence>/invalid-stage-should-not-exist bash scripts/final-acceptance.sh invalid  # rc=64, no output directory
+T490_TARGET=mo@10.249.11.192 bash scripts/t490/remote.sh ssh "date +%F_%T_%Z"
+T490_TARGET=mo@10.249.11.192 bash scripts/t490/remote.sh ssh "<read-only qemu process check>"
+ACCEPTANCE_DRY_RUN=1 ACCEPTANCE_OUT=<evidence>/dry-run-r2 bash scripts/final-acceptance.sh all

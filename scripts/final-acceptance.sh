@@ -5,21 +5,16 @@ set -o pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 T490="$ROOT/scripts/t490"
-RUN_DATE="$(date +%Y-%m-%d)"
-RUN_TIME="$(date +%H%M%S)"
-STAMP="${RUN_DATE}_${RUN_TIME}"
-OUT="${ACCEPTANCE_OUT:-$ROOT/evidence/${RUN_DATE}_t490-acceptance-${RUN_TIME}}"
-SUMMARY="$OUT/acceptance.json"
-mkdir -p "$OUT"
 
 usage() {
     cat <<'EOF'
 Usage: bash scripts/final-acceptance.sh <baseline|precheck|score|score-process|html|multiprocess|tabs|input|javascript|css|sandbox|function|stability|perf|report|all>
 
 Environment hooks (the default commands are intentionally conservative):
+  T490_TARGET         SSH target, e.g. mo@10.249.11.192 (required for live stages)
   ACCEPTANCE_OUT      evidence output directory
   ACCEPTANCE_PRECHECK platform command (default: remote T490 read-only precheck)
-  RUN_FUNCTION_CMD    optional override; default runs official HTML on T490/2 GiB
+  RUN_FUNCTION_CMD    optional override; default runs all six browser score items on T490/2 GiB
   RUN_HTML_CMD        optional override; default specified-HTML T490 runner (4 points)
   RUN_TABS_CMD        optional override; default two-tab QMP runner (4 points)
   RUN_INPUT_CMD       optional override; default real QMP input runner
@@ -42,6 +37,9 @@ Environment hooks (the default commands are intentionally conservative):
 
 One-command stage entry (long running on the pure-TCG T490):
   bash scripts/final-acceptance.sh all
+
+The `function` and `score` stages run all six browser score items. Use `html`
+to run only the specified index page.
 EOF
 }
 
@@ -53,6 +51,17 @@ fi
 if [[ $# -ne 1 ]]; then usage >&2; exit 64; fi
 stage="$1"
 case "$stage" in baseline|precheck|score|score-process|html|multiprocess|tabs|input|javascript|css|sandbox|function|stability|perf|report|all) ;; *) usage; exit 64 ;; esac
+
+RUN_DATE="$(date +%Y-%m-%d)"
+RUN_TIME="$(date +%H%M%S)"
+STAMP="${RUN_DATE}_${RUN_TIME}"
+OUT="${ACCEPTANCE_OUT:-$ROOT/evidence/${RUN_DATE}_t490-acceptance-${RUN_TIME}}"
+SUMMARY="$OUT/acceptance.json"
+if [[ -e "$OUT" ]]; then
+    echo "ACCEPTANCE_OUT already exists; refusing to overwrite: $OUT" >&2
+    exit 73
+fi
+mkdir -p "$OUT"
 
 declare -A results
 run_stage() {
@@ -83,7 +92,10 @@ run_default_stage() {
     local name="$1"
     local tag="codex-${STAMP}"
     case "$name" in
-        function|html)
+        function)
+            run_function_stage
+            ;;
+        html)
             run_remote_stage "$name" \
                 "env -u PLAT_MEM_OVERRIDE SCORE_AUTORUN=autorun_mp_score_observe6.sh PROCESS_STRUCTURE_GATE=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless bash scripts/t490/run_score_page_mp.sh html ${tag}-html 1800 60"
             ;;
@@ -109,7 +121,7 @@ run_default_stage() {
             ;;
         stability)
             run_remote_stage "$name" \
-                "env -u PLAT_MEM_OVERRIDE EXTRA_FLAGS_VALUE=--js-flags=--jitless bash scripts/t490/run_stability_round_mp.sh ${tag}-stability 4200 30"
+                "env -u PLAT_MEM_OVERRIDE MP_FAMILY_WATCHDOG_INTERVAL=14 MP_FAMILY_DIAGNOSTICS=1 bash scripts/t490/run_stability_round_mp.sh ${tag}-stability 4200 30"
             ;;
         perf)
             local plan="${ACCEPTANCE_PERF_PLAN:-}"
@@ -135,7 +147,7 @@ run_default_stage() {
             ;;
         report)
             run_stage report python3 "$ROOT/scripts/goal_audit.py" \
-                --root "$ROOT" --summary "$OUT/goal-audit.json"
+                --root "$ROOT" --summary "$OUT/goal-audit.json" --strict
             ;;
         *)
             echo "no default command for stage: $name" >&2
@@ -247,6 +259,18 @@ run_browser_score_path() {
     run_explicit css RUN_CSS_CMD
 }
 
+run_function_stage() {
+    run_browser_score_path
+    local rc=0 name
+    for name in score-process html tabs input javascript css; do
+        if [[ "${results[$name]:-78}" -ne 0 ]]; then
+            rc=1
+        fi
+    done
+    results[function]=$rc
+    return "$rc"
+}
+
 run_baseline() {
     local baseline_root="${ACCEPTANCE_BASELINE_ROOT:-$ROOT}"
     run_stage baseline python3 "$ROOT/scripts/baseline_inventory.py" \
@@ -294,7 +318,7 @@ set +e
 case "$stage" in
     baseline) run_baseline ;;
     precheck) run_precheck_stage ;;
-    score) run_browser_score_path ;;
+    score) run_explicit function RUN_FUNCTION_CMD ;;
     score-process) run_process_score_gate ;;
     html) run_explicit html RUN_HTML_CMD ;;
     multiprocess) run_multiprocess_gate ;;
@@ -311,18 +335,16 @@ case "$stage" in
         run_baseline
         run_precheck_stage
         if [[ ${results[precheck]} -eq 0 ]]; then
-            # Run the six scoring items as one independent path.  The broader
-            # architecture gates below are recorded separately and never
-            # prevent these browser-function checks from running.
-            run_browser_score_path
-        fi
-        if [[ -n "${RUN_FUNCTION_CMD:-}" ]]; then
             run_explicit function RUN_FUNCTION_CMD
+            run_explicit stability RUN_STABILITY_CMD
+            run_explicit perf RUN_PERF_CMD
         else
-            results[function]=${results[html]:-78}
+            # Do not launch browser sessions on a platform that failed its
+            # required precheck. Preserve explicit skipped statuses in report.
+            for name in score-process html tabs input javascript css function stability perf; do
+                results[$name]=78
+            done
         fi
-        run_explicit stability RUN_STABILITY_CMD
-        run_explicit perf RUN_PERF_CMD
         run_report_stage
         ;;
 esac
