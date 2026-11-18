@@ -29,6 +29,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R15 step3 试验**：Keyboard gate 通过，CSS 链接点击实际打开了 layout 页；strict gate 因截屏仍在滚动视图而未认定成功。计数仍为 0，光标落到 CSS 链接附近，下一轮把计数点往左上修正并在导航后按 Home 截页顶，见 [report/318](report/318-T490-2GiB输入尝试r15-step3指针移动导航已发生计数未变-20261118.md)。
 
+**R16 未到 ready**：step3 与修正计数位置/Home 截图路径没有执行；第 2,000 秒超时后 QMP quit 成功，保留 187 张 readiness 原图和 26 张正式 strict 失败截图。该轮不能判定交互修复效果，见 [report/319](report/319-T490-2GiB输入尝试r16计数坐标加home校正前ready再次超时-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）
