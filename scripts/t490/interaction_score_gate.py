@@ -21,10 +21,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 PPM_ASSERT = ROOT / "scripts" / "t490" / "ppm_assert.py"
-# The interaction page's `当前：N` counter sits here after two PageDowns.
-# Keep this ROI away from the button and pointer cursor so movement/hover cannot
-# be mistaken for a successful count increment.
-MOUSE_COUNTER_ROI = "220,625,600,655"
+# The interaction page's bold `N` in `当前：N` sits here after two PageDowns.
+# Keep the ROI on the digit alone: HMP can put the cursor over the sentence, so
+# a wider line-level diff can mistake cursor pixels for a counter increment.
+MOUSE_COUNTER_ROI = "555,625,570,650"
 
 
 def run_ppm(*args: str) -> tuple[bool, str, dict[str, Any]]:

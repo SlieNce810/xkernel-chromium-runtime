@@ -56,6 +56,18 @@ class LayoutVerdictTests(unittest.TestCase):
 
 
 class MouseCounterGateTests(unittest.TestCase):
+    @staticmethod
+    def _write_ppm(path: Path, black_pixels: set[tuple[int, int]]) -> None:
+        width, height = 1280, 800
+        raster = bytearray([255]) * (width * height * 3)
+        for x, y in black_pixels:
+            offset = (y * width + x) * 3
+            raster[offset:offset + 3] = b"\x00\x00\x00"
+        path.write_bytes(b"P6\n1280 800\n255\n" + raster)
+
+    def test_mouse_counter_roi_is_digit_only(self) -> None:
+        self.assertEqual("555,625,570,650", MOUSE_COUNTER_ROI)
+
     def test_mouse_counter_roi_excludes_pointer_and_button(self) -> None:
         after = Path("after-mouse-click.ppm")
         before = Path("after-scroll.ppm")
@@ -66,6 +78,35 @@ class MouseCounterGateTests(unittest.TestCase):
         self.assertFalse(passed)
         self.assertIn("counter text", detail)
         diff.assert_called_once_with(after, before, MOUSE_COUNTER_ROI, 20)
+
+    def test_pointer_shape_in_old_sentence_roi_does_not_pass_counter(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            before = Path(directory) / "before.ppm"
+            after = Path(directory) / "after.ppm"
+            self._write_ppm(before, set())
+            pointer = {(x, y) for x in range(293, 301) for y in range(629, 644)}
+            self._write_ppm(after, pointer)
+
+            passed, _detail = mouse_counter_diff(after, before)
+
+        self.assertFalse(passed)
+
+    def test_digit_change_in_counter_roi_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            before = Path(directory) / "before.ppm"
+            after = Path(directory) / "after.ppm"
+            zero = ({(558, y) for y in range(631, 643)}
+                    | {(564, y) for y in range(631, 643)}
+                    | {(x, 631) for x in range(558, 565)}
+                    | {(x, 642) for x in range(558, 565)})
+            one = ({(561, y) for y in range(631, 643)}
+                   | {(559, 633), (560, 632), (562, 642), (563, 642)})
+            self._write_ppm(before, zero)
+            self._write_ppm(after, one)
+
+            passed, _detail = mouse_counter_diff(after, before)
+
+        self.assertTrue(passed)
 
 
 if __name__ == "__main__":
