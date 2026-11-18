@@ -253,7 +253,7 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 
-R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 使用 `step3` 后实际打开了 CSS 页面，但 strict gate 未看到页面顶部；下一轮导航后用 Home 重截。R15 截图还显示计数点击的光标约偏右下 69×36 像素，因此 step3 counter 候选位置为 `(212,638)`，CSS 链接保持 `(350,710)`。`test_interaction_score_driver.py` 检查步进与目标映射。
+R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 使用 `step3` 后实际打开了 CSS 页面，但 strict gate 未看到页面顶部；R17 的 Home 键也未使截屏回到顶部。R17 截图显示计数点击后光标约在 `(243,724)`，下一轮 step3 counter 候选点改为 `(250,588)`，导航后用 3 次 PageUp 回顶。`test_interaction_score_driver.py` 检查步进与目标映射。
 
 ### 本轮新增 autorun
 | 文件 | 场景 |

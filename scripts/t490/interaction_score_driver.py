@@ -53,7 +53,9 @@ def pointer_targets(pointer_mode: str) -> tuple[tuple[int, int], tuple[int, int]
     if pointer_mode == "step3":
         # R15's screenshot placed the cursor near (350,710) after a request to
         # (281,674), a lower-right offset of about 69x36 pixels.
-        return (212, 638), (350, 710)
+        # R17's corrected-counter screenshot moved it near (243,724) after
+        # (212,638), so the next counter target adds the measured residual.
+        return (250, 588), (350, 710)
     if pointer_mode == "step1":
         return (281, 674), (350, 710)
     return (247, 607), (292, 638)
@@ -170,9 +172,15 @@ def main() -> int:
 
         pointer_click(*nav_target, "mouse-click-navigation", count=2)
         time.sleep(args.navigation_wait)
-        c.key("home")
+        for index in range(1, 4):
+            c.key("pgup")
+            time.sleep(1.0)
+            c._record("checkpoint", {"name": "layout-pageup",
+                                      "attempt": index,
+                                      "settle_seconds": 1.0})
         time.sleep(2.0)
         c._record("checkpoint", {"name": "layout-return-to-top",
+                                  "method": "pageup",
                                   "settle_seconds": 2.0})
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
         c._record("result", {"ok": True})

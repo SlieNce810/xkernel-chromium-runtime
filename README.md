@@ -31,6 +31,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R16 未到 ready**：step3 与修正计数位置/Home 截图路径没有执行；第 2,000 秒超时后 QMP quit 成功，保留 187 张 readiness 原图和 26 张正式 strict 失败截图。该轮不能判定交互修复效果，见 [report/319](report/319-T490-2GiB输入尝试r16计数坐标加home校正前ready再次超时-20261118.md)。
 
+**R17 交互复核**：ready、JS、Keyboard gate 通过；HMP step3 导航实际打开了 CSS 页，但 Home 未将 viewport 回到顶部。计数仍为 0，截图测得指针落点偏移后已更新下一轮 counter 候选坐标；导航后改用 PageUp，见 [report/320](report/320-T490-2GiB输入尝试r17step3计数仍为零CSS页打开home未回顶-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）

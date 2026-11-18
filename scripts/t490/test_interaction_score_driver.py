@@ -62,7 +62,7 @@ class ClickStepTests(unittest.TestCase):
 
 class PointerTargetTests(unittest.TestCase):
     def test_step3_counter_target_compensates_observed_offset(self) -> None:
-        self.assertEqual(((212, 638), (350, 710)), pointer_targets("step3"))
+        self.assertEqual(((250, 588), (350, 710)), pointer_targets("step3"))
 
     def test_step1_and_step4_keep_separate_calibrations(self) -> None:
         self.assertEqual(((281, 674), (350, 710)), pointer_targets("step1"))
