@@ -22,6 +22,7 @@ INPUTS = (
     "scripts/t490/autorun_mp_score_observe6.sh",
     "scripts/t490/run_stability_round_mp.sh",
     "scripts/t490/stability_driver.py",
+    "scripts/t490/wait_page_ready.py",
     "scripts/collect_metrics.py",
     "scripts/compare_perf.py",
     "scripts/run_perf_plan.py",
