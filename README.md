@@ -43,6 +43,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R22 修正 mouse gate 假阳性**：as-run gate 将光标差分判成 counter 变化；原始 after-click 截图计数仍是 0。数字专用 ROI 复算为 0 像素变化，gate 已收窄并增加 cursor-only 与 digit-change 回归用例。CSS 导航仍失败，Input 仍 0/4；完整 session、QMP 与 PPM 哈希证据已归档，见 [report/325](report/325-T490-2GiB输入尝试r22数字ROI修正光标假阳性-20261119.md)。
 
+**统一 goal audit（2026-11-19）**：修正 audit 脚本对 JSON `pass: 1` 和 keyboard-only gate 的处理后，当前 2 GiB 得分汇总为 16/20（Input 仍不通过），稳定性 r10 通过；兼容性与四项性能仍未完成。详细状态与未结项见 [report/326](report/326-决赛统一goal-audit状态-20261119.md) 和 [本轮 audit JSON](evidence/2026-11-19_wsl2-goal-audit-r1/summary.json)。
+
 
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
