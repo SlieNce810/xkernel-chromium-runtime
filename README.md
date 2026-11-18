@@ -21,6 +21,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R11 鼠标复核**：动态键盘等待已在 10 秒采样捕获 `hello x-kernel`；旧 mouse ROI 把光标移动误判为计数变化。收窄到计数文字后的 post-hoc gate 确认计数仍是 0；截图还显示 step4 相对指针落点与目标有明显偏差。已计算下一组候选坐标，尚待独立验证，见 [report/314](report/314-T490-2GiB输入尝试r11键盘回显通过鼠标计数ROI校正-20261118.md)。
 
+**R12 指针坐标复测**：keyboard echo 与 JS gate 通过；新计数 ROI 确认鼠标仍未增加计数，CSS 链接也没有导航。更正后的按钮/链接坐标仍落在页面下缘，下一轮将改为单像素、较慢的相对步进，见 [report/315](report/315-T490-2GiB输入尝试r12修正坐标后鼠标点击仍未生效-20261118.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）

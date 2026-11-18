@@ -251,6 +251,8 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 
 `run_input_final.sh` 的 `EVDEV_PROBE=0` 可用于不注入旁路 observer 的 cold-start 对照；页面 ready 超时会先用 QMP quit 结束会话。`interaction_score_driver.py` 在目标 viewport 内轮询键盘回显，最多等待 120 秒；R11 观察到 HMP step4 光标落点向右下漂移，后续轮次使用按截图补偿的候选坐标。`interaction_score_gate.py` 的 mouse counter ROI 只覆盖计数文字，避免把光标或按钮 hover 当作计数变化。
 
+R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
+
 ### 本轮新增 autorun
 | 文件 | 场景 |
 |---|---|
