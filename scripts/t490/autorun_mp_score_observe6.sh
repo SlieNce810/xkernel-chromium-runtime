@@ -54,6 +54,7 @@ GL_MODE=__MP_GL__
 NET_MODE=__MP_NET__
 LEDGER_MODE=__MP_LEDGER__
 MP_FAMILY_DIAGNOSTICS=__MP_FAMILY_DIAGNOSTICS__
+FAMILY_WATCHDOG_INTERVAL=__MP_FAMILY_WATCHDOG_INTERVAL__
 WESTON_CONTINUE_WITHOUT_INPUT=__MP_WESTON_CONTINUE__
 CHROME_PROFILE=/root/mp-chromium-profile
 MAX_SECONDS=${MP_MAX_SECONDS:-__MP_MAX_SECONDS__}
@@ -449,7 +450,7 @@ watchdog() {
         [ -n "${BROWSER_PID:-}" ] && [ -d "/proc/$BROWSER_PID" ] && c=yes
         echo "[mpdiag] MP_WATCHDOG uptime_s=$up weston=$w chrome=$c memfree_kb=$mf" > /dev/console 2>/dev/null
         family_watchdog_elapsed=$((family_watchdog_elapsed + 2))
-        if [ "$family_watchdog_elapsed" -ge 4 ]; then
+        if [ "$family_watchdog_elapsed" -ge "$FAMILY_WATCHDOG_INTERVAL" ]; then
             stability_family_snapshot
             family_watchdog_elapsed=0
         fi
@@ -639,6 +640,7 @@ log "TRACE_MODE=$TRACE_MODE"
 log "GL_MODE=$GL_MODE"
 log "NET_MODE=$NET_MODE"
 log "LEDGER_MODE=$LEDGER_MODE"
+log "FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL"
 log "WESTON_CONTINUE_WITHOUT_INPUT=$WESTON_CONTINUE_WITHOUT_INPUT"
 log "MP_FAMILY_DIAGNOSTICS=$MP_FAMILY_DIAGNOSTICS"
 log "MAX_SECONDS=$MAX_SECONDS SAMPLE_SECONDS=$SAMPLE_SECONDS HOLD_SECONDS=$HOLD_SECONDS"

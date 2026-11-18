@@ -1,0 +1,21 @@
+preflight_time=2026-11-18
+syntax_check=bash -n observer t490_round run_stability_round_mp.sh; result=PASS
+
+HELP OUTPUT
+Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interval]
+Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
+reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
+Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
+The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
+Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.
+Set MP_FAMILY_DIAGNOSTICS=1 to log why candidate process PIDs are omitted from a family snapshot.
+Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead; reload checks use 5 seconds.
+
+INVALID PARAMETER OUTPUT
+STABILITY_ROUND_ABORT: MP_FAMILY_WATCHDOG_INTERVAL must be a positive integer number of guest seconds
+invalid_parameter_result=exit 2; no QEMU started
+
+SCRIPT HASHES
+179bc168d291845182aee5c94e11a62508b8a386f8db1700a793c59b01be6277  scripts/t490/autorun_mp_score_observe6.sh
+87e8f9b828d0f3b6b5b147c4ac41d3d55b955a49c0bf245220029d3427a40928  scripts/t490/t490_round.sh
+d9a6a1d3b7a5cea6de638e5a25d00b15996b69e8000768a856af047934827c35  scripts/t490/run_stability_round_mp.sh
