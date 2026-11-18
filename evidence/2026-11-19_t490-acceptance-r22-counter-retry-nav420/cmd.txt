@@ -1,0 +1,9 @@
+scp scripts/t490/interaction_score_driver.py -> mo@10.249.11.192:/home/mo/xk6/scripts/t490/interaction_score_driver.py
+scp scripts/t490/run_input_final.sh -> mo@10.249.11.192:/home/mo/xk6/scripts/t490/run_input_final.sh
+ssh sha256sum /home/mo/xk6/scripts/t490/interaction_score_driver.py /home/mo/xk6/scripts/t490/run_input_final.sh
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-19_010700-counter-retry-nav420-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-19_010700-counter-retry-nav420-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-19_010700-counter-retry-nav420-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-19_010700-counter-retry-nav420.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step3 INTERACTION_COUNTER_TARGET=250,540 INTERACTION_COUNTER_RETRY_TARGETS=350,710 INTERACTION_NAV_TARGET=420,746 INPUT_NAVIGATION_WAIT=60 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-19_010700-counter-retry-nav420 2400 60
+counter_target=250,540; counter_retry_target=350,710
+css_link_request=420,746 (estimate from R20: second request landed in the counter; no successful CSS navigation)
