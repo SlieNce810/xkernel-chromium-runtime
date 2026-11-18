@@ -35,6 +35,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R18 交互复核**：2 GiB 页面在第 47 次采样通过 ready，JS 与 Keyboard gate 通过；counter 仍为 0，HMP 点击未打开 CSS 页，因此不能判定 CSS 页面上的 PageUp 校正。QMP 正常退出；Input 仍为 0/4，见 [report/321](report/321-T490-2GiB输入尝试r18step3计数与导航仍失败-20261118.md)。
 
+**R19 坐标外推反例**：第 45 次采样 ready、JS 和键盘通过；两点线性外推把 step3 相对光标移出画面底边，计数与 CSS 导航仍失败。R19 的跨日证据分置于 QEMU session 和 input work 两个原始目录，归档时保留二者并逐帧验证 PPM 哈希，见 [report/322](report/322-T490-2GiB输入尝试r19两点外推指针落至屏幕外计数与导航失败-20261119.md)。
+
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。
 
 ## 结果速览（判定只认 screendump 与日志，不凭报告转述）

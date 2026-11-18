@@ -1,0 +1,13 @@
+scp scripts/t490/interaction_score_driver.py -> mo@10.249.11.192:/home/mo/xk6/scripts/t490/interaction_score_driver.py
+ssh sha256sum /home/mo/xk6/scripts/t490/interaction_score_driver.py
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-18_235800-step3-linear-pointer-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-18_235800-step3-linear-pointer-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-18_235800-step3-linear-pointer-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-18_235800-step3-linear-pointer.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step3 INTERACTION_COUNTER_TARGET=233,1138 INTERACTION_NAV_TARGET=287,778 INPUT_NAVIGATION_WAIT=60 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-18_235800-step3-linear-pointer 2400 60
+step3 request coordinates: counter=233,1138 CSS link=287,778
+coordinate basis: R17 request (212,638)->hotspot (253,724); R18 request (250,588)->hotspot (302,729); two-point linear extrapolation
+recorded_output_paths:
+  launcher OUT (runner_start before midnight): /home/mo/xk6/evidence/2026-11-18_t490-codex-2026-11-18_235800-step3-linear-pointer
+  run-session evidence (QEMU start after midnight): /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-18_235800-step3-linear-pointer
+  input work: /home/mo/xk6/tmp/input-codex-2026-11-18_235800-step3-linear-pointer
+The date-boundary split is preserved in the local evidence directory; no original PPM was moved from T490.
