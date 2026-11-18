@@ -11,6 +11,7 @@ from typing import Any
 
 
 SCORE_ITEMS = ("html", "process_structure", "tabs", "input", "javascript", "css")
+SCORE_POINTS = {"html": 4, "process_structure": 4, "tabs": 4, "input": 4, "javascript": 2, "css": 2}
 GATE_NAMES = {
     "tabs": ("tabs-gate.json",),
     "input": ("input-gate.json",),
@@ -126,6 +127,7 @@ def main() -> int:
     cold_status = "PASS" if freeze.is_file() and all(path.is_file() for path in cold_reports) else "INCOMPLETE"
     score = {item: score_feature(root, item) for item in SCORE_ITEMS}
     score_status = "PASS" if all(row["status"] == "PASS" for row in score.values()) else "INCOMPLETE"
+    score_points = sum(SCORE_POINTS[item] for item, row in score.items() if row["status"] == "PASS")
 
     stability_gates = []
     for gate in evidence.rglob("stability-gate.json"):
@@ -169,7 +171,7 @@ def main() -> int:
         "three_cold_starts_2g": {"status": cold_status, "reports": [str(path.relative_to(root)) for path in cold_reports]},
         "browser_score_2g": {
             "status": score_status,
-            "points": 20 if score_status == "PASS" else None,
+            "points": score_points,
             "max_points": 20,
             "items": score,
         },
