@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from goal_audit import gate_passes, input_gate_passes
+from goal_audit import audit_compatibility, gate_passes, input_gate_passes
 
 
 class GatePassTests(unittest.TestCase):
@@ -49,6 +49,50 @@ class GatePassTests(unittest.TestCase):
         self.assertFalse(self._input_gate({
             "input_mode": "pointer", "interaction_score_gate_rc": 1, "pass": 0,
         }))
+
+
+class CompatibilityAuditTests(unittest.TestCase):
+    def _write_summary(self, root: Path, payload: dict[str, object]) -> Path:
+        path = root / "compatibility-final" / "summary.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return path
+
+    def test_missing_compatibility_summary_keeps_legacy_pending_items(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = audit_compatibility(Path(directory) / "evidence")
+
+        self.assertEqual(result["status"], "INCOMPLETE")
+        self.assertIn("timerfd frozen-version probe and regression", result["pending"])
+
+    def test_incomplete_summary_preserves_reviewed_completed_and_pending_items(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = Path(directory) / "evidence"
+            self._write_summary(evidence, {
+                "schema": "xkernel.compatibility-final.v1",
+                "result": "INCOMPLETE",
+                "completed": ["SCM_RIGHTS short-read: PASS"],
+                "pending": ["inotify watch target path attribution"],
+            })
+            result = audit_compatibility(evidence)
+
+        self.assertEqual(result["status"], "INCOMPLETE")
+        self.assertEqual(result["completed"], ["SCM_RIGHTS short-read: PASS"])
+        self.assertEqual(result["pending"], ["inotify watch target path attribution"])
+
+    def test_pass_requires_pass_result_and_no_pending_items(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = Path(directory) / "evidence"
+            self._write_summary(evidence, {
+                "schema": "xkernel.compatibility-final.v1",
+                "result": "PASS",
+                "completed": ["all matrix rows validated"],
+                "pending": [],
+            })
+            result = audit_compatibility(evidence)
+
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["pending"], [])
 
 
 if __name__ == "__main__":

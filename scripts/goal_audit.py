@@ -12,6 +12,13 @@ from typing import Any
 
 SCORE_ITEMS = ("html", "process_structure", "tabs", "input", "javascript", "css")
 SCORE_POINTS = {"html": 4, "process_structure": 4, "tabs": 4, "input": 4, "javascript": 2, "css": 2}
+LEGACY_COMPATIBILITY_PENDING = [
+    "inotify Linux/x-kernel comparison and browser watcher regression",
+    "timerfd frozen-version probe and regression",
+    "namespace and SCM_RIGHTS short-read compatibility boundaries",
+    "mmap/COW/fork/unmap residency accounting under the frozen kernel hash",
+    "procfs PSS/USS and shared-page accounting",
+]
 GATE_NAMES = {
     "tabs": ("tabs-gate.json",),
     "input": ("input-gate.json",),
@@ -124,6 +131,32 @@ def score_feature(root: Path, feature: str) -> dict[str, Any]:
     return {"status": "PASS" if passing else "INCOMPLETE", "evidence": passing}
 
 
+def audit_compatibility(evidence_root: Path) -> dict[str, Any]:
+    """Use a reviewed compatibility summary when available, otherwise retain the legacy pending list."""
+    summary_path = evidence_root / "compatibility-final" / "summary.json"
+    summary = load_json(summary_path)
+    if summary is None:
+        return {
+            "status": "INCOMPLETE",
+            "completed": [],
+            "pending": list(LEGACY_COMPATIBILITY_PENDING),
+        }
+
+    completed = summary.get("completed", [])
+    pending = summary.get("pending", [])
+    if not isinstance(completed, list):
+        completed = []
+    if not isinstance(pending, list) or any(not isinstance(item, str) for item in pending):
+        pending = list(LEGACY_COMPATIBILITY_PENDING)
+    status = "PASS" if summary.get("result") == "PASS" and not pending else "INCOMPLETE"
+    return {
+        "status": status,
+        "completed": completed,
+        "pending": pending,
+        "summary": str(summary_path.relative_to(evidence_root.parent)),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
@@ -151,19 +184,8 @@ def main() -> int:
             stability_gates.append(str(gate.relative_to(root)))
     stability_status = "PASS" if stability_gates else "INCOMPLETE"
 
-    compatibility_path = evidence / "compatibility-final/summary.json"
-    compatibility = load_json(compatibility_path) if compatibility_path.exists() else None
-    compatibility_status = (
-        "PASS" if compatibility and compatibility.get("result") == "PASS" and not compatibility.get("pending")
-        else "INCOMPLETE"
-    )
-    compatibility_pending = [] if compatibility_status == "PASS" else [
-        "inotify Linux/x-kernel comparison and browser watcher regression",
-        "timerfd frozen-version probe and regression",
-        "namespace and SCM_RIGHTS short-read compatibility boundaries",
-        "mmap/COW/fork/unmap residency accounting under the frozen kernel hash",
-        "procfs PSS/USS and shared-page accounting",
-    ]
+    compatibility = audit_compatibility(evidence)
+    compatibility_status = compatibility["status"]
 
     perf_path = evidence / "perf/final-summary.json"
     perf = load_json(perf_path) if perf_path.exists() else None
@@ -191,7 +213,7 @@ def main() -> int:
             "items": score,
         },
         "stability_2g": {"status": stability_status, "passing_gates": stability_gates},
-        "compatibility": {"status": compatibility_status, "pending": compatibility_pending},
+        "compatibility": compatibility,
         "performance": {
             "status": perf_status,
             "required_metrics": sorted(required_metrics),

@@ -1,0 +1,91 @@
+[2026-11-19T14:58:17+08:00] BEGIN report
+[2026-11-19T14:58:17+08:00] COMMAND=python3 /mnt/c/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117/scripts/goal_audit.py --root /mnt/c/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117 --summary evidence/2026-11-19_t490-final-report-r1/goal-audit.json --strict 
+{
+  "schema": "xkernel.final-goal-audit.v1",
+  "result": "INCOMPLETE",
+  "baseline_freeze": {
+    "status": "PASS",
+    "path": "evidence/2026-11-17_t490-goal-baseline-freeze-r3/baseline.json"
+  },
+  "three_cold_starts_2g": {
+    "status": "PASS",
+    "reports": [
+      "report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md",
+      "report/288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md",
+      "report/289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md"
+    ]
+  },
+  "browser_score_2g": {
+    "status": "INCOMPLETE",
+    "points": 16,
+    "max_points": 20,
+    "items": {
+      "html": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-17_t490-goal2g-index-cold01",
+          "evidence/2026-11-17_t490-goal2g-index-cold02",
+          "evidence/2026-11-18_t490-goal2g-index-cold03"
+        ],
+        "required_independent_cold_starts": 3
+      },
+      "process_structure": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-goal2g-index-cold03-review/process-structure/process-structure-summary.json"
+        ]
+      },
+      "tabs": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_112626-tabs/tabs-gate.json"
+        ]
+      },
+      "input": {
+        "status": "INCOMPLETE",
+        "evidence": []
+      },
+      "javascript": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_133026-javascript/javascript-gate.json"
+        ]
+      },
+      "css": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_135557-css/score-page-gate.json"
+        ]
+      }
+    }
+  },
+  "stability_2g": {
+    "status": "PASS",
+    "passing_gates": [
+      "evidence/2026-11-18_t490-goal2g-stability-r10/stability-gate.json"
+    ]
+  },
+  "compatibility": {
+    "status": "INCOMPLETE",
+    "pending": [
+      "inotify Linux/x-kernel comparison and browser watcher regression",
+      "timerfd frozen-version probe and regression",
+      "namespace and SCM_RIGHTS short-read compatibility boundaries",
+      "mmap/COW/fork/unmap residency accounting under the frozen kernel hash",
+      "procfs PSS/USS and shared-page accounting"
+    ]
+  },
+  "performance": {
+    "status": "INCOMPLETE",
+    "required_metrics": [
+      "browser_start",
+      "first_frame",
+      "peak_memory",
+      "renderer_create"
+    ],
+    "present_metrics": [],
+    "before_runs": 0,
+    "after_runs": 0
+  }
+}
+[2026-11-19T14:58:51+08:00] END report rc=1

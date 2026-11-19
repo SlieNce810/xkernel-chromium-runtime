@@ -42,6 +42,11 @@ PROCESS_SOURCES = {
 
 
 def _clean_lines(text: str) -> list[str]:
+    # QEMU's serial path can serialize the first character of an event marker
+    # as the final byte of a CSI sequence: ``ESC[MP_EVENT``. Preserve that
+    # marker before removing terminal control sequences or browser-start is
+    # silently dropped as a delete-line command.
+    text = text.replace("\x1b[MP_EVENT ", "MP_EVENT ")
     cleaned = ANSI_ESCAPE.sub("", text)
     return [line for line in cleaned.splitlines() if line]
 

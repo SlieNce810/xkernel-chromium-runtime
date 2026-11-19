@@ -103,6 +103,29 @@ class NormalizeProcessEventLogTests(unittest.TestCase):
         self.assertEqual(summary["result"], "PASS")
         self.assertEqual(summary["reconstructed_count"], 0)
 
+    def test_browser_start_marker_survives_serial_csi_prefix(self) -> None:
+        browser = full_event(40.857, "browser", 70, 5, "browser-start", "guest-launcher")
+        console = "\x1b[m\x1b[MP_EVENT " + browser + "\r\r\n"
+
+        events, summary = normalize_console_text(console)
+        gate = multiprocess_eventlog.summarize_process_structure(
+            [
+                events[0],
+                json.loads(full_event(
+                    73.459, "zygote", 181, 70, "zygote-observed", "guest-ps-snapshot"
+                )),
+                json.loads(full_event(
+                    109.651, "renderer", 334, 181, "renderer-observed", "guest-ps-snapshot"
+                )),
+            ],
+            [],
+        )
+
+        self.assertEqual(summary["result"], "PASS")
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["event"], "browser-start")
+        self.assertEqual(gate["result"], "PASS")
+
 
 if __name__ == "__main__":
     unittest.main()
