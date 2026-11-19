@@ -157,6 +157,63 @@ def audit_compatibility(evidence_root: Path) -> dict[str, Any]:
     }
 
 
+def _kernel_binary_sha(build_manifest: Path) -> str | None:
+    text = read_text(build_manifest)
+    matches = re.findall(
+        r"(?im)^([0-9a-f]{64})\s+\S*kernel(?:\.bin)?\s*$",
+        text,
+    )
+    return matches[-1].lower() if matches else None
+
+
+def audit_candidate_stability(root: Path, expected_kernel_sha256: str | None) -> dict[str, Any]:
+    """Require a stability result for the same kernel binary as the final candidate."""
+    if not expected_kernel_sha256:
+        return {"status": "INCOMPLETE", "expected_kernel_sha256": None, "runs": []}
+
+    evidence = root / "evidence"
+    runs: list[dict[str, Any]] = []
+    for result_path in sorted(evidence.rglob("stability-result.env")):
+        directory = result_path.parent
+        kernel_sha = _kernel_binary_sha(directory / "build-manifest.txt")
+        if kernel_sha != expected_kernel_sha256.lower():
+            continue
+        values: dict[str, str] = {}
+        for line in read_text(result_path).splitlines():
+            if "=" in line:
+                key, value = line.split("=", 1)
+                values[key.strip()] = value.strip()
+        gate_log = read_text(directory / "stability-gate.log").strip()
+        passed = all(values.get(key) == "0" for key in (
+            "STABILITY_DRIVER_RC",
+            "STABILITY_ROUND_RC",
+            "STABILITY_NORMALIZER_RC",
+            "STABILITY_GATE_RC",
+        ))
+        runs.append({
+            "evidence": str(directory.relative_to(root)),
+            "kernel_sha256": kernel_sha,
+            "pass": passed,
+            "driver_rc": values.get("STABILITY_DRIVER_RC"),
+            "round_rc": values.get("STABILITY_ROUND_RC"),
+            "normalizer_rc": values.get("STABILITY_NORMALIZER_RC"),
+            "gate_rc": values.get("STABILITY_GATE_RC"),
+            "gate_detail": gate_log,
+        })
+
+    if not runs:
+        status = "INCOMPLETE"
+    elif any(run["pass"] for run in runs):
+        status = "PASS"
+    else:
+        status = "FAIL"
+    return {
+        "status": status,
+        "expected_kernel_sha256": expected_kernel_sha256.lower(),
+        "runs": runs,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
@@ -186,6 +243,14 @@ def main() -> int:
 
     compatibility = audit_compatibility(evidence)
     compatibility_status = compatibility["status"]
+    candidate_kernel_sha256 = None
+    compatibility_summary = load_json(evidence / "compatibility-final" / "summary.json")
+    if compatibility_summary:
+        value = compatibility_summary.get("kernel_sha256")
+        if isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{64}", value):
+            candidate_kernel_sha256 = value.lower()
+    candidate_stability = audit_candidate_stability(root, candidate_kernel_sha256)
+    candidate_stability_status = candidate_stability["status"]
 
     perf_path = evidence / "perf/final-summary.json"
     perf = load_json(perf_path) if perf_path.exists() else None
@@ -199,7 +264,8 @@ def main() -> int:
     )
 
     overall = "PASS" if all(status == "PASS" for status in (
-        cold_status, score_status, stability_status, compatibility_status, perf_status
+        cold_status, score_status, stability_status, candidate_stability_status,
+        compatibility_status, perf_status
     )) else "INCOMPLETE"
     payload = {
         "schema": "xkernel.final-goal-audit.v1",
@@ -213,6 +279,7 @@ def main() -> int:
             "items": score,
         },
         "stability_2g": {"status": stability_status, "passing_gates": stability_gates},
+        "candidate_stability_2g": candidate_stability,
         "compatibility": compatibility,
         "performance": {
             "status": perf_status,
