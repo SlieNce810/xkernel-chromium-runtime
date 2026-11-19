@@ -47,6 +47,7 @@ static void sample_process(const char *phase, pid_t pid)
 	long size_pages = -1, resident_pages = -1, shared_pages = -1;
 	long status_rss = -1, status_hwm = -1;
 	long smaps_rss = -1, pss = -1;
+	long reported_uss = -1, reported_shared = -1;
 	long shared_clean = -1, shared_dirty = -1;
 	long private_clean = -1, private_dirty = -1;
 	int have_smaps = 0;
@@ -74,6 +75,10 @@ static void sample_process(const char *phase, pid_t pid)
 				smaps_rss = value;
 			else if (sscanf(line, "Pss: %ld kB", &value) == 1)
 				pss = value;
+			else if (sscanf(line, "USS: %ld kB", &value) == 1)
+				reported_uss = value;
+			else if (sscanf(line, "Shared: %ld kB", &value) == 1)
+				reported_shared = value;
 			else if (sscanf(line, "Shared_Clean: %ld kB", &value) == 1)
 				shared_clean = value;
 			else if (sscanf(line, "Shared_Dirty: %ld kB", &value) == 1)
@@ -95,11 +100,15 @@ static void sample_process(const char *phase, pid_t pid)
 		printf("pss_kb=%ld ", pss);
 	else
 		printf("pss_kb=UNAVAILABLE ");
-	if (have_smaps && private_clean >= 0 && private_dirty >= 0)
+	if (have_smaps && reported_uss >= 0)
+		printf("uss_kb=%ld ", reported_uss);
+	else if (have_smaps && private_clean >= 0 && private_dirty >= 0)
 		printf("uss_kb=%ld ", private_clean + private_dirty);
 	else
 		printf("uss_kb=UNAVAILABLE ");
-	if (have_smaps && shared_clean >= 0 && shared_dirty >= 0)
+	if (have_smaps && reported_shared >= 0)
+		printf("smaps_shared_kb=%ld\n", reported_shared);
+	else if (have_smaps && shared_clean >= 0 && shared_dirty >= 0)
 		printf("smaps_shared_kb=%ld\n", shared_clean + shared_dirty);
 	else
 		printf("smaps_shared_kb=UNAVAILABLE\n");

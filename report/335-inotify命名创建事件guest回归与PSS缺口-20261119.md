@@ -15,3 +15,5 @@ Linux WSL2 与 T490 native Linux 的 focused 参考均通过，见 [report 327](
 ## 结果边界
 
 这轮 5 分钟 compatibility session 不是浏览器 GUI、30 分钟稳定性或性能样本；QEMU screendump 为 640×480，画面显示 “Display output is not active.”。PSS/USS、共享页/COW 的精确归属依然不能从现有 `statm`/`VmRSS` 读数推导。后续需要补 `/proc/<pid>/smaps_rollup` 及真实共享驻留计数，并完成 Chromium inotify watcher 和 Mojo regressions。
+
+后续 PSS/USS 候选已可输出 mapcount 数值，但发现文件私有页在读 fault 时被复制到 anon，导致同文件 `MAP_SHARED` 与 Linux 的 PSS/USS 分布不同；详见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md)。因此本报告的内存缺项尚未关闭。

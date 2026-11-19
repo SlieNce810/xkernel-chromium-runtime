@@ -1,0 +1,391 @@
++++ dirname /home/mo/xk6/scripts/t490/run_session_t490.sh
+++ cd /home/mo/xk6/scripts/t490
+++ pwd
++ HERE=/home/mo/xk6/scripts/t490
++ . /home/mo/xk6/scripts/t490/platform.env
+++ PLAT_ARCH=aarch64
+++ PLAT_HAL=kplat-aarch64
+++ PLAT_DEFCONFIG=platforms/kplat-aarch64/qemu_defconfig
+++ PLAT_KCONFIG_SYMBOLS_YES='ARCH_AARCH64=y MACHINE_AARCH64_QEMU=y KFEAT_DRIVER_VIRTIO_GPU=y KFEAT_DRIVER_VIRTIO_INPUT=y KFEAT_VIRTIO_BUS_PCI=y'
+++ PLAT_KCONFIG_ARCH_LINE='^ARCH="aarch64"$'
+++ PLAT_KCONFIG_FORBIDDEN='^ARCH_\(RISCV64\|X86_64\|LOONGARCH64\)=y'
+++ PLAT_QEMU_BIN_NAME=qemu-system-aarch64
+++ PLAT_QEMU_MIN_MAJOR=8
+++ PLAT_ACCEL=n
+++ PLAT_MACHINE=virt,gic-version=3
+++ PLAT_CPU_TCG=cortex-a76
+++ PLAT_GRAPHIC=y
+++ PLAT_MEM=2g
+++ PLAT_SMP=4
+++ PLAT_VSOCK=n
+++ PLAT_INPUT_DEVICES='virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_REQUIRED_DEVICES='virtio-gpu-pci virtio-blk-pci virtio-net-pci virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_FORBIDDEN_ACCEL='kvm hvf'
+++ PLAT_MAKE_ARGS='GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+++ PLAT_QEMU_DISPLAY=vnc=127.0.0.1:1
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-keyboard-pci
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-mouse-pci
++++ sed 's/ *$//'
+++ PLAT_QEMU_ARGS='-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+++ PLAT_REPEAT_MIN=5
+++ PLAT_STAT=median
+++ PLAT_EVIDENCE_FILES='env.txt console.log cmd.txt timestamps.csv manifest.txt platform-compliance.txt'
+++ PLAT_SCREENSHOT_PREFIX=screenshots/
+++ PLAT_REF_XKERNEL=https://gitee.com/openkylin/x-kernel
+++ PLAT_REF_WAYLAND=https://wayland.freedesktop.org/
+++ PLAT_REF_XORG_WIKI=https://www.x.org/wiki/
+++ PLAT_REF_XORG_DOC=https://xorg.freedesktop.org/archive/current/doc/
+++ PLAT_REF_OZONE=https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
++ export PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ TAG=codex-2026-11-19_130400-file-private-pagecache-pss-r1
++ DUR=300
++ IVL=60
++ KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1
++ '[' -d /home/mo/xk6/worktrees/xk-compat-fix-r1 ']'
++ QEMU_ARGS_VALUE='-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
++ EXTRA_QEMU_ARGS_VALUE=
++ case "$EXTRA_QEMU_ARGS_VALUE" in
++ '[' -z '' ']'
++ '[' -n '' ']'
++ QEMU_ARGS=(--qemu-args "$QEMU_ARGS_VALUE")
++ mkdir -p /home/mo/xk6/tmp
+++ date +%Y-%m-%d
++ OUT=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1
++ mkdir -p /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1
++ '[' 1 = 1 ']'
++ SWAP_TOTAL_GIB=12
++ SWAP_STATUS_OUT=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/swap-status.txt
++ bash /home/mo/xk6/scripts/t490/ensure_swap.sh /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/swap-status.txt
+SWAP_CHECK target_gib=12 active_kib=12582904 path=/home/mo/swap-extra.img
+SWAP_OK already_active_gib=12.000
++ qemu-system-aarch64 --version
++ head -1
+QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
++ bash /home/mo/xk6/scripts/t490/t490_platform_check.sh /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/platform-check.txt
+==============================================================================
+ 赛题六 · 第七节 统一评测平台 —— 合规预检
+ 时间   : 2026-11-19T13:24:42+08:00
+ 仓库   : /home/mo/x-kernel
+ 断言集 : /home/mo/xk6/scripts/t490/platform.env
+==============================================================================
+
+── 七(一)1  架构与配置：AArch64 + 组委会 qemu_defconfig 基线 ──
+[PASS] 组委会基线存在: platforms/kplat-aarch64/qemu_defconfig (1432 字节 / 55 行)
+[PASS] 旧平台路径 platforms/aarch64-qemu-virt 不存在（不会误用 README 路径）
+[PASS] .config 存在 (3006 字节 / 116 行)
+[PASS] .config 的 ARCH 为 aarch64
+[PASS] .config 为 MACHINE_AARCH64_QEMU
+[PASS] .config 启用 virtio GPU 驱动
+[PASS] .config 启用 virtio INPUT 驱动
+[PASS] .config 启用 virtio PCI 总线
+[PASS] .config 未混入 riscv64/x86_64/loongarch64
+[PASS] .config 未混入 RK3588 机型
+[PASS] .config 未启用 VMM
+[INFO] NR_CPUS = NR_CPUS=4  （期望与 SMP=4 匹配）
+[PASS] 线上 .config 与组委会基线重展开结果 逐字节一致 (sha256 42e8d16450352712…)
+
+── 七(一)2  QEMU 规格：>= 8.0 且纯 TCG（初赛禁 KVM/HVF） ──
+[PASS] qemu-system-aarch64 位于 /home/mo/qemu-root/usr/bin/qemu-system-aarch64
+[PASS] QEMU 版本 10.2.1 >= 8.0 （QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)）
+[PASS] 宿主无 /dev/kvm（即使不传 ACCEL 也必然是纯 TCG）
+
+── QEMU 命令行（make justrun XKMAKE_ARGS=--dry-run 干跑，无副作用） ──
+[PASS] 成功抓取字面 QEMU 命令行（20 行）
+
+       qemu-system-aarch64
+         -m 2g
+         -smp 4
+         -cpu cortex-a76
+         -machine 'virt,gic-version=3'
+         -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
+         -device 'virtio-blk-pci,drive=disk0'
+         -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img'
+         -device 'virtio-net-pci,netdev=net0'
+         -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555'
+         -device virtio-gpu-pci
+         -vga none
+         -serial 'mon:stdio'
+         -object 'rng-random,id=host_rng0'
+         -device 'virtio-rng-pci,rng=host_rng0'
+         -global 'virtio-gpu-pci.xres=1280'
+         -global 'virtio-gpu-pci.yres=800'
+         -device virtio-keyboard-pci
+         -device virtio-mouse-pci
+         -display 'vnc=127.0.0.1:1'
+
+[PASS] 命令行无任何 -accel（纯 TCG 硬判据）
+[PASS] 命令行无 -accel kvm
+[PASS] 命令行无 -accel hvf
+[PASS] 命令行含 -cpu cortex-a76（非 host，本身即 TCG 证据）
+[PASS] 命令行含 -cpu cortex-a76 或带引号变体
+[PASS] 命令行含 -machine virt,gic-version=3
+[PASS] 命令行含 -m 2g（非默认 1g）
+[PASS] 命令行含 -smp 4
+[PASS] 设备组合含 virtio-gpu-pci
+[PASS] 设备组合含 virtio-blk-pci
+[PASS] 设备组合含 virtio-net-pci
+[PASS] 设备组合含 virtio-keyboard-pci
+[PASS] 设备组合含 virtio-mouse-pci
+[PASS] 命令行含 -serial mon:stdio（screendump 取证通路）
+[PASS] 命令行不含 -nographic（否则无图形窗口）
+[PASS] 命令行含 -device virtio-gpu-pci（图形后端）
+[PASS] 命令行含 -vga none（避免与 virtio-gpu 冲突）
+
+── 七(二)  测量规范：git tag 存档 + 宿主指纹 ──
+[PASS] git_commit   = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+[PASS] git_describe = basic-baseline-20260922-11-gb73e581-dirty
+[WARN] 工作区 dirty —— 七(二)3 要求 before/after 基线以 git tag 存档、组委会复核存档代码；采数前先 commit/tag
+[INFO] 现有 tag: basic-baseline-20260922 p0-drm-version-fix v0.1-first-runnable v0.2-compat-p0p4 
+[INFO] 七(二)4 交叉核验指纹（每份证据都应带这些字段）：
+[INFO]   cpu_model = Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+[INFO]   mem_total = 14.7 GiB
+[INFO]   swap_total = 12.0 GiB
+[INFO]   swap_free  = 11.9 GiB
+[INFO]   swap_devices = 2 active / 12.0 GiB
+[INFO]   os        = Ubuntu 26.04.1 LTS
+[INFO]   qemu      = QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+[INFO]   repeat    = >= 5 次取 median + 波动范围
+
+── 第八节 参考资料（方案选型应可追溯到这里） ──
+[INFO] 1 x-kernel 基线    : https://gitee.com/openkylin/x-kernel
+[INFO] 2 Wayland 协议     : https://wayland.freedesktop.org/
+[INFO] 3 X.Org/X11 参考   : https://www.x.org/wiki/
+[INFO] 4 X.Org 官方文档   : https://xorg.freedesktop.org/archive/current/doc/
+[INFO] 5 Chromium Ozone   : https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
+
+==============================================================================
+ 判定：PASS=35  FAIL=0  WARN=1
+ PLATFORM_COMPLIANT —— 符合赛题第七节统一评测平台要求
+==============================================================================
+
+已写出：/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/platform-check.txt
++ CHECK_RC=0
++ '[' 0 -ne 0 ']'
++ cd /home/mo/xk6
++ FIRST_SHOT=60
++ python3 /home/mo/xk6/scripts/run-session.py --cwd /home/mo/xk6/worktrees/xk-compat-fix-r1 --make-args 'GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n' --with-input --input-devices 'virtio-keyboard-pci virtio-mouse-pci' --require-platform-compliance --duration 300 --interval 60 --first-shot 60 --qemu-args '-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1' --out /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1
+### [2026-11-19 13:24:43] SESSION START
+======================================================================
+ 赛题六 · 基础任务 · QEMU 会话编排
+======================================================================
+  timestamp        : 2026-11-19T13:24:43.200
+  hostname         : mo-ThinkPad-T490
+  os               : Linux-7.0.0-43-generic-x86_64-with-glibc2.43
+  guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+  git_cwd          : /home/mo/xk6/worktrees/xk-compat-fix-r1
+  os_pretty        : Ubuntu 26.04.1 LTS
+  machine          : x86_64
+  host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+  cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+  cpu_logical      : 8
+  mem_total        : 14.7 GiB
+  qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+  git_describe     : basic-baseline-20260922-11-gb73e581-dirty
+  git_commit       : b73e5814087c9d33c5f0a35b66cc56be689d3dee
+  disk_free        : 125.7 GiB (/home/mo/xk6/worktrees/xk-compat-fix-r1)
+----------------------------------------------------------------------
+  输出目录 : /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1
+  工作目录 : /home/mo/xk6/worktrees/xk-compat-fix-r1
+  命令     : make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+  时长     : 300.0 秒   截图间隔: 60.0 秒
+  额外 QEMU 参数 : -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1
+----------------------------------------------------------------------
+  QEMU 实际命令行（xkmake --dry-run 抓取）:
+    qemu-system-aarch64 \
+      -m 2g \
+      -smp 4 \
+      -cpu cortex-a76 \
+      -machine 'virt,gic-version=3' \
+      -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+      -device 'virtio-blk-pci,drive=disk0' \
+      -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+      -device 'virtio-net-pci,netdev=net0' \
+      -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+      -device virtio-gpu-pci \
+      -vga none \
+      -serial 'mon:stdio' \
+      -object 'rng-random,id=host_rng0' \
+      -device 'virtio-rng-pci,rng=host_rng0' \
+      -global 'virtio-gpu-pci.xres=1280' \
+      -global 'virtio-gpu-pci.yres=800' \
+      -device virtio-keyboard-pci \
+      -device virtio-mouse-pci \
+      -display 'vnc=127.0.0.1:1'
+----------------------------------------------------------------------
+  平台合规断言（赛题第七节）: PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+  详见: /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/platform-compliance.txt
+======================================================================
+  提示: 截图前请确认 guest 内 Weston 已起来；否则会截到启动画面。
+======================================================================
+### cwd: /home/mo/xk6/worktrees/xk-compat-fix-r1
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+   Compiling memspace v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/memspace)
+   Compiling ksignal v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ksignal)
+   Compiling console-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/console)
+   Compiling rtc-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/rtc)
+   Compiling irq-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/irq)
+   Compiling pci v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/pci)
+   Compiling ktracing v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ktracing)
+   Compiling device-res-xkernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/adapters/xkernel/device-res)
+   Compiling kplat-aarch64 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat-aarch64)
+   Compiling virtio v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/devices/virtio)
+   Compiling kvfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/kvfs)
+   Compiling ktimer v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ktimer)
+   Compiling entropy v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/entropy)
+   Compiling kdriver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/integration/kdriver)
+   Compiling fs_context v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/fs_context)
+   Compiling anon_inodefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/anon_inodefs)
+   Compiling memfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/memfs)
+   Compiling pipefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/pipefs)
+   Compiling kfd v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd)
+   Compiling kns v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kns)
+   Compiling kresources v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kresources)
+   Compiling tee_task_iface v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_task_iface)
+   Compiling kprocess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kprocess)
+   Compiling filemap v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/filemap)
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0308]: mismatched types
+   --> mm/filemap/src/private.rs:187:26
+    |
+187 |                     Some(file_page_offset),
+    |                     ---- ^^^^^^^^^^^^^^^^ expected `u64`, found `Option<u64>`
+    |                     |
+    |                     arguments to this enum variant are incorrect
+    |
+    = note: expected type `u64`
+               found enum `Option<u64>`
+help: the type constructed contains `Option<u64>` due to the type of the argument passed
+   --> mm/filemap/src/private.rs:187:21
+    |
+187 |                     Some(file_page_offset),
+    |                     ^^^^^----------------^
+    |                          |
+    |                          this argument influences the type of `Some`
+note: tuple variant defined here
+   --> /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:608:5
+    |
+608 |     Some(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^^^
+help: consider using `Option::expect` to unwrap the `Option<u64>` value, panicking if the value is an `Option::None`
+    |
+187 |                     Some(file_page_offset.expect("REASON")),
+    |                                          +++++++++++++++++
+
+error[E0308]: mismatched types
+   --> mm/filemap/src/private.rs:188:26
+    |
+188 |                     Some(page_data_offset),
+    |                     ---- ^^^^^^^^^^^^^^^^ expected `usize`, found `Option<usize>`
+    |                     |
+    |                     arguments to this enum variant are incorrect
+    |
+    = note: expected type `usize`
+               found enum `Option<usize>`
+help: the type constructed contains `Option<usize>` due to the type of the argument passed
+   --> mm/filemap/src/private.rs:188:21
+    |
+188 |                     Some(page_data_offset),
+    |                     ^^^^^----------------^
+    |                          |
+    |                          this argument influences the type of `Some`
+note: tuple variant defined here
+   --> /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:608:5
+    |
+608 |     Some(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^^^
+help: consider using `Option::expect` to unwrap the `Option<usize>` value, panicking if the value is an `Option::None`
+    |
+188 |                     Some(page_data_offset.expect("REASON")),
+    |                                          +++++++++++++++++
+
+   Compiling drmdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/drmdevice)
+For more information about this error, try `rustc --explain E0308`.
+warning: `filemap` (lib) generated 1 warning
+error: could not compile `filemap` (lib) due to 2 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...
+error: cargo exited with status exit status: 101
+make: *** [Makefile:172：run] 错误 101
+
+### [2026-11-19 13:24:59] 子进程已退出（elapsed=15.9s）
+
+### [2026-11-19 13:24:59] stopping session...
+### [2026-11-19 13:24:59] SESSION END (exit=2)
+
+======================================================================
+ 完成。产物：
+   env.txt          OK
+   console.log      OK
+   cmd.txt          OK
+   timestamps.csv   OK
+   manifest.txt     OK
+   platform-compliance.txt OK
+   screenshots/     0 张 (0 成功)
+======================================================================
+ 下一步：
+   python3 scripts/ppm2png.py /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/screenshots/*.ppm
+   然后打开 PNG 逐张确认画面内容。
+======================================================================
++ SESSION_RC=2
++ echo SESSION_RC=2
+SESSION_RC=2
++ ASSERT_RC=0
++ '[' -f /home/mo/xk6/scripts/t490/round_assert.sh ']'
++ '[' 0 = 1 ']'
++ bash /home/mo/xk6/scripts/t490/round_assert.sh codex-2026-11-19_130400-file-private-pagecache-pss-r1
+==================================================================
+round_assert  tag=codex-2026-11-19_130400-file-private-pagecache-pss-r1
+证据目录      /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1
+时间          2026-11-19T13:24:59+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 0
+PNG 张数 : 0
+!! 本轮没有 PPM：判据无输入。
+!!   —— 流程本身不删 PPM（ppm2png.py 默认 --keep 且无删除逻辑），
+!!      出现这种情况通常是有人手工转 PNG 后删了 PPM（历史上 nnp / inotifycpu 两轮如此）。
+!!      后果：该轮不算合规证据包，无法参与跨轮像素比较。
++ echo PPM_SUMMARY=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/ppm-summary.txt
+PPM_SUMMARY=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_130400-file-private-pagecache-pss-r1/ppm-summary.txt
++ echo ASSERT_RC=0
+ASSERT_RC=0
++ FINAL_RC=2
++ '[' 0 = 1 ']'
++ echo SESSION_RC_FINAL=2
+SESSION_RC_FINAL=2
++ exit 2

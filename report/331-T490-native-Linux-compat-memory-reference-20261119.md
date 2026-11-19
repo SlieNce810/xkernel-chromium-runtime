@@ -35,3 +35,5 @@ T490 网络恢复后，同一 `compatprobe.c` 在 T490 native Linux 7.0.0-43-gen
 ## 复现证据
 
 完整命令、环境、三份 stdout 与 SHA-256 在 [T490 native Linux reference r1](../evidence/2026-11-19_t490-native-linux-reference-r1/)。后续 guest 输出及 frozen-kernel/source 哈希见 [compat-memory guest r1](../evidence/2026-11-19_t490-acceptance-compat-memory-r1/)。下一步需先隔离 dirty kernel snapshot 并修复已定位差异，再以同源探针和 Chromium watcher/Mojo 回归验证。
+
+更新 parser 的 native Linux 复跑见 [report 336](336-T490-native-Linux-procfs-memory-parser-r2-20261119.md) 和 [procfs r2 evidence](../evidence/2026-11-19_t490-native-linux-procfs-r2/)。同日之后的 x-kernel mapcount PSS/USS 候选值及与 Linux 的 MAP_PRIVATE/shared-file 偏差见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md)。
