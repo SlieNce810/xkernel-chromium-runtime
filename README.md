@@ -53,7 +53,7 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **2 GiB 候选内核 Chromium 集成**：指定首页和 process gate 已在最终 Browser-run SHA `ac1032fe…` 上 strict 通过（10/16 张严格集截图通过，首个通过采样上界 601 秒；Browser → Zygote → Renderer 4/4）。同一 `ac1032fe…` C compatibility bundle 38/38、SCM_RIGHTS 6/6、memfd seals 12/12、PSS/COW/unmap 数值一致；完整六项、真实键鼠、候选内核稳定性和性能口径仍未完成。见 [report/343](report/343-Chromium149最终候选SHA首页与进程链复验-20261119.md) 和 [report/344](report/344-T490最终Browser-run内核兼容性矩阵复核-20261119.md)。
 
-**统一 goal audit（2026-11-19）**：最新审计为 `INCOMPLETE`：2 GiB 得分 16/20（Input 未通过）；冻结基线的历史 r10 稳定性通过，但最终候选 SHA `ac1032fe…` 的稳定性复测在第八次重载出现 “Page Unresponsive”，7/10 通过，保持 1,805 秒但整体 gate 失败；同 SHA 兼容性矩阵 PASS；四项性能指标仍是 0 个有效样本。8 次快速重载控制中旧 kernel `51c40285…` 为 8/8 strict PASS（诊断模式，不计正式稳定性 gate）。详见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/347](report/347-T490-R10 kernel短间隔八次重载控制通过-20261119.md)、[本轮 audit JSON](evidence/2026-11-19_t490-final-report-r7/goal-audit.json) 和 [兼容性复核](report/344-T490最终Browser-run内核兼容性矩阵复核-20261119.md)。
+**统一 goal audit（2026-11-19）**：最新审计为 `INCOMPLETE`：2 GiB 得分 16/20（Input 未通过）；冻结基线历史 r10 稳定性通过；最终候选 SHA `ac1032fe…` 的正式稳定性轮在第八次重载出现 “Page Unresponsive”，7/10 通过，保持 1,805 秒但整体 gate 失败；同 SHA 兼容性矩阵 PASS；四项性能指标仍是 0 个有效样本。精确 R10 kernel `51c40285…` 与候选 `ac1032fe…` 在 30 秒间隔诊断中均 8/8 通过，未复现；根因仍与正式 120 秒间隔/更长时长的行为有关待查。诊断轮不计正式稳定性 gate。见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/347](<report/347-T490-R10 kernel短间隔八次重载控制通过-20261119.md>)、[report/348](report/348-T490-ac1032短间隔重载不复现nav08超时-20261119.md)、[本轮 audit JSON](evidence/2026-11-19_t490-final-report-r8/goal-audit.json) 和 [兼容性复核](report/344-T490最终Browser-run内核兼容性矩阵复核-20261119.md)。
 
 
 统一验收命令、stage 说明和安全 dry-run 见[决赛复现与统一验收说明](docs/决赛剩余任务复现与统一验收.md)；入口是 `scripts/final-acceptance.sh`。

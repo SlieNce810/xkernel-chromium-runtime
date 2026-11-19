@@ -1,0 +1,152 @@
+{"kind": "rx", "ts": 1795096117.0910156, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1795096117.0911198, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-stability-codex-2026-11-19-reload-min-ac1032-r1.sock"}}
+{"kind": "tx", "ts": 1795096117.0911896, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1795096117.091766, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1795096117.0918438, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1795096117.0923743, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1795096117.0924451, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1795096117.0925117, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1795096117.0931125, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1795096117.0931861, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1795096117.093254, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1795096117.093801, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1795096117.0938895, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1795096117.0939512, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1795096117.0944865, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1795096117.0945551, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1795096117.0946217, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1795096117.095108, "value": {"error": {"class": "GenericError", "desc": "Property 'qemu-fixed-text-console.device' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1795096117.0951788, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'qemu-fixed-text-console.device' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1795096117.0952349, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1795096117.0955229, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1795096117.095605, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1795096117.095668, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1795096117.0961611, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1795096117.096232, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1795096117.0963132, "value": {"arguments": {"command-line": "mouse_set 2"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1795096117.097806, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1795096117.0978847, "value": {"index": 2}}
+{"kind": "tx", "ts": 1795096117.0981214, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 10}}
+{"kind": "rx", "ts": 1795096117.1013236, "value": {"id": 10, "return": {}}}
+{"kind": "screendump", "ts": 1795096117.5016499, "value": {"bytes": 921615, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096147.63591, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 11}}
+{"kind": "rx", "ts": 1795096147.6384, "value": {"id": 11, "return": {}}}
+{"kind": "screendump", "ts": 1795096148.0387406, "value": {"bytes": 921615, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096178.1434276, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 12}}
+{"kind": "rx", "ts": 1795096178.154142, "value": {"id": 12, "return": {}}}
+{"kind": "screendump", "ts": 1795096178.5545106, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096208.8796039, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 13}}
+{"kind": "rx", "ts": 1795096208.891589, "value": {"id": 13, "return": {}}}
+{"kind": "screendump", "ts": 1795096209.2920141, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096239.913184, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 14}}
+{"kind": "rx", "ts": 1795096239.9224722, "value": {"id": 14, "return": {}}}
+{"kind": "screendump", "ts": 1795096240.3228104, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096271.0893128, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 15}}
+{"kind": "rx", "ts": 1795096271.0958478, "value": {"id": 15, "return": {}}}
+{"kind": "screendump", "ts": 1795096271.4961743, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096302.383456, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 16}}
+{"kind": "rx", "ts": 1795096302.3896928, "value": {"id": 16, "return": {}}}
+{"kind": "screendump", "ts": 1795096302.790124, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096333.4823456, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 17}}
+{"kind": "rx", "ts": 1795096333.4901395, "value": {"id": 17, "return": {}}}
+{"kind": "screendump", "ts": 1795096333.8905492, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096364.5306137, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 18}}
+{"kind": "rx", "ts": 1795096364.537202, "value": {"id": 18, "return": {}}}
+{"kind": "screendump", "ts": 1795096364.9376442, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096395.3774517, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 19}}
+{"kind": "rx", "ts": 1795096395.3845448, "value": {"id": 19, "return": {}}}
+{"kind": "screendump", "ts": 1795096395.7849505, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096426.2686334, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 20}}
+{"kind": "rx", "ts": 1795096426.2753577, "value": {"id": 20, "return": {}}}
+{"kind": "screendump", "ts": 1795096426.6757157, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096457.499087, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 21}}
+{"kind": "rx", "ts": 1795096457.5103993, "value": {"id": 21, "return": {}}}
+{"kind": "screendump", "ts": 1795096457.910812, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096488.7947598, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 22}}
+{"kind": "rx", "ts": 1795096488.8010838, "value": {"id": 22, "return": {}}}
+{"kind": "screendump", "ts": 1795096489.2014937, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096519.8223078, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 23}}
+{"kind": "rx", "ts": 1795096519.8323152, "value": {"id": 23, "return": {}}}
+{"kind": "screendump", "ts": 1795096520.2327347, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096550.5611482, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 24}}
+{"kind": "rx", "ts": 1795096550.5618088, "value": {"id": 24, "return": {}}}
+{"kind": "action", "ts": 1795096550.5618846, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096550.5626779, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 25}}
+{"kind": "rx", "ts": 1795096550.567989, "value": {"id": 25, "return": {}}}
+{"kind": "screendump", "ts": 1795096550.9684227, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096551.4190834, "value": {"execute": "query-status", "id": 26}}
+{"kind": "rx", "ts": 1795096551.4195366, "value": {"id": 26, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096580.5611997, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 27}}
+{"kind": "rx", "ts": 1795096580.5619721, "value": {"id": 27, "return": {}}}
+{"kind": "action", "ts": 1795096580.562083, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096580.5630445, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 28}}
+{"kind": "rx", "ts": 1795096580.5696664, "value": {"id": 28, "return": {}}}
+{"kind": "screendump", "ts": 1795096580.9700603, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096581.335273, "value": {"execute": "query-status", "id": 29}}
+{"kind": "rx", "ts": 1795096581.3360474, "value": {"id": 29, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096586.3368468, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 30}}
+{"kind": "rx", "ts": 1795096586.3485436, "value": {"id": 30, "return": {}}}
+{"kind": "screendump", "ts": 1795096586.7489266, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096610.5612009, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 31}}
+{"kind": "rx", "ts": 1795096610.5621562, "value": {"id": 31, "return": {}}}
+{"kind": "action", "ts": 1795096610.562258, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096610.5632963, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 32}}
+{"kind": "rx", "ts": 1795096610.5701468, "value": {"id": 32, "return": {}}}
+{"kind": "screendump", "ts": 1795096610.9705834, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096611.3107228, "value": {"execute": "query-status", "id": 33}}
+{"kind": "rx", "ts": 1795096611.311738, "value": {"id": 33, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096616.3130033, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 34}}
+{"kind": "rx", "ts": 1795096616.3237977, "value": {"id": 34, "return": {}}}
+{"kind": "screendump", "ts": 1795096616.724161, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096640.5756948, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 35}}
+{"kind": "rx", "ts": 1795096640.5765111, "value": {"id": 35, "return": {}}}
+{"kind": "action", "ts": 1795096640.576593, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096640.5771449, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 36}}
+{"kind": "rx", "ts": 1795096640.586662, "value": {"id": 36, "return": {}}}
+{"kind": "screendump", "ts": 1795096640.98709, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096641.2938733, "value": {"execute": "query-status", "id": 37}}
+{"kind": "rx", "ts": 1795096641.2947698, "value": {"id": 37, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096646.295645, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 38}}
+{"kind": "rx", "ts": 1795096646.301651, "value": {"id": 38, "return": {}}}
+{"kind": "screendump", "ts": 1795096646.702049, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096670.5612123, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 39}}
+{"kind": "rx", "ts": 1795096670.561842, "value": {"id": 39, "return": {}}}
+{"kind": "action", "ts": 1795096670.5619116, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096670.5624328, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 40}}
+{"kind": "rx", "ts": 1795096670.5683343, "value": {"id": 40, "return": {}}}
+{"kind": "screendump", "ts": 1795096670.96871, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096671.3558266, "value": {"execute": "query-status", "id": 41}}
+{"kind": "rx", "ts": 1795096671.356308, "value": {"id": 41, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096700.561397, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 42}}
+{"kind": "rx", "ts": 1795096700.5622253, "value": {"id": 42, "return": {}}}
+{"kind": "action", "ts": 1795096700.5623357, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096700.5628886, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 43}}
+{"kind": "rx", "ts": 1795096700.5701034, "value": {"id": 43, "return": {}}}
+{"kind": "screendump", "ts": 1795096700.9704685, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096701.3646784, "value": {"execute": "query-status", "id": 44}}
+{"kind": "rx", "ts": 1795096701.3657289, "value": {"id": 44, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096730.561199, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 45}}
+{"kind": "rx", "ts": 1795096730.5620391, "value": {"id": 45, "return": {}}}
+{"kind": "action", "ts": 1795096730.5621119, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096730.5624976, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 46}}
+{"kind": "rx", "ts": 1795096730.567097, "value": {"id": 46, "return": {}}}
+{"kind": "screendump", "ts": 1795096730.9674597, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096731.3150287, "value": {"execute": "query-status", "id": 47}}
+{"kind": "rx", "ts": 1795096731.3156402, "value": {"id": 47, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096760.5611885, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 48}}
+{"kind": "rx", "ts": 1795096760.5619004, "value": {"id": 48, "return": {}}}
+{"kind": "action", "ts": 1795096760.561973, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795096760.5624938, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 49}}
+{"kind": "rx", "ts": 1795096760.5679197, "value": {"id": 49, "return": {}}}
+{"kind": "screendump", "ts": 1795096760.9682684, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096761.263683, "value": {"execute": "query-status", "id": 50}}
+{"kind": "rx", "ts": 1795096761.2640774, "value": {"id": 50, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795096766.2651467, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 51}}
+{"kind": "rx", "ts": 1795096766.272266, "value": {"id": 51, "return": {}}}
+{"kind": "screendump", "ts": 1795096766.67267, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096771.9663703, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 52}}
+{"kind": "rx", "ts": 1795096771.9744742, "value": {"id": 52, "return": {}}}
+{"kind": "screendump", "ts": 1795096772.375049, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-codex-2026-11-19-reload-min-ac1032-r1/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795096772.7308514, "value": {"execute": "quit", "id": 53}}
+{"kind": "rx", "ts": 1795096772.7316346, "value": {"data": {"guest": false, "reason": "host-qmp-quit"}, "event": "SHUTDOWN", "timestamp": {"microseconds": 731495, "seconds": 1795096772}}}
+{"kind": "rx", "ts": 1795096772.7341926, "value": {"id": 53, "return": {}}}
