@@ -42,7 +42,7 @@ The last three values are diagnostic controls; keep their defaults for formal ac
 Non-formal values require STABILITY_DIAGNOSTIC_ONLY=1; diagnostic-only runs skip the formal gate.
 --dry-run validates and prints the resolved run settings without starting QEMU.
 The default initial-page timeout is 2400 seconds; when it would outlast a diagnostic session, it is bounded to max-session-seconds minus 200.
-Set STABILITY_TRACE_MODE=1 only with STABILITY_DIAGNOSTIC_ONLY=1 to capture a bounded clone/exec/exit/wait4 trace from Chromium.
+Set STABILITY_TRACE_MODE=1 only with STABILITY_DIAGNOSTIC_ONLY=1 to capture bounded Chromium log windows and clone/exec/exit/wait4 traces when strace is available.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.

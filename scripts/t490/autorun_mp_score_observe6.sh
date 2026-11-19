@@ -66,6 +66,7 @@ LEDGER_MAX_PIDS=${MP_LEDGER_MAX_PIDS:-40}
 : > "$LOG"
 : > "$LEDGER_HEAD"
 : > "$CHROME_LOG"
+: > "$LIFE"
 : > "$EVENT_LOG"
 : > "$PROCESS_EVENTS_SEEN"
 : > "$PROCESS_FAMILY_SEEN"
@@ -980,13 +981,20 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
     # Diagnostic-only strace windows make Renderer bootstrap failures visible
     # before the host readiness timeout ends the QEMU session. Formal runs keep
     # TRACE_MODE=0 and do not pay this logging cost.
-    if [ "$TRACE_MODE" = "1" ] && [ "$tick" -ge "$TRACE_SNAPSHOT_NEXT_TICK" ] && [ -s "$LIFE" ]; then
-        log "CHROMIUM_LIFECYCLE_SNAPSHOT_BEGIN tick=$tick bytes=$(wc -c < "$LIFE" 2>/dev/null || echo 0)"
+    if [ "$TRACE_MODE" = "1" ] && [ "$tick" -ge "$TRACE_SNAPSHOT_NEXT_TICK" ]; then
+        log "CHROMIUM_DIAGNOSTIC_SNAPSHOT_BEGIN tick=$tick chrome_bytes=$(wc -c < "$CHROME_LOG" 2>/dev/null || echo 0) trace_bytes=$(wc -c < "$LIFE" 2>/dev/null || echo 0)"
+        tail -n 80 "$CHROME_LOG" >> "$LOG" 2>&1 || true
+        tail -n 80 "$CHROME_LOG" > /dev/console 2>&1 || true
+        if [ -s "$LIFE" ]; then
+            log "CHROMIUM_LIFECYCLE_SNAPSHOT_BEGIN tick=$tick bytes=$(wc -c < "$LIFE" 2>/dev/null || echo 0)"
         grep -E 'clone\(|clone3\(|execve(at)?\(|exit_group\(|wait4\(' "$LIFE" 2>/dev/null \
             | tail -n 40 | while IFS= read -r trace_line; do
                 log "CHROMIUM_LIFECYCLE_TRACE $trace_line"
             done
-        log "CHROMIUM_LIFECYCLE_SNAPSHOT_END tick=$tick"
+        else
+            log "CHROMIUM_LIFECYCLE_TRACE_UNAVAILABLE=1"
+        fi
+        log "CHROMIUM_DIAGNOSTIC_SNAPSHOT_END tick=$tick"
         TRACE_SNAPSHOT_NEXT_TICK=$((TRACE_SNAPSHOT_NEXT_TICK + 120))
     fi
     phase loop_body_done "$tick"
