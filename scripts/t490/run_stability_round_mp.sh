@@ -4,6 +4,12 @@
 set -u
 set -o pipefail
 
+DRY_RUN=0
+if [ "${1:-}" = "--dry-run" ]; then
+    DRY_RUN=1
+    shift
+fi
+
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TAG="${1:-stability-mp-2g}"
 DUR="${2:-4200}"
@@ -28,11 +34,13 @@ STABILITY_AUTORUN=autorun_mp_score_observe6.sh
 die() { echo "STABILITY_ROUND_ABORT: $*" >&2; exit 2; }
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
-Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interval] [reload-count] [reload-interval-seconds] [hold-seconds]
+Usage: run_stability_round_mp.sh [--dry-run] [tag] [max-session-seconds] [screendump-interval] [reload-count] [reload-interval-seconds] [hold-seconds]
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
 The last three values are diagnostic controls; keep their defaults for formal acceptance.
 Non-formal values require STABILITY_DIAGNOSTIC_ONLY=1; diagnostic-only runs skip the formal gate.
+--dry-run validates and prints the resolved run settings without starting QEMU.
+The default initial-page timeout is 2400 seconds; when it would outlast a diagnostic session, it is bounded to max-session-seconds minus 200.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.
@@ -41,6 +49,12 @@ Initial-page QMP polling uses 30 seconds to limit bootstrap observation overhead
 EOF
     exit 0
 fi
+case "$DUR" in
+    ''|*[!0-9]*|0) die "max session duration must be a positive integer number of seconds" ;;
+esac
+case "$IVL" in
+    ''|*[!0-9]*|0) die "screendump interval must be a positive integer number of seconds" ;;
+esac
 case "$FAMILY_WATCHDOG_INTERVAL" in
     ''|*[!0-9]*|0) die "MP_FAMILY_WATCHDOG_INTERVAL must be a positive integer number of guest seconds" ;;
 esac
@@ -60,6 +74,22 @@ esac
 case "$RELOAD_WINDOW" in
     ''|*[!0-9]*|0) die "STABILITY_RELOAD_WINDOW must be a positive integer number of seconds" ;;
 esac
+if [ "${STABILITY_READY_TIMEOUT+x}" = "x" ]; then
+    READY_TIMEOUT="$STABILITY_READY_TIMEOUT"
+    READY_TIMEOUT_SOURCE=environment
+else
+    READY_TIMEOUT=2400
+    READY_TIMEOUT_SOURCE=default
+fi
+case "$READY_TIMEOUT" in
+    ''|*[!0-9]*|0) die "STABILITY_READY_TIMEOUT must be a positive integer number of seconds" ;;
+esac
+if [ "$READY_TIMEOUT" -ge "$DUR" ]; then
+    [ "$READY_TIMEOUT_SOURCE" = default ] || die "STABILITY_READY_TIMEOUT must be shorter than max session duration"
+    [ "$DUR" -gt 200 ] || die "max session duration must exceed 200 seconds to bound the default page timeout"
+    READY_TIMEOUT=$((DUR - 200))
+    READY_TIMEOUT_SOURCE=default_bounded_to_session
+fi
 if [ "$DIAGNOSTIC_ONLY" = "0" ]; then
     [ "$RELOAD_COUNT" -eq 10 ] || die "formal stability requires exactly ten reloads"
     [ "$RELOAD_INTERVAL" -eq 120 ] || die "formal stability requires a 120-second reload interval"
@@ -67,6 +97,26 @@ if [ "$DIAGNOSTIC_ONLY" = "0" ]; then
     [ "$RELOAD_WINDOW" -lt "$RELOAD_INTERVAL" ] || die "formal reload window must be shorter than the reload interval"
 else
     [ "$HOLD_SECONDS" -ge 0 ] || die "diagnostic hold duration must be non-negative"
+fi
+if [ "$DRY_RUN" = "1" ]; then
+    cat <<EOF
+dry_run=1
+qemu_started=0
+run_id=$TAG
+session_max_seconds=$DUR
+screendump_interval_seconds=$IVL
+diagnostic_only=$DIAGNOSTIC_ONLY
+ready_timeout_seconds=$READY_TIMEOUT
+ready_timeout_source=$READY_TIMEOUT_SOURCE
+reload_count=$RELOAD_COUNT
+reload_interval_seconds=$RELOAD_INTERVAL
+hold_seconds=$HOLD_SECONDS
+reload_window_seconds=$RELOAD_WINDOW
+memory=2g
+architecture=aarch64
+accelerator=pure TCG
+EOF
+    exit 0
 fi
 [ "$(uname -s)" = Linux ] || die "只能在 T490/Linux 主机运行"
 [ -f "$BASE_IMG" ] || die "基础镜像不存在: $BASE_IMG"
@@ -80,7 +130,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS READY_TIMEOUT=$READY_TIMEOUT READY_TIMEOUT_SOURCE=$READY_TIMEOUT_SOURCE DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -117,7 +167,8 @@ done
     printf 'screendump_interval_seconds=%s\n' "$IVL"
     printf 'family_watchdog_target_guest_seconds=%s\n' "$FAMILY_WATCHDOG_INTERVAL"
     printf 'family_diagnostics=%s\n' "${MP_FAMILY_DIAGNOSTICS:-0}"
-    printf 'ready_timeout_seconds=%s\n' "${STABILITY_READY_TIMEOUT:-2400}"
+    printf 'ready_timeout_seconds=%s\n' "$READY_TIMEOUT"
+    printf 'ready_timeout_source=%s\n' "$READY_TIMEOUT_SOURCE"
     printf 'reload_count=%s\n' "$RELOAD_COUNT"
     printf 'reload_interval_seconds=%s\n' "$RELOAD_INTERVAL"
     printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
@@ -144,7 +195,7 @@ python3 "$HERE/stability_driver.py" \
     --reload-count "$RELOAD_COUNT" \
     --reload-interval-seconds "$RELOAD_INTERVAL" \
     --reload-window-seconds "$RELOAD_WINDOW" \
-    --ready-timeout-seconds "${STABILITY_READY_TIMEOUT:-2400}" \
+    --ready-timeout-seconds "$READY_TIMEOUT" \
     --bootstrap-poll-seconds 30 \
     --poll-seconds 5 \
     --heartbeat-seconds 30 \
