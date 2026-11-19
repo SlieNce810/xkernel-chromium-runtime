@@ -14,4 +14,4 @@ R3 完成后，人工预览发现 shot-65 仍有 Chromium “Page Unresponsive�
 
 - 原始 PPM 的回归结果及相同 SHA 见本报告上方；没有将 PPM 留在仓库或改写原始 R3 evidence。
 - 本地与 T490 均通过 `bash -n scripts/t490/round_assert.sh`；同步后的 SHA-256 为 `45710c1b478955bfde94e12a1be33393c60b303fe89641bbd37937431405b3ea`，T490 原脚本备份仍保存在 `~/xk6/tmp/round_assert.sh.pre-any-strict-label-2026-11-20`。
-- 后续正式轮会核对新增摘要字段。当前三次候选正式稳定性仍按 FAIL 处理；R3 仅有1/10次重载通过。
+- R4正式轮已核对新字段：`last_frame_strict_pass=0`、`any_strict_pass=0`、兼容 `last_pass=0`；该轮在2,400秒首屏deadline后仍未strict ready。当前四次候选正式稳定性均按FAIL处理；R3仅有1/10次重载通过。
