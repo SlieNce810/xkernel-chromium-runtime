@@ -11,6 +11,7 @@
 # 环境变量：
 #   PLAT_ALLOW_NONCOMPLIANT=1   即使平台预检 FAIL 也继续（默认会告警但仍继续；
 #                               因为 run-session.py 内部已做命令行级硬断言）
+#   KERNEL_DIR                  内核源码树或隔离 worktree（默认 ~/x-kernel）
 # ============================================================================
 exec > "$HOME/xk6/tmp/run_session_t490.log" 2>&1
 set -x
@@ -23,6 +24,8 @@ export PATH="$HOME/qemu-root/usr/bin:$HOME/.cargo/bin:$HOME/musl/aarch64-linux-m
 TAG="${1:-run1}"
 DUR="${2:-2400}"
 IVL="${3:-120}"
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+[ -d "$KERNEL_DIR" ] || { echo "!! 内核工作树不存在: $KERNEL_DIR"; exit 1; }
 
 # Optional QMP endpoint used by the reproducible keyboard/mouse interaction
 # round.  Ordinary rendering rounds leave it unset and keep the platform
@@ -97,7 +100,7 @@ cd "$HOME/xk6" || exit 1
 #    run-session.py 对**实跑命令行**再做一次 第七节(一)3 的硬断言
 FIRST_SHOT="${FIRST_SHOT:-45}"
 python3 "$HOME/xk6/scripts/run-session.py" \
-  --cwd "$HOME/x-kernel" \
+  --cwd "$KERNEL_DIR" \
   --make-args "$PLAT_MAKE_ARGS" \
   --with-input \
   --input-devices "$PLAT_INPUT_DEVICES" \

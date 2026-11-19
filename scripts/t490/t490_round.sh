@@ -16,6 +16,7 @@
 #       INJECT_AUTOSTART=0 可关闭该步骤。
 #   - 每个 probe.c 交叉编译为静态 aarch64，注入到 /<basename 无扩展>，mode 0755
 #   - 基础镜像由环境变量 BASE_IMG 指定，默认 images/p0-drmversion-fixed.img
+#   - 内核源码树由 KERNEL_DIR 指定，默认 ~/x-kernel；可指向隔离 worktree
 #   - 环境变量 PKG_TARBALL：宿主侧打好的 tar.gz（由 t490_build_pkgs.sh 产出）
 #     → 注入为 /pkgs.tar.gz，guest 内 tar -x 解开
 #   - ★ 测试页（2026-09-22 起为「组委会三页套」）：
@@ -72,6 +73,9 @@ PROBES="$*"
 SRC_DIR="${SRC_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 # 该脚本的 autorun 注入流程针对旧 Weston 镜像；使用 agentos X11 镜像时，
 # 由调用方显式传 BASE_IMG，并先按 report/24 的 X11 启动路径验证。
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+[ -d "$KERNEL_DIR" ] || { echo "!! 内核工作树不存在: $KERNEL_DIR"; exit 1; }
+export KERNEL_DIR
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
 PKG_TARBALL="${PKG_TARBALL:-}"
 # ---- 测试页（组委会三页套）--------------------------------------------- #
@@ -339,7 +343,7 @@ case " $PAGE_FILES " in
     *) echo "!! PAGE_URL 的入口页 $PAGE_ENTRY 不在 PAGE_FILES=[$PAGE_FILES] 内（会启动到不存在的文件）"; exit 1 ;;
 esac
 
-cd "$HOME/x-kernel" || exit 1
+cd "$KERNEL_DIR" || exit 1
 
 # ---------------------------------------------------------------- 0. 前置（工具预检 + 会话互斥 + QEMU 探测）
 #
@@ -690,12 +694,13 @@ fi
 # 内核"只能靠文件时间戳间接推断 —— 本轮就因此多花了一次核实（见 report/32 §5）。
 # 现在把 内核 / 基础镜像 / 页面集 / autorun / 关键脚本 的 sha256 与 git HEAD 一并归档。
 if [ -d "$EVID" ]; then
-    KERNEL_BIN="$HOME/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin"
-    [ -f "$KERNEL_BIN" ] || KERNEL_BIN="$HOME/x-kernel/xkernel_aarch64-qemu.bin"
+    KERNEL_BIN="$KERNEL_DIR/target/xkmake/kplat-aarch64/release/kernel.bin"
+    [ -f "$KERNEL_BIN" ] || KERNEL_BIN="$KERNEL_DIR/xkernel_aarch64-qemu.bin"
     {
         echo "### 本轮指纹（归档时间 $(date -Is)）"
         echo "ROUND_TAG    $TAG  DUR=$DUR IVL=$IVL"
         echo "AUTORUN      $AUTORUN"
+        echo "KERNEL_DIR   $KERNEL_DIR"
         echo "--- 内核 ---"
         echo "KERNEL_BIN   $KERNEL_BIN"
         sha256sum "$KERNEL_BIN" 2>/dev/null
@@ -712,7 +717,7 @@ if [ -d "$EVID" ]; then
         sha256sum "$SRC_DIR/$AUTORUN" "$SRC_DIR/t490_round.sh" "$SRC_DIR/run_session_t490.sh" \
                   "$SRC_DIR/round_assert.sh" "$SRC_DIR/ppm_assert.py" 2>/dev/null
         echo "--- 源码状态 ---"
-        ( cd "$HOME/x-kernel" && git rev-parse HEAD && git status --porcelain )
+        ( cd "$KERNEL_DIR" && git rev-parse HEAD && git status --porcelain )
         echo "--- 平台参数（单一真源 platform.env 的实际取值）---"
         if [ -f "$SRC_DIR/platform.env" ]; then
             # 本脚本自身不 source platform.env（会话脚本才 source），
