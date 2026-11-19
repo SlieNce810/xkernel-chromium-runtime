@@ -1,0 +1,271 @@
+diff --git a/mm/memspace/src/aspace.rs b/mm/memspace/src/aspace.rs
+index fdd29c6..bc85630 100644
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -731,13 +731,12 @@ impl MmSpace {
+     ///   这与 Linux `mm->total_vm` 的语义一致；
+     /// - `rss_*` 走**页表稀疏遍历**而不是按 VMA 推算：只有 present 的用户叶子
+     ///   才计数。未触碰页不计，被 madvise 丢弃的页也不计；
+-    /// - 分类按 VMA 的 backing，而不是按物理页 mapcount：共享页上后者无法区分
+-    ///   file / shmem / anon 的来源；
+-    /// - `FilePrivate` 计入 anon —— 本实现的私有文件映射在缺页时复制进匿名帧，
+-    ///   物理上就是匿名页；
++    /// - 常规分类按 VMA 的 backing；`FilePrivate` 再由 runtime 对 present PTE
++    ///   区分仍映射 page-cache 的 clean 页和写时复制后的匿名页；
++    /// - 共享比例由 procfs 冷路径的物理帧 mapcount 遍历计算，不能只看 VMA flags；
+     /// - `Linear`（device / PFN 直映射）整段排除，不计入进程 RSS。
+     ///
+-    /// 复杂度：O(VMA 数 + present 叶子数)。procfs 只在读 statm/status 时调用，
++    /// 复杂度随 VMA 数和 present 页数增长。procfs 只在读 statm/status 时调用，
+     /// 不要放进缺页或调度热路径。
+     pub fn memory_usage(&self) -> MmMemoryUsage {
+         let mut usage = MmMemoryUsage::default();
+@@ -769,6 +768,7 @@ impl MmSpace {
+             }
+ 
+             let mut present_pages = 0u64;
++            let mut file_private_pages = Vec::new();
+             let walked = self.pgtbl.visit_present_in_range(
+                 range.start,
+                 range.end,
+@@ -784,6 +784,13 @@ impl MmSpace {
+                     let clip_end = leaf_end.min(vma_end);
+                     if clip_end > clip_start {
+                         present_pages += ((clip_end - clip_start) / PAGE_SIZE_4K) as u64;
++                        if matches!(kind, VmBackingKind::FilePrivate { .. }) {
++                            let mut virtual_page = clip_start;
++                            while virtual_page < clip_end {
++                                file_private_pages.push(virtual_page);
++                                virtual_page += PAGE_SIZE_4K;
++                            }
++                        }
+                     }
+                 },
+             );
+@@ -792,9 +799,26 @@ impl MmSpace {
+             }
+ 
+             match kind {
+-                VmBackingKind::AnonymousPrivate { .. } | VmBackingKind::FilePrivate { .. } => {
++                VmBackingKind::AnonymousPrivate { .. } => {
+                     usage.rss_anon_pages += present_pages;
+                 }
++                VmBackingKind::FilePrivate { .. } => {
++                    if let Some(runtime) = vma.runtime() {
++                        for virtual_page in file_private_pages {
++                            let virtual_page = VirtAddr::from(virtual_page);
++                            let Ok((physical_page, _, _)) = self.pgtbl.query(virtual_page) else {
++                                visit_errors += 1;
++                                continue;
++                            };
++                            match runtime.is_file_cache_page(virtual_page, physical_page) {
++                                Some(true) => usage.rss_file_pages += 1,
++                                Some(false) | None => usage.rss_anon_pages += 1,
++                            }
++                        }
++                    } else {
++                        usage.rss_anon_pages += present_pages;
++                    }
++                }
+                 VmBackingKind::AnonymousShared { .. } => usage.rss_shmem_pages += present_pages,
+                 VmBackingKind::FileShared { .. } => usage.rss_file_pages += present_pages,
+                 VmBackingKind::Linear => {}
+diff --git a/mm/memspace/src/vma.rs b/mm/memspace/src/vma.rs
+index 7607ac6..90dc7c8 100644
+--- a/mm/memspace/src/vma.rs
++++ b/mm/memspace/src/vma.rs
+@@ -14,7 +14,7 @@ use khal::{
+     trap::PageFaultFlags,
+ };
+ use ksync::Mutex;
+-use memaddr::{MemoryAddr, PAGE_SIZE_4K, VirtAddr, VirtAddrRange, is_aligned_4k};
++use memaddr::{MemoryAddr, PAGE_SIZE_4K, PhysAddr, VirtAddr, VirtAddrRange, is_aligned_4k};
+ use vmobj::VmObjectId;
+ 
+ use crate::{
+@@ -36,6 +36,13 @@ use crate::{
+ /// anonymous/private objects rather than inside the VMA.
+ pub trait VmRuntimeOps: Send + Sync {
+     fn backing_info(&self) -> VmBackingInfo;
++    /// Reports whether a present file-private PTE still maps the page cache.
++    ///
++    /// `None` means the runtime does not provide per-page file/anonymous
++    /// classification.
++    fn is_file_cache_page(&self, _addr: VirtAddr, _paddr: PhysAddr) -> Option<bool> {
++        None
++    }
+     fn map(&self, range: VirtAddrRange, flags: MappingFlags, pgtbl: &mut PageTableMut) -> KResult;
+     fn unmap(&self, range: VirtAddrRange, pgtbl: &mut PageTableMut) -> KResult;
+     fn on_protect(
+@@ -231,6 +238,13 @@ impl VmRuntimeRef {
+         }
+     }
+ 
++    pub(crate) fn is_file_cache_page(&self, addr: VirtAddr, paddr: PhysAddr) -> Option<bool> {
++        match self {
++            Self::FilePrivate(inner) => inner.is_file_cache_page(addr, paddr),
++            _ => None,
++        }
++    }
++
+     pub(crate) fn register_object_views(
+         &self,
+         mm_id: u64,
+diff --git a/mm/memspace/src/stats.rs b/mm/memspace/src/stats.rs
+index 9ef6a40..ed5505f 100644
+--- a/mm/memspace/src/stats.rs
++++ b/mm/memspace/src/stats.rs
+@@ -12,10 +12,9 @@
+ //! - `statm` 直接输出页数；
+ //! - `status` / `getrusage` 输出 KiB，由调用方乘 4。
+ //!
+-//! 为什么共享页按 backing 分类而不是按物理页 mapcount：
+-//! 共享匿名页（memfd / shm）与共享文件页在物理页上看起来完全一样，
+-//! 只有在 VMA 的 backing 里才保留了来源。mapcount 推理会把 memfd 错算成
+-//! file，而 `statm.shared` 与 `VmRSS` 的口径都依赖这个区分。
++//! `FilePrivate` 的未 COW 页仍由文件 page cache 支持，写时复制后才计入
++//! anon；procfs 通过 VMA runtime 对 present PTE 做逐页分类，避免把干净的
++//! MAP_PRIVATE 文件页提前计入匿名驻留集。
+ 
+ /// 当前地址空间的内存快照，单位：4 KiB 基础页。
+ #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+diff --git a/mm/filemap/src/private.rs b/mm/filemap/src/private.rs
+index 4b9f56b..df92bf5 100644
+--- a/mm/filemap/src/private.rs
++++ b/mm/filemap/src/private.rs
+@@ -152,6 +152,7 @@ impl FilePrivateRuntime {
+     fn handle_populated_fault(
+         &self,
+         addr: VirtAddr,
++        paddr: PhysAddr,
+         flags: MappingFlags,
+         page_flags: MappingFlags,
+         page_size: PageSize,
+@@ -163,10 +164,31 @@ impl FilePrivateRuntime {
+             && !page_flags.contains(MappingFlags::WRITE)
+         {
+             let object_start = self.object_offset_for(addr)?;
+-            if cow_private_object_page(&self.anon, object_start, addr, flags, self.size, pgtbl)?
+-                .is_retry()
+-            {
+-                return Ok(FaultCompletion::cow_conflict_retry());
++            if self.anon.page_at(object_start).is_some() {
++                if cow_private_object_page(&self.anon, object_start, addr, flags, self.size, pgtbl)?
++                    .is_retry()
++                {
++                    return Ok(FaultCompletion::cow_conflict_retry());
++                }
++            } else {
++                // A read-only MAP_PRIVATE PTE may still point at the shared
++                // file-cache frame. Unmap that PTE and materialize the private
++                // anonymous copy before granting write access.
++                let (unmapped, _, mapped_size) =
++                    pgtbl.unmap(addr).map_err(|_| KError::BadAddress)?;
++                if unmapped != paddr || mapped_size != self.size {
++                    return Err(KError::BadAddress);
++                }
++                pgtbl.finish();
++                let (file_page_offset, page_data_offset) =
++                    self.prepare_new_file_backed_page(ctx, addr)?;
++                self.alloc_new_at(
++                    addr,
++                    file_page_offset,
++                    page_data_offset,
++                    flags,
++                    pgtbl,
++                )?;
+             }
+             return Ok(FaultCompletion::from_populate((1, None)));
+         }
+@@ -202,11 +224,64 @@ impl FilePrivateRuntime {
+         }
+         if !existing.is_resolved() {
+             let (file_page_offset, page_data_offset) = file_source;
+-            self.alloc_new_at(addr, file_page_offset, page_data_offset, flags, pgtbl)?;
++            let mapped_from_cache = if !ctx.access_flags().contains(MappingFlags::WRITE) {
++                match (file_page_offset, page_data_offset) {
++                    (Some(file_page_offset), Some(page_data_offset)) => self
++                        .map_file_cache_page(addr, file_page_offset, page_data_offset, flags, pgtbl)?,
++                    _ => false,
++                }
++            } else {
++                false
++            };
++            if !mapped_from_cache {
++                self.alloc_new_at(addr, file_page_offset, page_data_offset, flags, pgtbl)?;
++            }
+         }
+         Ok(FaultCompletion::from_populate((1, None)))
+     }
+ 
++    fn map_file_cache_page(
++        &self,
++        addr: VirtAddr,
++        file_page_offset: u64,
++        page_data_offset: usize,
++        flags: MappingFlags,
++        pgtbl: &mut PageTableMut,
++    ) -> KResult<bool> {
++        if usize::from(self.size) != PAGE_SIZE_4K
++            || page_data_offset != 0
++            || file_page_offset % PAGE_SIZE_4K as u64 != 0
++        {
++            return Ok(false);
++        }
++        let Some(page_end) = file_page_offset.checked_add(PAGE_SIZE_4K as u64) else {
++            return Ok(false);
++        };
++        if page_end > self.file_len() || page_end > self.file.size() {
++            return Ok(false);
++        }
++
++        let page_index = file_page_offset / PAGE_SIZE_4K as u64;
++        self.file.mapping().with_folio_or_create(page_index, |folio| {
++            pgtbl
++                .map(
++                    addr,
++                    folio.paddr(),
++                    self.size,
++                    flags - MappingFlags::WRITE,
++                )
++                .map_err(memspace::backend::map_paging_err)
++        })?;
++        if flags.contains(MappingFlags::EXECUTE) {
++            let page = self
++                .file
++                .mapping()
++                .with_folio_or_create(page_index, |folio| Ok(folio.paddr()))?;
++            karch::flush_icache_range(p2v(page), self.size.into());
++        }
++        Ok(true)
++    }
++
+     fn register_mapping_view(
+         file: &Arc<VfsFile>,
+         file_start: u64,
+@@ -363,8 +438,8 @@ impl FilePrivateRuntime {
+         let _ = self.anon_registration_id();
+         let addr = ctx.address().align_down(self.page_size());
+         match pgtbl.query(addr) {
+-            Ok((_paddr, page_flags, page_size)) => {
+-                self.handle_populated_fault(addr, flags, page_flags, page_size, pgtbl, &ctx)
++            Ok((paddr, page_flags, page_size)) => {
++                self.handle_populated_fault(addr, paddr, flags, page_flags, page_size, pgtbl, &ctx)
+             }
+             Err(PagingError::NotMapped) => {
+                 self.handle_unmapped_fault(&ctx, flags, pgtbl, addr, self.object_offset_for(addr)?)
+@@ -379,6 +454,14 @@ impl VmRuntimeOps for FilePrivateRuntime {
+         self.backing_info_impl()
+     }
+ 
++    fn is_file_cache_page(&self, addr: VirtAddr, paddr: PhysAddr) -> Option<bool> {
++        let object_start = self.object_offset_for(addr).ok()?;
++        let Some(page) = self.anon.page_at(object_start) else {
++            return Some(true);
++        };
++        Some(page.phys_addr() != paddr)
++    }
++
+     fn map(&self, range: VirtAddrRange, flags: MappingFlags, pgtbl: &mut PageTableMut) -> KResult {
+         self.map_impl(range, flags, pgtbl)
+     }
