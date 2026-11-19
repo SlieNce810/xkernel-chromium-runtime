@@ -1,0 +1,94 @@
+{
+  "schema": "xkernel.final-goal-audit.v1",
+  "result": "INCOMPLETE",
+  "baseline_freeze": {
+    "status": "PASS",
+    "path": "evidence/2026-11-17_t490-goal-baseline-freeze-r3/baseline.json"
+  },
+  "three_cold_starts_2g": {
+    "status": "PASS",
+    "reports": [
+      "report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md",
+      "report/288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md",
+      "report/289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md"
+    ]
+  },
+  "browser_score_2g": {
+    "status": "INCOMPLETE",
+    "points": 16,
+    "max_points": 20,
+    "items": {
+      "html": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-17_t490-goal2g-index-cold01",
+          "evidence/2026-11-17_t490-goal2g-index-cold02",
+          "evidence/2026-11-18_t490-goal2g-index-cold03"
+        ],
+        "required_independent_cold_starts": 3
+      },
+      "process_structure": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-goal2g-index-cold03-review/process-structure/process-structure-summary.json"
+        ]
+      },
+      "tabs": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_112626-tabs/tabs-gate.json"
+        ]
+      },
+      "input": {
+        "status": "INCOMPLETE",
+        "evidence": []
+      },
+      "javascript": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_133026-javascript/javascript-gate.json"
+        ]
+      },
+      "css": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_135557-css/score-page-gate.json"
+        ]
+      }
+    }
+  },
+  "stability_2g": {
+    "status": "PASS",
+    "passing_gates": [
+      "evidence/2026-11-18_t490-goal2g-stability-r10/stability-gate.json"
+    ]
+  },
+  "compatibility": {
+    "status": "INCOMPLETE",
+    "completed": [
+      "timerfd/inotify focused C guest probe: 11/11 on kernel fa02114ae8058e3da43942ec614f098f53a2b5b41b20181b7728f7992c983e48",
+      "SCM_RIGHTS short-read C guest probe: 6/6 on the same kernel; first-byte delivery and payload preservation pass",
+      "procfs RSS/PSS/USS standalone allocation, file sharing, fork/COW, and unmap probe emits Linux-consistent numeric values on the same kernel",
+      "Chromium 149 official index HTML strict screenshot gate passes on the same candidate kernel",
+      "Browser to Zygote to Renderer process structure gate passes 4/4 after preserving the serial browser-start event",
+      "Chromium console records SCM_RIGHTS transfers and inotify use without ENOSYS/ENOTSUP during the passing page run",
+      "Seven Chromium inotify NotFound attempts map to optional policy/time-zone path components; Chromium FilePathWatcher documents best-effort handling and the page remains strict PASS"
+    ],
+    "pending": [
+      "Chromium memfd_create has seven InvalidInput results with flags not captured; classify MFD_NOEXEC_SEAL capability probing versus a required feature and rerun sealing semantics on the exact candidate hash"
+    ],
+    "summary": "evidence/compatibility-final/summary.json"
+  },
+  "performance": {
+    "status": "INCOMPLETE",
+    "required_metrics": [
+      "browser_start",
+      "first_frame",
+      "peak_memory",
+      "renderer_create"
+    ],
+    "present_metrics": [],
+    "before_runs": 0,
+    "after_runs": 0
+  }
+}

@@ -795,13 +795,14 @@ log "CHROME_ARGS=$CHROME_ARGS"
 mark BROWSER_START_EPOCH_MS "$(epoch_ms)"
 mark BROWSER_START_MONO_MS "$(mono_ms)"
 
-# 窄过滤生命周期 trace：只留 clone/clone3/execve/execveat/exit_group/wait4/
-# prctl/set_tid_address。这几组正好对应 T3 候选断点（fork、exec、clear-child-tid、
-# 父进程 wait），且开销远低于全量 syscall。
+# 窄过滤生命周期 trace：保留 clone/clone3/execve/execveat/exit_group/wait4/
+# prctl/set_tid_address，并包含 inotify_add_watch 以便区分路径 ENOENT 与
+# syscall 能力缺失。正式评分与采样默认 TRACE_MODE=0，不受诊断过滤项影响。
+TRACE_SYSCALLS=clone,clone3,execve,execveat,exit_group,wait4,prctl,set_tid_address,inotify_add_watch
 if [ "$TRACE_MODE" = "1" ] && [ "$STRACE_OK" = "1" ]; then
-    log "TRACE_CMD=strace -f -ttt -T -s 128 -e trace=clone,clone3,execve,execveat,exit_group,wait4,prctl,set_tid_address -o $LIFE"
-    strace -f -ttt -T -s 128 \
-        -e trace=clone,clone3,execve,execveat,exit_group,wait4,prctl,set_tid_address \
+    log "TRACE_CMD=strace -f -ttt -T -s 256 -e trace=$TRACE_SYSCALLS -o $LIFE"
+    strace -f -ttt -T -s 256 \
+        -e trace="$TRACE_SYSCALLS" \
         -o "$LIFE" \
         /usr/lib/chromium/chromium $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
     LAUNCHER_PID=$!
