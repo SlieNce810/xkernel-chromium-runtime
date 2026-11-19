@@ -1,0 +1,427 @@
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --unittest --unittest-crate knet --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+✅ Updated .vscode/settings.json
+✅ Generated .cargo/.xconfig.toml
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling cfg-if v1.0.5
+   Compiling hashbrown v0.17.1
+   Compiling equivalent v1.0.2
+   Compiling winnow v1.0.4
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling autocfg v1.5.1
+   Compiling log v0.4.34
+   Compiling paste v1.0.15
+   Compiling heck v0.5.0
+   Compiling lazyinit v0.2.2
+   Compiling bitmaps v3.2.1
+   Compiling kbuild_config v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/kbuild_config)
+   Compiling rs_fdtree v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/rs-fdtree)
+   Compiling kaddr_layout v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout)
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+   Compiling percpu v0.4.0
+   Compiling tock-registers v0.9.0
+   Compiling indexmap v2.14.2
+   Compiling typenum v1.20.1
+   Compiling linux_sysno v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/api/linux_sysno)
+   Compiling aarch64-cpu v10.0.0
+   Compiling cpumask v0.1.0
+   Compiling syn v2.0.119
+   Compiling syn v3.0.6
+   Compiling zeroize v1.9.0
+   Compiling subtle v2.6.1
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling bitflags v2.13.2
+   Compiling byteorder v1.5.0
+   Compiling heapless v0.9.3
+   Compiling hash32 v0.3.1
+   Compiling hybrid-array v0.4.15
+   Compiling linux-raw-sys v0.11.0
+   Compiling rustversion v1.0.23
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling stable_deref_trait v1.2.1
+   Compiling smallvec v1.16.1
+   Compiling arrayvec v0.7.8
+   Compiling linkme-impl v0.3.37
+   Compiling proc-macro-crate v3.5.0
+   Compiling rand_core v0.10.1
+   Compiling linkme v0.3.37
+   Compiling const-default v1.0.0
+   Compiling backtrace v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/backtrace)
+   Compiling rlsf v0.2.3
+   Compiling static_assertions v1.1.0
+   Compiling crossbeam-utils v0.8.23
+   Compiling const-str v0.6.4
+   Compiling acpi v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/acpi)
+   Compiling memoffset v0.9.1
+   Compiling firmware-handoff v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/boot/firmware-handoff)
+   Compiling pin-project-lite v0.2.17
+   Compiling crypto-common v0.2.2
+   Compiling intrusive-collections v0.10.2
+   Compiling concurrent-queue v2.5.0
+   Compiling futures-core v0.3.34
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling event-listener v5.4.1
+   Compiling cmov v0.5.4
+   Compiling block-buffer v0.12.1
+   Compiling scopeguard v1.2.0
+   Compiling const-oid v0.10.2
+   Compiling lock_api v0.4.14
+   Compiling ctutils v0.4.2
+   Compiling block-padding v0.4.2
+   Compiling num-traits v0.2.19
+   Compiling inout v0.2.2
+   Compiling driver_base v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/driver_base)
+   Compiling memchr v2.8.3
+   Compiling cpubits v0.1.1
+   Compiling cipher v0.5.2
+   Compiling block v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/block)
+   Compiling cpufeatures v0.3.1
+   Compiling base64ct v1.8.3
+   Compiling flagset v0.4.7
+   Compiling kio v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/kio)
+   Compiling pem-rfc7468 v1.0.0
+   Compiling version_check v0.9.5
+   Compiling universal-hash v0.6.1
+   Compiling syn v1.0.109
+   Compiling polyval v0.7.3
+   Compiling ctr v0.10.1
+   Compiling aead v0.6.1
+   Compiling futures-macro v0.3.34
+   Compiling bytemuck_derive v1.12.1
+   Compiling unicode-segmentation v1.13.3
+   Compiling convert_case v0.10.0
+   Compiling futures-util v0.3.34
+   Compiling ghash v0.6.0
+   Compiling salsa20 v0.11.0
+   Compiling aes v0.9.3
+   Compiling ident_case v1.0.1
+   Compiling strsim v0.10.0
+   Compiling macros v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/macros)
+   Compiling crate_interface v0.3.0
+   Compiling percpu_macros v0.4.0
+   Compiling kiface v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/kiface)
+   Compiling unittest v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/unittest)
+   Compiling strum_macros v0.27.2
+   Compiling klazy v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/klazy)
+   Compiling memaddr v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/memaddr)
+   Compiling kernel_guard v0.2.0
+   Compiling of v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/of)
+   Compiling ktime_types v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/ktime_types)
+   Compiling crate_interface v0.1.4
+   Compiling kcpu_id_map v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/kcpu_id_map)
+   Compiling karch v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/karch)
+   Compiling boot-info v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/boot/boot-info)
+   Compiling kspin v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/kspin)
+   Compiling kpoll v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/kpoll)
+   Compiling page_table v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/page_table)
+   Compiling kernel_guard v0.1.3
+   Compiling kspin v0.1.1
+   Compiling alloc-engine v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/alloc-engine)
+   Compiling kplat-macros v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat-macros)
+   Compiling kirq v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/kirq)
+   Compiling strum v0.27.2
+   Compiling kerrno v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/kerrno)
+   Compiling kcpu v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/kcpu)
+   Compiling kalloc v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kalloc)
+   Compiling kplat v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat)
+   Compiling kernel-boot v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/boot/kernel-boot)
+   Compiling ktimer-core v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/ktimer-core)
+   Compiling kidentity v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kidentity)
+   Compiling ksched v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/ksched)
+   Compiling vmobj v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/vmobj)
+   Compiling khal v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/khal)
+   Compiling digest v0.11.3
+   Compiling device-res v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/device-res)
+   Compiling der_derive v0.8.0
+   Compiling kipi v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/arch/kipi)
+   Compiling ktime v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ktime)
+   Compiling ktask v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/ktask)
+   Compiling kdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/kdevice)
+   Compiling der v0.8.2
+   Compiling hmac v0.13.0
+   Compiling ksync v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/ksync)
+   Compiling anon v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/anon)
+   Compiling memspace v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/memspace)
+   Compiling spki v0.8.0
+   Compiling bytemuck v1.25.2
+   Compiling extern-trait v0.3.0
+   Compiling pbkdf2 v0.13.0
+   Compiling sha2 v0.11.0
+   Compiling fnv v1.0.7
+   Compiling unicode-xid v0.2.6
+   Compiling derive_more-impl v2.1.1
+   Compiling darling_core v0.13.4
+   Compiling aes-gcm v0.11.1
+   Compiling crypto-bigint v0.7.5
+   Compiling osvm v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/osvm)
+   Compiling cbc v0.2.1
+   Compiling posix-types v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/types)
+   Compiling ksignal v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ksignal)
+   Compiling thiserror v2.0.20
+   Compiling zerocopy v0.8.57
+   Compiling scrypt v0.12.0
+   Compiling libc v0.2.189
+   Compiling pkcs5 v0.8.1
+   Compiling zerocopy-derive v0.8.57
+   Compiling darling_macro v0.13.4
+   Compiling thiserror-impl v2.0.20
+   Compiling ff v0.14.0
+   Compiling allocator-api2 v0.2.21
+   Compiling darling v0.13.4
+   Compiling pkcs8 v0.11.0
+   Compiling generic-array v0.14.7
+   Compiling base16ct v1.0.0
+   Compiling foldhash v0.1.5
+   Compiling sec1 v0.8.1
+   Compiling hashbrown v0.15.5
+   Compiling inherit-methods-macro v0.1.0
+   Compiling group v0.14.0
+   Compiling derive_more v2.1.1
+   Compiling pagecache v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/pagecache)
+   Compiling hkdf v0.13.0
+   Compiling iov_iter v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/iov_iter)
+   Compiling kcred v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kcred)
+   Compiling kvfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/kvfs)
+   Compiling elliptic-curve v0.14.0-rc.36
+   Compiling signature v3.0.0
+   Compiling either v1.18.0
+   Compiling primefield v0.14.0
+   Compiling itertools v0.13.0
+   Compiling rfc6979 v0.6.0-pre.0
+   Compiling serde_core v1.0.229
+   Compiling getrandom v0.4.3
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling primeorder v0.14.0-rc.13
+   Compiling chrono v0.4.45
+   Compiling glob v0.3.4
+   Compiling radium v0.7.0
+   Compiling digest v0.10.7
+   Compiling clang-sys v1.9.1
+   Compiling ecdsa v0.17.0-rc.21
+   Compiling zmij v1.0.23
+   Compiling semver v1.0.28
+   Compiling prettyplease v0.2.37
+   Compiling tap v1.0.1
+   Compiling wyz v0.5.1
+   Compiling rustc_version v0.4.1
+   Compiling uuid v1.26.1
+   Compiling minimal-lexical v0.2.1
+   Compiling funty v2.0.0
+   Compiling regex-syntax v0.8.11
+   Compiling serde_json v1.0.151
+   Compiling nom v7.1.3
+   Compiling bitvec v1.1.1
+   Compiling regex-automata v0.4.18
+   Compiling rasn-derive-impl v0.28.14
+   Compiling curve25519-dalek v4.1.3
+   Compiling ppv-lite86 v0.2.21
+   Compiling libloading v0.8.9
+   Compiling snafu-derive v0.8.9
+   Compiling num-integer v0.1.47
+   Compiling itoa v1.0.18
+   Compiling rand_core v0.6.4
+   Compiling bindgen v0.72.1
+   Compiling num-bigint v0.4.8
+   Compiling rasn-derive v0.28.14
+   Compiling bitvec-nom2 v0.2.1
+   Compiling regex v1.13.1
+   Compiling cexpr v0.6.0
+   Compiling signature v2.2.0
+   Compiling once_cell v1.21.4
+   Compiling bytes v1.12.1
+   Compiling snafu v0.8.9
+   Compiling xml-no-std v0.8.26
+   Compiling rustc-hash v2.1.3
+   Compiling cpufeatures v0.2.17
+   Compiling shlex v1.3.0
+   Compiling rasn v0.28.14
+   Compiling sha2 v0.10.9
+   Compiling ed25519 v2.2.3
+   Compiling crypto-primes v0.7.2
+   Compiling pkcs1 v0.8.0-rc.4
+   Compiling sm3 v0.5.0
+   Compiling scroll_derive v0.12.1
+   Compiling dbl v0.5.0
+   Compiling fiat-crypto v0.3.0
+   Compiling foldhash v0.2.0
+   Compiling hashbrown v0.16.1
+   Compiling cmac v0.8.0
+   Compiling scroll v0.12.0
+   Compiling rsa v0.10.0-rc.18
+   Compiling ed25519-dalek v2.2.0
+   Compiling rand_chacha v0.10.0
+   Compiling p256 v0.14.0-rc.13
+   Compiling p384 v0.14.0-rc.13
+   Compiling tasign v0.2.4
+   Compiling rasn-pkix v0.28.14
+   Compiling p192 v0.14.0-rc.13
+   Compiling p521 v0.14.0-rc.13
+   Compiling p224 v0.14.0-rc.13
+   Compiling x509-cert v0.3.0
+   Compiling md-5 v0.11.0
+   Compiling sha1 v0.11.0
+   Compiling ccm v0.6.1
+   Compiling des v0.9.0
+   Compiling sm4 v0.6.0
+   Compiling zero v0.1.3
+   Compiling plain v0.2.3
+   Compiling goblin v0.9.3
+   Compiling xmas-elf v0.9.1
+   Compiling rasn-cms v0.28.14
+   Compiling anon_inodefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/anon_inodefs)
+   Compiling fs_context v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/fs_context)
+   Compiling krlimit v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/krlimit)
+   Compiling flatten_objects v0.2.4
+   Compiling linked_list_r4l v0.3.0
+   Compiling base64 v0.22.1
+   Compiling kfd v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd)
+   Compiling tee_raw_sys v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_raw_sys)
+   Compiling kcgroup v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kcgroup)
+   Compiling klogger v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/klogger)
+   Compiling uuid v0.8.2
+   Compiling kns v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kns)
+   Compiling kresources v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kresources)
+   Compiling ktimer v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ktimer)
+   Compiling tipc_handle v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tipc_handle)
+   Compiling weak-map v0.1.2
+   Compiling net v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/net)
+   Compiling input v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/input)
+   Compiling display v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/display)
+   Compiling vsock v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/vsock)
+   Compiling char_driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/char)
+   Compiling tock-registers v0.10.1
+   Compiling kclass v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/contracts/kclass)
+   Compiling tock-registers v0.8.1
+   Compiling arm_pl011 v0.1.1
+   Compiling aarch64-cpu v11.2.0
+   Compiling enum_dispatch v0.3.13
+   Compiling console-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/console)
+   Compiling arm_pl031 v0.2.1
+   Compiling int_ratio v0.1.2
+   Compiling timer-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/timer)
+   Compiling rtc-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/rtc)
+   Compiling aarch64-pmuv3 v0.1.0 (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/aarch64-pmuv3)
+   Compiling memfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/memfs)
+   Compiling rand_chacha v0.3.1
+   Compiling kworkerpool v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/kworkerpool)
+   Compiling kworkqueue v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/kworkqueue)
+   Compiling proc-macro2-diagnostics v0.10.1
+   Compiling smoltcp v0.13.0
+   Compiling kwork v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/task/kwork)
+   Compiling event-listener-strategy v0.5.4
+   Compiling ringbuf v0.4.8
+   Compiling bitflags v1.3.2
+   Compiling managed v0.8.0
+   Compiling yansi v1.0.1
+   Compiling arm-gic-driver v0.17.13
+   Compiling async-channel v2.5.0
+   Compiling filemap v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/filemap)
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling sm2 v0.14.0-rc.13
+   Compiling async-trait v0.1.92
+   Compiling etherparse v0.20.3
+   Compiling heck v0.4.1
+   Compiling ouroboros_macro v0.18.5
+   Compiling tee_crypto v0.1.4
+   Compiling irq-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/irq)
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+   Compiling kplat-aarch64 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat-aarch64)
+   Compiling entropy v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/entropy)
+   Compiling aliasable v0.1.3
+   Compiling ouroboros v0.18.5
+   Compiling kernel-elf-parser v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/boot/kernel_elf_parser)
+   Compiling serde v1.0.229
+   Compiling safe-mmio v0.3.1
+   Compiling enumn v0.1.14
+   Compiling serde_derive v1.0.229
+   Compiling static-keys v0.8.2
+   Compiling tp-lexer v0.5.5
+   Compiling ktracepoint v0.5.5
+   Compiling tee_task_iface v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_task_iface)
+   Compiling kprocess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kprocess)
+   Compiling kvirtiodrivers v0.13.3
+   Compiling tipc v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tipc)
+   Compiling unittest_support v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/unittest_support)
+   Compiling knet v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/net/knet)
+   Compiling kexec v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kexec)
+   Compiling ktty v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/ktty)
+   Compiling cobs v0.3.0
+   Compiling postcard v1.1.3
+   Compiling pci v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/pci)
+   Compiling kuaccess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/kuaccess)
+   Compiling kfd_objects v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd_objects)
+   Compiling ktracing v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ktracing)
+   Compiling fbdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/fbdevice)
+   Compiling drmdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/drmdevice)
+   Compiling inputdev v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/inputdev)
+   Compiling pipefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/pipefs)
+   Compiling smccc v0.2.3
+   Compiling kdma v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/kdma)
+   Compiling cty v0.2.2
+   Compiling hex v0.4.3
+   Compiling tee_kernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_kernel)
+   Compiling device-res-xkernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/adapters/xkernel/device-res)
+   Compiling devfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/devfs)
+   Compiling posix-fs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/fs)
+   Compiling procfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/procfs)
+error[E0061]: this function takes 9 arguments but 6 arguments were supplied
+    --> fs/filesystems/procfs/src/task_nodes/root.rs:1199:22
+     |
+1199 |         let status = format_task_status("test-bin", 12, 34, 'S', 1, None);
+     |                      ^^^^^^^^^^^^^^^^^^---------------------------------- three arguments of type `(u32, u32, u32, u32)`, `(u32, u32, u32, u32)`, and `&str` are missing
+     |
+note: function defined here
+    --> fs/filesystems/procfs/src/task_nodes/root.rs:176:4
+     |
+ 176 | fn format_task_status(
+     |    ^^^^^^^^^^^^^^^^^^
+...
+ 182 |     uids: (u32, u32, u32, u32),
+     |     --------------------------
+ 183 |     gids: (u32, u32, u32, u32),
+     |     --------------------------
+ 184 |     groups: &str,
+     |     ------------
+help: provide the arguments
+     |
+1199 |         let status = format_task_status("test-bin", 12, 34, 'S', 1, /* (u32, u32, u32, u32) */, /* (u32, u32, u32, u32) */, /* &str */, None);
+     |                                                                     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0061`.
+error: could not compile `procfs` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: cargo exited with status exit status: 101
+make: *** [Makefile:172：run] 错误 101

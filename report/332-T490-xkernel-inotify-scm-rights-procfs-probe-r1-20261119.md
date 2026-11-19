@@ -23,7 +23,7 @@ The host QEMU round lasted about 307 seconds and ended with outer rc 0. The gues
 
 The minimum reproductions are the two modes in `scripts/t490/compatprobe.c` and the allocation/fork/COW/unmap case in `scripts/t490/procfs_memory_probe.c`. The exact frozen run command is in `evidence/2026-11-19_t490-acceptance-compat-memory-r1/launcher.sh`; raw output is in `console.log`. Linux controls are preserved in reports 327, 328, and 331.
 
-This round did not apply a kernel patch or run a guest regression after a fix. The next implementation pass must first isolate the 53-dirty-file source snapshot, then fix each behavior and repeat the same guest probes against the same Linux controls. These findings remain open until a patch, build identity, and passing guest regression are recorded.
+This diagnostic round did not apply a kernel patch or run a guest regression after a fix. A later isolated candidate for SCM_RIGHTS passed the `knet::unix::stream` AArch64 QEMU module tests 24/24; the C guest probe and Mojo regression remain open. See [report 333](333-SCM_RIGHTS首字节交付候选补丁与T490流回归-20261119.md). The inotify and procfs findings in this report remain open until their patches, build identities, and guest regressions are recorded.
 
 ## Performance impact
 
