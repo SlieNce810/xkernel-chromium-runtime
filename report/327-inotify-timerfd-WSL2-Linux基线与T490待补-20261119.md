@@ -4,7 +4,7 @@
 
 新增的 focused `compatprobe.c --inotify-timerfd` 在 WSL2 Linux 5.15.167.4 / x86_64 上通过 11/11 个基础行为检查：timerfd 的 create、50 ms one-shot settime、poll 可读和 8-byte expiration read；inotify 的 init1、目录 watch、文件 create/write、poll、匹配 `IN_CREATE` 事件读取和 rm_watch。命令、compiler/source hash 与完整 stdout 见 [evidence/2026-11-19_wsl2-inotify-timerfd-baseline-r1](../evidence/2026-11-19_wsl2-inotify-timerfd-baseline-r1/)。
 
-WSL2 与 T490 native Linux 7.0.0-43 均以同源 probe 通过 11/11，详见 [report 331](331-T490-native-Linux-compat-memory-reference-20261119.md)。随后在 2 GiB AArch64 x-kernel guest 中 timerfd 通过 4/4；inotify init/watch/create/write/remove 返回成功，但 watched-directory create 没有产生可 poll 的事件，探针在读取命名 `IN_CREATE` 记录前失败。当前实现只匹配被 watch 的 inode，且事件记录没有 child name；补丁和 Chromium watcher 页面回归仍未完成。完整证据与源码定位见 [report 332](332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。
+WSL2 与 T490 native Linux 7.0.0-43 均以同源 probe 通过 11/11，详见 [report 331](331-T490-native-Linux-compat-memory-reference-20261119.md)。原 2 GiB AArch64 x-kernel guest 中 watched-directory create 没有产生可 poll 的事件；隔离候选补丁增加 parent-directory named `IN_CREATE` 及变长 inotify 记录后，同一 probe 通过 11/11。Chromium watcher 页面回归仍待完成。失败与源码定位见 [report 332](332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)，修复版 guest 证据见 [report 335](335-inotify命名创建事件guest回归与PSS缺口-20261119.md)。
 
 ## 复现与结果
 

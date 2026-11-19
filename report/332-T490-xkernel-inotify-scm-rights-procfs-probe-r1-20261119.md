@@ -28,3 +28,7 @@ This diagnostic round did not apply a kernel patch or run a guest regression aft
 ## Performance impact
 
 The absent `smaps_rollup` blocks valid x-kernel PSS/USS collection for the Chromium process tree. No Chromium startup, first-frame, renderer-ready, RSS/PSS/USS peak, before/after, or optimization result was collected in this diagnostic round. Those metrics remain unavailable rather than inferred from the small standalone probe.
+
+## Follow-up
+
+The later inotify patch and same C guest probe pass 11/11; see [report 335](335-inotify命名创建事件guest回归与PSS缺口-20261119.md). SCM_RIGHTS also passes the patched C guest probe 6/6 in [report 334](334-SCM_RIGHTS修复版guest短读复测-20261119.md). Chromium watcher/Mojo browser regressions and the procfs PSS/USS plus COW/shared-page work remain open.

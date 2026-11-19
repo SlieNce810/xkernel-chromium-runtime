@@ -1,0 +1,957 @@
++++ dirname /home/mo/xk6/scripts/t490/run_session_t490.sh
+++ cd /home/mo/xk6/scripts/t490
+++ pwd
++ HERE=/home/mo/xk6/scripts/t490
++ . /home/mo/xk6/scripts/t490/platform.env
+++ PLAT_ARCH=aarch64
+++ PLAT_HAL=kplat-aarch64
+++ PLAT_DEFCONFIG=platforms/kplat-aarch64/qemu_defconfig
+++ PLAT_KCONFIG_SYMBOLS_YES='ARCH_AARCH64=y MACHINE_AARCH64_QEMU=y KFEAT_DRIVER_VIRTIO_GPU=y KFEAT_DRIVER_VIRTIO_INPUT=y KFEAT_VIRTIO_BUS_PCI=y'
+++ PLAT_KCONFIG_ARCH_LINE='^ARCH="aarch64"$'
+++ PLAT_KCONFIG_FORBIDDEN='^ARCH_\(RISCV64\|X86_64\|LOONGARCH64\)=y'
+++ PLAT_QEMU_BIN_NAME=qemu-system-aarch64
+++ PLAT_QEMU_MIN_MAJOR=8
+++ PLAT_ACCEL=n
+++ PLAT_MACHINE=virt,gic-version=3
+++ PLAT_CPU_TCG=cortex-a76
+++ PLAT_GRAPHIC=y
+++ PLAT_MEM=2g
+++ PLAT_SMP=4
+++ PLAT_VSOCK=n
+++ PLAT_INPUT_DEVICES='virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_REQUIRED_DEVICES='virtio-gpu-pci virtio-blk-pci virtio-net-pci virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_FORBIDDEN_ACCEL='kvm hvf'
+++ PLAT_MAKE_ARGS='GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+++ PLAT_QEMU_DISPLAY=vnc=127.0.0.1:1
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-keyboard-pci
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-mouse-pci
++++ sed 's/ *$//'
+++ PLAT_QEMU_ARGS='-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+++ PLAT_REPEAT_MIN=5
+++ PLAT_STAT=median
+++ PLAT_EVIDENCE_FILES='env.txt console.log cmd.txt timestamps.csv manifest.txt platform-compliance.txt'
+++ PLAT_SCREENSHOT_PREFIX=screenshots/
+++ PLAT_REF_XKERNEL=https://gitee.com/openkylin/x-kernel
+++ PLAT_REF_WAYLAND=https://wayland.freedesktop.org/
+++ PLAT_REF_XORG_WIKI=https://www.x.org/wiki/
+++ PLAT_REF_XORG_DOC=https://xorg.freedesktop.org/archive/current/doc/
+++ PLAT_REF_OZONE=https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
++ export PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ TAG=codex-2026-11-19_111700-inotify-create-named-event-r1
++ DUR=300
++ IVL=60
++ KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1
++ '[' -d /home/mo/xk6/worktrees/xk-compat-fix-r1 ']'
++ QEMU_ARGS_VALUE='-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
++ EXTRA_QEMU_ARGS_VALUE=
++ case "$EXTRA_QEMU_ARGS_VALUE" in
++ '[' -z '' ']'
++ '[' -n '' ']'
++ QEMU_ARGS=(--qemu-args "$QEMU_ARGS_VALUE")
++ mkdir -p /home/mo/xk6/tmp
+++ date +%Y-%m-%d
++ OUT=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1
++ mkdir -p /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1
++ '[' 1 = 1 ']'
++ SWAP_TOTAL_GIB=12
++ SWAP_STATUS_OUT=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/swap-status.txt
++ bash /home/mo/xk6/scripts/t490/ensure_swap.sh /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/swap-status.txt
+SWAP_CHECK target_gib=12 active_kib=12582904 path=/home/mo/swap-extra.img
+SWAP_OK already_active_gib=12.000
++ qemu-system-aarch64 --version
++ head -1
+QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
++ bash /home/mo/xk6/scripts/t490/t490_platform_check.sh /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/platform-check.txt
+==============================================================================
+ 赛题六 · 第七节 统一评测平台 —— 合规预检
+ 时间   : 2026-11-19T11:39:51+08:00
+ 仓库   : /home/mo/x-kernel
+ 断言集 : /home/mo/xk6/scripts/t490/platform.env
+==============================================================================
+
+── 七(一)1  架构与配置：AArch64 + 组委会 qemu_defconfig 基线 ──
+[PASS] 组委会基线存在: platforms/kplat-aarch64/qemu_defconfig (1432 字节 / 55 行)
+[PASS] 旧平台路径 platforms/aarch64-qemu-virt 不存在（不会误用 README 路径）
+[PASS] .config 存在 (3006 字节 / 116 行)
+[PASS] .config 的 ARCH 为 aarch64
+[PASS] .config 为 MACHINE_AARCH64_QEMU
+[PASS] .config 启用 virtio GPU 驱动
+[PASS] .config 启用 virtio INPUT 驱动
+[PASS] .config 启用 virtio PCI 总线
+[PASS] .config 未混入 riscv64/x86_64/loongarch64
+[PASS] .config 未混入 RK3588 机型
+[PASS] .config 未启用 VMM
+[INFO] NR_CPUS = NR_CPUS=4  （期望与 SMP=4 匹配）
+[PASS] 线上 .config 与组委会基线重展开结果 逐字节一致 (sha256 42e8d16450352712…)
+
+── 七(一)2  QEMU 规格：>= 8.0 且纯 TCG（初赛禁 KVM/HVF） ──
+[PASS] qemu-system-aarch64 位于 /home/mo/qemu-root/usr/bin/qemu-system-aarch64
+[PASS] QEMU 版本 10.2.1 >= 8.0 （QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)）
+[PASS] 宿主无 /dev/kvm（即使不传 ACCEL 也必然是纯 TCG）
+
+── QEMU 命令行（make justrun XKMAKE_ARGS=--dry-run 干跑，无副作用） ──
+[PASS] 成功抓取字面 QEMU 命令行（20 行）
+
+       qemu-system-aarch64
+         -m 2g
+         -smp 4
+         -cpu cortex-a76
+         -machine 'virt,gic-version=3'
+         -kernel /home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin
+         -device 'virtio-blk-pci,drive=disk0'
+         -drive 'id=disk0,if=none,format=raw,file=/home/mo/x-kernel/disk.img'
+         -device 'virtio-net-pci,netdev=net0'
+         -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555'
+         -device virtio-gpu-pci
+         -vga none
+         -serial 'mon:stdio'
+         -object 'rng-random,id=host_rng0'
+         -device 'virtio-rng-pci,rng=host_rng0'
+         -global 'virtio-gpu-pci.xres=1280'
+         -global 'virtio-gpu-pci.yres=800'
+         -device virtio-keyboard-pci
+         -device virtio-mouse-pci
+         -display 'vnc=127.0.0.1:1'
+
+[PASS] 命令行无任何 -accel（纯 TCG 硬判据）
+[PASS] 命令行无 -accel kvm
+[PASS] 命令行无 -accel hvf
+[PASS] 命令行含 -cpu cortex-a76（非 host，本身即 TCG 证据）
+[PASS] 命令行含 -cpu cortex-a76 或带引号变体
+[PASS] 命令行含 -machine virt,gic-version=3
+[PASS] 命令行含 -m 2g（非默认 1g）
+[PASS] 命令行含 -smp 4
+[PASS] 设备组合含 virtio-gpu-pci
+[PASS] 设备组合含 virtio-blk-pci
+[PASS] 设备组合含 virtio-net-pci
+[PASS] 设备组合含 virtio-keyboard-pci
+[PASS] 设备组合含 virtio-mouse-pci
+[PASS] 命令行含 -serial mon:stdio（screendump 取证通路）
+[PASS] 命令行不含 -nographic（否则无图形窗口）
+[PASS] 命令行含 -device virtio-gpu-pci（图形后端）
+[PASS] 命令行含 -vga none（避免与 virtio-gpu 冲突）
+
+── 七(二)  测量规范：git tag 存档 + 宿主指纹 ──
+[PASS] git_commit   = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+[PASS] git_describe = basic-baseline-20260922-11-gb73e581-dirty
+[WARN] 工作区 dirty —— 七(二)3 要求 before/after 基线以 git tag 存档、组委会复核存档代码；采数前先 commit/tag
+[INFO] 现有 tag: basic-baseline-20260922 p0-drm-version-fix v0.1-first-runnable v0.2-compat-p0p4 
+[INFO] 七(二)4 交叉核验指纹（每份证据都应带这些字段）：
+[INFO]   cpu_model = Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+[INFO]   mem_total = 14.7 GiB
+[INFO]   swap_total = 12.0 GiB
+[INFO]   swap_free  = 11.9 GiB
+[INFO]   swap_devices = 2 active / 12.0 GiB
+[INFO]   os        = Ubuntu 26.04.1 LTS
+[INFO]   qemu      = QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+[INFO]   repeat    = >= 5 次取 median + 波动范围
+
+── 第八节 参考资料（方案选型应可追溯到这里） ──
+[INFO] 1 x-kernel 基线    : https://gitee.com/openkylin/x-kernel
+[INFO] 2 Wayland 协议     : https://wayland.freedesktop.org/
+[INFO] 3 X.Org/X11 参考   : https://www.x.org/wiki/
+[INFO] 4 X.Org 官方文档   : https://xorg.freedesktop.org/archive/current/doc/
+[INFO] 5 Chromium Ozone   : https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
+
+==============================================================================
+ 判定：PASS=35  FAIL=0  WARN=1
+ PLATFORM_COMPLIANT —— 符合赛题第七节统一评测平台要求
+==============================================================================
+
+已写出：/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/platform-check.txt
++ CHECK_RC=0
++ '[' 0 -ne 0 ']'
++ cd /home/mo/xk6
++ FIRST_SHOT=60
++ python3 /home/mo/xk6/scripts/run-session.py --cwd /home/mo/xk6/worktrees/xk-compat-fix-r1 --make-args 'GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n' --with-input --input-devices 'virtio-keyboard-pci virtio-mouse-pci' --require-platform-compliance --duration 300 --interval 60 --first-shot 60 --qemu-args '-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1' --out /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1
+### [2026-11-19 11:39:52] SESSION START
+======================================================================
+ 赛题六 · 基础任务 · QEMU 会话编排
+======================================================================
+  timestamp        : 2026-11-19T11:39:52.190
+  hostname         : mo-ThinkPad-T490
+  os               : Linux-7.0.0-43-generic-x86_64-with-glibc2.43
+  guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+  git_cwd          : /home/mo/xk6/worktrees/xk-compat-fix-r1
+  os_pretty        : Ubuntu 26.04.1 LTS
+  machine          : x86_64
+  host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+  cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+  cpu_logical      : 8
+  mem_total        : 14.7 GiB
+  qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+  git_describe     : basic-baseline-20260922-11-gb73e581-dirty
+  git_commit       : b73e5814087c9d33c5f0a35b66cc56be689d3dee
+  disk_free        : 126.2 GiB (/home/mo/xk6/worktrees/xk-compat-fix-r1)
+----------------------------------------------------------------------
+  输出目录 : /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1
+  工作目录 : /home/mo/xk6/worktrees/xk-compat-fix-r1
+  命令     : make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+  时长     : 300.0 秒   截图间隔: 60.0 秒
+  额外 QEMU 参数 : -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1
+----------------------------------------------------------------------
+  QEMU 实际命令行（xkmake --dry-run 抓取）:
+    qemu-system-aarch64 \
+      -m 2g \
+      -smp 4 \
+      -cpu cortex-a76 \
+      -machine 'virt,gic-version=3' \
+      -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+      -device 'virtio-blk-pci,drive=disk0' \
+      -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+      -device 'virtio-net-pci,netdev=net0' \
+      -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+      -device virtio-gpu-pci \
+      -vga none \
+      -serial 'mon:stdio' \
+      -object 'rng-random,id=host_rng0' \
+      -device 'virtio-rng-pci,rng=host_rng0' \
+      -global 'virtio-gpu-pci.xres=1280' \
+      -global 'virtio-gpu-pci.yres=800' \
+      -device virtio-keyboard-pci \
+      -device virtio-mouse-pci \
+      -display 'vnc=127.0.0.1:1'
+----------------------------------------------------------------------
+  平台合规断言（赛题第七节）: PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+  详见: /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/platform-compliance.txt
+======================================================================
+  提示: 截图前请确认 guest 内 Weston 已起来；否则会截到启动画面。
+======================================================================
+### cwd: /home/mo/xk6/worktrees/xk-compat-fix-r1
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+   Compiling kfd_objects v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd_objects)
+   Compiling posix-fs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/fs)
+   Compiling posix-process v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/process)
+   Compiling ksyscall v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ksyscall)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling kfeat v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/api/kfeat)
+warning: `ksyscall` (lib) generated 1 warning
+   Compiling entry v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/entry)
+    Finished `release` profile [optimized] target(s) in 6.80s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -global 'virtio-gpu-pci.xres=1280' \
+  -global 'virtio-gpu-pci.yres=800' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci \
+  -display 'vnc=127.0.0.1:1'
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000814a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000814a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-19 03:40:02.005568320 UTC
+
+[37m[  0.872279 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-19T03:39:59.331378495Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = f3ea1883c2b6231c27c9934ddb09cb83c281571878e4399b1b240e09d4eafa0d
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+[37m[  1.071595 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.075002 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.076739 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.084774 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.085851 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.099995 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(2)[m
+[m[37m[  1.107142 2:2 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/env argc_ptr=0x1620[m
+[mSHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+[37m[  1.157767 2:2 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=2 code=0 group=1[m
+[m[37m[  1.168850 2:2 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=2 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.177642 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m
+Use [1m[3mapt[0m to install packages.
+
+[37m[  1.199947 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.200511 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.201227 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.202067 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.202502 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.203112 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.206575 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.206905 3:1 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sh argc_ptr=0x1370[m
+[m[37m[  1.347459 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.347753 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.351831 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(3)[m
+[m[37m[  1.356292 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.357319 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.357875 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.358483 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.359334 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.361518 2:3 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/date argc_ptr=0x1740[m
+[m[37m[  1.407473 2:3 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/etc/localtime" flags=0o2404000 mode=0o37777777716 err=KErrorKind::NotFound[m
+[m[37m[  1.408040 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  1.415509 2:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.417810 2:3 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=3 code=0 group=1[m
+[m[37m[  1.421271 2:3 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=3 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.425778 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[autostart] hook fired (Thu Nov 19 03:40:03 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+[37m[  1.433228 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.433438 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.438296 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(4)[m
+[m[37m[  1.442694 2:4 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.443113 2:4 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.455707 2:4 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(5)[m
+[m[37m[  1.457687 2:4 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=4 code=0 group=1[m
+[m[37m[  1.463857 3:5 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/root/autorun.sh argc_ptr=0x63c0[m
+[m[37m[  1.464066 2:4 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=4 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.468510 0:1 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/root/.profile" flags=0o2400000 mode=0o0 err=KErrorKind::NotFound[m
+[m[37m[  1.469268 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  1.478961 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.495231 0:1 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/root/.ash_history" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  1.495803 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[mkylin-x:~# [6n[37m[  1.556930 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.557248 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.562087 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(6)[m
+[m[37m[  1.566234 2:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.567308 2:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.567755 2:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.568823 2:6 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x13f0[m
+[m[37m[  1.607624 2:6 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[  1.618988 2:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.621402 2:6 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=6 code=0 group=1[m
+[m[37m[  1.625089 2:6 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=6 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.627106 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] START name=inotify_timerfd bin=/compatprobe args=--inotify-timerfd uptime=1.612
+[37m[  1.637192 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.637422 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.648294 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(7)[m
+[m[37m[  1.650529 2:7 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/compatprobe argc_ptr=0x1340[m
+[m[37m[  1.764152 2:7 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=7 code=0 group=1[m
+[m[37m[  1.765558 2:7 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=7 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.767004 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] END name=inotify_timerfd rc=0
+[37m[  1.776054 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.776331 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.789700 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(8)[m
+[m[37m[  1.800503 2:8 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.801353 2:8 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.802025 2:8 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.802621 2:8 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1428[m
+[m[37m[  1.840263 2:8 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[  1.846850 2:8 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.850543 2:8 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=8 code=0 group=1[m
+[m[37m[  1.853458 2:8 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=8 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.854895 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] START name=scm_rights_shortread bin=/compatprobe args=--scm-rights-shortread uptime=1.843
+[37m[  1.858109 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.858408 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.862431 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(9)[m
+[m[37m[  1.863854 2:9 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/compatprobe argc_ptr=0x1300[m
+[m[37m[  1.908643 2:9 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=9 code=0 group=1[m
+[m[37m[  1.910483 2:9 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=9 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.911668 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] END name=scm_rights_shortread rc=0
+[37m[  1.914963 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.915230 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.920482 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(10)[m
+[m[37m[  1.924830 2:10 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.925428 2:10 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.925810 2:10 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.926912 2:10 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1590[m
+[m[37m[  2.010736 2:10 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[  2.017303 2:10 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  2.019848 2:10 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=10 code=0 group=1[m
+[m[37m[  2.022652 2:10 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=10 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.023903 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] START name=procfs_memory bin=/procfs_memory_probe args= uptime=2.013
+[37m[  2.027618 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.027851 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.031366 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(11)[m
+[m[37m[  2.033137 2:11 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/procfs_memory_probe argc_ptr=0x11d8[m
+[m[37m[  2.067889 2:11 posix_mm::mmap:524] [33mMMAP_SHARED pid=11 len=131072 fd=3 off=0 prot=0x3 flags=0x1 target=Some(Ok(PathBuf { inner: "/tmp/xk6-procfs-memory-DckFFb" }))[m
+[m[37m[  2.082907 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  2.083875 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.097276 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.100696 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.103152 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.104042 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.104383 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.130675 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.132466 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.134245 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.136376 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.137260 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.137498 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.144517 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.146516 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.148213 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.149712 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.150450 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.150760 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.158471 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.160650 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.162387 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.163907 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.164656 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.164924 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.166056 2:11 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x8 tls=0x0[m
+[m[37m[  2.166309 2:11 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.170449 2:11 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="procfs_memory_probe" result=Ok(12)[m
+[m[37m[  2.172564 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/statm" flags=0o400000[m
+[m[37m[  2.174642 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/status" flags=0o400000[m
+[m[37m[  2.176229 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/status" flags=0o400000[m
+[m[37m[  2.178463 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/smaps_rollup" flags=0o400000[m
+[m[37m[  2.179239 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/12/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.179544 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.180109 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.181726 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.183315 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.184815 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.185986 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.186269 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.186753 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.188565 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.190195 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.191722 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.192496 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.192779 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.193062 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/statm" flags=0o400000[m
+[m[37m[  2.195333 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/status" flags=0o400000[m
+[m[37m[  2.196905 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/status" flags=0o400000[m
+[m[37m[  2.198641 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/12/smaps_rollup" flags=0o400000[m
+[m[37m[  2.199408 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/12/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.199681 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.200475 3:12 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=12 code=0 group=1[m
+[m[37m[  2.204074 3:12 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=12 parent=11 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.207868 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/statm" flags=0o400000[m
+[m[37m[  2.209843 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.211955 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/status" flags=0o400000[m
+[m[37m[  2.213484 2:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/smaps_rollup" flags=0o400000[m
+[m[37m[  2.214221 2:11 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/proc/11/smaps_rollup" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  2.214518 2:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  2.216081 2:11 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=11 code=0 group=1[m
+[m[37m[  2.217664 2:11 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=11 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.218803 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] END name=procfs_memory rc=0
+[COMPAT_BUNDLE] RESULT overall_rc=0
+[37m[  2.223816 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.224340 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.224762 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.225296 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.225695 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.227175 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.227389 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.231716 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(13)[m
+[m[37m[  2.233229 2:13 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x10c0[m
+[m[37m[  2.337380 2:13 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=13 code=0 group=1[m
+[m[37m[  2.340345 2:13 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=13 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.341766 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  2.343432 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.345474 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.346849 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.349390 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.350654 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.353466 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.353775 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.358358 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(14)[m
+[m[37m[  2.360093 2:14 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11b0[m
+[m[COMPAT_BUNDLE] START name=inotify_timerfd bin=/compatprobe args=--inotify-timerfd uptime=1.612
+[CP] pid=7 tid=7
+[CP] timerfd_create(CLOCK_MONOTONIC)        rc=3     errno=0   -                            PASS
+[CP] timerfd_settime(one-shot 50ms)         rc=0     errno=0   -                            PASS
+[CP] timerfd poll expiration                rc=1     errno=0   -                            PASS
+[CP] timerfd read expiration count          rc=8     errno=0   -                            PASS
+[CP] inotify_init1(CLOEXEC|NONBLOCK)        rc=3     errno=0   -                            PASS
+[CP] inotify_add_watch(create+close_write)  rc=1     errno=0   -                            PASS
+[CP] inotify create watched file            rc=4     errno=0   -                            PASS
+[CP] inotify write watched file             rc=1     errno=0   -                            PASS
+[CP] inotify poll create event              rc=1     errno=0   -                            PASS
+[CP] inotify read matching IN_CREATE        rc=1     errno=0   -                            PASS
+[CP] inotify_rm_watch                       rc=0     errno=0   -                            PASS
+[CPSUM] pass=11 fail=0
+[RESULT] fail=0
+[RESULT] ALL_PASS
+[COMPAT_BUNDLE] END name=inotify_timerfd rc=0
+[COMPAT_BUNDLE] START name=scm_rights_shortread bin=/compatprobe args=--scm-rights-shortread uptime=1.843
+[CP] pid=9 tid=9
+[CP] shortread socketpair(STREAM|CLOEXEC)   rc=0     errno=0   -                            PASS
+[CP] shortread open(/dev/null)              rc=5     errno=0   -                            PASS
+[CP] shortread sendmsg(100 bytes+SCM_RIGHTS) rc=100   errno=0   -                            PASS
+[CP] SCM_RIGHTS delivered on first 1-byte read rc=1     errno=0   -                            PASS
+[CP] SCM_RIGHTS not repeated on later reads rc=0     errno=0   -                            PASS
+[CP] stream payload preserved across 100 short reads rc=100   errno=0   -                            PASS
+[CPSUM] pass=6 fail=0
+[RESULT] fail=0
+[RESULT] ALL_PASS
+[COMPAT_BUNDLE] END name=scm_rights_shortread rc=0
+[COMPAT_BUNDLE] START name=procfs_memory bin=/procfs_memory_probe args= uptime=2.013
+MEM_PROBE_START page_size=4096 page_count=32 length_bytes=131072
+MEM_SAMPLE phase=baseline pid=11 statm_size_pages=260 statm_resident_pages=31 statm_shared_pages=0 vmrss_kb=124 vmhwm_kb=124 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=anon_touched pid=11 statm_size_pages=260 statm_resident_pages=63 statm_shared_pages=0 vmrss_kb=252 vmhwm_kb=252 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=file_private_touched pid=11 statm_size_pages=260 statm_resident_pages=95 statm_shared_pages=0 vmrss_kb=380 vmhwm_kb=380 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=file_shared_touched pid=11 statm_size_pages=260 statm_resident_pages=127 statm_shared_pages=32 vmrss_kb=508 vmhwm_kb=508 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=fork_child_after_child_cow pid=12 statm_size_pages=259 statm_resident_pages=95 statm_shared_pages=1 vmrss_kb=380 vmhwm_kb=380 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=fork_parent_before_parent_cow pid=11 statm_size_pages=260 statm_resident_pages=127 statm_shared_pages=32 vmrss_kb=508 vmhwm_kb=508 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=fork_parent_after_parent_cow pid=11 statm_size_pages=260 statm_resident_pages=127 statm_shared_pages=32 vmrss_kb=508 vmhwm_kb=508 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_SAMPLE phase=fork_child_after_parent_cow pid=12 statm_size_pages=259 statm_resident_pages=95 statm_shared_pages=1 vmrss_kb=380 vmhwm_kb=380 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_CHILD_EXIT code=0
+MEM_SAMPLE phase=after_unmap pid=11 statm_size_pages=164 statm_resident_pages=31 statm_shared_pages=0 vmrss_kb=124 vmhwm_kb=508 smaps_rss_kb=-1 pss_kb=UNAVAILABLE uss_kb=UNAVAILABLE smaps_shared_kb=UNAVAILABLE
+MEM_PROBE_DONE pss_uss_unavailable_is_explicit=1
+[COMPAT_BUNDLE] END name=procfs_memory rc=0
+[COMPAT_BUNDLE] RESULT overall_rc=0
+[37m[  2.446708 2:14 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=14 code=0 group=1[m
+[m[37m[  2.450320 2:14 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=14 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.451639 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  2.453412 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.453721 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.458465 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(15)[m
+[m[37m[  2.464020 2:15 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.464525 2:15 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.464957 2:15 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.465795 2:15 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[  2.538476 2:15 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[  2.545085 2:15 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  2.547539 2:15 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=15 code=0 group=1[m
+[m[37m[  2.550887 2:15 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=15 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.552241 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=0 uptime=2.541
+[37m[  2.555427 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.555665 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.559366 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(16)[m
+[m[37m[  2.561004 2:16 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[  2.657797 2:16 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=16 code=0 group=1[m
+[m[37m[  2.661210 2:16 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=16 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  2.662641 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  2.664669 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.665945 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.667077 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.669800 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.671069 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  2.673204 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  2.673447 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  2.677285 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(17)[m
+[m[37m[  2.678836 2:17 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m[37m[ 32.751842 2:17 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=17 code=0 group=1[m
+[m[37m[ 32.754869 2:17 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=17 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 32.756755 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 32.758221 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 32.758461 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 32.770143 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(18)[m
+[m[37m[ 32.773698 2:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 32.774422 2:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 32.774866 2:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 32.775468 2:18 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[ 32.840763 2:18 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[ 32.850501 2:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[ 32.854646 2:18 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=18 code=0 group=1[m
+[m[37m[ 32.857560 2:18 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=18 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 32.859200 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=1 uptime=32.843
+[37m[ 32.862235 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 32.862697 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 32.866806 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(19)[m
+[m[37m[ 32.870183 2:19 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[ 32.960736 1:19 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=19 code=0 group=1[m
+[m[37m[ 32.963366 1:19 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=19 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 32.964591 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 32.965789 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 32.966206 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 32.970789 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(20)[m
+[m[37m[ 32.972332 1:20 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m
+### [2026-11-19 11:40:52] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-01-at0060s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:40:55] screendump OK (921615 bytes)
+[37m[ 63.030463 1:20 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=20 code=0 group=1[m
+[m[37m[ 63.033360 1:20 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=20 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 63.034928 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 63.036283 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 63.036703 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 63.042852 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(21)[m
+[m[37m[ 63.052989 3:21 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 63.053460 3:21 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 63.053780 3:21 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 63.054378 3:21 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[ 63.124705 3:21 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[ 63.138397 3:21 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[ 63.141693 3:21 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=21 code=0 group=1[m
+[m[37m[ 63.144765 3:21 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=21 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 63.146054 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=2 uptime=63.130
+[37m[ 63.148575 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 63.148927 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 63.157388 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(22)[m
+[m[37m[ 63.158859 3:22 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[ 63.247434 3:22 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=22 code=0 group=1[m
+[m[37m[ 63.250095 3:22 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=22 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 63.251353 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 63.252604 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 63.253024 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 63.260592 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(23)[m
+[m[37m[ 63.264763 3:23 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m[37m[ 93.340533 3:23 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=23 code=0 group=1[m
+[m[37m[ 93.343327 3:23 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=23 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 93.344549 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 93.345651 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 93.346012 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 93.350903 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(24)[m
+[m[37m[ 93.357725 3:24 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 93.358376 3:24 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 93.358785 3:24 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[ 93.359347 3:24 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[ 93.426871 3:24 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[ 93.436988 3:24 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[ 93.438925 3:24 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=24 code=0 group=1[m
+[m[37m[ 93.442057 3:24 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=24 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 93.443470 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=3 uptime=93.432
+[37m[ 93.445912 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 93.446131 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 93.457320 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(25)[m
+[m[37m[ 93.459003 3:25 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[ 93.542139 3:25 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=25 code=0 group=1[m
+[m[37m[ 93.544882 3:25 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=25 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[ 93.545975 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[ 93.546917 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[ 93.547211 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[ 93.557054 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(26)[m
+[m[37m[ 93.558696 3:26 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m
+### [2026-11-19 11:41:52] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-02-at0120s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:41:55] screendump OK (921615 bytes)
+[37m[123.622684 3:26 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=26 code=0 group=1[m
+[m[37m[123.626448 3:26 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=26 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[123.627805 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[123.628994 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[123.629281 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[123.633794 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(27)[m
+[m[37m[123.636372 3:27 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[123.636956 3:27 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[123.637461 3:27 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[123.638058 3:27 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[123.713236 3:27 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[123.728192 3:27 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[123.730938 3:27 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=27 code=0 group=1[m
+[m[37m[123.734659 3:27 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=27 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[123.735865 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=4 uptime=123.718
+[37m[123.738585 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[123.738881 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[123.743070 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(28)[m
+[m[37m[123.744747 3:28 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[123.842409 3:28 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=28 code=0 group=1[m
+[m[37m[123.845158 3:28 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=28 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[123.846467 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[123.847353 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[123.847599 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[123.855540 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(29)[m
+[m[37m[123.856828 3:29 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m[37m[153.930031 3:29 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=29 code=0 group=1[m
+[m[37m[153.933702 3:29 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=29 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[153.935088 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[153.936239 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[153.936547 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[153.940579 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(30)[m
+[m[37m[153.947038 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[153.947474 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[153.947905 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[153.948409 3:30 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[154.023985 3:30 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[154.038971 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[154.041004 3:30 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=30 code=0 group=1[m
+[m[37m[154.044351 3:30 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=30 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[154.045617 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=5 uptime=154.033
+[37m[154.047949 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[154.048159 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[154.055693 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(31)[m
+[m[37m[154.059656 3:31 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[154.157551 3:31 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=31 code=0 group=1[m
+[m[37m[154.160671 3:31 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=31 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[154.161783 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[154.162964 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[154.163426 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[154.167325 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(32)[m
+[m[37m[154.169172 3:32 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m
+### [2026-11-19 11:42:52] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-03-at0180s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:42:55] screendump OK (921615 bytes)
+[37m[184.228482 3:32 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=32 code=0 group=1[m
+[m[37m[184.231549 3:32 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=32 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[184.232649 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[184.233915 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[184.234144 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[184.238275 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(33)[m
+[m[37m[184.244268 3:33 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[184.244659 3:33 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[184.244997 3:33 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[184.245528 3:33 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[184.312936 3:33 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[184.323176 3:33 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[184.326023 3:33 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=33 code=0 group=1[m
+[m[37m[184.328725 3:33 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=33 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[184.330315 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=6 uptime=184.317
+[37m[184.332984 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[184.333235 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[184.336930 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(34)[m
+[m[37m[184.338872 3:34 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[184.444105 3:34 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=34 code=0 group=1[m
+[m[37m[184.447157 3:34 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=34 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[184.448230 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[184.449203 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[184.449644 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[184.453803 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(35)[m
+[m[37m[184.455612 3:35 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m[37m[214.514200 3:35 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=35 code=0 group=1[m
+[m[37m[214.517323 3:35 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=35 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[214.519636 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[214.520798 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[214.521134 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[214.530879 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(36)[m
+[m[37m[214.534382 3:36 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[214.534751 3:36 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[214.535069 3:36 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[214.536376 3:36 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/cut argc_ptr=0x1688[m
+[m[37m[214.617197 3:36 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[214.631787 3:36 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[214.634034 3:36 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=36 code=0 group=1[m
+[m[37m[214.637588 3:36 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=36 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[214.639207 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[COMPAT_BUNDLE] hold tick=7 uptime=214.621
+[37m[214.642035 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[214.642236 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[214.653255 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(37)[m
+[m[37m[214.655606 3:37 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x1608[m
+[m[37m[214.752470 3:37 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=37 code=0 group=1[m
+[m[37m[214.755504 3:37 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=37 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[214.756601 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[214.757609 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[214.757970 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[214.762384 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(38)[m
+[m[37m[214.764151 3:38 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sleep argc_ptr=0x1620[m
+[m
+### [2026-11-19 11:43:52] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-04-at0240s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:43:55] screendump OK (921615 bytes)
+[37m[244.841928 3:38 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=38 code=0 group=1[m
+[m[37m[244.844681 3:38 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=38 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[244.846102 2:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[244.847689 2:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[244.848094 2:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[244.856453 2:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(39)[m
+[m[37m[244.858515 3:39 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sync argc_ptr=0x10c0[m
+[m[37m[244.919268 3:39 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=39 code=0 group=1[m
+[m[37m[244.922684 2:39 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=39 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[244.923980 1:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[244.925198 1:5 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=5 code=0 group=1[m
+[m[37m[244.929767 1:5 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=5 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[244.930690 2:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ppoll err=KErrorKind::Interrupted[m
+[m
+### [2026-11-19 11:44:52] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-05-at0300s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:44:55] screendump OK (921615 bytes)
+
+### [2026-11-19 11:44:55] MONITOR: screendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/shot-06-final.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-cod[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-code[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_1117[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_11170[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-i[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-in[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-ino[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inoti[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotif[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-cre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-crea[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-creat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-n[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-na[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-nam[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-name[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-[K
+
+### [2026-11-19 11:44:58] screendump OK (921615 bytes)
+
+### [2026-11-19 11:44:58] stopping session...
+QEMU: Terminated
+### [2026-11-19 11:44:58] SESSION END (exit=0)
+
+======================================================================
+ 完成。产物：
+   env.txt          OK
+   console.log      OK
+   cmd.txt          OK
+   timestamps.csv   OK
+   manifest.txt     OK
+   platform-compliance.txt OK
+   screenshots/     6 张 (6 成功)
+======================================================================
+ 下一步：
+   python3 scripts/ppm2png.py /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/screenshots/*.ppm
+   然后打开 PNG 逐张确认画面内容。
+======================================================================
++ SESSION_RC=0
++ echo SESSION_RC=0
+SESSION_RC=0
++ ASSERT_RC=0
++ '[' -f /home/mo/xk6/scripts/t490/round_assert.sh ']'
++ '[' 0 = 1 ']'
++ bash /home/mo/xk6/scripts/t490/round_assert.sh codex-2026-11-19_111700-inotify-create-named-event-r1
+==================================================================
+round_assert  tag=codex-2026-11-19_111700-inotify-create-named-event-r1
+证据目录      /home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1
+时间          2026-11-19T11:44:58+08:00
+==================================================================
+
+--- ① screendump 清单与尺寸一致性 ---
+PPM 张数 : 6
+PNG 张数 : 0
+尺寸集合     : 640x480 
+字节数集合   : 921615 
+!! 出现非验收字节数 921615（决赛唯一允许 1280x800，PPM 应为 3072016 字节）
+验收尺寸     : 1280x800（用于逐张判据的 --expect-size）
+→ 尺寸门禁失败；本轮不得作为决赛 PASS 证据
+像素策略     : FAIL（要求 P6 1280x800 3072016 字节）
+
+--- ② 会话收尾状态与镜像一致性 ---
+console.log 有 'SESSION END (exit=0)' → QEMU 正常收尾
+
+--- ③ 回收 guest 持久日志 ---
+
+--- ③.5 探针必验项（PROBE_EXIT / PLANESUM / PROBE_ABI）---
+  (本轮 guest 日志中未出现探针机器行 —— 无必验项)
+
+--- ④ 逐张像素判据（ppm_assert.py） ---
+  shot-01-at0060s: WARMUP（首个正确页面帧之前）
+  shot-02-at0120s: WARMUP（首个正确页面帧之前）
+  shot-03-at0180s: WARMUP（首个正确页面帧之前）
+  shot-04-at0240s: WARMUP（首个正确页面帧之前）
+  shot-05-at0300s: WARMUP（首个正确页面帧之前）
+  shot-06-final: WARMUP（首个正确页面帧之前）
+判定张数     : 6
+首个通过帧   : NONE
+WARMUP 帧数  : 6（首帧前，不计 PASS 但全部保留）
+严格集未通过 : 6（其中首帧后 0）
+尺寸不符张数 : 0
+
+--- ⑤ 相邻帧心跳判据（两帧必须有局部差异） ---
+帧对数       : 5
+心跳成立对数 : 0
+→ 所有相邻帧完全相同 ⇒ renderer 未在重绘 / JS 未在执行 / 画面已冻结
+
+--- ⑥ 关键证据行摘录 ---
+### console.log
+
+--- ⑦ type= 直方图（renderer / gpu-process 是否出现过）---
+  (缺 guest/_root_chrome-snap.log，无法统计)
+
+--- ⑧ X11 启动链判定摘录 ---
+  !! 缺 guest/_root_autorun-x11.log ⇒ /etc/profile.d/99-autostart.sh 钩子
+     未生效或 /root/autorun.sh 未执行（整轮「静默空跑」的典型特征）
+  (缺 guest/_root_xorg.log ⇒ Xorg 未产出自己的日志)
+
+==================================================================
+SUMMARY_END tag=codex-2026-11-19_111700-inotify-create-named-event-r1  ppm=6  严格集未通过=6  尺寸不符=0  心跳=0/5  探针必验失败=0
+==================================================================
+GATE  page_fail=1  strict_fail=6  warmup=6  post_pass_fail=0  probe_fail=0  size_fail=1  ppm_size_mismatch=0  pixel_policy_fail=1  last_frame=shot-06-final last_pass=0
++ echo PPM_SUMMARY=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/ppm-summary.txt
+PPM_SUMMARY=/home/mo/xk6/evidence/2026-11-19_t490-codex-2026-11-19_111700-inotify-create-named-event-r1/ppm-summary.txt
++ echo ASSERT_RC=0
+ASSERT_RC=0
++ FINAL_RC=0
++ '[' 0 = 1 ']'
++ echo SESSION_RC_FINAL=0
+SESSION_RC_FINAL=0
++ exit 0

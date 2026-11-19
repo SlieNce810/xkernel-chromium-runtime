@@ -4,7 +4,7 @@
 
 在隔离的 T490 AArch64 kernel worktree 中应用 [report 333](333-SCM_RIGHTS首字节交付候选补丁与T490流回归-20261119.md) 的首字节交付补丁后，用原 `compatprobe --scm-rights-shortread` 重跑 2 GiB pure-TCG guest，SCM_RIGHTS 项通过 6/6：fd 随首个 1-byte `recvmsg` 交付，后续读取不重复，100-byte payload 完整。原 frozen guest 同一探针为 4/6，因此该兼容差异在候选内核的 focused C 回归中已修复。
 
-这个结果关闭的是 AF_UNIX stream short-read 的内核探针回归。Chromium Mojo 实际 IPC 页面回归仍未完成，故浏览器兼容矩阵的 SCM_RIGHTS 端到端条款继续保持待验。
+这个结果关闭的是 AF_UNIX stream short-read 的内核 C 探针回归。后续 [report 335](335-inotify命名创建事件guest回归与PSS缺口-20261119.md) 也确认 inotify named create 的同源 C probe 通过 11/11。Chromium Mojo 实际 IPC 页面回归仍未完成，故浏览器兼容矩阵的 SCM_RIGHTS 端到端条款继续保持待验。
 
 ## 运行身份与证据
 
