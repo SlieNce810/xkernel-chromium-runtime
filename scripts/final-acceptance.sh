@@ -12,6 +12,8 @@ Usage: bash scripts/final-acceptance.sh <baseline|precheck|score|score-process|h
 
 Environment hooks (the default commands are intentionally conservative):
   T490_TARGET         SSH target, e.g. mo@10.249.11.192 (required for live stages)
+  T490_KERNEL_DIR     remote kernel tree; pass an isolated candidate to test it
+  T490_BASE_IMG       remote base image (default: T490 runner's configured image)
   ACCEPTANCE_OUT      evidence output directory
   ACCEPTANCE_PRECHECK platform command (default: remote T490 read-only precheck)
   RUN_FUNCTION_CMD    optional override; default runs all six browser score items on T490/2 GiB
@@ -71,6 +73,8 @@ mkdir -p "$OUT"
     printf 'started_at=%s\n' "$(date -Is)"
     printf 'host_platform=%s\n' "$(uname -srm 2>/dev/null || uname -a)"
     printf 'T490_TARGET=%s\n' "${T490_TARGET:-unset}"
+    printf 'T490_KERNEL_DIR=%s\n' "${T490_KERNEL_DIR:-unset}"
+    printf 'T490_BASE_IMG=%s\n' "${T490_BASE_IMG:-unset}"
     printf 'ACCEPTANCE_DRY_RUN=%s\n' "${ACCEPTANCE_DRY_RUN:-0}"
     printf 'PLAT_MEM_OVERRIDE=%s\n' "${PLAT_MEM_OVERRIDE:-unset}"
 } > "$OUT/env.txt"
@@ -101,7 +105,25 @@ run_stage() {
 
 run_remote_stage() {
     local name="$1" remote_code="$2"
-    local remote_command="bash -lc 'cd /home/mo/xk6 && ${remote_code}'"
+    local remote_env=() remote_prefix=""
+    local value
+    for value in "${T490_KERNEL_DIR:-}" "${T490_BASE_IMG:-}"; do
+        [[ -z "$value" ]] && continue
+        case "$value" in
+            /*) ;;
+            *) echo "T490 remote paths must be absolute: $value" >&2; results["$name"]=64; return 64 ;;
+        esac
+        case "$value" in
+            *[!A-Za-z0-9_./-]*) echo "T490 remote paths contain unsupported characters: $value" >&2; results["$name"]=64; return 64 ;;
+            */../*|*/..|*/./*|*/.) echo "T490 remote paths may not contain dot segments: $value" >&2; results["$name"]=64; return 64 ;;
+        esac
+    done
+    [[ -z "${T490_KERNEL_DIR:-}" ]] || remote_env+=("KERNEL_DIR=$T490_KERNEL_DIR")
+    [[ -z "${T490_BASE_IMG:-}" ]] || remote_env+=("BASE_IMG=$T490_BASE_IMG")
+    if (( ${#remote_env[@]} > 0 )); then
+        printf -v remote_prefix '%q ' "${remote_env[@]}"
+    fi
+    local remote_command="bash -lc 'cd /home/mo/xk6 && ${remote_prefix}${remote_code}'"
     run_stage "$name" bash "$T490/remote.sh" ssh "$remote_command"
 }
 

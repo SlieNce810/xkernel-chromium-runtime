@@ -1,25 +1,29 @@
 {
   "schema": "xkernel.compatibility-final.v1",
   "result": "INCOMPLETE",
-  "kernel_sha256": "fa02114ae8058e3da43942ec614f098f53a2b5b41b20181b7728f7992c983e48",
+  "kernel_sha256": "ba202fdd38fd9ccbdd79883ba0d6bd2b1984c2a70f0883d11ed63e981581d1d2",
   "completed": [
-    "timerfd/inotify focused C guest probe: 11/11 on kernel fa02114ae8058e3da43942ec614f098f53a2b5b41b20181b7728f7992c983e48",
-    "SCM_RIGHTS short-read C guest probe: 6/6 on the same kernel; first-byte delivery and payload preservation pass",
+    "full compatprobe ABI matrix: 38/38 on kernel ba202fdd38fd9ccbdd79883ba0d6bd2b1984c2a70f0883d11ed63e981581d1d2; Linux controls on T490 7.0 and WSL2 5.15 also pass after correcting the MADV_DONTNEED hole expectation",
+    "SCM_RIGHTS short-read C guest probe: 6/6 on kernel ba202fdd38fd9ccbdd79883ba0d6bd2b1984c2a70f0883d11ed63e981581d1d2; first-byte delivery and payload preservation pass",
+    "memfd sealing C guest probe: 12/12 on the same kernel, including MFD_ALLOW_SEALING alone and MFD_NOEXEC_SEAL/F_SEAL_EXEC",
     "procfs RSS/PSS/USS standalone allocation, file sharing, fork/COW, and unmap probe emits Linux-consistent numeric values on the same kernel",
-    "Chromium 149 official index HTML strict screenshot gate passes on the same candidate kernel",
-    "Browser to Zygote to Renderer process structure gate passes 4/4 after preserving the serial browser-start event",
+    "memspace madvise hole unit test passes 14/14 in its targeted crate",
+    "Chromium 149 official index HTML strict screenshot gate passes on the prior candidate kernel fa02114a…; final ba202fdd… browser rerun is still pending",
+    "Browser to Zygote to Renderer process structure gate passes 4/4 after preserving the serial browser-start event on the prior candidate kernel",
     "Chromium console records SCM_RIGHTS transfers and inotify use without ENOSYS/ENOTSUP during the passing page run",
     "Seven Chromium inotify NotFound attempts map to optional policy/time-zone path components; Chromium FilePathWatcher documents best-effort handling and the page remains strict PASS"
   ],
   "pending": [
-    "Chromium memfd_create has seven InvalidInput results with flags not captured; classify MFD_NOEXEC_SEAL capability probing versus a required feature and rerun sealing semantics on the exact candidate hash"
+    "Rerun strict Chromium HTML and Browser-to-Zygote-to-Renderer process gate on final kernel ba202fdd38fd9ccbdd79883ba0d6bd2b1984c2a70f0883d11ed63e981581d1d2"
   ],
   "evidence": [
     "report/339-Chromium149候选内核首页与进程链复核-20261119.md",
     "report/340-T490同一候选内核兼容性与PSS-USS复测-20261119.md",
     "report/341-Chromium149-inotify可选路径NotFound分类-20261119.md",
+    "report/342-T490同一候选内核memfd与madvise兼容性修复-20261119.md",
     "evidence/2026-11-19_t490-codex-2026-11-19-fileprivate-compat-html-r1/",
-    "evidence/2026-11-19_t490-codex-2026-11-19-fileprivate-compat-r2/",
+    "evidence/2026-11-19_t490-codex-2026-11-19-madvise-memfd-fixed-r1/",
+    "evidence/2026-11-19_t490-madvise-unit-r2/",
     "evidence/2026-11-19_t490-process-gate-recheck-r2/",
     "evidence/2026-11-19_t490-codex-2026-11-19-inotify-watch-path-diagnostic-r1/"
   ]

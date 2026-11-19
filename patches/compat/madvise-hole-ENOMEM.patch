@@ -1,0 +1,62 @@
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -1462,13 +1462,24 @@
+         self.drain_pending_invalidations();
+         self.validate_region(start, size)?;
+         let range = VirtAddrRange::from_start_size(start, size);
+-        // Linux applies MADV_DONTNEED to whatever part of the range is mapped
+-        // and silently ignores unmapped gaps; `madvise(2)` only rejects a
+-        // misaligned addr or a range outside the address space (both still
+-        // enforced by `validate_region` above). Demanding that the range be
+-        // fully covered by VMAs returned ENOMEM where Linux succeeds, which
+-        // user space does not expect.
++        // Linux rejects MADV_DONTNEED ranges that include unmapped holes with
++        // ENOMEM. Validate the whole VMA coverage before discarding any pages.
+         let overlapped_vmas = self.vmas.collect_overlapping(range);
++        let mut cursor = range.start;
++        for vma in &overlapped_vmas {
++            if vma.start() > cursor {
++                return Err(KError::NoMemory);
++            }
++            if vma.end() > cursor {
++                cursor = vma.end();
++            }
++            if cursor >= range.end {
++                break;
++            }
++        }
++        if cursor < range.end {
++            return Err(KError::NoMemory);
++        }
+         let mut handled = false;
+         let mut pgtbl = self.pgtbl.modify();
+         for vma in overlapped_vmas {
+@@ -2032,7 +2043,7 @@
+     }
+ 
+     #[def_test]
+-    fn madvise_dontneed_tolerates_unmapped_gaps() {
++    fn madvise_dontneed_rejects_unmapped_gaps() {
+         let start = VirtAddr::from_usize(0x4000);
+         let flags = MappingFlags::READ | MappingFlags::WRITE;
+         let mut aspace =
+@@ -2064,12 +2075,14 @@
+                 .is_resolved()
+         );
+ 
+-        aspace
+-            .madvise_dontneed(start, PAGE_SIZE_4K * 3)
+-            .expect("Linux tolerates an unmapped gap inside the MADV_DONTNEED range");
++        let result = aspace.madvise_dontneed(start, PAGE_SIZE_4K * 3);
++        assert!(
++            matches!(result, Err(KError::NoMemory)),
++            "Linux rejects MADV_DONTNEED ranges containing an unmapped gap with ENOMEM"
++        );
+         assert!(
+-            aspace.pgtbl.modify().query(start).is_err(),
+-            "the mapped page inside the range must still be discarded despite the gap"
++            aspace.pgtbl.modify().query(start).is_ok(),
++            "no mapped page is discarded when range validation fails"
+         );
+     }
+ 

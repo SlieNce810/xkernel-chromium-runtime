@@ -493,14 +493,14 @@ int main(int argc, char **argv)
 			chk("madvise(misaligned) expect EINVAL", rc, errno,
 			    rc == -1 && errno == EINVAL);
 
-			/* 中间打洞：Linux 容忍（只丢弃已映射部分），x-kernel 是否容忍？ */
+			/* T490 Linux 7.0 and WSL2 Linux 5.15 both return ENOMEM for a range with a hole. */
 			if (munmap(m + P, P) == 0) {
 				errno = 0; rc = madvise(m, P * 3, MADV_DONTNEED);
 				printf("[CP] %-38s rc=%d errno=%d (%s)\n",
 				       "madvise(HOLE in middle)", rc, errno,
 				       errno ? strerror(errno) : "-");
-				chk("  -> Linux tolerates gap (expect 0)", rc, errno,
-				    rc == 0);
+				chk("  -> Linux ENOMEM for gap", rc, errno,
+				    rc == -1 && errno == ENOMEM);
 			}
 			munmap(m, P * 4);
 		}
