@@ -103,7 +103,8 @@ class CompatibilityAuditTests(unittest.TestCase):
 class CandidateStabilityAuditTests(unittest.TestCase):
     KERNEL_SHA = "ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2"
 
-    def _run(self, root: Path, kernel_sha: str, result: str) -> Path:
+    def _run(self, root: Path, kernel_sha: str, result: str,
+             diagnostic_only: bool = False) -> Path:
         directory = root / "evidence" / "candidate-stability" / result
         directory.mkdir(parents=True)
         (directory / "build-manifest.txt").write_text(
@@ -122,6 +123,10 @@ class CandidateStabilityAuditTests(unittest.TestCase):
         )
         (directory / "stability-gate.log").write_text(
             "STABILITY_GATE_PASS\n" if result == "pass" else "STABILITY_GATE_FAIL\n",
+            encoding="utf-8",
+        )
+        (directory / "stability-run-config.txt").write_text(
+            f"diagnostic_only={1 if diagnostic_only else 0}\n",
             encoding="utf-8",
         )
         return directory
@@ -151,6 +156,15 @@ class CandidateStabilityAuditTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             self._run(root, "b" * 64, "pass")
+            result = audit_candidate_stability(root, self.KERNEL_SHA)
+
+        self.assertEqual(result["status"], "INCOMPLETE")
+        self.assertEqual(result["runs"], [])
+
+    def test_diagnostic_only_run_does_not_satisfy_candidate_stability(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self._run(root, self.KERNEL_SHA, "pass", diagnostic_only=True)
             result = audit_candidate_stability(root, self.KERNEL_SHA)
 
         self.assertEqual(result["status"], "INCOMPLETE")

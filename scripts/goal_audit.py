@@ -175,11 +175,16 @@ def audit_candidate_stability(root: Path, expected_kernel_sha256: str | None) ->
     runs: list[dict[str, Any]] = []
     for result_path in sorted(evidence.rglob("stability-result.env")):
         directory = result_path.parent
+        run_config = read_text(directory / "stability-run-config.txt")
+        run_result = read_text(result_path)
+        if (re.search(r"(?m)^diagnostic_only=1$", run_config)
+                or re.search(r"(?m)^STABILITY_DIAGNOSTIC_ONLY=1$", run_result)):
+            continue
         kernel_sha = _kernel_binary_sha(directory / "build-manifest.txt")
         if kernel_sha != expected_kernel_sha256.lower():
             continue
         values: dict[str, str] = {}
-        for line in read_text(result_path).splitlines():
+        for line in run_result.splitlines():
             if "=" in line:
                 key, value = line.split("=", 1)
                 values[key.strip()] = value.strip()

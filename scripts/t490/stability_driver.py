@@ -100,16 +100,29 @@ def main() -> int:
     parser.add_argument("--profile", default="official-index")
     parser.add_argument("--schedule-tolerance-seconds", type=int, default=10)
     parser.add_argument("--connect-timeout-seconds", type=float, default=360)
+    parser.add_argument(
+        "--diagnostic-only",
+        action="store_true",
+        help="allow non-acceptance reload/hold parameters for a controlled reproduction",
+    )
     args = parser.parse_args()
 
-    if args.duration_seconds < 1800:
-        parser.error("stability duration must be at least 1800 seconds")
-    if args.reload_count != 10:
-        parser.error("this gate requires exactly ten scheduled reloads")
-    if args.reload_interval_seconds != 120:
-        parser.error("reload interval must be 120 seconds")
-    if args.reload_window_seconds < 1 or args.reload_window_seconds >= args.reload_interval_seconds:
-        parser.error("reload window must be positive and shorter than the reload interval")
+    if args.diagnostic_only:
+        if args.duration_seconds < 0:
+            parser.error("diagnostic duration must be non-negative")
+        if args.reload_count < 1 or args.reload_interval_seconds < 1:
+            parser.error("diagnostic reload count and interval must be positive")
+    else:
+        if args.duration_seconds < 1800:
+            parser.error("stability duration must be at least 1800 seconds")
+        if args.reload_count != 10:
+            parser.error("this gate requires exactly ten scheduled reloads")
+        if args.reload_interval_seconds != 120:
+            parser.error("reload interval must be 120 seconds")
+    if args.reload_window_seconds < 1:
+        parser.error("reload window must be positive")
+    if not args.diagnostic_only and args.reload_window_seconds >= args.reload_interval_seconds:
+        parser.error("formal reload window must be shorter than the reload interval")
     if args.poll_seconds <= 0 or args.heartbeat_seconds != 30:
         parser.error("poll must be positive and heartbeat must be 30 seconds")
     out_dir = args.out_dir.resolve()

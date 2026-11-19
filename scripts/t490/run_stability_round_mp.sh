@@ -11,6 +11,8 @@ IVL="${3:-30}"
 RELOAD_COUNT="${4:-${STABILITY_RELOAD_COUNT:-10}}"
 RELOAD_INTERVAL="${5:-${STABILITY_RELOAD_INTERVAL:-120}}"
 HOLD_SECONDS="${6:-${STABILITY_HOLD_SECONDS:-1805}}"
+RELOAD_WINDOW="${STABILITY_RELOAD_WINDOW:-90}"
+DIAGNOSTIC_ONLY="${STABILITY_DIAGNOSTIC_ONLY:-0}"
 FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-stability-${TAG}.sock}"
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}"
@@ -30,6 +32,7 @@ Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interva
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
 The last three values are diagnostic controls; keep their defaults for formal acceptance.
+Non-formal values require STABILITY_DIAGNOSTIC_ONLY=1; diagnostic-only runs skip the formal gate.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.
@@ -48,8 +51,23 @@ case "$RELOAD_INTERVAL" in
     ''|*[!0-9]*|0) die "reload interval must be a positive integer number of seconds" ;;
 esac
 case "$HOLD_SECONDS" in
-    ''|*[!0-9]*|0) die "hold duration must be a positive integer number of seconds" ;;
+    ''|*[!0-9]*) die "hold duration must be a non-negative integer number of seconds" ;;
 esac
+case "$DIAGNOSTIC_ONLY" in
+    0|1) ;;
+    *) die "STABILITY_DIAGNOSTIC_ONLY must be 0 or 1" ;;
+esac
+case "$RELOAD_WINDOW" in
+    ''|*[!0-9]*|0) die "STABILITY_RELOAD_WINDOW must be a positive integer number of seconds" ;;
+esac
+if [ "$DIAGNOSTIC_ONLY" = "0" ]; then
+    [ "$RELOAD_COUNT" -eq 10 ] || die "formal stability requires exactly ten reloads"
+    [ "$RELOAD_INTERVAL" -eq 120 ] || die "formal stability requires a 120-second reload interval"
+    [ "$HOLD_SECONDS" -ge 1800 ] || die "formal stability requires at least 1800 hold seconds"
+    [ "$RELOAD_WINDOW" -lt "$RELOAD_INTERVAL" ] || die "formal reload window must be shorter than the reload interval"
+else
+    [ "$HOLD_SECONDS" -ge 0 ] || die "diagnostic hold duration must be non-negative"
+fi
 [ "$(uname -s)" = Linux ] || die "只能在 T490/Linux 主机运行"
 [ -f "$BASE_IMG" ] || die "基础镜像不存在: $BASE_IMG"
 [ -d "$HERE" ] || die "T490 scripts directory missing"
@@ -62,7 +80,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL BOOTSTRAP_POLL=30 RELOAD_POLL=5"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -103,13 +121,19 @@ done
     printf 'reload_count=%s\n' "$RELOAD_COUNT"
     printf 'reload_interval_seconds=%s\n' "$RELOAD_INTERVAL"
     printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
+    printf 'diagnostic_only=%s\n' "$DIAGNOSTIC_ONLY"
+    printf 'reload_window_seconds=%s\n' "$RELOAD_WINDOW"
     printf 'initial_page_poll_seconds=30\nreload_poll_seconds=5\n'
     printf 'memory=2g\narchitecture=aarch64\naccelerator=tcg\n'
-    printf 'command=MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
-        "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" "$TAG" "$DUR" "$IVL" \
-        "$RELOAD_COUNT" "$RELOAD_INTERVAL" "$HOLD_SECONDS"
+    printf 'command=STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
+        "$DIAGNOSTIC_ONLY" "$RELOAD_WINDOW" "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" \
+        "$TAG" "$DUR" "$IVL" "$RELOAD_COUNT" "$RELOAD_INTERVAL" "$HOLD_SECONDS"
 } > "$EVID/stability-run-config.txt"
 
+DRIVER_DIAGNOSTIC_ARGS=()
+if [ "$DIAGNOSTIC_ONLY" = "1" ]; then
+    DRIVER_DIAGNOSTIC_ARGS+=(--diagnostic-only)
+fi
 python3 "$HERE/stability_driver.py" \
     --socket "$QMP_SOCKET" \
     --run-id "$TAG" \
@@ -119,13 +143,14 @@ python3 "$HERE/stability_driver.py" \
     --duration-seconds "$HOLD_SECONDS" \
     --reload-count "$RELOAD_COUNT" \
     --reload-interval-seconds "$RELOAD_INTERVAL" \
-    --reload-window-seconds "${STABILITY_RELOAD_WINDOW:-90}" \
+    --reload-window-seconds "$RELOAD_WINDOW" \
     --ready-timeout-seconds "${STABILITY_READY_TIMEOUT:-2400}" \
     --bootstrap-poll-seconds 30 \
     --poll-seconds 5 \
     --heartbeat-seconds 30 \
     --schedule-tolerance-seconds "${STABILITY_SCHEDULE_TOLERANCE:-10}" \
     --profile official-index \
+    "${DRIVER_DIAGNOSTIC_ARGS[@]}" \
     > "$WORK/stability-driver.log" 2>&1
 DRIVER_RC=$?
 
@@ -157,7 +182,11 @@ if [ -d "$EVID" ] && [ -f "$EVID/stability/stability-events.jsonl" ]; then
         > "$EVID/stability-event-normalization.log" 2>&1
     NORMALIZER_RC=$?
 fi
-if [ "$NORMALIZER_RC" -eq 0 ] && [ -d "$EVID" ]; then
+if [ "$DIAGNOSTIC_ONLY" = "1" ] && [ -d "$EVID" ]; then
+    GATE_RC=78
+    printf 'STABILITY_GATE_SKIPPED: diagnostic-only reproduction; not an acceptance run\n' \
+        > "$EVID/stability-gate.log"
+elif [ "$NORMALIZER_RC" -eq 0 ] && [ -d "$EVID" ]; then
     python3 "$HERE/stability_gate.py" "$EVID" \
         --events "$EVID/stability/stability-events.normalized.jsonl" \
         --console-log "$EVID/console.log" \
@@ -171,8 +200,8 @@ elif [ -d "$EVID" ]; then
         "$NORMALIZER_RC" > "$EVID/stability-gate.log"
 fi
 
-printf 'STABILITY_DRIVER_RC=%s\nSTABILITY_ROUND_RC=%s\nSTABILITY_NORMALIZER_RC=%s\nSTABILITY_GATE_RC=%s\n' \
-    "$DRIVER_RC" "$ROUND_RC" "$NORMALIZER_RC" "$GATE_RC" | tee "$WORK/result.env"
+printf 'STABILITY_DRIVER_RC=%s\nSTABILITY_ROUND_RC=%s\nSTABILITY_NORMALIZER_RC=%s\nSTABILITY_GATE_RC=%s\nSTABILITY_DIAGNOSTIC_ONLY=%s\n' \
+    "$DRIVER_RC" "$ROUND_RC" "$NORMALIZER_RC" "$GATE_RC" "$DIAGNOSTIC_ONLY" | tee "$WORK/result.env"
 cp -f "$WORK/result.env" "$EVID/stability-result.env" 2>/dev/null || true
 cat "$WORK/stability-driver.log" 2>/dev/null || true
 (
