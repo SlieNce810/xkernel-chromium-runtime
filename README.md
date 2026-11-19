@@ -11,9 +11,9 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 ## 2026-11-20 当前复核状态
 
-统一审计仍为 `INCOMPLETE`：历史 2 GiB R10 稳定性 gate PASS；最终候选 `ac1032fe…` 的正式轮在第八次重载出现 Chromium “Page Unresponsive”，7/10 次通过。相同候选的 30 秒间隔诊断通过 8/8；最新 120 秒间隔诊断却在首屏阶段持续纯白，59 次 strict 轮询未通过、没有发起重载。R10 基线在同一 120 秒诊断下首屏 402.192 秒通过，driver 8/8 重载通过；但独立周期截图在 542 秒抓到一帧纯白，且一条进程族快照年龄超出 35 秒门槛 41 毫秒，所以这不是正式稳定性 PASS。对照显示间隔本身不足以解释候选白屏，根因仍待复验，见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/348](report/348-T490-ac1032短间隔重载不复现nav08超时-20261119.md)、[report/349](report/349-T490-ac1032两分钟间隔诊断未到首屏-20261119.md) 和 [report/350](report/350-T490-R10基线120秒间隔诊断驱动通过但周期截图门禁失败-20261119.md)。
+统一审计仍为 `INCOMPLETE`：历史 2 GiB R10 稳定性 gate PASS；最终候选 `ac1032fe…` 的正式轮在第八次重载出现 Chromium “Page Unresponsive”，7/10 次通过。相同候选的 30 秒间隔诊断通过 8/8；一次 120 秒诊断未到首屏，59 次 strict 轮询失败。R10 基线在 120 秒诊断下首屏 402.192 秒通过、逐页 driver 8/8，但周期截图在 542 秒有一帧纯白，且进程族快照年龄超 35 秒门槛 41 毫秒。候选第二次 120 秒诊断首屏 496.611 秒、driver 8/8 通过，周期截图和事件归一化均未发现 post-pass 失败。候选短诊断在启动和长时重载上表现不一致，不能覆盖正式 nav-08 失败，根因仍待复验，见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/348](report/348-T490-ac1032短间隔重载不复现nav08超时-20261119.md)、[report/349](report/349-T490-ac1032两分钟间隔诊断未到首屏-20261119.md)、[report/350](report/350-T490-R10基线120秒间隔诊断驱动通过但周期截图门禁失败-20261119.md) 和 [report/351](report/351-T490-ac1032匹配120秒诊断第二轮八次重载通过-20261120.md)。
 
-当前 2 GiB 浏览器评分为 16/20（Input 0/4）；候选 Chromium 兼容性摘要通过；四项性能 before/after 有效运行仍为 0/0。最新逐项审计见 [goal-audit r9](evidence/2026-11-19_t490-final-report-r9/goal-audit.json)。短诊断 runner 已加入 `--dry-run` 与首屏等待时限检查，避免 readiness timeout 长于 QEMU 会话；这项工具改动没有修复白屏。
+当前 2 GiB 浏览器评分为 16/20（Input 0/4）；候选 Chromium 兼容性摘要通过；四项性能 before/after 有效运行仍为 0/0。最新逐项审计见 [goal-audit r1](evidence/2026-11-20_t490-final-report-r1/goal-audit.json)。短诊断 runner 已加入 `--dry-run` 与首屏等待时限检查，避免 readiness timeout 长于 QEMU 会话；这项工具改动没有修复白屏。
 
 ## 2026-11-18 决赛验收状态
 
