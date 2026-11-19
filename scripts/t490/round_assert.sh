@@ -259,7 +259,11 @@ N_WARMUP=0
 N_POST_PASS_FAIL=0
 FIRST_PASS=""
 LAST_BASE=""
+# `last_pass` is a legacy alias consumed by goal_audit.py; it means that at
+# least one frame passed strict checks, not that the final frame passed.
 LAST_PASS=0
+ANY_STRICT_PASS=0
+LAST_FRAME_STRICT_PASS=0
 for f in $PPM_LIST; do
     base="$(basename "$f" .ppm)"
     out="$EV/ppm-assert-$base.json"
@@ -278,11 +282,14 @@ for f in $PPM_LIST; do
     fi
     if [ "$sfc" -eq 0 ]; then
         LAST_PASS=1
+        ANY_STRICT_PASS=1
+        LAST_FRAME_STRICT_PASS=1
         if [ -z "$FIRST_PASS" ]; then
             FIRST_PASS="$base"
             say "  $base: 首个严格集全通过帧（此前帧标为 WARMUP）"
         fi
     else
+        LAST_FRAME_STRICT_PASS=0
         N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
         if [ -z "$FIRST_PASS" ]; then
             N_WARMUP=$((N_WARMUP + 1))
@@ -310,7 +317,7 @@ fi
 if [ "$N_POST_PASS_FAIL" -gt 0 ]; then
     PAGE_GATE_FAIL=1
 fi
-if [ "$LAST_PASS" -ne 1 ]; then
+if [ "$ANY_STRICT_PASS" -ne 1 ]; then
     PAGE_GATE_FAIL=1
 fi
 
@@ -397,7 +404,7 @@ say "=================================================================="
 
 # 门禁（--strict 才生效）：像素严格集失败 **或** 探针必验项失败 ⇒ 本轮不通过。
 # 固定输出 GATE 行，便于机器读取与跨轮比较。
-say "GATE  page_fail=$PAGE_GATE_FAIL  strict_fail=$N_ASSERT_FAIL  warmup=$N_WARMUP  post_pass_fail=$N_POST_PASS_FAIL  probe_fail=$N_PROBE_FAIL  size_fail=$SIZE_FAIL  ppm_size_mismatch=$N_SIZE_MISMATCH  pixel_policy_fail=$PIXEL_POLICY_FAIL  last_frame=$LAST_BASE last_pass=$LAST_PASS"
+say "GATE  page_fail=$PAGE_GATE_FAIL  strict_fail=$N_ASSERT_FAIL  warmup=$N_WARMUP  post_pass_fail=$N_POST_PASS_FAIL  probe_fail=$N_PROBE_FAIL  size_fail=$SIZE_FAIL  ppm_size_mismatch=$N_SIZE_MISMATCH  pixel_policy_fail=$PIXEL_POLICY_FAIL  last_frame=$LAST_BASE last_frame_strict_pass=$LAST_FRAME_STRICT_PASS any_strict_pass=$ANY_STRICT_PASS last_pass=$LAST_PASS"
 if [ -n "$STRICT" ]; then
     if [ "$PAGE_GATE_FAIL" -gt 0 ] || [ "$N_PROBE_FAIL" -gt 0 ] || \
        [ "$SIZE_FAIL" -gt 0 ] || [ "$N_SIZE_MISMATCH" -gt 0 ] || \
