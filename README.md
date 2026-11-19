@@ -45,11 +45,11 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 **R22 修正 mouse gate 假阳性**：as-run gate 将光标差分判成 counter 变化；原始 after-click 截图计数仍是 0。数字专用 ROI 复算为 0 像素变化，gate 已收窄并增加 cursor-only 与 digit-change 回归用例。CSS 导航仍失败，Input 仍 0/4；完整 session、QMP 与 PPM 哈希证据已归档，见 [report/325](report/325-T490-2GiB输入尝试r22数字ROI修正光标假阳性-20261119.md)。
 
-**inotify/timerfd Linux 基线**：扩展的 `compatprobe.c --inotify-timerfd` 在 WSL2 Linux 5.15.167.4 上 11/11 通过（inotify watch/create/read、timerfd set/poll/read）。该结果仅为 Linux 参考；T490 native Linux 与冻结版本 x-kernel 对照仍待 T490 恢复，见 [report/327](report/327-inotify-timerfd-WSL2-Linux基线与T490待补-20261119.md)。
+**inotify/timerfd 对照**：WSL2 Linux 5.15.167.4 与 T490 native Linux 7.0.0-43 均通过 11/11 focused probe；T490 的 2 GiB AArch64 x-kernel guest 中 timerfd 4/4 通过，但 watched-directory 创建事件未进入 poll 队列。目录通知和带名称事件记录尚未修复，Chromium watcher 回归未完成，见 [report/327](report/327-inotify-timerfd-WSL2-Linux基线与T490待补-20261119.md)、[report/331](report/331-T490-native-Linux-compat-memory-reference-20261119.md) 和 [report/332](report/332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。
 
-**SCM_RIGHTS short-read Linux 基线**：同一 focused probe 在 WSL2 Linux 上验证 fd 只随首个 1-byte `recvmsg` 交付，后续读取不重复，100-byte payload 完整（6/6）。T490 native Linux 与 x-kernel guest 复测仍待主机恢复，见 [report/328](report/328-SCM_RIGHTS-stream-shortread-WSL2-Linux基线与T490待补-20261119.md)。
+**SCM_RIGHTS short-read 对照**：WSL2 与 T490 native Linux 均通过 6/6，fd 只随首个 1-byte `recvmsg` 交付，后续不重复，100-byte payload 完整；冻结快照的 x-kernel guest 首读未交付 fd、后读重复报告 fd（4/6），尚未修复，也未完成 Chromium Mojo 回归，见 [report/328](report/328-SCM_RIGHTS-stream-shortread-WSL2-Linux基线与T490待补-20261119.md)、[report/331](report/331-T490-native-Linux-compat-memory-reference-20261119.md) 和 [report/332](report/332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。
 
-**procfs 内存 Linux 参考**：新增 standalone probe 在 WSL2 上记录匿名/文件私有/共享页、fork、COW、unmap 阶段的 statm/status/smaps_rollup 原始值。它能复核 Linux PSS/USS 口径，但 `VmRSS/statm` 在部分触页阶段未同步；该探针不是 Chromium 进程树或 1 Hz 性能样本，x-kernel 对照仍待 T490，见 [report/330](report/330-procfs-memory-WSL2-reference-and-T490-followup-20261119.md)。
+**procfs 内存对照**：WSL2 与 T490 native Linux standalone probes 提供 RSS/PSS/USS 和 anon/file/shared/fork/COW/unmap 参考；2 GiB x-kernel guest 的 `statm`/`VmRSS` 会随触页和 unmap 变化，但缺少 `/proc/<pid>/smaps_rollup`，PSS/USS 明确不可用。当前仍没有 Chromium 进程树 1 Hz/60 秒峰值数据，见 [report/330](report/330-procfs-memory-WSL2-reference-and-T490-followup-20261119.md)、[report/331](report/331-T490-native-Linux-compat-memory-reference-20261119.md) 和 [report/332](report/332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。
 
 **统一 goal audit（2026-11-19）**：修正 audit 脚本对 JSON `pass: 1` 和 keyboard-only gate 的处理后，当前 2 GiB 得分汇总为 16/20（Input 仍不通过），稳定性 r10 通过；兼容性与四项性能仍未完成。详细状态与未结项见 [report/326](report/326-决赛统一goal-audit状态-20261119.md) 和 [本轮 audit JSON](evidence/2026-11-19_wsl2-goal-audit-r1/summary.json)。
 
