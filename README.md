@@ -9,6 +9,12 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 同步完成内核 Linux 兼容性修复（8 项缺口、17 个补丁候选、上游 MR !831 已合并）、
 稳定性与性能采集工具，以及 400+ 轮归档证据。
 
+## 2026-11-19 最终候选复核
+
+统一审计仍为 `INCOMPLETE`：历史 2 GiB R10 稳定性 gate PASS；最终候选 `ac1032fe…` 的正式轮在第八次重载出现 Chromium “Page Unresponsive”，7/10 次通过。相同候选的 30 秒间隔诊断通过 8/8；最新 120 秒间隔诊断却在首屏阶段持续纯白，59 次 strict 轮询未通过、没有发起重载。两种结果不能证明间隔导致故障，候选渲染间歇性失败的根因仍待定位，见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/348](report/348-T490-ac1032短间隔重载不复现nav08超时-20261119.md) 和 [report/349](report/349-T490-ac1032两分钟间隔诊断未到首屏-20261119.md)。
+
+当前 2 GiB 浏览器评分为 16/20（Input 0/4）；候选 Chromium 兼容性摘要通过；四项性能 before/after 有效运行仍为 0/0。最新逐项审计见 [goal-audit r4](evidence/2026-11-19_t490-final-report-r4/goal-audit.json)。短诊断 runner 已加入 `--dry-run` 与首屏等待时限检查，避免 readiness timeout 长于 QEMU 会话；这项工具改动没有修复白屏。
+
 ## 2026-11-18 决赛验收状态
 
 **浏览器功能：20/20 已有严格仓库验收记录**，使用 Chromium 149 默认 Browser → Zygote → Renderer、Wayland 和真实 QMP/HMP 输入；记录条件为 guest 4 GiB，见 [report/284](report/284-默认多进程真实键鼠与决赛20分闭环-20261117.md)。正式平台复验采用 `scripts/t490/platform.env` 的默认 2 GiB；指定首页已完成四次独立冷启动并通过 strict 像素判据，首个严格帧分别在 481 秒、420.8 秒、420.8 秒和 480 秒出现，见 [report/287](report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md)、[report/288](report/288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md)、[report/289](report/289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md) 与 [report/309](report/309-T490-2GiB指定HTML控制页冷启动strict通过-20261118.md)。第三轮的 Browser → Zygote → Renderer 直接父链经原始 console 规范化复核通过；六项功能仍未全部在 2 GiB 下重验。
