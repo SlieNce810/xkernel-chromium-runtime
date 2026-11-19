@@ -50,6 +50,7 @@ RUNTIME_DIR=/run/user/0
 PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
 # 以下四个由 t490_round.sh 在注入时烘焙；宿主环境变量本身不跨 QEMU 边界。
 TRACE_MODE=__MP_TRACE__
+TRACE_SNAPSHOT_NEXT_TICK=120
 GL_MODE=__MP_GL__
 NET_MODE=__MP_NET__
 LEDGER_MODE=__MP_LEDGER__
@@ -975,6 +976,18 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
         tail -n 120 "$CHROME_LOG" > /dev/console 2>&1 || true
         echo "CHROMIUM_EARLY_LOG_END" >> "$LOG"
         echo "CHROMIUM_EARLY_LOG_END" > /dev/console
+    fi
+    # Diagnostic-only strace windows make Renderer bootstrap failures visible
+    # before the host readiness timeout ends the QEMU session. Formal runs keep
+    # TRACE_MODE=0 and do not pay this logging cost.
+    if [ "$TRACE_MODE" = "1" ] && [ "$tick" -ge "$TRACE_SNAPSHOT_NEXT_TICK" ] && [ -s "$LIFE" ]; then
+        log "CHROMIUM_LIFECYCLE_SNAPSHOT_BEGIN tick=$tick bytes=$(wc -c < "$LIFE" 2>/dev/null || echo 0)"
+        grep -E 'clone\(|clone3\(|execve(at)?\(|exit_group\(|wait4\(' "$LIFE" 2>/dev/null \
+            | tail -n 40 | while IFS= read -r trace_line; do
+                log "CHROMIUM_LIFECYCLE_TRACE $trace_line"
+            done
+        log "CHROMIUM_LIFECYCLE_SNAPSHOT_END tick=$tick"
+        TRACE_SNAPSHOT_NEXT_TICK=$((TRACE_SNAPSHOT_NEXT_TICK + 120))
     fi
     phase loop_body_done "$tick"
     elapsed=$((elapsed + 1))

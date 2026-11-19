@@ -19,6 +19,7 @@ RELOAD_INTERVAL="${5:-${STABILITY_RELOAD_INTERVAL:-120}}"
 HOLD_SECONDS="${6:-${STABILITY_HOLD_SECONDS:-1805}}"
 RELOAD_WINDOW="${STABILITY_RELOAD_WINDOW:-90}"
 DIAGNOSTIC_ONLY="${STABILITY_DIAGNOSTIC_ONLY:-0}"
+TRACE_MODE="${STABILITY_TRACE_MODE:-0}"
 FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-stability-${TAG}.sock}"
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}"
@@ -41,6 +42,7 @@ The last three values are diagnostic controls; keep their defaults for formal ac
 Non-formal values require STABILITY_DIAGNOSTIC_ONLY=1; diagnostic-only runs skip the formal gate.
 --dry-run validates and prints the resolved run settings without starting QEMU.
 The default initial-page timeout is 2400 seconds; when it would outlast a diagnostic session, it is bounded to max-session-seconds minus 200.
+Set STABILITY_TRACE_MODE=1 only with STABILITY_DIAGNOSTIC_ONLY=1 to capture a bounded clone/exec/exit/wait4 trace from Chromium.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.
@@ -52,6 +54,11 @@ fi
 case "$DUR" in
     ''|*[!0-9]*|0) die "max session duration must be a positive integer number of seconds" ;;
 esac
+GUEST_MAX_SECONDS="${MP_MAX_SECONDS:-$((DUR - 200))}"
+case "$GUEST_MAX_SECONDS" in
+    ''|*[!0-9]*|0) die "MP_MAX_SECONDS must be a positive integer number of guest seconds" ;;
+esac
+[ "$GUEST_MAX_SECONDS" -lt "$DUR" ] || die "MP_MAX_SECONDS must be shorter than max session duration"
 case "$IVL" in
     ''|*[!0-9]*|0) die "screendump interval must be a positive integer number of seconds" ;;
 esac
@@ -71,6 +78,12 @@ case "$DIAGNOSTIC_ONLY" in
     0|1) ;;
     *) die "STABILITY_DIAGNOSTIC_ONLY must be 0 or 1" ;;
 esac
+case "$TRACE_MODE" in
+    0|1) ;;
+    *) die "STABILITY_TRACE_MODE must be 0 or 1" ;;
+esac
+[ "$TRACE_MODE" = "0" ] || [ "$DIAGNOSTIC_ONLY" = "1" ] \
+    || die "STABILITY_TRACE_MODE=1 is diagnostic-only"
 case "$RELOAD_WINDOW" in
     ''|*[!0-9]*|0) die "STABILITY_RELOAD_WINDOW must be a positive integer number of seconds" ;;
 esac
@@ -106,6 +119,8 @@ run_id=$TAG
 session_max_seconds=$DUR
 screendump_interval_seconds=$IVL
 diagnostic_only=$DIAGNOSTIC_ONLY
+trace_mode=$TRACE_MODE
+guest_max_seconds=$GUEST_MAX_SECONDS
 ready_timeout_seconds=$READY_TIMEOUT
 ready_timeout_source=$READY_TIMEOUT_SOURCE
 reload_count=$RELOAD_COUNT
@@ -130,7 +145,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS READY_TIMEOUT=$READY_TIMEOUT READY_TIMEOUT_SOURCE=$READY_TIMEOUT_SOURCE DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS READY_TIMEOUT=$READY_TIMEOUT READY_TIMEOUT_SOURCE=$READY_TIMEOUT_SOURCE TRACE_MODE=$TRACE_MODE GUEST_MAX_SECONDS=$GUEST_MAX_SECONDS DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -139,10 +154,10 @@ BASE_IMG="$BASE_IMG" \
 PKG_TARBALL="$PKG_TARBALL" \
 INJECT_AUTOSTART=1 \
 OZ_PLATFORM=wayland \
-MP_TRACE_VALUE=0 \
+MP_TRACE_VALUE="$TRACE_MODE" \
 MP_LEDGER_VALUE=0 \
 MP_SAMPLE_SECONDS=5 \
-MP_MAX_SECONDS="${MP_MAX_SECONDS:-$((DUR - 200))}" \
+MP_MAX_SECONDS="$GUEST_MAX_SECONDS" \
 MP_HOLD_SECONDS=40 \
 MP_WESTON_CONTINUE=0 \
 MP_FAMILY_WATCHDOG_INTERVAL="$FAMILY_WATCHDOG_INTERVAL" \
@@ -169,6 +184,8 @@ done
     printf 'family_diagnostics=%s\n' "${MP_FAMILY_DIAGNOSTICS:-0}"
     printf 'ready_timeout_seconds=%s\n' "$READY_TIMEOUT"
     printf 'ready_timeout_source=%s\n' "$READY_TIMEOUT_SOURCE"
+    printf 'trace_mode=%s\n' "$TRACE_MODE"
+    printf 'guest_max_seconds=%s\n' "$GUEST_MAX_SECONDS"
     printf 'reload_count=%s\n' "$RELOAD_COUNT"
     printf 'reload_interval_seconds=%s\n' "$RELOAD_INTERVAL"
     printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
