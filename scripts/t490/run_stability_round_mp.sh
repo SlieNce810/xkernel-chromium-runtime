@@ -8,6 +8,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 TAG="${1:-stability-mp-2g}"
 DUR="${2:-4200}"
 IVL="${3:-30}"
+RELOAD_COUNT="${4:-${STABILITY_RELOAD_COUNT:-10}}"
+RELOAD_INTERVAL="${5:-${STABILITY_RELOAD_INTERVAL:-120}}"
+HOLD_SECONDS="${6:-${STABILITY_HOLD_SECONDS:-1805}}"
 FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-stability-${TAG}.sock}"
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}"
@@ -23,9 +26,10 @@ STABILITY_AUTORUN=autorun_mp_score_observe6.sh
 die() { echo "STABILITY_ROUND_ABORT: $*" >&2; exit 2; }
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
-Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interval]
+Usage: run_stability_round_mp.sh [tag] [max-session-seconds] [screendump-interval] [reload-count] [reload-interval-seconds] [hold-seconds]
 Default: 4200 seconds max; strict official-index page gate; 10 real Ctrl+R
 reloads every 120 seconds; 1805 seconds held after first strict page PASS to clear the 1800-second gate.
+The last three values are diagnostic controls; keep their defaults for formal acceptance.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
 The default observer uses lightweight process events at 5-second samples and an independent 4-second guest family watchdog.
 Override MP_FAMILY_WATCHDOG_INTERVAL with a positive guest-second interval for controlled sampling experiments.
@@ -36,6 +40,15 @@ EOF
 fi
 case "$FAMILY_WATCHDOG_INTERVAL" in
     ''|*[!0-9]*|0) die "MP_FAMILY_WATCHDOG_INTERVAL must be a positive integer number of guest seconds" ;;
+esac
+case "$RELOAD_COUNT" in
+    ''|*[!0-9]*|0) die "reload count must be a positive integer" ;;
+esac
+case "$RELOAD_INTERVAL" in
+    ''|*[!0-9]*|0) die "reload interval must be a positive integer number of seconds" ;;
+esac
+case "$HOLD_SECONDS" in
+    ''|*[!0-9]*|0) die "hold duration must be a positive integer number of seconds" ;;
 esac
 [ "$(uname -s)" = Linux ] || die "只能在 T490/Linux 主机运行"
 [ -f "$BASE_IMG" ] || die "基础镜像不存在: $BASE_IMG"
@@ -87,10 +100,14 @@ done
     printf 'family_watchdog_target_guest_seconds=%s\n' "$FAMILY_WATCHDOG_INTERVAL"
     printf 'family_diagnostics=%s\n' "${MP_FAMILY_DIAGNOSTICS:-0}"
     printf 'ready_timeout_seconds=%s\n' "${STABILITY_READY_TIMEOUT:-2400}"
+    printf 'reload_count=%s\n' "$RELOAD_COUNT"
+    printf 'reload_interval_seconds=%s\n' "$RELOAD_INTERVAL"
+    printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
     printf 'initial_page_poll_seconds=30\nreload_poll_seconds=5\n'
     printf 'memory=2g\narchitecture=aarch64\naccelerator=tcg\n'
-    printf 'command=MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s\n' \
-        "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" "$TAG" "$DUR" "$IVL"
+    printf 'command=MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
+        "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" "$TAG" "$DUR" "$IVL" \
+        "$RELOAD_COUNT" "$RELOAD_INTERVAL" "$HOLD_SECONDS"
 } > "$EVID/stability-run-config.txt"
 
 python3 "$HERE/stability_driver.py" \
@@ -99,9 +116,9 @@ python3 "$HERE/stability_driver.py" \
     --out-dir "$DRIVER_DIR" \
     --events "$DRIVER_DIR/stability-events.jsonl" \
     --console-log "$EVID/console.log" \
-    --duration-seconds 1805 \
-    --reload-count 10 \
-    --reload-interval-seconds 120 \
+    --duration-seconds "$HOLD_SECONDS" \
+    --reload-count "$RELOAD_COUNT" \
+    --reload-interval-seconds "$RELOAD_INTERVAL" \
     --reload-window-seconds "${STABILITY_RELOAD_WINDOW:-90}" \
     --ready-timeout-seconds "${STABILITY_READY_TIMEOUT:-2400}" \
     --bootstrap-poll-seconds 30 \
