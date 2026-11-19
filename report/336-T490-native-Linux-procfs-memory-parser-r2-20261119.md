@@ -20,7 +20,7 @@
 | child after parent COW | 568 | 147 | 44 | 524 |
 | after unmap | 2024 | 139 | 124 | 1900 |
 
-这轮是 Linux 对照和探针 parser 的复核。随后候选 x-kernel 的 mapcount 版本已输出 PSS/USS，但 `file_shared_touched` 的分布与 Linux 不符，需先修正 MAP_PRIVATE 文件页共享再重跑，详见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md)。这两个 report 均是 standalone 小进程探针，不是 Chromium 进程树 1 Hz/60 秒峰值样本。
+这轮是 Linux 对照和探针 parser 的复核。最初 x-kernel mapcount 版本的 `file_shared_touched` 与 Linux 分布不符，随后修正 MAP_PRIVATE 页缓存读取与 COW；修复版相同 guest C probe 的 file-shared/fork/COW/unmap 趋势已对齐，详见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md) 和 [report 338](338-MAP_PRIVATE页缓存共享与PSS-USS-guest复测-20261119.md)。这些仍是 standalone 小进程探针，不是 Chromium 进程树 1 Hz/60 秒峰值样本。
 
 ## 与先前参考的关系
 

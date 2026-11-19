@@ -4,7 +4,7 @@
 
 `procfs_memory_probe.c` 在 WSL2 Linux 5.15.167.4 / x86_64 上完成了匿名页、文件私有映射、文件共享映射、触页、fork、双侧 COW 和 unmap 阶段采样。Linux `/proc/<pid>/smaps_rollup` 输出 RSS、PSS、Shared、Private 字段；probe 对缺失字段打印 `UNAVAILABLE`，不补造数值。
 
-这是 procfs ABI 的 WSL2 Linux 单进程参考。随后同源 probe 已在 T490 native Linux 7.0.0-43 上运行，原始结果见 [report 331](331-T490-native-Linux-compat-memory-reference-20261119.md)，更新 parser 的 native Linux r2 见 [report 336](336-T490-native-Linux-procfs-memory-parser-r2-20261119.md)。冻结 AArch64 x-kernel guest r1 没有 `/proc/<pid>/smaps_rollup`，PSS/USS 不可用，见 [report 332](332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。后续 mapcount 候选已输出 PSS/USS 并显示 fork/COW/unmap 变化，但 `file_shared_touched` 与 Linux 分布不符，因为 `FilePrivateRuntime` 仍将首读页复制进 anon；见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md)。这些仍是 standalone 小进程，不是 Chromium 进程树 1 Hz 采样或 60 秒峰值内存数据。
+这是 procfs ABI 的 WSL2 Linux 单进程参考。随后同源 probe 已在 T490 native Linux 7.0.0-43 上运行，原始结果见 [report 331](331-T490-native-Linux-compat-memory-reference-20261119.md)，更新 parser 的 native Linux r2 见 [report 336](336-T490-native-Linux-procfs-memory-parser-r2-20261119.md)。冻结 AArch64 x-kernel guest r1 没有 `/proc/<pid>/smaps_rollup`，PSS/USS 不可用，见 [report 332](332-T490-xkernel-inotify-scm-rights-procfs-probe-r1-20261119.md)。后续 mapcount 候选首次发现 MAP_PRIVATE file-shared 差异；修复后同一 guest C probe 的 file-shared、fork/COW、unmap 变化与 Linux 主要趋势一致，见 [report 337](337-x-kernel-PSS-USS候选采样与MAP_PRIVATE差异-20261119.md) 和 [report 338](338-MAP_PRIVATE页缓存共享与PSS-USS-guest复测-20261119.md)。这些仍是 standalone 小进程，不是 Chromium 进程树 1 Hz 采样或 60 秒峰值内存数据。
 
 ## 关键原始值（kB）
 
