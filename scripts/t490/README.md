@@ -255,6 +255,17 @@ ssh mo@T490 'bash ~/xk6/scripts/t490/pull_guest_logs.sh <tag>'
 
 `run_input_final.sh` 的 `EVDEV_PROBE=0` 可用于不注入旁路 observer 的 cold-start 对照；页面 ready 超时会先用 QMP quit 结束会话。`interaction_score_driver.py` 在目标 viewport 内轮询键盘回显，最多等待 120 秒；R11 观察到 HMP step4 光标落点向右下漂移。R17/R18 的原始 PPM 差分隔离出 step3 指针热点，R19 的两点线性外推却把指针送出 viewport；R20/R21 又显示同一请求会随前序动作改变落点。当前 step3 默认保留 R18 最后一个在屏候选 `(250,588)` / `(350,710)`；可用 `INTERACTION_COUNTER_TARGET=x,y`、`INTERACTION_NAV_TARGET=x,y` 单轮覆盖。另可按顺序设置 `INTERACTION_COUNTER_RETRY_TARGETS='x,y;x,y'`，driver 每次真实点击后立即检查计数 ROI，只在未变化时重试，首个过门截图作为 `after-mouse-click.ppm`。这些是 HMP 相对移动请求值，不是屏幕绝对坐标。R22 原始截图显示旧计数 ROI 把光标形状当成了数字变化；gate 现只检查粗体数字 ROI `555,625,570,650`，并有 pointer-only 负例与数字变化正例测试。
 
+### Chromium 启动 trace 采集试探
+
+用于确认正式性能事件能否从 Chromium 的单调时钟 trace 中提取；该命令是 diagnostic-only，不作为稳定性或性能样本：
+
+```bash
+bash scripts/t490/run_chromium_trace_probe.sh --dry-run trace-startup-precheck
+bash scripts/t490/run_chromium_trace_probe.sh 2026-11-20-candidate-perf-trace-r1
+```
+
+它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`；轮后 `round_assert.sh` 将文件回收到 `guest/_root_mp-perf-trace.json`。试采打开 trace 和诊断日志会增加运行开销，结果不能进入 before/after 统计。采样成功后再补 trace 解析器与同钟域生命周期/内存CSV生成器。
+
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 
 R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 使用 `step3` 后实际打开了 CSS 页面，但 strict gate 未看到页面顶部；R17 的 Home 键也未使截屏回到顶部。R17 请求 `(212,638)` 后指针热点为 `(253,724)`；R18 请求 `(250,588)` 后热点为 `(302,729)`，计数和导航仍未通过。R19 的外推请求 `(233,1138)` / `(287,778)` 把指针移出 viewport，详见 report 322。后续只作小步单变量调整，`test_interaction_score_driver.py` 检查步进、目标映射和覆盖值。
