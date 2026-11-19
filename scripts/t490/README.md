@@ -266,6 +266,8 @@ bash scripts/t490/run_chromium_trace_probe.sh 2026-11-20-candidate-perf-trace-r1
 
 它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`；轮后 `round_assert.sh` 将文件回收到 `guest/_root_mp-perf-trace.json`。试采打开 trace 和诊断日志会增加运行开销，结果不能进入 before/after 统计。采样成功后再补 trace 解析器与同钟域生命周期/内存CSV生成器。
 
+首次 R1 试采发现 `autorun_mp_score_observe6.sh` 没有把 `EXTRA_FLAGS_VALUE` 拼进 `CHROME_ARGS`，所以虽请求了 `--trace-startup`，实际 argv 无此参数且 guest trace 文件未生成；该轮只算页面/重载诊断，不能当trace或性能样本。模板现已补 `EXTRA_FLAGS` 占位符，trace probe 在dry-run之前先自检占位符及参数注入，并打印 `PERF_TRACE_TEMPLATE_INJECTION=PASS`。
+
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 
 R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 使用 `step3` 后实际打开了 CSS 页面，但 strict gate 未看到页面顶部；R17 的 Home 键也未使截屏回到顶部。R17 请求 `(212,638)` 后指针热点为 `(253,724)`；R18 请求 `(250,588)` 后热点为 `(302,729)`，计数和导航仍未通过。R19 的外推请求 `(233,1138)` / `(287,778)` 把指针移出 viewport，详见 report 322。后续只作小步单变量调整，`test_interaction_score_driver.py` 检查步进、目标映射和覆盖值。

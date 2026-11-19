@@ -51,6 +51,7 @@ PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
 # 以下四个由 t490_round.sh 在注入时烘焙；宿主环境变量本身不跨 QEMU 边界。
 TRACE_MODE=__MP_TRACE__
 TRACE_SNAPSHOT_NEXT_MS=120000
+EXTRA_FLAGS="__EXTRA_FLAGS__"
 GL_MODE=__MP_GL__
 NET_MODE=__MP_NET__
 LEDGER_MODE=__MP_LEDGER__
@@ -785,7 +786,7 @@ esac
 # Pure TCG can take several minutes between zygote fork and the first renderer
 # control message. Keep the browser-side connection alive long enough for the
 # renderer to finish bootstrap; this remains the normal zygote/renderer path.
-CHROME_ARGS="--ozone-platform=wayland --js-flags=--jitless $DATAPIPE_FIX_FLAG $GL_ARGS --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --ipc-connection-timeout=600 --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,AudioServiceOutOfProcess,AudioServiceSandbox,$NET_FEATURES$MOJO_LEGACY_FEATURE --enable-logging=stderr --v=1 --vmodule=*file_url_loader_factory*=3,*document_loader*=3,*render_frame_impl*=3,*compositor_frame*=3,*frame_sink*=3,*wayland*=2,*ozone*=2,*navigation*=3,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=$CHROME_PROFILE"
+CHROME_ARGS="--ozone-platform=wayland --js-flags=--jitless $DATAPIPE_FIX_FLAG $GL_ARGS --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --ipc-connection-timeout=600 --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,AudioServiceOutOfProcess,AudioServiceSandbox,$NET_FEATURES$MOJO_LEGACY_FEATURE --enable-logging=stderr --v=1 --vmodule=*file_url_loader_factory*=3,*document_loader*=3,*render_frame_impl*=3,*compositor_frame*=3,*frame_sink*=3,*wayland*=2,*ozone*=2,*navigation*=3,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=$CHROME_PROFILE $EXTRA_FLAGS"
 case "$CHROME_ARGS" in
     *--single-process*|*--no-zygote*)
         mark GATE 0
