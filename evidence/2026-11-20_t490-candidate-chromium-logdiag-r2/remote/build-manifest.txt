@@ -1,0 +1,153 @@
+++ date -Is
++ echo '### 本轮指纹（归档时间 2026-11-20T03:49:38+08:00）'
+### 本轮指纹（归档时间 2026-11-20T03:49:38+08:00）
++ echo 'ROUND_TAG    codex-2026-11-20-candidate-chromium-logdiag-r2  DUR=1800 IVL=30'
+ROUND_TAG    codex-2026-11-20-candidate-chromium-logdiag-r2  DUR=1800 IVL=30
++ echo 'AUTORUN      autorun_mp_score_observe6.sh'
+AUTORUN      autorun_mp_score_observe6.sh
++ echo 'KERNEL_DIR   /home/mo/xk6/worktrees/xk-compat-fix-r1'
+KERNEL_DIR   /home/mo/xk6/worktrees/xk-compat-fix-r1
++ echo '--- 内核 ---'
+--- 内核 ---
++ echo 'KERNEL_BIN   /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin'
+KERNEL_BIN   /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin
++ sha256sum /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin
+ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2  /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin
++ echo '--- 基础镜像 ---'
+--- 基础镜像 ---
++ echo 'BASE_IMG     /home/mo/x-kernel/images/pkg-installed.img'
+BASE_IMG     /home/mo/x-kernel/images/pkg-installed.img
++ sha256sum /home/mo/x-kernel/images/pkg-installed.img
+bab5c9f5dbf1e4a910bab569635bb9e44fe38c3b8cea94ae8eae4ce3f7a9fdb1  /home/mo/x-kernel/images/pkg-installed.img
++ echo '--- 用户态 overlay ---'
+--- 用户态 overlay ---
++ echo 'PKG_TARBALL  <none>'
+PKG_TARBALL  <none>
++ '[' -z '' ']'
++ echo '--- 页面集 ---'
+--- 页面集 ---
++ echo 'PAGE_DIR     /home/mo/xk6/scripts/testpage   PAGE_URL=file:///usr/share/html-test/index.html'
+PAGE_DIR     /home/mo/xk6/scripts/testpage   PAGE_URL=file:///usr/share/html-test/index.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/index.html
+3ce8d7c3f5a3cd3661e7f4ce0da3c5352856a4a951e119f80c9e8d14a6bdd5a5  /home/mo/xk6/scripts/testpage/index.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/interaction.html
+01c34f7250b157eb0f49dd0d8272b9be0ae09502818dfcce01803d777542d86e  /home/mo/xk6/scripts/testpage/interaction.html
++ for f in $PAGE_FILES
++ sha256sum /home/mo/xk6/scripts/testpage/layout.html
+f10ad1c0743109bd2a577c3d18d27204af5d673a730c5bcabb1e85406bf812a2  /home/mo/xk6/scripts/testpage/layout.html
++ echo '--- 关键脚本 ---'
+--- 关键脚本 ---
++ sha256sum /home/mo/xk6/scripts/t490/autorun_mp_score_observe6.sh /home/mo/xk6/scripts/t490/t490_round.sh /home/mo/xk6/scripts/t490/run_session_t490.sh /home/mo/xk6/scripts/t490/round_assert.sh /home/mo/xk6/scripts/t490/ppm_assert.py
+c182a64bc4d122d6a59f350b24b36718fd7d44fd214db1bb7d3f19f52bc9c9c3  /home/mo/xk6/scripts/t490/autorun_mp_score_observe6.sh
+9188213f13027b9d16f4d26c22b29792483934b8e7a7d42fba78cf932c382896  /home/mo/xk6/scripts/t490/t490_round.sh
+ceced5067446949aaac45fbadddae2f26c6428c6d63ed3d0aa53f2bea945a2c2  /home/mo/xk6/scripts/t490/run_session_t490.sh
+10518861edd0ef9d64853b750a209d92d139887fa844ec8dbadca885c572ed6e  /home/mo/xk6/scripts/t490/round_assert.sh
+597a3e0d28a7c244b3ef315fe1acadc3586d0092447256dc2e87208c184a1f54  /home/mo/xk6/scripts/t490/ppm_assert.py
++ echo '--- 源码状态 ---'
+--- 源码状态 ---
++ cd /home/mo/xk6/worktrees/xk-compat-fix-r1
++ git rev-parse HEAD
+b73e5814087c9d33c5f0a35b66cc56be689d3dee
++ git status --porcelain
+ M arch/kcpu/src/aarch64/userspace.rs
+ M core/ksyscall/src/dispatch.rs
+ M core/ksyscall/src/io_mpx/epoll.rs
+ M core/ksyscall/src/io_mpx/poll.rs
+ M core/ksyscall/src/sync/futex.rs
+ M core/ksyscall/src/sys.rs
+ M core/ksyscall/src/task/clone.rs
+ M core/ksyscall/src/task/credentials.rs
+ M core/ksyscall/src/task/ctl.rs
+ M core/ksyscall/src/task/execve.rs
+ M core/ksyscall/src/task/exit.rs
+ M core/ksyscall/src/task/ids.rs
+ M core/ksyscall/src/task/mod.rs
+ M core/ksyscall/src/task/signal.rs
+ M core/ksyscall/src/task/thread.rs
+ M core/ksyscall/src/task/wait.rs
+ M fs/boot/src/lib.rs
+ M fs/filesystems/memfs/src/shmem.rs
+ M fs/filesystems/procfs/src/task_nodes/root.rs
+ M mm/filemap/src/private.rs
+ M mm/filemap/src/shared.rs
+ M mm/kaddr_layout/src/lib.rs
+ M mm/memspace/src/aspace.rs
+ M mm/memspace/src/stats.rs
+ M mm/memspace/src/vma.rs
+ M net/knet/src/unix/dgram.rs
+ M net/knet/src/unix/stream.rs
+ M net/knet/src/unix/stream/channel.rs
+ M posix/fs/src/dir.rs
+ M posix/fs/src/fd_ops.rs
+ M posix/fs/src/io.rs
+ M posix/fs/src/namei.rs
+ M posix/fs/src/open.rs
+ M posix/mm/src/memfd.rs
+ M posix/mm/src/mmap.rs
+ M posix/net/src/cmsg.rs
+ M posix/net/src/io.rs
+ M posix/net/src/name.rs
+ M posix/net/src/socket.rs
+ M posix/process/src/runtime.rs
+ M process/kcred/src/credentials/model.rs
+ M process/kcred/src/namespace.rs
+ M process/kfd_objects/src/inotify.rs
+ M process/kns/src/nsproxy.rs
+ M process/kprocess/src/lib.rs
+ M process/kprocess/src/process.rs
+ M process/kprocess/src/process/exit.rs
+ M process/kprocess/src/process/runtime_access.rs
+ M process/kprocess/src/process_exit.rs
+ M process/kprocess/src/process_runtime/mod.rs
+ M process/kprocess/src/thread/core.rs
+ M process/kprocess/src/thread/current.rs
+ M process/kprocess/src/thread/mod.rs
+ M process/ksignal/src/types.rs
+?? core/ksyscall/src/task/namespace.rs
+?? core/ksyscall/src/task/seccomp.rs
+?? process/kprocess/src/seccomp_cbpf.rs
++ echo '--- 平台参数（单一真源 platform.env 的实际取值）---'
+--- 平台参数（单一真源 platform.env 的实际取值）---
++ '[' -f /home/mo/xk6/scripts/t490/platform.env ']'
++ . /home/mo/xk6/scripts/t490/platform.env
+++ PLAT_ARCH=aarch64
+++ PLAT_HAL=kplat-aarch64
+++ PLAT_DEFCONFIG=platforms/kplat-aarch64/qemu_defconfig
+++ PLAT_KCONFIG_SYMBOLS_YES='ARCH_AARCH64=y MACHINE_AARCH64_QEMU=y KFEAT_DRIVER_VIRTIO_GPU=y KFEAT_DRIVER_VIRTIO_INPUT=y KFEAT_VIRTIO_BUS_PCI=y'
+++ PLAT_KCONFIG_ARCH_LINE='^ARCH="aarch64"$'
+++ PLAT_KCONFIG_FORBIDDEN='^ARCH_\(RISCV64\|X86_64\|LOONGARCH64\)=y'
+++ PLAT_QEMU_BIN_NAME=qemu-system-aarch64
+++ PLAT_QEMU_MIN_MAJOR=8
+++ PLAT_ACCEL=n
+++ PLAT_MACHINE=virt,gic-version=3
+++ PLAT_CPU_TCG=cortex-a76
+++ PLAT_GRAPHIC=y
+++ PLAT_MEM=2g
+++ PLAT_SMP=4
+++ PLAT_VSOCK=n
+++ PLAT_INPUT_DEVICES='virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_REQUIRED_DEVICES='virtio-gpu-pci virtio-blk-pci virtio-net-pci virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_FORBIDDEN_ACCEL='kvm hvf'
+++ PLAT_MAKE_ARGS='GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+++ PLAT_QEMU_DISPLAY=vnc=127.0.0.1:1
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-keyboard-pci
++++ sed 's/ *$//'
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-mouse-pci
+++ PLAT_QEMU_ARGS='-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+++ PLAT_REPEAT_MIN=5
+++ PLAT_STAT=median
+++ PLAT_EVIDENCE_FILES='env.txt console.log cmd.txt timestamps.csv manifest.txt platform-compliance.txt'
+++ PLAT_SCREENSHOT_PREFIX=screenshots/
+++ PLAT_REF_XKERNEL=https://gitee.com/openkylin/x-kernel
+++ PLAT_REF_WAYLAND=https://wayland.freedesktop.org/
+++ PLAT_REF_XORG_WIKI=https://www.x.org/wiki/
+++ PLAT_REF_XORG_DOC=https://xorg.freedesktop.org/archive/current/doc/
+++ PLAT_REF_OZONE=https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
++ echo 'PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
++ echo 'PLAT_QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+PLAT_QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1
