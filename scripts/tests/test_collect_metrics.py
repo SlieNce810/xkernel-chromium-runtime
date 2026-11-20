@@ -109,6 +109,20 @@ class CollectMetricsTests(unittest.TestCase):
         self.assertGreater(values["peak_chromium_pss_kb"], 18000)
         self.assertGreater(values["peak_chromium_uss_kb"], 12000)
 
+    def test_strict_screendump_can_precede_its_page_verdict(self) -> None:
+        rows = [dict(row) for row in self.rows]
+        rows[9]["t_ns"] = 2_500_000_000  # page_verdict
+        rows[10]["t_ns"] = 2_400_000_000  # screenshot was captured and checked first
+        rows.sort(key=lambda row: int(row["t_ns"]))
+        for seq, row in enumerate(rows, 1):
+            row["seq"] = seq
+            row["event_id"] = f"event-{seq}"
+        self.save_events(rows)
+
+        values = {row["metric"]: float(row["value"]) for row in self.validate()}
+
+        self.assertEqual(1800.0, values["page_first_screendump_upper_bound_ms"])
+
     def test_post_window_samples_do_not_inflate_peak(self) -> None:
         with self.memory.open(encoding="utf-8") as stream:
             rows = list(csv.DictReader(stream))

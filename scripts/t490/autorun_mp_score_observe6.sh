@@ -56,6 +56,7 @@ PERF_TRACE_RUN_ID="__PROFILE_ID__"
 PERF_TRACE_FILE=""
 PERF_MEMORY_SAMPLER_ENABLED="__MP_MEMORY_SAMPLER__"
 PERF_MEMORY_SAMPLE_SECONDS="__MP_MEMORY_SAMPLE_SECONDS__"
+LIFECYCLE_PRELOAD="__MP_LIFECYCLE_PRELOAD__"
 PERF_MEMORY_EXPORTED=0
 PERF_MEMORY_PID=""
 PERF_MEMORY_FILE="/root/proc-tree-sampler.status"
@@ -204,7 +205,13 @@ perf_memory_export_once() {
     memory_fold_file="/tmp/mp-proc-tree-export-$$.fold"
     memory_roundtrip_file="/tmp/mp-proc-tree-export-$$.roundtrip.gz"
     rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
-    if ! tar -cf "$memory_raw_file" -C /root lifecycle-events.jsonl memory-samples.csv memory-sampling-errors.log proc-tree-sampler.status 2>/dev/null; then
+    if [ -f /root/lifecycle-probe-events.jsonl ]; then
+        if ! tar -cf "$memory_raw_file" -C /root lifecycle-events.jsonl memory-samples.csv memory-sampling-errors.log proc-tree-sampler.status lifecycle-probe-events.jsonl 2>/dev/null; then
+            log "MP_PERF_MEMORY_EXPORT_TAR_FAIL run_id=$PERF_TRACE_RUN_ID"
+            rm -f "$memory_raw_file"
+            return 1
+        fi
+    elif ! tar -cf "$memory_raw_file" -C /root lifecycle-events.jsonl memory-samples.csv memory-sampling-errors.log proc-tree-sampler.status 2>/dev/null; then
         log "MP_PERF_MEMORY_EXPORT_TAR_FAIL run_id=$PERF_TRACE_RUN_ID"
         rm -f "$memory_raw_file"
         return 1
@@ -839,6 +846,7 @@ log "MAX_SECONDS=$MAX_SECONDS SAMPLE_SECONDS=$SAMPLE_SECONDS HOLD_SECONDS=$HOLD_
 log "kernel=$(uname -srm 2>/dev/null || true)"
 log "PROC_VERSION=$(cat /proc/version 2>/dev/null || true)"
 log "LD_PRELOAD=${LD_PRELOAD:-<unset>}"
+log "LIFECYCLE_PRELOAD=$LIFECYCLE_PRELOAD"
 log "CHROMIUM_SHA256=$(sha256sum /usr/lib/chromium/chromium 2>/dev/null | awk '{print $1}')"
 log "OVERLAY_SHA256=$(sha256sum /pkgs.tar.gz 2>/dev/null | awk '{print $1}')"
 
@@ -1003,6 +1011,33 @@ if [ "$PERF_MEMORY_SAMPLER_ENABLED" = "1" ]; then
 fi
 mark BROWSER_START_MONO_NS "$BROWSER_START_MONO_NS_VALUE"
 
+BROWSER_PRELOAD_SAVED="${LD_PRELOAD:-}"
+if [ -n "$LIFECYCLE_PRELOAD" ]; then
+    [ -f "$LIFECYCLE_PRELOAD" ] || { log "LIFECYCLE_PRELOAD_MISSING=$LIFECYCLE_PRELOAD"; exit 84; }
+    case "$LIFECYCLE_PRELOAD" in
+        /lifecycle_event_preload.so) ;;
+        *) log "LIFECYCLE_PRELOAD_PATH_INVALID=$LIFECYCLE_PRELOAD"; exit 84 ;;
+    esac
+    XK_METRICS_PAGE_PATH="${PAGE_URL#file://}"
+    case "$PAGE_URL" in
+        file://*) ;;
+        *) XK_METRICS_PAGE_PATH="" ;;
+    esac
+    XK_METRICS_RUN_ID="$PERF_TRACE_RUN_ID"
+    XK_METRICS_NAV_ID=nav-00
+    XK_METRICS_PAGE_URL="$PAGE_URL"
+    export XK_METRICS_RUN_ID XK_METRICS_NAV_ID XK_METRICS_PAGE_PATH XK_METRICS_PAGE_URL
+    if [ -n "$BROWSER_PRELOAD_SAVED" ]; then
+        LD_PRELOAD="$LIFECYCLE_PRELOAD:$BROWSER_PRELOAD_SAVED"
+    else
+        LD_PRELOAD="$LIFECYCLE_PRELOAD"
+    fi
+    export LD_PRELOAD
+    : > /root/lifecycle-probe-events.jsonl
+    rm -f "/root/lifecycle-renderer-$PERF_TRACE_RUN_ID.state"
+    log "LIFECYCLE_PRELOAD_ACTIVE=$LIFECYCLE_PRELOAD run_id=$PERF_TRACE_RUN_ID nav_id=$XK_METRICS_NAV_ID"
+fi
+
 # 窄过滤生命周期 trace：保留 clone/clone3/execve/execveat/exit_group/wait4/
 # prctl/set_tid_address，并包含 inotify_add_watch 以便区分路径 ENOENT 与
 # syscall 能力缺失。正式评分与采样默认 TRACE_MODE=0，不受诊断过滤项影响。
@@ -1039,6 +1074,15 @@ else
     /usr/lib/chromium/chromium $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
     BROWSER_PID=$!
     LAUNCHER_PID=$BROWSER_PID
+fi
+if [ -n "$LIFECYCLE_PRELOAD" ]; then
+    if [ -n "$BROWSER_PRELOAD_SAVED" ]; then
+        LD_PRELOAD="$BROWSER_PRELOAD_SAVED"
+        export LD_PRELOAD
+    else
+        unset LD_PRELOAD
+    fi
+    unset XK_METRICS_RUN_ID XK_METRICS_NAV_ID XK_METRICS_PAGE_PATH XK_METRICS_PAGE_URL
 fi
 mark BROWSER_PID "$BROWSER_PID"
 log "browser_pid=$BROWSER_PID launcher_pid=$LAUNCHER_PID"

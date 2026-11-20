@@ -119,6 +119,7 @@ HEADLESS_OVERLAY_VALUE="${HEADLESS_OVERLAY_VALUE:-0}" # 1=explicitly unpack /pkg
 MP_TRACE_VALUE="${MP_TRACE_VALUE:-1}"   # 1 = guest narrow lifecycle trace; 0 = normal run
 MP_MEMORY_SAMPLER_VALUE="${MP_MEMORY_SAMPLER_VALUE:-0}" # 1=inject the 1 Hz Chromium procfs sampler
 MP_MEMORY_SAMPLE_SECONDS_VALUE="${MP_MEMORY_SAMPLE_SECONDS_VALUE:-900}" # bounded startup-to-post-load sampling window
+MP_LIFECYCLE_PRELOAD_VALUE="${MP_LIFECYCLE_PRELOAD_VALUE:-}" # opt-in compact guest-monotonic Chrome lifecycle probe
 MP_GL_VALUE="${MP_GL_VALUE:-angle}"     # angle or legacy Chromium GL selection
 MP_NET_VALUE="${MP_NET_VALUE:-normal}"   # normal or disable NetworkService feature
 MP_LEDGER_VALUE="${MP_LEDGER_VALUE:-1}"   # 1=deep procfs ledger, 0=lightweight lifecycle mode
@@ -223,6 +224,16 @@ esac
 case "$MP_MEMORY_SAMPLE_SECONDS_VALUE" in
     ''|*[!0-9]*|0) echo "!! 非法 MP_MEMORY_SAMPLE_SECONDS_VALUE=$MP_MEMORY_SAMPLE_SECONDS_VALUE（须为正整数秒）"; exit 1 ;;
 esac
+case "$MP_LIFECYCLE_PRELOAD_VALUE" in
+    ''|/lifecycle_event_preload.so) ;;
+    *) echo "!! 非法 MP_LIFECYCLE_PRELOAD_VALUE=$MP_LIFECYCLE_PRELOAD_VALUE（允许空或 /lifecycle_event_preload.so）"; exit 1 ;;
+esac
+if [ -n "$MP_LIFECYCLE_PRELOAD_VALUE" ]; then
+    case " $PROBES " in
+        *" lifecycle_event_preload.c "*) ;;
+        *) echo "!! 生命周期 preload 已启用，但 PROBES 未包含 lifecycle_event_preload.c"; exit 1 ;;
+    esac
+fi
 # ------------------------------------------------- Chromium trace 参数一致性
 # 历史干净 baseline 曾从 EXTRA_FLAGS_VALUE 意外带入 startup trace。这里只检查
 # 实际附加参数，不扫描注入后的 shell 源码（exporter 自身也会解析这些参数名）。
@@ -528,6 +539,7 @@ tr -d "\r" < "$SRC_DIR/$AUTORUN" \
         -e "s|__MP_TRACE__|$MP_TRACE_VALUE|g" \
         -e "s|__MP_MEMORY_SAMPLER__|$MP_MEMORY_SAMPLER_VALUE|g" \
         -e "s|__MP_MEMORY_SAMPLE_SECONDS__|$MP_MEMORY_SAMPLE_SECONDS_VALUE|g" \
+        -e "s|__MP_LIFECYCLE_PRELOAD__|$MP_LIFECYCLE_PRELOAD_VALUE|g" \
         -e "s|__MP_GL__|$MP_GL_VALUE|g" \
         -e "s|__MP_NET__|$MP_NET_VALUE|g" \
         -e "s|__MP_LEDGER__|$MP_LEDGER_VALUE|g" \

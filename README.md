@@ -9,7 +9,7 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 同步完成内核 Linux 兼容性修复（8 项缺口、17 个补丁候选、上游 MR !831 已合并）、
 稳定性与性能采集工具，以及 400+ 轮归档证据。
 
-## 2026-11-20 当前复核状态
+## 2026-11-21 当前复核状态
 
 统一审计仍为 `INCOMPLETE`：历史 2 GiB R10 稳定性 gate PASS；最终候选 `ac1032fe…` 已有四次正式轮均未通过。首轮在重载阶段失败（7/10通过）；第二轮在2,400秒首屏 deadline 后仍无 strict 页面；第三轮首屏在371.4秒通过、nav-01通过，但nav-02在16次采样后 timeout，虽完成1,805秒保持仍仅1/10次重载通过；第四轮则在2,400秒首屏deadline后仍无strict页面，79次轮询失败。R3的65张周期截图中55张在首个通过帧后strict失败；shot-65逐帧JSON strict失败6项；旧字段 `last_pass=1` 表示本轮此前曾有strict通过，不表示末帧通过，字段语义与新增摘要列见 [report/358](report/358-ppm-summary-last_pass字段语义更正及round_assert摘要改进-20261120.md)。相同候选的30秒诊断通过8/8；120秒短诊断第一次未到首屏，第二次首屏496.611秒且driver8/8通过。R10基线120秒诊断也通过逐页driver8/8，但周期截图在542秒有一帧纯白，且一个进程族快照超35秒门槛41毫秒。Chromium trace诊断R1首屏和1/1次重载通过；R2验证单调时钟调度器输出五组快照，但700秒首屏deadline后仍未strict ready。所有trace诊断均不计正式稳定性；详情见 [report/345](report/345-T490-ac1032稳定性轮第八次重载页面无响应-20261119.md)、[report/348](report/348-T490-ac1032短间隔重载不复现nav08超时-20261119.md)、[report/349](report/349-T490-ac1032两分钟间隔诊断未到首屏-20261119.md)、[report/350](report/350-T490-R10基线120秒间隔诊断驱动通过但周期截图门禁失败-20261119.md)、[report/351](report/351-T490-ac1032匹配120秒诊断第二轮八次重载通过-20261120.md)、[report/352](report/352-T490-ac1032正式稳定性第二轮首屏超时纯白-20261120.md)、[report/353](report/353-T490-ac1032诊断日志采集r1页面通过但strace不可用-20261120.md)、[report/354](report/354-T490-ac1032诊断R2单调快照有效但首页首屏超时-20261120.md)、[report/356](report/356-T490-ac1032正式稳定性r3完整保持但第二次重载超时-20261120.md) 和 [report/361](report/361-T490-ac1032正式稳定性r4首屏超时及明确last_frame字段-20261120.md)。
 
@@ -21,6 +21,7 @@ R16 关闭 trace 的同源内存控制轮在 700 秒首屏 deadline 超时，900
 R17 延长首屏 deadline 后 strict 首页与重载通过，但 trace-off 进程树 sampler 仍 213 missed，状态 FAIL；dense PFN count 单变量候选尚未构建/复测，见 [report/388](report/388-T490二GiB无traceChromium内存采样仍超时R17-20261120.md)。
 R18 dense PFN mapcount 候选已构建，procfs 9阶段共享/COW 语义回归通过；R19/R20 同条件 Chromium 对照中 sample ID/missed/中位 overrun 均向好，但 P95 与 strict 首页时间恶化、两个 sampler status 仍 FAIL，因此 dense 候选未证明可靠收益，详见 [report/389](report/389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md)、[report/390](report/390-T490densePFN真实Chromium单变量内存对照R19-20261120.md) 与 [report/391](report/391-T490densePFN同条件Chromium内存采样重复对照R20-20261120.md)。
 R21 在同一 2 GiB dense trace-off 平台加入 procfs 分阶段计时：首页 strict 589.187 秒、1/1 重载、800 秒诊断保持通过；900 秒 sampler 仍 `FAIL`（232 samples、208 missed、276 错误），不能用于峰值内存或正式性能统计。阶段计时显示 resident-page walk 中位数 212 ms/P95 1.599 s，高于 mapcount 中位数 11 ms/P95 48 ms；下一热点定位转向页表 resident walk，未证明四项指标有收益，见 [report/392](report/392-T490procfs阶段计时与R21Chromium进程树采样诊断-20261120.md)。
+R22 通过 opt-in guest `LD_PRELOAD` 捕获到本地页面 open 和 5 次 Zygote fork 边界；首页 strict、1/1 重载和 800 秒保持通过。Browser main-loop ready、renderer ready、first-frame 仍缺失，merged ledger `valid=false`；内存 sampler 仍 `FAIL`（253 samples、225 missed、283 错误），不计入四指标数据。事件边界和下一步 hook 修正见 [report/393](report/393-T490guest单调生命周期preload事件探针R22缺失BrowserRendererReady-20261121.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

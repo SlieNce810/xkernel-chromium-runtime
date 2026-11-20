@@ -20,7 +20,8 @@ RUN_ID = "metric-memory-test-01"
 
 def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = False,
                  unsafe_member: bool = False, sampler_failed: bool = False,
-                 timing: bool = False, invalid_timing: bool = False) -> Path:
+                 timing: bool = False, invalid_timing: bool = False,
+                 probe_events: bool = False, invalid_probe_clock: bool = False) -> Path:
     memory_header = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb"
     memory_row = f"{RUN_ID},LINUX_CLOCK_MONOTONIC,sample-1,200,10,1,browser-10,100,90,80"
     if timing:
@@ -41,6 +42,17 @@ def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = Fa
         "memory-sampling-errors.log": b"sample=2 pid=10 smaps_rollup=unavailable\n" if sampler_failed else b"",
         "proc-tree-sampler.status": f"run_id={RUN_ID}\nresult={'FAIL' if sampler_failed else 'PASS'}\nsamples=1\n".encode(),
     }
+    if probe_events:
+        members["lifecycle-probe-events.jsonl"] = (
+            json.dumps({
+                "schema": "xkernel.browser.lifecycle.v1",
+                "run_id": RUN_ID,
+                "clock_id": "other-clock" if invalid_probe_clock else "LINUX_CLOCK_MONOTONIC",
+                "t_ns": 300,
+                "event_id": f"{RUN_ID}:probe:1",
+                "event": "browser_main_loop_ready",
+            }) + "\n"
+        ).encode()
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w") as archive:
         for name, payload in members.items():
@@ -100,6 +112,18 @@ class ExtractPerfMemoryTests(unittest.TestCase):
         console = make_console(self.root, timing=True, invalid_timing=True)
         with self.assertRaisesRegex(extract_perf_memory.MemoryExportError, "timing field tree_snapshot_total_ns is negative"):
             extract_perf_memory.extract(console, self.root / "invalid-timing", RUN_ID)
+
+    def test_optional_lifecycle_probe_events_are_extracted(self) -> None:
+        console = make_console(self.root, probe_events=True)
+        out = self.root / "with-lifecycle-probe"
+        summary = extract_perf_memory.extract(console, out, RUN_ID)
+        self.assertEqual(1, summary["lifecycle_probe_events"])
+        self.assertTrue((out / "lifecycle-probe-events.jsonl").is_file())
+
+    def test_optional_lifecycle_probe_clock_mismatch_is_rejected(self) -> None:
+        console = make_console(self.root, probe_events=True, invalid_probe_clock=True)
+        with self.assertRaisesRegex(extract_perf_memory.MemoryExportError, "lifecycle probe clock mismatch"):
+            extract_perf_memory.extract(console, self.root / "invalid-probe", RUN_ID)
 
     def test_missing_end_marker_is_rejected(self) -> None:
         console = make_console(self.root, end_marker=False)

@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -120,6 +121,34 @@ static bool read_stat(pid_t pid, pid_t *ppid, uint64_t *start_ticks) {
     *ppid = (pid_t)parsed_ppid;
     *start_ticks = parsed_start;
     return true;
+}
+
+static void classify_process_role(Process *process) {
+    if (strcmp(process->role, "browser") == 0)
+        return;
+    char path[64];
+    snprintf(path, sizeof(path), "/proc/%d/cmdline", process->pid);
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd < 0)
+        return;
+    char command[2048];
+    ssize_t length = read(fd, command, sizeof(command) - 1);
+    close(fd);
+    if (length <= 0)
+        return;
+    for (ssize_t i = 0; i < length; ++i) {
+        if (command[i] == '\0')
+            command[i] = ' ';
+    }
+    command[length] = '\0';
+    if (strstr(command, "--type=renderer"))
+        snprintf(process->role, sizeof(process->role), "%s", "renderer");
+    else if (strstr(command, "--type=zygote"))
+        snprintf(process->role, sizeof(process->role), "%s", "zygote");
+    else if (strstr(command, "--type=utility"))
+        snprintf(process->role, sizeof(process->role), "%s", "utility");
+    else if (strstr(command, "--type=gpu-process"))
+        snprintf(process->role, sizeof(process->role), "%s", "gpu");
 }
 
 static size_t scan_processes(Process *processes) {
@@ -375,6 +404,7 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
                 continue;
             int parent_index = process->depth == 0 ? -1 : process_index(processes, count, process->ppid);
             const char *parent_instance = parent_index >= 0 ? processes[parent_index].instance : NULL;
+            classify_process_role(process);
             emit_event(events, run_id, sample_t_ns, "process_started", process, parent_instance);
             if (!add_seen(seen, seen_count, process)) {
                 free(processes);

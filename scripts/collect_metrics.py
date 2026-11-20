@@ -290,9 +290,9 @@ def _validate_lifecycle(events: list[dict[str, Any]], processes: dict[str, dict[
         raise InvalidSample("strict page verdict precedes first valid frame")
 
     shots = [row for row in _event_rows(events, "screendump_verified") if row.get("navigation_id") == nav_id]
-    shots = [row for row in shots if row.get("renderer_id") == renderer_id and row["_t_ns"] >= verdict["_t_ns"]]
+    shots = [row for row in shots if row.get("renderer_id") == renderer_id and row["_t_ns"] >= frame["_t_ns"]]
     if not shots:
-        raise InvalidSample("no strict screendump cross-check follows the page verdict")
+        raise InvalidSample("no strict screendump cross-check follows the first valid frame")
     shot = min(shots, key=lambda row: row["_t_ns"])
     if shot.get("pass") is not True or shot.get("profile") is None:
         raise InvalidSample("screendump cross-check is not a passing profile result")

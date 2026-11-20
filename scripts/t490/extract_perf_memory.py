@@ -26,6 +26,7 @@ REQUIRED_FILES = {
     "memory-sampling-errors.log",
     "proc-tree-sampler.status",
 }
+OPTIONAL_FILES = {"lifecycle-probe-events.jsonl"}
 TIMING_COLUMNS = (
     "tree_snapshot_total_ns",
     "tree_snapshot_resident_walk_ns",
@@ -149,7 +150,7 @@ def read_tar_members(raw_tar: bytes) -> dict[str, bytes]:
             if path.is_absolute() or ".." in parts or len(parts) != 1:
                 raise MemoryExportError(f"unsafe tar member path: {member.name!r}")
             name = parts[0]
-            if name not in REQUIRED_FILES:
+            if name not in REQUIRED_FILES | OPTIONAL_FILES:
                 raise MemoryExportError(f"unexpected tar member: {member.name!r}")
             if not member.isfile() or name in members:
                 raise MemoryExportError(f"invalid or duplicate tar member: {member.name!r}")
@@ -186,6 +187,36 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
         events.append(event)
     if not events:
         raise MemoryExportError("lifecycle event file is empty")
+
+    lifecycle_probe_event_count = 0
+    if "lifecycle-probe-events.jsonl" in members:
+        probe_event_ids: set[str] = set()
+        for line_number, raw in enumerate(
+            members["lifecycle-probe-events.jsonl"].decode("utf-8").splitlines(), 1
+        ):
+            if not raw.strip():
+                continue
+            try:
+                event = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise MemoryExportError(
+                    f"invalid lifecycle probe JSON at line {line_number}: {exc}"
+                ) from exc
+            if not isinstance(event, dict):
+                raise MemoryExportError(f"lifecycle probe line {line_number} is not an object")
+            if event.get("schema") != RUN_SCHEMA or event.get("run_id") != run_id:
+                raise MemoryExportError(f"lifecycle probe schema/run mismatch at line {line_number}")
+            if event.get("clock_id") != "LINUX_CLOCK_MONOTONIC":
+                raise MemoryExportError(f"lifecycle probe clock mismatch at line {line_number}")
+            if int(event.get("t_ns", -1)) <= 0 or not isinstance(event.get("event"), str):
+                raise MemoryExportError(f"lifecycle probe time/event invalid at line {line_number}")
+            event_id = event.get("event_id")
+            if not isinstance(event_id, str) or not event_id:
+                raise MemoryExportError(f"lifecycle probe event_id missing at line {line_number}")
+            if event_id in probe_event_ids:
+                raise MemoryExportError(f"duplicate lifecycle probe event_id: {event_id}")
+            probe_event_ids.add(event_id)
+            lifecycle_probe_event_count += 1
 
     rows: list[dict[str, str]] = []
     reader = csv.DictReader(io.StringIO(members["memory-samples.csv"].decode("utf-8")))
@@ -315,6 +346,7 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
         "errors": validation_errors,
         "clock_id": "LINUX_CLOCK_MONOTONIC",
         "lifecycle_events": len(events),
+        "lifecycle_probe_events": lifecycle_probe_event_count,
         "memory_rows": len(rows),
         "memory_sample_ids": len({row["sample_id"] for row in rows}),
         "process_instances": len({row["process_instance"] for row in rows}),
