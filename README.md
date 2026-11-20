@@ -23,6 +23,7 @@ R18 dense PFN mapcount 候选已构建，procfs 9阶段共享/COW 语义回归�
 R21 在同一 2 GiB dense trace-off 平台加入 procfs 分阶段计时：首页 strict 589.187 秒、1/1 重载、800 秒诊断保持通过；900 秒 sampler 仍 `FAIL`（232 samples、208 missed、276 错误），不能用于峰值内存或正式性能统计。阶段计时显示 resident-page walk 中位数 212 ms/P95 1.599 s，高于 mapcount 中位数 11 ms/P95 48 ms；下一热点定位转向页表 resident walk，未证明四项指标有收益，见 [report/392](report/392-T490procfs阶段计时与R21Chromium进程树采样诊断-20261120.md)。
 R22 通过 opt-in guest `LD_PRELOAD` 捕获到本地页面 open 和 5 次 Zygote fork 边界；首页 strict、1/1 重载和 800 秒保持通过。Browser main-loop ready、renderer ready、first-frame 仍缺失，merged ledger `valid=false`；内存 sampler 仍 `FAIL`（253 samples、225 missed、283 错误），不计入四指标数据。事件边界和下一步 hook 修正见 [report/393](report/393-T490guest单调生命周期preload事件探针R22缺失BrowserRendererReady-20261121.md)。
 R23 补到 Browser 主线程首次 poll/epoll 事件，guest-clock launch→ready 候选为42.290秒；首页 strict 仍慢至987.609秒 host elapsed，Zygote 子进程的 renderer-ready 和 first-frame 仍缺。900秒采样窗口在页面通过前结束，QMP时间越出clock-sync锚点，sampler也FAIL；R23只作为 hook/窗口边界诊断，不计入性能样本，见 [report/394](report/394-T490guest生命周期hook补覆盖与R23首屏及clock-sync缺口-20261121.md)。
+R24 首次启动时漏传冻结 worktree，QEMU 实际指向 `/home/mo/x-kernel`；约六分钟后在 strict 首页判据前安全终止，记录为路径配置失败，排除性能统计。随后 run-session dry-run 确认修正命令指向冻结 worktree且平台断言15/15通过，详见 [report/395](report/395-T490R24启动路径偏差与提前终止记录-20261121.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态
