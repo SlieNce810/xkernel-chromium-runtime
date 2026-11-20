@@ -274,6 +274,8 @@ R23 以 `CrBrowserMain` / `CrRendererMain` comm 及 poll/ppoll hook 补测，捕
 
 R24 因漏传 `KERNEL_DIR` 指向默认 `/home/mo/x-kernel` 而提前终止，不能作为冻结 worktree 的对照；R25 使用冻结 kernel/base，首页、1/1重载和420秒诊断保持通过。R25 guest-clock截图上界651.567秒（30秒采样），但1200秒 sampler 在QMP结束guest时未到期，生命周期与RSS/PSS/USS导出缺失，采集器拒收。下一轮缩短采样窗并验证正常导出，详见 [report 395](../../report/395-T490R24启动路径偏差与提前终止记录-20261121.md) 和 [report 396](../../report/396-T490R25生命周期快路径与采样窗复测-20261121.md)。
 
+R26 900秒 sampler 已完整导出并由仓库当前 extractor 验证；Browser launch→main-loop-ready 为39.594秒，navigation→strict screenshot上界517.017秒。renderer-ready/first-frame缺失，内存仍因213 missed及271错误而FAIL，不是有效四指标样本。T490 的辅助 extractor 副本旧于仓库版本，遇到新增可选probe成员会拒绝，复现时应使用当前 checkout 的 `extract_perf_memory.py`。详见 [report 397](../../report/397-T490R26Browser启动导航上界与内存采样复测-20261121.md)。
+
 ### 进程树 RSS/PSS/USS 采样器
 
 `proc_tree_sampler.c` 优先读取 `/proc/<root-pid>/tree_smaps_rollup`，通过一次全进程 resident-frame/mapcount 快照取得目标进程树各 PID 的 RSS/PSS/USS，并核对 PID/PPID 关联；端点不存在时才回退到逐 PID `smaps_rollup`。任一已发现进程缺少数值、父链不匹配或页面统计不可用时，该轮样本整体无效。状态文件和结果行记录实际来源，缺失值不会填零。端点实现及 `/proc/<pid>/stat` field 22 起始 tick 修复见 [report 383](../../report/383-T490-proc-stat-starttime与进程树内存单遍回归-20261120.md)。R13 2 GiB guest smoke 仅有两个 shell 进程，8 次采样/0 missed；这验证了工具路径，不代表 Chromium 进程树性能数据。R14 起 smoke 会以 `PROC_TREE_SMOKE_MEMORY_CSV_BEGIN` / `PROC_TREE_SMOKE_EVENTS_BEGIN` 标记完整串口块；用 `python3 scripts/t490/extract_proc_tree_smoke.py <console.log> --run-id proc-tree-smoke-01 --out-dir <new-dir>` 校验并提取 CSV、事件、状态和 root stat。对应回归见 [report 384](../../report/384-T490-procfs-smoke原始数据串口回收与严格提取-20261120.md)。
