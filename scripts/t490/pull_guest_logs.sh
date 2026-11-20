@@ -13,7 +13,8 @@ TAG="${1:?usage: pull_guest_logs.sh <tag> [extra files...]}"
 shift
 EXTRA="$*"
 
-IMG="$HOME/x-kernel/disk.img"
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+IMG="$KERNEL_DIR/disk.img"
 OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
 mkdir -p "$OUT"
 

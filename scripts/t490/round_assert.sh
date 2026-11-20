@@ -38,7 +38,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ASSERT="$HERE/ppm_assert.py"
 ASSERT_PROFILE="${ASSERT_PROFILE:-legacy}"
 PULL="$HERE/pull_guest_logs.sh"
-IMAGE="$HOME/x-kernel/disk.img"
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+IMAGE="$KERNEL_DIR/disk.img"
 PY=python3
 command -v "$PY" >/dev/null 2>&1 || PY=python
 

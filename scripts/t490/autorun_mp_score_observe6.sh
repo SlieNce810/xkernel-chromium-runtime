@@ -52,6 +52,14 @@ PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
 TRACE_MODE=__MP_TRACE__
 TRACE_SNAPSHOT_NEXT_MS=120000
 EXTRA_FLAGS="__EXTRA_FLAGS__"
+PERF_TRACE_RUN_ID="__PROFILE_ID__"
+PERF_TRACE_FILE=""
+for perf_trace_arg in $EXTRA_FLAGS; do
+    case "$perf_trace_arg" in
+        --trace-startup-file=*) PERF_TRACE_FILE=${perf_trace_arg#*=} ;;
+    esac
+done
+PERF_TRACE_EXPORTED=0
 GL_MODE=__MP_GL__
 NET_MODE=__MP_NET__
 LEDGER_MODE=__MP_LEDGER__
@@ -76,6 +84,27 @@ log() {
     line="[mpdiag] $*"
     echo "$line" >> "$LOG"
     echo "$line" > /dev/console 2>/dev/null || true
+}
+
+perf_trace_export_once() {
+    [ "$PERF_TRACE_EXPORTED" = "0" ] || return 0
+    [ -n "$PERF_TRACE_FILE" ] && [ -s "$PERF_TRACE_FILE" ] || return 0
+    grep -Fq "Completed startup tracing to $PERF_TRACE_FILE" "$CHROME_LOG" 2>/dev/null || return 0
+
+    trace_bytes=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null || echo 0)
+    trace_sha=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
+    log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes sha256=$trace_sha"
+    if command -v gzip >/dev/null 2>&1 && command -v base64 >/dev/null 2>&1; then
+        gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null \
+            | while IFS= read -r trace_chunk; do
+                printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s %s\n' \
+                    "$PERF_TRACE_RUN_ID" "$trace_chunk" > /dev/console 2>/dev/null || true
+            done
+        log "MP_PERF_TRACE_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64"
+        PERF_TRACE_EXPORTED=1
+    else
+        log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing)"
+    fi
 }
 
 epoch_ms() {
@@ -1003,6 +1032,9 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
             TRACE_SNAPSHOT_NEXT_MS=$((TRACE_SNAPSHOT_NEXT_MS + 120000))
         done
     fi
+    if [ -n "$PERF_TRACE_FILE" ] && [ $((elapsed % 5)) -eq 0 ]; then
+        perf_trace_export_once
+    fi
     phase loop_body_done "$tick"
     elapsed=$((elapsed + 1))
     sleep 1
@@ -1037,6 +1069,7 @@ fi
 # 127（"not a child"），从而把一个正常的收尾记成异常退出码。
 wait "$LAUNCHER_PID" 2>/dev/null
 chrome_rc=$?
+perf_trace_export_once
 mark BROWSER_EXIT_EPOCH_MS "$(epoch_ms)"
 mark LAUNCHER_EXIT_RC "$chrome_rc"
 [ "$LAUNCHER_PID" = "$BROWSER_PID" ] && mark LAUNCHER_KIND direct || mark LAUNCHER_KIND strace
