@@ -36,6 +36,24 @@ if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.
     echo "PERF_TRACE_PROBE_ABORT: trace-only template guard or EXTRA_FLAGS injection is missing" >&2
     exit 3
 fi
+trace_test_dir=$(mktemp -d "${TMPDIR:-/tmp}/trace-chunk-selftest.XXXXXX") || {
+    echo "PERF_TRACE_PROBE_ABORT: cannot create chunk framing self-test directory" >&2
+    exit 4
+}
+awk 'BEGIN { for (i = 0; i < 600; i++) printf "A" }' > "$trace_test_dir/flat"
+fold -w 256 < "$trace_test_dir/flat" > "$trace_test_dir/chunks"
+trace_test_expected=$(awk 'END { print NR + 0 }' "$trace_test_dir/chunks")
+trace_test_observed=0
+while IFS= read -r trace_test_chunk || [ -n "$trace_test_chunk" ]; do
+    [ -n "$trace_test_chunk" ] || continue
+    trace_test_observed=$((trace_test_observed + 1))
+done < "$trace_test_dir/chunks"
+rm -f "$trace_test_dir/flat" "$trace_test_dir/chunks"
+rmdir "$trace_test_dir"
+if [ "$trace_test_expected" != "3" ] || [ "$trace_test_observed" != "$trace_test_expected" ]; then
+    echo "PERF_TRACE_PROBE_ABORT: final folded chunk was not counted/emitted (expected=$trace_test_expected observed=$trace_test_observed)" >&2
+    exit 5
+fi
 INJECTED_TEMPLATE="$(mktemp)"
 trap 'rm -f "$INJECTED_TEMPLATE"' EXIT
 sed "s|__EXTRA_FLAGS__|$TRACE_FLAGS|g" "$HERE/autorun_mp_score_observe6.sh" > "$INJECTED_TEMPLATE"
@@ -48,6 +66,7 @@ echo "PERF_TRACE_TEMPLATE_INJECTION=PASS"
 echo "PERF_TRACE_TRACE_ONLY_GUARD=PASS"
 echo "PERF_TRACE_COMPRESSED_SELFTEST=PASS"
 echo "PERF_TRACE_CHUNK_LENGTH=PASS"
+echo "PERF_TRACE_CHUNK_EOF_HANDLING=PASS"
 RUN_ARGS=()
 if [ "$DRY_RUN" = "1" ]; then
     if [ "$(uname -s)" = "Linux" ]; then

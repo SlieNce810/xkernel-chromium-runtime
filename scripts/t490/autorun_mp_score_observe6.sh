@@ -149,7 +149,7 @@ perf_trace_export_once() {
 
     trace_gzip_bytes=$(wc -c < "$trace_gzip_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
     trace_gzip_sha=$(sha256sum "$trace_gzip_file" 2>/dev/null | awk '{print $1}')
-    trace_chunks=$(wc -l < "$trace_b64_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_chunks=$(awk 'END { print NR + 0 }' "$trace_b64_file" 2>/dev/null || echo 0)
     [ "$trace_chunks" -gt 0 ] || {
         rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
         log "MP_PERF_TRACE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
@@ -158,7 +158,7 @@ perf_trace_export_once() {
 
     log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes chunks=$trace_chunks sha256=$trace_sha gzip_bytes=$trace_gzip_bytes gzip_sha256=$trace_gzip_sha"
     trace_seq=0
-    while IFS= read -r trace_chunk; do
+    while IFS= read -r trace_chunk || [ -n "$trace_chunk" ]; do
         trace_chunk_length=${#trace_chunk}
         printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s seq=%s len=%s %s\n' \
             "$PERF_TRACE_RUN_ID" "$trace_seq" "$trace_chunk_length" "$trace_chunk" > /dev/console 2>/dev/null || true

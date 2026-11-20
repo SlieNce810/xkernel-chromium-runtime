@@ -100,6 +100,17 @@ class ExtractPerfTraceTests(unittest.TestCase):
             self.assertEqual(100, summary["events"])
             self.assertEqual(len(wide_chunks), summary["chunks"])
 
+    def test_accepts_final_end_marker_without_trailing_newline(self) -> None:
+        text = console_text(sequenced=True, include_chunk_length=True, include_gzip_digest=True).rstrip("\n")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            log = root / "console.log"
+            out = root / "trace.json"
+            log.write_text(text, encoding="utf-8")
+            summary = extract_perf_trace.extract_trace(log, out, RUN_ID)
+            self.assertEqual(TRACE, out.read_bytes())
+            self.assertEqual(1, summary["events"])
+
     def test_extracts_integrity_checked_non_json_payload(self) -> None:
         proto_prefix = bytes.fromhex("0a50324a10030a09080610e088e1c6cd030a0c08021080ab88b3fae6e6f4180a")
         chunks = [base64.b64encode(gzip.compress(proto_prefix)).decode()]
