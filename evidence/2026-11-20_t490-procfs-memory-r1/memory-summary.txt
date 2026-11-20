@@ -1,0 +1,24 @@
+schema=xkernel.procfs-memory-probe.v1
+run_id=codex-2026-11-20-procfs-memory-r1
+kernel_sha256=ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2
+guest=AArch64
+memory=2 GiB
+accelerator=pure TCG
+page_size=4096
+page_count=32
+probe_length_bytes=131072
+units=kB
+
+phase,rss_kb,pss_kb,uss_kb,shared_kb,vmhwm_kb
+baseline,128,128,128,0,128
+anon_touched,256,256,256,0,256
+file_private_touched,384,384,384,0,384
+file_shared_touched,512,384,256,256,512
+fork_child_after_child_cow,228,123,20,208,228
+fork_parent_before_parent_cow,512,281,52,460,512
+fork_parent_after_parent_cow,512,285,60,452,512
+fork_child_after_parent_cow,228,123,20,208,228
+after_unmap,128,128,128,0,512
+
+result=PASS; /proc/<pid>/smaps_rollup emitted numeric Rss/Pss/USS/Shared at every phase
+result_scope=standalone C probe only; not Chromium process-tree RSS/PSS/USS at 1 Hz
