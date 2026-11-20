@@ -1,0 +1,420 @@
+#define _GNU_SOURCE
+#include <dirent.h>
+#include <errno.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+
+#define MAX_PROCESSES 4096
+#define MAX_LINE 4096
+#define SCHEMA "xkernel.browser.lifecycle.v1"
+#define CLOCK_ID "linux-CLOCK_MONOTONIC"
+
+typedef struct {
+    pid_t pid;
+    pid_t ppid;
+    uint64_t start_ticks;
+    int depth;
+    bool in_tree;
+    char instance[64];
+    char role[32];
+} Process;
+
+typedef struct {
+    char instance[64];
+    pid_t pid;
+    bool active;
+} SeenProcess;
+
+static uint64_t sequence_number;
+static uint64_t sample_number;
+static uint64_t monotonic_ns(void) {
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+        perror("clock_gettime");
+        exit(2);
+    }
+    return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+}
+
+static bool parse_positive_pid(const char *text, pid_t *pid) {
+    if (!text || !*text)
+        return false;
+    char *end = NULL;
+    errno = 0;
+    long value = strtol(text, &end, 10);
+    if (errno || *end || value <= 0 || value > INT_MAX)
+        return false;
+    *pid = (pid_t)value;
+    return true;
+}
+
+static int process_index(const Process *processes, size_t count, pid_t pid) {
+    for (size_t i = 0; i < count; ++i) {
+        if (processes[i].pid == pid)
+            return (int)i;
+    }
+    return -1;
+}
+
+static bool read_stat(pid_t pid, pid_t *ppid, uint64_t *start_ticks) {
+    char path[64];
+    snprintf(path, sizeof(path), "/proc/%d/stat", pid);
+    FILE *file = fopen(path, "r");
+    if (!file)
+        return false;
+    char line[MAX_LINE];
+    if (!fgets(line, sizeof(line), file)) {
+        fclose(file);
+        return false;
+    }
+    fclose(file);
+    char *right_paren = strrchr(line, ')');
+    if (!right_paren || right_paren[1] != ' ')
+        return false;
+    char *save = NULL;
+    char *token = strtok_r(right_paren + 2, " ", &save);  // field 3: state
+    unsigned field = 3;
+    long parsed_ppid = -1;
+    uint64_t parsed_start = 0;
+    while (token) {
+        if (field == 4) {
+            char *end = NULL;
+            errno = 0;
+            parsed_ppid = strtol(token, &end, 10);
+            if (errno || end == token || *end || parsed_ppid < 0 || parsed_ppid > INT_MAX)
+                return false;
+        } else if (field == 22) {
+            char *end = NULL;
+            errno = 0;
+            parsed_start = strtoull(token, &end, 10);
+            if (errno || end == token || *end)
+                return false;
+            break;
+        }
+        field++;
+        token = strtok_r(NULL, " ", &save);
+    }
+    if (parsed_ppid < 0)
+        return false;
+    *ppid = (pid_t)parsed_ppid;
+    *start_ticks = parsed_start;
+    return true;
+}
+
+static size_t scan_processes(Process *processes) {
+    DIR *proc = opendir("/proc");
+    if (!proc) {
+        perror("opendir /proc");
+        return 0;
+    }
+    size_t count = 0;
+    struct dirent *entry;
+    while ((entry = readdir(proc)) != NULL) {
+        pid_t pid;
+        if (!parse_positive_pid(entry->d_name, &pid))
+            continue;
+        if (count == MAX_PROCESSES)
+            break;
+        pid_t ppid;
+        uint64_t start_ticks;
+        if (!read_stat(pid, &ppid, &start_ticks))
+            continue;
+        Process *row = &processes[count++];
+        memset(row, 0, sizeof(*row));
+        row->pid = pid;
+        row->ppid = ppid;
+        row->start_ticks = start_ticks;
+        snprintf(row->instance, sizeof(row->instance), "%d-%" PRIu64, pid, start_ticks);
+        snprintf(row->role, sizeof(row->role), "%s", "child");
+    }
+    closedir(proc);
+    return count;
+}
+
+static bool build_process_tree(Process *processes, size_t count, pid_t root_pid) {
+    int root_index = process_index(processes, count, root_pid);
+    if (root_index < 0)
+        return false;
+    processes[root_index].in_tree = true;
+    processes[root_index].depth = 0;
+    snprintf(processes[root_index].role, sizeof(processes[root_index].role), "%s", "browser");
+    for (int depth = 0; depth < 64; ++depth) {
+        bool added = false;
+        for (size_t i = 0; i < count; ++i) {
+            if (processes[i].in_tree)
+                continue;
+            int parent = process_index(processes, count, processes[i].ppid);
+            if (parent < 0 || !processes[parent].in_tree || processes[parent].depth != depth)
+                continue;
+            processes[i].in_tree = true;
+            processes[i].depth = depth + 1;
+            if (depth == 0)
+                snprintf(processes[i].role, sizeof(processes[i].role), "%s", "browser_child");
+            else
+                snprintf(processes[i].role, sizeof(processes[i].role), "%s", "child");
+            added = true;
+        }
+        if (!added)
+            break;
+    }
+    return true;
+}
+
+static SeenProcess *seen_instance(SeenProcess *seen, size_t count, const char *instance) {
+    for (size_t i = 0; i < count; ++i) {
+        if (strcmp(seen[i].instance, instance) == 0)
+            return &seen[i];
+    }
+    return NULL;
+}
+
+static void emit_event(FILE *events, const char *run_id, uint64_t t_ns,
+                      const char *event, const Process *process,
+                      const char *parent_instance) {
+    uint64_t seq = ++sequence_number;
+    fprintf(events,
+            "{\"schema\":\"%s\",\"run_id\":\"%s\",\"clock_id\":\"%s\","
+            "\"seq\":%" PRIu64 ",\"event_id\":\"%s:%" PRIu64 "\","
+            "\"t_ns\":%" PRIu64 ",\"event\":\"%s\"",
+            SCHEMA, run_id, CLOCK_ID, seq, run_id, seq, t_ns, event);
+    if (process) {
+        fprintf(events,
+                ",\"pid\":%d,\"ppid\":%d,\"process_instance\":\"%s\",\"role\":\"%s\"",
+                process->pid, process->ppid, process->instance, process->role);
+        if (parent_instance && *parent_instance)
+            fprintf(events, ",\"parent_process_instance\":\"%s\"", parent_instance);
+    }
+    fputs("}\n", events);
+    fflush(events);
+}
+
+static bool read_memory(pid_t pid, uint64_t *rss, uint64_t *pss, uint64_t *uss) {
+    char path[80];
+    snprintf(path, sizeof(path), "/proc/%d/smaps_rollup", pid);
+    FILE *file = fopen(path, "r");
+    if (!file)
+        return false;
+    bool has_rss = false, has_pss = false, has_reported_uss = false;
+    bool has_private_fields = false;
+    uint64_t reported_uss = 0;
+    uint64_t private_clean = 0, private_dirty = 0, private_hugetlb = 0;
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        unsigned long long value;
+        if (sscanf(line, "Rss: %llu kB", &value) == 1) {
+            *rss = value;
+            has_rss = true;
+        } else if (sscanf(line, "Pss: %llu kB", &value) == 1) {
+            *pss = value;
+            has_pss = true;
+        } else if (sscanf(line, "USS: %llu kB", &value) == 1) {
+            reported_uss = value;
+            has_reported_uss = true;
+        } else if (sscanf(line, "Private_Clean: %llu kB", &value) == 1) {
+            private_clean = value;
+            has_private_fields = true;
+        } else if (sscanf(line, "Private_Dirty: %llu kB", &value) == 1) {
+            private_dirty = value;
+            has_private_fields = true;
+        } else if (sscanf(line, "Private_Hugetlb: %llu kB", &value) == 1) {
+            private_hugetlb = value;
+            has_private_fields = true;
+        }
+    }
+    fclose(file);
+    if (has_reported_uss)
+        *uss = reported_uss;
+    else if (has_private_fields)
+        *uss = private_clean + private_dirty + private_hugetlb;
+    return has_rss && has_pss && (has_reported_uss || has_private_fields);
+}
+
+static bool add_seen(SeenProcess *seen, size_t *seen_count, const Process *process) {
+    if (*seen_count >= MAX_PROCESSES)
+        return false;
+    SeenProcess *row = &seen[(*seen_count)++];
+    memset(row, 0, sizeof(*row));
+    snprintf(row->instance, sizeof(row->instance), "%s", process->instance);
+    row->pid = process->pid;
+    row->active = true;
+    return true;
+}
+
+static bool process_in_tree(const Process *processes, size_t count, const char *instance) {
+    for (size_t i = 0; i < count; ++i) {
+        if (processes[i].in_tree && strcmp(processes[i].instance, instance) == 0)
+            return true;
+    }
+    return false;
+}
+
+static int sample_tree(FILE *events, FILE *memory, FILE *errors,
+                       const char *run_id, pid_t root_pid,
+                       SeenProcess *seen, size_t *seen_count,
+                       uint64_t sample_t_ns) {
+    Process *processes = calloc(MAX_PROCESSES, sizeof(*processes));
+    if (!processes)
+        return -1;
+    size_t count = scan_processes(processes);
+    if (!count || !build_process_tree(processes, count, root_pid)) {
+        free(processes);
+        return -2;
+    }
+
+    for (size_t i = 0; i < *seen_count; ++i) {
+        if (!seen[i].active || process_in_tree(processes, count, seen[i].instance))
+            continue;
+        Process exited;
+        memset(&exited, 0, sizeof(exited));
+        exited.pid = seen[i].pid;
+        snprintf(exited.instance, sizeof(exited.instance), "%s", seen[i].instance);
+        snprintf(exited.role, sizeof(exited.role), "%s", "child");
+        emit_event(events, run_id, sample_t_ns, "process_exited", &exited, NULL);
+        seen[i].active = false;
+    }
+
+    for (int depth = 0; depth < 64; ++depth) {
+        for (size_t i = 0; i < count; ++i) {
+            Process *process = &processes[i];
+            if (!process->in_tree || process->depth != depth || seen_instance(seen, *seen_count, process->instance))
+                continue;
+            int parent_index = process->depth == 0 ? -1 : process_index(processes, count, process->ppid);
+            const char *parent_instance = parent_index >= 0 ? processes[parent_index].instance : NULL;
+            emit_event(events, run_id, sample_t_ns, "process_started", process, parent_instance);
+            if (!add_seen(seen, seen_count, process)) {
+                free(processes);
+                return -3;
+            }
+        }
+    }
+
+    uint64_t sample_id = ++sample_number;
+    bool complete = true;
+    for (size_t i = 0; i < count; ++i) {
+        Process *process = &processes[i];
+        if (!process->in_tree)
+            continue;
+        uint64_t rss = 0, pss = 0, uss = 0;
+        if (!read_memory(process->pid, &rss, &pss, &uss)) {
+            fprintf(errors, "sample=%" PRIu64 " pid=%d process_instance=%s smaps_rollup=unavailable\n",
+                    sample_id, process->pid, process->instance);
+            fflush(errors);
+            complete = false;
+            break;
+        }
+        fprintf(memory,
+                "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
+                run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
+                process->instance, rss, pss, uss);
+    }
+    if (complete)
+        fflush(memory);
+    free(processes);
+    return complete ? 0 : 1;
+}
+
+int main(int argc, char **argv) {
+    const char *run_id = NULL;
+    const char *out_dir = "/root";
+    uint64_t launch_ns = 0;
+    int duration_seconds = 900;
+    pid_t root_pid = 0;
+    int interval_ms = 1000;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--run-id") == 0 && i + 1 < argc)
+            run_id = argv[++i];
+        else if (strcmp(argv[i], "--root-pid") == 0 && i + 1 < argc)
+            parse_positive_pid(argv[++i], &root_pid);
+        else if (strcmp(argv[i], "--launch-ns") == 0 && i + 1 < argc)
+            launch_ns = strtoull(argv[++i], NULL, 10);
+        else if (strcmp(argv[i], "--duration-seconds") == 0 && i + 1 < argc)
+            duration_seconds = atoi(argv[++i]);
+        else if (strcmp(argv[i], "--interval-ms") == 0 && i + 1 < argc)
+            interval_ms = atoi(argv[++i]);
+        else if (strcmp(argv[i], "--out-dir") == 0 && i + 1 < argc)
+            out_dir = argv[++i];
+        else {
+            fprintf(stderr, "usage: proc_tree_sampler --run-id ID --root-pid PID --launch-ns NS [--duration-seconds N] [--interval-ms N] [--out-dir PATH]\n");
+            return 2;
+        }
+    }
+    if (!run_id || !*run_id || root_pid <= 0 || launch_ns == 0 || duration_seconds < 1 || interval_ms < 100) {
+        fprintf(stderr, "invalid run-id, root PID, launch timestamp, duration, or interval\n");
+        return 2;
+    }
+    for (const char *p = run_id; *p; ++p) {
+        if (!( (*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') || (*p >= '0' && *p <= '9') || *p == '-' || *p == '_' || *p == '.')) {
+            fprintf(stderr, "run-id contains unsupported characters\n");
+            return 2;
+        }
+    }
+    char events_path[PATH_MAX], memory_path[PATH_MAX], errors_path[PATH_MAX];
+    snprintf(events_path, sizeof(events_path), "%s/lifecycle-events.jsonl", out_dir);
+    snprintf(memory_path, sizeof(memory_path), "%s/memory-samples.csv", out_dir);
+    snprintf(errors_path, sizeof(errors_path), "%s/memory-sampling-errors.log", out_dir);
+    FILE *events = fopen(events_path, "wx");
+    FILE *memory = fopen(memory_path, "wx");
+    FILE *errors = fopen(errors_path, "wx");
+    if (!events || !memory || !errors) {
+        fprintf(stderr, "refusing to overwrite sample outputs: %s\n", out_dir);
+        if (events) fclose(events);
+        if (memory) fclose(memory);
+        if (errors) fclose(errors);
+        return 3;
+    }
+    fputs("run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb\n", memory);
+    emit_event(events, run_id, launch_ns, "browser_launch_requested", NULL, NULL);
+    uint64_t start_ns = monotonic_ns();
+    uint64_t end_ns = start_ns + (uint64_t)duration_seconds * 1000000000ULL;
+    uint64_t next_ns = start_ns;
+    SeenProcess *seen = calloc(MAX_PROCESSES, sizeof(*seen));
+    if (!seen) {
+        fclose(events); fclose(memory); fclose(errors);
+        return 4;
+    }
+    size_t seen_count = 0;
+    unsigned missed = 0;
+    while (next_ns < end_ns) {
+        struct timespec deadline = {
+            .tv_sec = (time_t)(next_ns / 1000000000ULL),
+            .tv_nsec = (long)(next_ns % 1000000000ULL),
+        };
+        while (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline, NULL) == EINTR) {}
+        uint64_t sample_t_ns = monotonic_ns();
+        int rc = sample_tree(events, memory, errors, run_id, root_pid, seen, &seen_count, sample_t_ns);
+        if (rc == -2) {
+            fprintf(errors, "t_ns=%" PRIu64 " chromium_root_pid=%d process_tree=unavailable\n", sample_t_ns, root_pid);
+            fflush(errors);
+            missed++;
+        } else if (rc != 0) {
+            missed++;
+        }
+        next_ns += (uint64_t)interval_ms * 1000000ULL;
+        if (sample_t_ns > next_ns + 1500000000ULL) {
+            uint64_t overrun_ms = (uint64_t)((sample_t_ns - next_ns) / 1000000ULL);
+            fprintf(errors, "t_ns=%" PRIu64 " sampler_overrun_ms=%" PRIu64 "\n",
+                    sample_t_ns, overrun_ms);
+            fflush(errors);
+            next_ns = sample_t_ns + (uint64_t)interval_ms * 1000000ULL;
+            missed++;
+        }
+    }
+    uint64_t finished_ns = monotonic_ns();
+    emit_event(events, run_id, finished_ns, "memory_sampling_finished", NULL, NULL);
+    uint64_t duration_ms = (uint64_t)((finished_ns - start_ns) / 1000000ULL);
+    fprintf(stderr, "PROC_TREE_SAMPLER_RESULT run_id=%s samples=%" PRIu64 " processes=%zu missed=%u duration_ms=%" PRIu64 "\n",
+            run_id, sample_number, seen_count, missed, duration_ms);
+    free(seen);
+    fclose(events);
+    fclose(memory);
+    fclose(errors);
+    return missed == 0 && sample_number > 0 ? 0 : 5;
+}
