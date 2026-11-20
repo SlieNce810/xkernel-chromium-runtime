@@ -1,0 +1,16 @@
+run_id=codex-2026-11-20-perf-trace-r8
+raw_trace_bytes=6392473
+raw_trace_sha256=66312d664dd12f4dc00a477dbc5b68600ca5ab6d1089ba0a1160b140a6c347b2
+gzip_selftest=PASS
+gzip_bytes_declared=661983
+gzip_sha256_declared=ee21ff6738faa7f6b595b248feddb6cfb5374a8d42abb0eeb2b290bb303f5a47
+expected_base64_chars=882644
+fold_width=256
+expected_fold_records=3448
+exporter_wc_line_count=3447
+exporter_read_records=3447
+gzip_bytes_reassembled=661824
+gzip_shortfall=159
+trace_end_marker=present
+root_cause=the final folded base64 record has no trailing LF; wc -l undercounts it and POSIX read returns nonzero without processing its nonempty value
+disposition=reject; fix record counting with awk NR and read final nonempty buffer
