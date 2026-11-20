@@ -264,9 +264,14 @@ bash scripts/t490/run_chromium_trace_probe.sh --dry-run trace-startup-precheck
 bash scripts/t490/run_chromium_trace_probe.sh 2026-11-20-candidate-perf-trace-r1
 ```
 
-它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`，并显式设置 `--trace-startup-format=json`。事件类别包括 startup、ipc、loading、blink、cc、viz、navigation，以覆盖浏览器启动、导航、renderer launch 和画面提交。结束前 exporter 等待源文件大小/SHA连续稳定，再写独立gzip临时文件并执行 `gzip -t`；串口以256字符base64块发送，每块带连续序号和长度，BEGIN带原始及gzip长度/SHA，END带总块数。末尾折行不带换行符时，块数按awk记录数计算，读取循环仍会发送EOF前的最后一块。为适应较大的navigation trace，probe诊断保持650秒，guest观察上限1400秒；主机周期截图间隔1200秒（首次截图仍为240秒），并关闭额外的内核 syscall trace。`t490_round.sh` 仅在 `ALLOW_CHROMIUM_PERF_TRACE_ONLY=1` 且附加参数完整匹配固定 probe 值时，允许该 trace-only 组合。`round_assert.sh` / `pull_guest_logs.sh` 仍从当前 `KERNEL_DIR/disk.img` 尝试回收持久文件。JSON模式可用 `python3 scripts/t490/extract_perf_trace.py console.log --run-id <tag> --out trace.json` 校验块序、块长度、总块数、压缩SHA、gzip、原始长度、SHA和 `traceEvents`；对proto输出，用 `--format raw --out trace.pb` 在同等传输完整性校验后保留字节，供Perfetto工具读取。试采结果是diagnostic-only，不能进入before/after统计。
+它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`，并显式设置 `--trace-startup-format=json`。事件类别包括 startup、ipc、loading、blink、cc、viz、navigation，以覆盖浏览器启动、导航、renderer launch 和画面提交。结束前 exporter 等待源文件大小/SHA连续稳定，再写独立gzip临时文件并执行 `gzip -t`；输出前校验 base64 字符数、解码后与压缩文件逐字节相同，并再次执行 `gzip -t`；串口以256字符base64块发送，每块带连续序号和长度，BEGIN带原始及gzip长度/SHA，END带总块数，每16块短暂节流。末尾折行不带换行符时，块数按awk记录数计算，读取循环仍会发送EOF前的最后一块。为适应较大的navigation trace，probe诊断保持650秒，guest观察上限1400秒；主机周期截图间隔1200秒（首次截图仍为240秒），并关闭额外的内核 syscall trace。`t490_round.sh` 仅在 `ALLOW_CHROMIUM_PERF_TRACE_ONLY=1` 且附加参数完整匹配固定 probe 值时，允许该 trace-only 组合。`round_assert.sh` / `pull_guest_logs.sh` 仍从当前 `KERNEL_DIR/disk.img` 尝试回收持久文件。JSON模式可用 `python3 scripts/t490/extract_perf_trace.py console.log --run-id <tag> --out trace.json` 校验块序、块长度、总块数、压缩SHA、gzip、原始长度、SHA和 `traceEvents`；对proto输出，用 `--format raw --out trace.pb` 在同等传输完整性校验后保留字节，供Perfetto工具读取。试采结果是diagnostic-only，不能进入before/after统计。
 
 首次 R1 试采发现 `autorun_mp_score_observe6.sh` 没有把 `EXTRA_FLAGS_VALUE` 拼进 `CHROME_ARGS`，所以虽请求了 `--trace-startup`，实际 argv 无此参数；模板现已补 `EXTRA_FLAGS` 占位符，probe 会在dry-run之前验证参数注入。R2 已确认参数生效但guest文件未回收。R3证明串口导出可传输完整trace主体，但周期截图状态文字打断一块数据，抽取器因此拒绝该trace；R4已加入块序号、块总数和明确的gzip失败处理，并把周期截图移出传输窗口。R1/R2/R3均不作为性能样本。
+
+### 进程树 RSS/PSS/USS 采样器
+
+`proc_tree_sampler.c` 优先读取 `/proc/<root-pid>/tree_smaps_rollup`，通过一次全进程 resident-frame/mapcount 快照取得目标进程树各 PID 的 RSS/PSS/USS，并核对 PID/PPID 关联；端点不存在时才回退到逐 PID `smaps_rollup`。任一已发现进程缺少数值、父链不匹配或页面统计不可用时，该轮样本整体无效。状态文件和结果行记录实际来源，缺失值不会填零。端点实现及 `/proc/<pid>/stat` field 22 起始 tick 修复见 [report 383](../../report/383-T490-proc-stat-starttime与进程树内存单遍回归-20261120.md)。R13 2 GiB guest smoke 仅有两个 shell 进程，8 次采样/0 missed；这验证了工具路径，不代表 Chromium 进程树性能数据。
+
 
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 

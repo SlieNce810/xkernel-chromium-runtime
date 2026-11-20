@@ -37,6 +37,7 @@ if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.
         || ! grep -Fq 's|__MP_MEMORY_SAMPLE_SECONDS__|$MP_MEMORY_SAMPLE_SECONDS_VALUE|g' "$HERE/t490_round.sh" \
         || ! grep -Fq 'fold -w 256' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -Fq 'gzip -t "$trace_gzip_file"' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -Fq 'base64 -d "$trace_flat_file"' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -Fq 'gzip_sha256=$trace_gzip_sha' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -Fq 'len=%s' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -q 'CHROME_ARGS=.*\$EXTRA_FLAGS' "$HERE/autorun_mp_score_observe6.sh"; then
@@ -61,6 +62,27 @@ if [ "$trace_test_expected" != "3" ] || [ "$trace_test_observed" != "$trace_test
     echo "PERF_TRACE_PROBE_ABORT: final folded chunk was not counted/emitted (expected=$trace_test_expected observed=$trace_test_observed)" >&2
     exit 5
 fi
+trace_roundtrip_test_dir=$(mktemp -d "${TMPDIR:-/tmp}/trace-roundtrip-selftest.XXXXXX") || {
+    echo "PERF_TRACE_PROBE_ABORT: cannot create exporter round-trip self-test directory" >&2
+    exit 4
+}
+printf '%s\n' 'trace exporter round-trip self-test' > "$trace_roundtrip_test_dir/payload"
+gzip -c "$trace_roundtrip_test_dir/payload" > "$trace_roundtrip_test_dir/payload.gz"
+base64 < "$trace_roundtrip_test_dir/payload.gz" > "$trace_roundtrip_test_dir/payload.b64"
+tr -d '\r\n' < "$trace_roundtrip_test_dir/payload.b64" > "$trace_roundtrip_test_dir/payload.flat"
+trace_test_gzip_bytes=$(wc -c < "$trace_roundtrip_test_dir/payload.gz" | tr -d '[:space:]')
+trace_test_chars=$(wc -c < "$trace_roundtrip_test_dir/payload.flat" | tr -d '[:space:]')
+trace_test_expected_chars=$(( ((trace_test_gzip_bytes + 2) / 3) * 4 ))
+if [ "$trace_test_chars" -ne "$trace_test_expected_chars" ] \
+        || ! base64 -d "$trace_roundtrip_test_dir/payload.flat" > "$trace_roundtrip_test_dir/decoded.gz" \
+        || ! cmp -s "$trace_roundtrip_test_dir/payload.gz" "$trace_roundtrip_test_dir/decoded.gz" \
+        || ! gzip -t "$trace_roundtrip_test_dir/decoded.gz" \
+        || ! gzip -dc "$trace_roundtrip_test_dir/decoded.gz" | cmp -s "$trace_roundtrip_test_dir/payload" -; then
+    echo "PERF_TRACE_PROBE_ABORT: gzip/base64 round-trip self-test failed" >&2
+    rm -rf "$trace_roundtrip_test_dir"
+    exit 6
+fi
+rm -rf "$trace_roundtrip_test_dir"
 INJECTED_TEMPLATE="$(mktemp)"
 trap 'rm -f "$INJECTED_TEMPLATE"' EXIT
 sed -e "s|__EXTRA_FLAGS__|$TRACE_FLAGS|g" \
@@ -77,6 +99,7 @@ fi
 echo "PERF_TRACE_TEMPLATE_INJECTION=PASS"
 echo "PERF_TRACE_TRACE_ONLY_GUARD=PASS"
 echo "PERF_TRACE_COMPRESSED_SELFTEST=PASS"
+echo "PERF_TRACE_EXPORT_ROUNDTRIP=PASS"
 echo "PERF_TRACE_CHUNK_LENGTH=PASS"
 echo "PERF_TRACE_CHUNK_EOF_HANDLING=PASS"
 echo "PERF_TRACE_MEMORY_SAMPLER_INJECTION=PASS"

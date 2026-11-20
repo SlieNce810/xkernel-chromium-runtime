@@ -41,6 +41,7 @@ bad_values=$(awk -F, 'NR > 1 { if ($8 <= 0 || $9 <= 0 || $10 <= 0) bad++ } END {
 [ -n "$started" ] || started=0
 [ -n "$missing" ] || missing=0
 cat "$OUT_DIR/sampler.log" > /dev/console 2>&1
+cat "$OUT_DIR/proc-tree-sampler.status" > /dev/console 2>&1
 echo "PROC_TREE_SMOKE run_id=$RUN_ID sample_rows=$sample_rows processes_started=$started memory_errors=$missing bad_values=$bad_values" > /dev/console
 head -n 4 "$OUT_DIR/memory-samples.csv" > /dev/console 2>&1
 echo "PROC_TREE_SMOKE_ROOT_SMAPS_BEGIN pid=$root_pid" > /dev/console

@@ -25,6 +25,10 @@ typedef struct {
     bool in_tree;
     char instance[64];
     char role[32];
+    uint64_t rss_kb;
+    uint64_t pss_kb;
+    uint64_t uss_kb;
+    bool memory_present;
 } Process;
 
 typedef struct {
@@ -35,6 +39,7 @@ typedef struct {
 
 static uint64_t sequence_number;
 static uint64_t sample_number;
+static const char *memory_source = "per-pid-smaps_rollup";
 static uint64_t monotonic_ns(void) {
     struct timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
@@ -237,6 +242,50 @@ static bool read_memory(pid_t pid, uint64_t *rss, uint64_t *pss, uint64_t *uss) 
     return has_rss && has_pss && (has_reported_uss || has_private_fields);
 }
 
+// The kernel's bulk endpoint computes all process PSS/USS values in one
+// mapcount pass. On older kernels, fall back to per-process smaps_rollup.
+static int read_tree_snapshot(Process *processes, size_t count, pid_t root_pid) {
+    char path[96];
+    snprintf(path, sizeof(path), "/proc/%d/tree_smaps_rollup", root_pid);
+    FILE *file = fopen(path, "r");
+    if (!file)
+        return errno == ENOENT ? 0 : -1;
+    char line[MAX_LINE];
+    bool header_seen = false;
+    while (fgets(line, sizeof(line), file)) {
+        if (!header_seen && strncmp(line, "PID ", 4) == 0) {
+            header_seen = true;
+            continue;
+        }
+        int pid, ppid;
+        unsigned long long rss, pss, uss;
+        if (sscanf(line, "%d %d %llu %llu %llu", &pid, &ppid, &rss, &pss, &uss) != 5) {
+            fclose(file);
+            return -1;
+        }
+        int index = process_index(processes, count, (pid_t)pid);
+        if (index < 0 || !processes[index].in_tree)
+            continue;
+        if (processes[index].ppid != (pid_t)ppid) {
+            fclose(file);
+            return -1;
+        }
+        processes[index].rss_kb = rss;
+        processes[index].pss_kb = pss;
+        processes[index].uss_kb = uss;
+        processes[index].memory_present = true;
+    }
+    fclose(file);
+    if (!header_seen)
+        return -1;
+    for (size_t i = 0; i < count; ++i) {
+        if (processes[i].in_tree && !processes[i].memory_present)
+            return -1;
+    }
+    memory_source = "procfs-tree-smaps_rollup";
+    return 1;
+}
+
 static bool add_seen(SeenProcess *seen, size_t *seen_count, const Process *process) {
     if (*seen_count >= MAX_PROCESSES)
         return false;
@@ -296,27 +345,50 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
         }
     }
 
-    uint64_t sample_id = ++sample_number;
-    bool complete = true;
-    for (size_t i = 0; i < count; ++i) {
+    uint64_t sample_id = sample_number + 1;
+    int bulk = read_tree_snapshot(processes, count, root_pid);
+    bool complete = bulk >= 0;
+    for (size_t i = 0; complete && i < count; ++i) {
         Process *process = &processes[i];
-        if (!process->in_tree)
+        if (!process->in_tree || bulk == 1)
             continue;
-        uint64_t rss = 0, pss = 0, uss = 0;
-        if (!read_memory(process->pid, &rss, &pss, &uss)) {
+        if (!read_memory(process->pid, &process->rss_kb, &process->pss_kb, &process->uss_kb)) {
             fprintf(errors, "sample=%" PRIu64 " pid=%d process_instance=%s smaps_rollup=unavailable\n",
                     sample_id, process->pid, process->instance);
             fflush(errors);
             complete = false;
             break;
         }
-        fprintf(memory,
-                "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
-                run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
-                process->instance, rss, pss, uss);
+        process->memory_present = true;
     }
-    if (complete)
+    if (bulk < 0) {
+        fprintf(errors, "sample=%" PRIu64 " pid=%d tree_smaps_rollup=unavailable_or_invalid\n",
+                sample_id, root_pid);
+        fflush(errors);
+    }
+    for (size_t i = 0; complete && i < count; ++i) {
+        Process *process = &processes[i];
+        if (process->in_tree && !process->memory_present)
+            complete = false;
+    }
+    if (complete) {
+        sample_number = sample_id;
+        if (bulk == 0 && strcmp(memory_source, "per-pid-smaps_rollup") != 0)
+            memory_source = "mixed-smaps-sources";
+        for (size_t i = 0; i < count; ++i) {
+            Process *process = &processes[i];
+            if (!process->in_tree)
+                continue;
+            fprintf(memory,
+                    "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
+                    run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
+                    process->instance, process->rss_kb, process->pss_kb, process->uss_kb);
+        }
         fflush(memory);
+    } else {
+        fprintf(errors, "sample=%" PRIu64 " memory_sample_incomplete=1\n", sample_id);
+        fflush(errors);
+    }
     free(processes);
     return complete ? 0 : 1;
 }
@@ -429,16 +501,16 @@ int main(int argc, char **argv) {
     uint64_t finished_ns = monotonic_ns();
     emit_event(events, run_id, finished_ns, "memory_sampling_finished", NULL, NULL);
     uint64_t duration_ms = (uint64_t)((finished_ns - start_ns) / 1000000ULL);
-    fprintf(stderr, "PROC_TREE_SAMPLER_RESULT run_id=%s samples=%" PRIu64 " processes=%zu missed=%u duration_ms=%" PRIu64 "\n",
-            run_id, sample_number, seen_count, missed, duration_ms);
+    fprintf(stderr, "PROC_TREE_SAMPLER_RESULT run_id=%s samples=%" PRIu64 " processes=%zu missed=%u source=%s duration_ms=%" PRIu64 "\n",
+            run_id, sample_number, seen_count, missed, memory_source, duration_ms);
     char status_path[PATH_MAX];
     snprintf(status_path, sizeof(status_path), "%s/proc-tree-sampler.status", out_dir);
     FILE *status = fopen(status_path, "wx");
     if (status) {
         fprintf(status,
-                "run_id=%s\nresult=%s\nsamples=%" PRIu64 "\nprocess_instances=%zu\nmissed=%u\nfinished_t_ns=%" PRIu64 "\n",
+                "run_id=%s\nresult=%s\nsamples=%" PRIu64 "\nprocess_instances=%zu\nmissed=%u\nmemory_source=%s\nfinished_t_ns=%" PRIu64 "\n",
                 run_id, missed == 0 && sample_number > 0 ? "PASS" : "FAIL",
-                sample_number, seen_count, missed, finished_ns);
+                sample_number, seen_count, missed, memory_source, finished_ns);
         fclose(status);
     } else {
         fprintf(errors, "status_file_write_failed errno=%d\n", errno);

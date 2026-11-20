@@ -106,7 +106,8 @@ perf_trace_export_once() {
     trace_base64_file="/tmp/mp-perf-trace-export-$$.base64"
     trace_flat_file="/tmp/mp-perf-trace-export-$$.flat"
     trace_b64_file="/tmp/mp-perf-trace-export-$$.b64"
-    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+    trace_roundtrip_file="/tmp/mp-perf-trace-export-$$.roundtrip.gz"
+    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file" "$trace_roundtrip_file"
 
     trace_bytes_before=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null | tr -d '[:space:]' || echo 0)
     trace_sha_before=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
@@ -141,22 +142,32 @@ perf_trace_export_once() {
         log "MP_PERF_TRACE_EXPORT_BASE64_FAIL run_id=$PERF_TRACE_RUN_ID"
         return 1
     fi
-    if ! tr -d '\n' < "$trace_base64_file" > "$trace_flat_file" 2>/dev/null; then
+    if ! tr -d '\r\n' < "$trace_base64_file" > "$trace_flat_file" 2>/dev/null; then
         rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file"
         log "MP_PERF_TRACE_EXPORT_FOLD_FAIL run_id=$PERF_TRACE_RUN_ID stage=tr"
         return 1
     fi
     if ! fold -w 256 < "$trace_flat_file" > "$trace_b64_file" 2>/dev/null; then
-        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file" "$trace_roundtrip_file"
         log "MP_PERF_TRACE_EXPORT_FOLD_FAIL run_id=$PERF_TRACE_RUN_ID stage=fold"
         return 1
     fi
 
     trace_gzip_bytes=$(wc -c < "$trace_gzip_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
     trace_gzip_sha=$(sha256sum "$trace_gzip_file" 2>/dev/null | awk '{print $1}')
+    trace_flat_chars=$(wc -c < "$trace_flat_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_expected_chars=$(( ((trace_gzip_bytes + 2) / 3) * 4 ))
+    if [ "$trace_flat_chars" -ne "$trace_expected_chars" ] \
+            || ! base64 -d "$trace_flat_file" > "$trace_roundtrip_file" 2>/dev/null \
+            || ! cmp -s "$trace_gzip_file" "$trace_roundtrip_file" \
+            || ! gzip -t "$trace_roundtrip_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file" "$trace_roundtrip_file"
+        log "MP_PERF_TRACE_EXPORT_ROUNDTRIP_FAIL run_id=$PERF_TRACE_RUN_ID chars=$trace_flat_chars expected=$trace_expected_chars"
+        return 1
+    fi
     trace_chunks=$(awk 'END { print NR + 0 }' "$trace_b64_file" 2>/dev/null || echo 0)
     [ "$trace_chunks" -gt 0 ] || {
-        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file" "$trace_roundtrip_file"
         log "MP_PERF_TRACE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
         return 1
     }
@@ -168,8 +179,11 @@ perf_trace_export_once() {
         printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s seq=%s len=%s %s\n' \
             "$PERF_TRACE_RUN_ID" "$trace_seq" "$trace_chunk_length" "$trace_chunk" > /dev/console 2>/dev/null || true
         trace_seq=$((trace_seq + 1))
+        if [ $((trace_seq % 16)) -eq 0 ]; then
+            sleep 0.025
+        fi
     done < "$trace_b64_file"
-    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file" "$trace_roundtrip_file"
     if [ "$trace_seq" -ne "$trace_chunks" ]; then
         log "MP_PERF_TRACE_EXPORT_COUNT_MISMATCH run_id=$PERF_TRACE_RUN_ID expected=$trace_chunks emitted=$trace_seq"
         return 1
@@ -188,7 +202,8 @@ perf_memory_export_once() {
     memory_b64_file="/tmp/mp-proc-tree-export-$$.b64"
     memory_flat_file="/tmp/mp-proc-tree-export-$$.flat"
     memory_fold_file="/tmp/mp-proc-tree-export-$$.fold"
-    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+    memory_roundtrip_file="/tmp/mp-proc-tree-export-$$.roundtrip.gz"
+    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
     if ! tar -cf "$memory_raw_file" -C /root lifecycle-events.jsonl memory-samples.csv memory-sampling-errors.log proc-tree-sampler.status 2>/dev/null; then
         log "MP_PERF_MEMORY_EXPORT_TAR_FAIL run_id=$PERF_TRACE_RUN_ID"
         rm -f "$memory_raw_file"
@@ -212,12 +227,22 @@ perf_memory_export_once() {
     memory_gzip_bytes=$(wc -c < "$memory_gzip_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
     memory_gzip_sha=$(sha256sum "$memory_gzip_file" 2>/dev/null | awk '{print $1}')
     base64 < "$memory_gzip_file" > "$memory_b64_file" 2>/dev/null || return 1
-    tr -d '\n' < "$memory_b64_file" > "$memory_flat_file" 2>/dev/null || return 1
+    tr -d '\r\n' < "$memory_b64_file" > "$memory_flat_file" 2>/dev/null || return 1
     fold -w 256 < "$memory_flat_file" > "$memory_fold_file" 2>/dev/null || return 1
+    memory_flat_chars=$(wc -c < "$memory_flat_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    memory_expected_chars=$(( ((memory_gzip_bytes + 2) / 3) * 4 ))
+    if [ "$memory_flat_chars" -ne "$memory_expected_chars" ] \
+            || ! base64 -d "$memory_flat_file" > "$memory_roundtrip_file" 2>/dev/null \
+            || ! cmp -s "$memory_gzip_file" "$memory_roundtrip_file" \
+            || ! gzip -t "$memory_roundtrip_file" 2>/dev/null; then
+        log "MP_PERF_MEMORY_EXPORT_ROUNDTRIP_FAIL run_id=$PERF_TRACE_RUN_ID chars=$memory_flat_chars expected=$memory_expected_chars"
+        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
+        return 1
+    fi
     memory_chunks=$(awk 'END { print NR + 0 }' "$memory_fold_file" 2>/dev/null || echo 0)
     [ "$memory_chunks" -gt 0 ] || {
         log "MP_PERF_MEMORY_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
-        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
         return 1
     }
 
@@ -228,14 +253,17 @@ perf_memory_export_once() {
         printf '[mpdiag] MP_PERF_MEMORY_DATA run_id=%s seq=%s len=%s %s\n' \
             "$PERF_TRACE_RUN_ID" "$memory_seq" "$memory_chunk_length" "$memory_chunk" > /dev/console 2>/dev/null || true
         memory_seq=$((memory_seq + 1))
+        if [ $((memory_seq % 16)) -eq 0 ]; then
+            sleep 0.025
+        fi
     done < "$memory_fold_file"
     if [ "$memory_seq" -ne "$memory_chunks" ]; then
         log "MP_PERF_MEMORY_EXPORT_COUNT_MISMATCH run_id=$PERF_TRACE_RUN_ID expected=$memory_chunks emitted=$memory_seq"
-        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
         return 1
     fi
     log "MP_PERF_MEMORY_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64 chunks=$memory_chunks"
-    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file" "$memory_roundtrip_file"
     PERF_MEMORY_EXPORTED=1
 }
 
