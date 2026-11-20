@@ -172,6 +172,8 @@ bash scripts/t490/measure-single-initial.sh
 - **perf/eBPF/火焰图**：T490 `perf_event_paranoid=4`，采样失败，原始报错已归档（`evidence/2026-10-02_profile-single/`）；未冒充任何 perf 结论。
 - guest `/proc/<pid>/status` 的 `VmRSS` 不可用，内存指标采用 host 侧 QEMU 进程 RSS（已在报告中标注 host 观测属性）。
 
+R30 900秒内存bundle完整导出，但首页strict在1550秒deadline超时；240秒截图仍为Weston背景，1440秒和timeout截图为空白，Weston/Chrome进程仍存活。页面失败和采样错误已如实归档，排除稳定性及性能PASS；下一轮关闭采样/preload做最小页面复现，见 [report/401](report/401-T490R30默认多进程页面strict超时空白屏复现-20261121.md)。
+
 ## 目录导览
 
 ```text
