@@ -40,6 +40,14 @@ typedef struct {
 static uint64_t sequence_number;
 static uint64_t sample_number;
 static const char *memory_source = "per-pid-smaps_rollup";
+static bool tree_snapshot_timing_present;
+static uint64_t tree_snapshot_total_ns;
+static uint64_t tree_snapshot_resident_walk_ns;
+static uint64_t tree_snapshot_mapcount_ns;
+static uint64_t tree_snapshot_rollup_ns;
+static uint64_t tree_snapshot_format_ns;
+static uint64_t tree_snapshot_process_count;
+static uint64_t tree_snapshot_resident_pages;
 static uint64_t monotonic_ns(void) {
     struct timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
@@ -245,6 +253,14 @@ static bool read_memory(pid_t pid, uint64_t *rss, uint64_t *pss, uint64_t *uss) 
 // The kernel's bulk endpoint computes all process PSS/USS values in one
 // mapcount pass. On older kernels, fall back to per-process smaps_rollup.
 static int read_tree_snapshot(Process *processes, size_t count, pid_t root_pid) {
+    tree_snapshot_timing_present = false;
+    tree_snapshot_total_ns = 0;
+    tree_snapshot_resident_walk_ns = 0;
+    tree_snapshot_mapcount_ns = 0;
+    tree_snapshot_rollup_ns = 0;
+    tree_snapshot_format_ns = 0;
+    tree_snapshot_process_count = 0;
+    tree_snapshot_resident_pages = 0;
     char path[96];
     snprintf(path, sizeof(path), "/proc/%d/tree_smaps_rollup", root_pid);
     FILE *file = fopen(path, "r");
@@ -253,6 +269,28 @@ static int read_tree_snapshot(Process *processes, size_t count, pid_t root_pid) 
     char line[MAX_LINE];
     bool header_seen = false;
     while (fgets(line, sizeof(line), file)) {
+        if (strncmp(line, "META ", 5) == 0) {
+            unsigned long long total_ns, resident_walk_ns, mapcount_ns;
+            unsigned long long rollup_ns, format_ns, process_count, resident_pages;
+            if (tree_snapshot_timing_present ||
+                sscanf(line,
+                       "META total_ns=%llu resident_walk_ns=%llu mapcount_ns=%llu "
+                       "rollup_ns=%llu format_ns=%llu process_count=%llu resident_pages=%llu",
+                       &total_ns, &resident_walk_ns, &mapcount_ns, &rollup_ns,
+                       &format_ns, &process_count, &resident_pages) != 7) {
+                fclose(file);
+                return -1;
+            }
+            tree_snapshot_total_ns = (uint64_t)total_ns;
+            tree_snapshot_resident_walk_ns = (uint64_t)resident_walk_ns;
+            tree_snapshot_mapcount_ns = (uint64_t)mapcount_ns;
+            tree_snapshot_rollup_ns = (uint64_t)rollup_ns;
+            tree_snapshot_format_ns = (uint64_t)format_ns;
+            tree_snapshot_process_count = (uint64_t)process_count;
+            tree_snapshot_resident_pages = (uint64_t)resident_pages;
+            tree_snapshot_timing_present = true;
+            continue;
+        }
         if (!header_seen && strncmp(line, "PID ", 4) == 0) {
             header_seen = true;
             continue;
@@ -346,7 +384,9 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
     }
 
     uint64_t sample_id = sample_number + 1;
+    uint64_t tree_read_started_ns = monotonic_ns();
     int bulk = read_tree_snapshot(processes, count, root_pid);
+    uint64_t tree_smaps_rollup_read_ns = monotonic_ns() - tree_read_started_ns;
     bool complete = bulk >= 0;
     for (size_t i = 0; complete && i < count; ++i) {
         Process *process = &processes[i];
@@ -371,6 +411,7 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
         if (process->in_tree && !process->memory_present)
             complete = false;
     }
+    uint64_t sample_work_ns = monotonic_ns() - sample_t_ns;
     if (complete) {
         sample_number = sample_id;
         if (bulk == 0 && strcmp(memory_source, "per-pid-smaps_rollup") != 0)
@@ -379,10 +420,23 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
             Process *process = &processes[i];
             if (!process->in_tree)
                 continue;
-            fprintf(memory,
-                    "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
-                    run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
-                    process->instance, process->rss_kb, process->pss_kb, process->uss_kb);
+            if (tree_snapshot_timing_present) {
+                fprintf(memory,
+                        "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ","
+                        "%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
+                        run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
+                        process->instance, process->rss_kb, process->pss_kb, process->uss_kb,
+                        tree_snapshot_total_ns, tree_snapshot_resident_walk_ns,
+                        tree_snapshot_mapcount_ns, tree_snapshot_rollup_ns, tree_snapshot_format_ns,
+                        tree_snapshot_process_count, tree_snapshot_resident_pages,
+                        tree_smaps_rollup_read_ns, sample_work_ns);
+            } else {
+                fprintf(memory,
+                        "%s,%s,%" PRIu64 ",%" PRIu64 ",%d,%d,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ","
+                        "UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE\n",
+                        run_id, CLOCK_ID, sample_id, sample_t_ns, process->pid, process->ppid,
+                        process->instance, process->rss_kb, process->pss_kb, process->uss_kb);
+            }
         }
         fflush(memory);
     } else {
@@ -451,7 +505,10 @@ int main(int argc, char **argv) {
         if (clock_console) fclose(clock_console);
         return 3;
     }
-    fputs("run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb\n", memory);
+    fputs("run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb,"
+          "tree_snapshot_total_ns,tree_snapshot_resident_walk_ns,tree_snapshot_mapcount_ns,"
+          "tree_snapshot_rollup_ns,tree_snapshot_format_ns,tree_snapshot_process_count,"
+          "tree_snapshot_resident_pages,tree_smaps_rollup_read_ns,sample_work_ns\n", memory);
     emit_event(events, run_id, launch_ns, "browser_launch_requested", NULL, NULL);
     uint64_t start_ns = monotonic_ns();
     uint64_t end_ns = start_ns + (uint64_t)duration_seconds * 1000000000ULL;

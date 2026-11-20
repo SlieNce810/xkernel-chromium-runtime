@@ -20,6 +20,7 @@ R15 真实 Chromium 诊断通过首屏 strict 与 1/1 重载，trace 25,894 even
 R16 关闭 trace 的同源内存控制轮在 700 秒首屏 deadline 超时，900 秒采样未完成；它不能用于解释 R15 内存 overrun，下一轮延长诊断 deadline 至 1200 秒，见 [report/387](report/387-T490二GiB无trace内存采样控制R16首屏超时无样本-20261120.md)。
 R17 延长首屏 deadline 后 strict 首页与重载通过，但 trace-off 进程树 sampler 仍 213 missed，状态 FAIL；dense PFN count 单变量候选尚未构建/复测，见 [report/388](report/388-T490二GiB无traceChromium内存采样仍超时R17-20261120.md)。
 R18 dense PFN mapcount 候选已构建，procfs 9阶段共享/COW 语义回归通过；R19/R20 同条件 Chromium 对照中 sample ID/missed/中位 overrun 均向好，但 P95 与 strict 首页时间恶化、两个 sampler status 仍 FAIL，因此 dense 候选未证明可靠收益，详见 [report/389](report/389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md)、[report/390](report/390-T490densePFN真实Chromium单变量内存对照R19-20261120.md) 与 [report/391](report/391-T490densePFN同条件Chromium内存采样重复对照R20-20261120.md)。
+R21 在同一 2 GiB dense trace-off 平台加入 procfs 分阶段计时：首页 strict 589.187 秒、1/1 重载、800 秒诊断保持通过；900 秒 sampler 仍 `FAIL`（232 samples、208 missed、276 错误），不能用于峰值内存或正式性能统计。阶段计时显示 resident-page walk 中位数 212 ms/P95 1.599 s，高于 mapcount 中位数 11 ms/P95 48 ms；下一热点定位转向页表 resident walk，未证明四项指标有收益，见 [report/392](report/392-T490procfs阶段计时与R21Chromium进程树采样诊断-20261120.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

@@ -12,6 +12,7 @@ import hashlib
 import io
 import json
 import re
+import statistics
 import sys
 import tarfile
 from pathlib import Path, PurePosixPath
@@ -24,6 +25,26 @@ REQUIRED_FILES = {
     "memory-samples.csv",
     "memory-sampling-errors.log",
     "proc-tree-sampler.status",
+}
+TIMING_COLUMNS = (
+    "tree_snapshot_total_ns",
+    "tree_snapshot_resident_walk_ns",
+    "tree_snapshot_mapcount_ns",
+    "tree_snapshot_rollup_ns",
+    "tree_snapshot_format_ns",
+    "tree_snapshot_process_count",
+    "tree_snapshot_resident_pages",
+    "tree_smaps_rollup_read_ns",
+    "sample_work_ns",
+)
+TIMING_DURATION_COLUMNS = {
+    "tree_snapshot_total_ns",
+    "tree_snapshot_resident_walk_ns",
+    "tree_snapshot_mapcount_ns",
+    "tree_snapshot_rollup_ns",
+    "tree_snapshot_format_ns",
+    "tree_smaps_rollup_read_ns",
+    "sample_work_ns",
 }
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 BEGIN = re.compile(
@@ -174,9 +195,21 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
     }
     if required_columns - set(reader.fieldnames or []):
         raise MemoryExportError("memory CSV header is incomplete")
+    if len(reader.fieldnames or []) != len(set(reader.fieldnames or [])):
+        raise MemoryExportError("memory CSV header contains duplicate columns")
+    present_timing_columns = set(reader.fieldnames or []) & set(TIMING_COLUMNS)
+    if present_timing_columns and present_timing_columns != set(TIMING_COLUMNS):
+        raise MemoryExportError("memory CSV timing columns are incomplete")
+    has_timing = present_timing_columns == set(TIMING_COLUMNS)
+    timing_by_sample: dict[str, dict[str, int] | None] = {}
+    rows_by_sample: dict[str, int] = {}
     for index, row in enumerate(reader, 2):
         if row["run_id"] != run_id or row["clock_id"] != "LINUX_CLOCK_MONOTONIC":
             raise MemoryExportError(f"memory CSV run/clock mismatch at row {index}")
+        sample_id = row["sample_id"]
+        if not sample_id:
+            raise MemoryExportError(f"memory CSV sample_id is empty at row {index}")
+        rows_by_sample[sample_id] = rows_by_sample.get(sample_id, 0) + 1
         for key in ("t_ns", "pid", "ppid", "rss_kb", "pss_kb", "uss_kb"):
             try:
                 value = int(row[key])
@@ -184,6 +217,29 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
                 raise MemoryExportError(f"memory CSV field {key} is invalid at row {index}") from exc
             if value < 0:
                 raise MemoryExportError(f"memory CSV field {key} is negative at row {index}")
+        if has_timing:
+            raw_values = {key: row[key] for key in TIMING_COLUMNS}
+            if all(value == "UNAVAILABLE" for value in raw_values.values()):
+                timing = None
+            else:
+                timing = {}
+                for key, raw_value in raw_values.items():
+                    try:
+                        value = int(raw_value)
+                    except (TypeError, ValueError) as exc:
+                        raise MemoryExportError(f"memory CSV timing field {key} is invalid at row {index}") from exc
+                    if value < 0:
+                        raise MemoryExportError(f"memory CSV timing field {key} is negative at row {index}")
+                    timing[key] = value
+                for key in ("tree_snapshot_total_ns", "tree_smaps_rollup_read_ns", "sample_work_ns"):
+                    if timing[key] <= 0:
+                        raise MemoryExportError(f"memory CSV timing field {key} is not positive at row {index}")
+                for key in ("tree_snapshot_process_count", "tree_snapshot_resident_pages"):
+                    if timing[key] <= 0:
+                        raise MemoryExportError(f"memory CSV timing field {key} is not positive at row {index}")
+            if sample_id in timing_by_sample and timing_by_sample[sample_id] != timing:
+                raise MemoryExportError(f"memory CSV timing metadata differs within sample {sample_id}")
+            timing_by_sample[sample_id] = timing
         rows.append(row)
     if not rows:
         raise MemoryExportError("memory CSV contains no samples")
@@ -194,10 +250,65 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
     validation_errors: list[str] = []
     if "result=PASS" not in status:
         validation_errors.append("sampler status does not report PASS")
+    timing_diagnostics: dict[str, Any] | None = None
+    if has_timing:
+        unavailable = [sample_id for sample_id, timing in timing_by_sample.items() if timing is None]
+        if unavailable:
+            validation_errors.append(f"tree timing metadata unavailable for {len(unavailable)} samples")
+        timing_fields: dict[str, Any] = {}
+        for key in TIMING_COLUMNS:
+            values = sorted(
+                timing[key] for timing in timing_by_sample.values() if timing is not None
+            )
+            unit = "ns" if key in TIMING_DURATION_COLUMNS else ("pages" if key.endswith("resident_pages") else "processes")
+            if not values:
+                timing_fields[key] = {"unit": unit, "samples": 0, "unavailable_samples": len(unavailable)}
+                continue
+            p95_index = max(0, (95 * len(values) + 99) // 100 - 1)
+            timing_fields[key] = {
+                "unit": unit,
+                "samples": len(values),
+                "unavailable_samples": len(unavailable),
+                "min": values[0],
+                "median": statistics.median(values),
+                "p95": values[p95_index],
+                "max": values[-1],
+            }
+        timing_diagnostics = {
+            "sample_count": len(timing_by_sample),
+            "unavailable_samples": len(unavailable),
+            "tree_snapshot_process_count_semantics": (
+                "all-process mapcount snapshot input rows; this is system-wide and does not equal Chromium tree rows"
+            ),
+            "tree_snapshot_resident_pages_semantics": (
+                "resident user mapping count across all snapshot processes, including repeated shared-frame mappings"
+            ),
+            "sample_work_ns_scope": (
+                "from sample_t_ns through process scan and memory reads, stopping immediately before CSV row emission and flush"
+            ),
+            "fields": timing_fields,
+        }
     errors = members["memory-sampling-errors.log"].decode("utf-8", errors="replace")
+    error_types: dict[str, int] = {}
+    overrun_ms: list[int] = []
+    for line in errors.splitlines():
+        match = re.search(r"sampler_overrun_ms=(\d+)", line)
+        if match:
+            error_types["overrun"] = error_types.get("overrun", 0) + 1
+            overrun_ms.append(int(match.group(1)))
+        elif "process_tree=unavailable" in line:
+            error_types["process_tree_unavailable"] = error_types.get("process_tree_unavailable", 0) + 1
+        elif "tree_smaps_rollup=unavailable" in line:
+            error_types["bulk_unavailable"] = error_types.get("bulk_unavailable", 0) + 1
+        elif "memory_sample_incomplete=1" in line:
+            error_types["incomplete"] = error_types.get("incomplete", 0) + 1
+        elif "smaps_rollup=unavailable" in line:
+            error_types["per_pid_unavailable"] = error_types.get("per_pid_unavailable", 0) + 1
+        else:
+            error_types["other"] = error_types.get("other", 0) + 1
     if errors.strip():
         validation_errors.append(f"sampler recorded {len(errors.splitlines())} memory/tree errors")
-    return {
+    summary = {
         "schema": "xkernel.proc-tree-memory-export.v1",
         "run_id": run_id,
         "valid": not validation_errors,
@@ -208,7 +319,23 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
         "memory_sample_ids": len({row["sample_id"] for row in rows}),
         "process_instances": len({row["process_instance"] for row in rows}),
         "memory_sampling_errors": len(errors.splitlines()),
+        "memory_error_types": error_types,
     }
+    if overrun_ms:
+        sorted_overruns = sorted(overrun_ms)
+        p95_index = max(0, (95 * len(sorted_overruns) + 99) // 100 - 1)
+        summary["sampler_overrun_ms"] = {
+            "count": len(sorted_overruns),
+            "min": sorted_overruns[0],
+            "median": statistics.median(sorted_overruns),
+            "p95": sorted_overruns[p95_index],
+            "max": sorted_overruns[-1],
+        }
+    else:
+        summary["sampler_overrun_ms"] = {"count": 0}
+    if timing_diagnostics is not None:
+        summary["tree_snapshot_timing"] = timing_diagnostics
+    return summary
 
 
 def extract(console_log: Path, out_dir: Path, expected_run_id: str | None = None) -> dict[str, Any]:

@@ -19,7 +19,16 @@ RUN_ID = "metric-memory-test-01"
 
 
 def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = False,
-                 unsafe_member: bool = False, sampler_failed: bool = False) -> Path:
+                 unsafe_member: bool = False, sampler_failed: bool = False,
+                 timing: bool = False, invalid_timing: bool = False) -> Path:
+    memory_header = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb"
+    memory_row = f"{RUN_ID},LINUX_CLOCK_MONOTONIC,sample-1,200,10,1,browser-10,100,90,80"
+    if timing:
+        memory_header += "," + ",".join(extract_perf_memory.TIMING_COLUMNS)
+        timing_values = ["1000", "300", "200", "100", "50", "18", "10", "1200", "2500"]
+        if invalid_timing:
+            timing_values[0] = "-1"
+        memory_row += "," + ",".join(timing_values)
     members = {
         "lifecycle-events.jsonl": (
             json.dumps({"schema": "xkernel.browser.lifecycle.v1", "run_id": RUN_ID,
@@ -27,8 +36,7 @@ def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = Fa
                         "event_id": f"{RUN_ID}:1", "event": "browser_launch_requested"}) + "\n"
         ).encode(),
         "memory-samples.csv": (
-            "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb\n"
-            f"{RUN_ID},LINUX_CLOCK_MONOTONIC,sample-1,200,10,1,browser-10,100,90,80\n"
+            memory_header + "\n" + memory_row + "\n"
         ).encode(),
         "memory-sampling-errors.log": b"sample=2 pid=10 smaps_rollup=unavailable\n" if sampler_failed else b"",
         "proc-tree-sampler.status": f"run_id={RUN_ID}\nresult={'FAIL' if sampler_failed else 'PASS'}\nsamples=1\n".encode(),
@@ -79,6 +87,20 @@ class ExtractPerfMemoryTests(unittest.TestCase):
         self.assertTrue((out / "guest-samples.tar.gz").is_file())
         self.assertTrue(summary["valid"])
 
+    def test_extended_memory_bundle_summarizes_per_sample_timing(self) -> None:
+        console = make_console(self.root, timing=True)
+        summary = extract_perf_memory.extract(console, self.root / "timed", RUN_ID)
+        timing = summary["tree_snapshot_timing"]
+        self.assertTrue(summary["valid"])
+        self.assertEqual(1, timing["sample_count"])
+        self.assertEqual(1000, timing["fields"]["tree_snapshot_total_ns"]["median"])
+        self.assertIn("system-wide", timing["tree_snapshot_process_count_semantics"])
+
+    def test_negative_optional_timing_is_rejected(self) -> None:
+        console = make_console(self.root, timing=True, invalid_timing=True)
+        with self.assertRaisesRegex(extract_perf_memory.MemoryExportError, "timing field tree_snapshot_total_ns is negative"):
+            extract_perf_memory.extract(console, self.root / "invalid-timing", RUN_ID)
+
     def test_missing_end_marker_is_rejected(self) -> None:
         console = make_console(self.root, end_marker=False)
         with self.assertRaisesRegex(extract_perf_memory.MemoryExportError, "missing MP_PERF_MEMORY_EXPORT_END"):
@@ -109,6 +131,7 @@ class ExtractPerfMemoryTests(unittest.TestCase):
         self.assertIn("sampler status does not report PASS", summary["errors"])
         self.assertIn("sampler recorded 1 memory/tree errors", summary["errors"])
         self.assertEqual(1, summary["memory_sampling_errors"])
+        self.assertEqual(1, summary["memory_error_types"]["per_pid_unavailable"])
         self.assertTrue((out / "memory-samples.csv").is_file())
 
 

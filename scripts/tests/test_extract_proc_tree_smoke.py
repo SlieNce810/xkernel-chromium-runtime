@@ -15,9 +15,10 @@ SPEC.loader.exec_module(module)
 
 RUN_ID = "proc-tree-smoke-01"
 HEADER = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb"
+TIMING_HEADER = HEADER + ",tree_snapshot_total_ns,tree_snapshot_resident_walk_ns,tree_snapshot_mapcount_ns,tree_snapshot_rollup_ns,tree_snapshot_format_ns,tree_snapshot_process_count,tree_snapshot_resident_pages,tree_smaps_rollup_read_ns,sample_work_ns"
 
 
-def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: bool = False, events: int = 4, duplicate: bool = False) -> str:
+def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: bool = False, events: int = 4, duplicate: bool = False, timing: bool = False, timing_mismatch: bool = False) -> str:
     fields = ["S", "1"] + ["0"] * 17 + [str(root_ticks)]
     root_stat = "5 (autorun.sh) " + " ".join(fields)
     lines = [
@@ -25,12 +26,16 @@ def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: boo
         f"run_id={RUN_ID}", "result=PASS", "samples=8", "process_instances=2",
         "missed=0", "memory_source=procfs-tree-smaps_rollup", "finished_t_ns=9000000000",
         f"PROC_TREE_SMOKE run_id={RUN_ID} sample_rows=16 processes_started=2 memory_errors=0 bad_values=0 start_time_count=2 bad_start_times=0",
-        "PROC_TREE_SMOKE_MEMORY_CSV_BEGIN", HEADER,
+        "PROC_TREE_SMOKE_MEMORY_CSV_BEGIN", TIMING_HEADER if timing else HEADER,
     ]
     rows_text = []
     for sample in range(1, 9):
         for pid, ppid, instance, rss, pss, uss in [(5, 1, f"5-{0 if zero_instance else root_ticks}", 588, 372, 156), (11, 5, "11-189", 164, 164, 164)]:
-            rows_text.append(f"{RUN_ID},LINUX_CLOCK_MONOTONIC,{sample},{sample * 1000000000},{pid},{ppid},{instance},{rss},{pss},{uss}")
+            row = f"{RUN_ID},LINUX_CLOCK_MONOTONIC,{sample},{sample * 1000000000},{pid},{ppid},{instance},{rss},{pss},{uss}"
+            if timing:
+                total = 100000 + int(timing_mismatch and pid == 11 and sample == 1)
+                row += f",{total},30000,20000,10000,5000,18,50,110000,250000"
+            rows_text.append(row)
     if duplicate:
         rows_text[-1] = rows_text[0]
     lines.extend(rows_text[:rows])
@@ -67,6 +72,20 @@ class ExtractProcTreeSmokeTests(unittest.TestCase):
         self.assertEqual([event["seq"] for event in events], [1, 2, 3, 4])
         self.assertEqual(summary["root_start_ticks"], 159)
         self.assertEqual(summary["memory_source"], "procfs-tree-smaps_rollup")
+
+    def test_extracts_and_summarizes_timing_columns(self) -> None:
+        summary, out = self.run_extract(fixture_console(timing=True))
+        with (out / "memory-samples.csv").open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual(len(rows), 16)
+        timing = summary["tree_snapshot_timing"]
+        self.assertEqual(timing["fields"]["tree_snapshot_total_ns"]["samples"], 8)
+        self.assertEqual(timing["fields"]["tree_snapshot_total_ns"]["median"], 100000)
+        self.assertIn("system-wide", timing["process_count_semantics"])
+
+    def test_rejects_inconsistent_timing_metadata_within_sample(self) -> None:
+        with self.assertRaisesRegex(module.ExtractionError, "inconsistent timing metadata"):
+            self.run_extract(fixture_console(timing=True, timing_mismatch=True))
 
     def test_rejects_a_missing_memory_row(self) -> None:
         with self.assertRaises(module.ExtractionError):

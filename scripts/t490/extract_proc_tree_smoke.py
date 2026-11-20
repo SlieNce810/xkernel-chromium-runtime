@@ -8,12 +8,25 @@ import hashlib
 import io
 import json
 import re
+import statistics
 import sys
 from pathlib import Path
 from typing import Any
 
 ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 CSV_HEADER = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb"
+TIMING_FIELDS = (
+    "tree_snapshot_total_ns",
+    "tree_snapshot_resident_walk_ns",
+    "tree_snapshot_mapcount_ns",
+    "tree_snapshot_rollup_ns",
+    "tree_snapshot_format_ns",
+    "tree_snapshot_process_count",
+    "tree_snapshot_resident_pages",
+    "tree_smaps_rollup_read_ns",
+    "sample_work_ns",
+)
+EXTENDED_CSV_HEADER = CSV_HEADER + "," + ",".join(TIMING_FIELDS)
 
 
 class ExtractionError(ValueError):
@@ -60,17 +73,23 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         raise ExtractionError("smoke output sections are out of order")
 
     csv_block = lines[csv_marker + 1:events_marker]
-    if CSV_HEADER not in csv_block:
+    matching_headers = [line for line in csv_block if line in {CSV_HEADER, EXTENDED_CSV_HEADER}]
+    if len(matching_headers) != 1:
         raise ExtractionError("memory CSV header is missing")
+    csv_header = matching_headers[0]
+    expected_fields = csv_header.split(",")
+    if len(expected_fields) != len(set(expected_fields)):
+        raise ExtractionError("memory CSV header contains duplicate fields")
+    has_timing = csv_header == EXTENDED_CSV_HEADER
     data_lines = [line for line in csv_block if line.startswith(run_id + ",")]
-    reader = csv.DictReader(io.StringIO("\n".join([CSV_HEADER, *data_lines])))
+    reader = csv.DictReader(io.StringIO("\n".join([csv_header, *data_lines])))
     rows = list(reader)
     if len(rows) != sample_rows_expected or len(rows) < 16:
         raise ExtractionError(f"CSV row count mismatch: expected {sample_rows_expected}, got {len(rows)}")
 
-    expected_fields = CSV_HEADER.split(",")
     sample_pids: dict[int, set[int]] = {}
     sample_times: dict[int, int] = {}
+    sample_timing: dict[int, dict[str, int]] = {}
     seen_rows: set[tuple[int, int, str]] = set()
     for row in rows:
         if list(row) != expected_fields:
@@ -84,6 +103,23 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
             raise ExtractionError(f"invalid or zero starttime process identity: {identity}")
         if any(int(row[name]) <= 0 for name in ("rss_kb", "pss_kb", "uss_kb")):
             raise ExtractionError(f"non-positive RSS/PSS/USS for PID {pid}")
+        if has_timing:
+            timing: dict[str, int] = {}
+            for name in TIMING_FIELDS:
+                try:
+                    value = int(row[name])
+                except (TypeError, ValueError) as exc:
+                    raise ExtractionError(f"invalid timing field {name} for sample {sample_id}") from exc
+                if value < 0:
+                    raise ExtractionError(f"negative timing field {name} for sample {sample_id}")
+                timing[name] = value
+            if timing["tree_snapshot_total_ns"] <= 0 or timing["tree_smaps_rollup_read_ns"] <= 0 or timing["sample_work_ns"] <= 0:
+                raise ExtractionError(f"non-positive timing duration for sample {sample_id}")
+            if timing["tree_snapshot_process_count"] <= 0 or timing["tree_snapshot_resident_pages"] <= 0:
+                raise ExtractionError(f"empty process or resident-page count for sample {sample_id}")
+            if sample_id in sample_timing and sample_timing[sample_id] != timing:
+                raise ExtractionError(f"sample {sample_id} has inconsistent timing metadata")
+            sample_timing[sample_id] = timing
         key = (sample_id, pid, identity)
         if key in seen_rows:
             raise ExtractionError(f"duplicate CSV row: {key}")
@@ -197,6 +233,30 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         "launch_ns": launch_ns,
         "root_smaps_rollup_kb": smaps_values,
     }
+    if has_timing:
+        timing_statistics: dict[str, dict[str, int | float]] = {}
+        for name in TIMING_FIELDS:
+            values = sorted(sample[name] for sample in sample_timing.values())
+            p95_index = max(0, (95 * len(values) + 99) // 100 - 1)
+            timing_statistics[name] = {
+                "samples": len(values),
+                "min": values[0],
+                "median": statistics.median(values),
+                "p95": values[p95_index],
+                "max": values[-1],
+            }
+        summary["tree_snapshot_timing"] = {
+            "process_count_semantics": (
+                "all-process mapcount snapshot input rows; this is system-wide and does not equal Chromium tree rows"
+            ),
+            "resident_pages_semantics": (
+                "resident user mapping count across all snapshot processes, including repeated shared-frame mappings"
+            ),
+            "sample_work_ns_scope": (
+                "from sample_t_ns through process scan and memory reads, stopping immediately before CSV row emission and flush"
+            ),
+            "fields": timing_statistics,
+        }
     (out_dir / "extract-summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary
 
