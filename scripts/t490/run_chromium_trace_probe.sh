@@ -19,7 +19,8 @@ Usage: run_chromium_trace_probe.sh [--dry-run] [tag]
 Runs one diagnostic-only 2 GiB Wayland session with Chrome startup tracing.
 The guest writes /root/mp-perf-trace.json and exports verified chunks over the
 serial console; the host screenshot cadence is kept outside the export window.
-This probe validates trace capture only, not formal stability or performance.
+On T490, --dry-run also exercises the trace-only guard without touching the disk
+image or starting QEMU. This probe validates trace capture only, not acceptance.
 EOF
     exit 0
 fi
@@ -49,7 +50,7 @@ if [ "$DRY_RUN" = "1" ]; then
         ALLOW_CHROMIUM_PERF_TRACE_ONLY=1 \
         T490_ROUND_TRACE_GUARD_ONLY=1 \
         KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1 \
-            bash "$HERE/t490_round.sh" "$TAG" 1800 1200 autorun_mp_score_observe6.sh
+            bash "$HERE/t490_round.sh" "$TAG-guard-preflight" 1800 1200 autorun_mp_score_observe6.sh
     fi
     RUN_ARGS+=(--dry-run)
 fi
