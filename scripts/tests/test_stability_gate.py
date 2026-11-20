@@ -18,7 +18,9 @@ SECOND = 1_000_000_000
 
 def make_evidence(root: Path, *, fail_liveness_at: int | None = None,
                   schedule_slip_seconds: int = 0,
-                  missing_renderer_at: int | None = None) -> tuple[Path, Path, Path]:
+                  missing_renderer_at: int | None = None,
+                  stale_screenshot_at: int | None = None,
+                  missing_settle_at: int | None = None) -> tuple[Path, Path, Path]:
     evidence = root / "evidence"
     image_dir = evidence / "stability"
     image_dir.mkdir(parents=True)
@@ -47,12 +49,19 @@ def make_evidence(root: Path, *, fail_liveness_at: int | None = None,
     for index in range(1, 11):
         scheduled = index * 120 * SECOND
         actual = scheduled + schedule_slip_seconds * SECOND
+        first_screendump_not_before = actual + 30 * SECOND
         add(actual, "navigation_requested", navigation_id=f"nav-{index:02d}",
-            action="ctrl+r", transport="QMP send-key", scheduled_t_ns=scheduled)
+            action="ctrl+r", transport="QMP send-key", scheduled_t_ns=scheduled,
+            request_host_monotonic_ns=actual,
+            first_screendump_not_before_host_monotonic_ns=first_screendump_not_before)
+        if missing_settle_at != index:
+            add(actual + SECOND, "navigation_settle_wait", navigation_id=f"nav-{index:02d}",
+                settle_seconds=30,
+                first_screendump_not_before_host_monotonic_ns=first_screendump_not_before)
         image = image_dir / f"load-{index:02d}-reload.ppm"
         image.write_bytes(ppm.read_bytes())
         image_hash = hashlib.sha256(image.read_bytes()).hexdigest()
-        load_done = actual + SECOND
+        load_done = actual + (5 if stale_screenshot_at == index else 31) * SECOND
         add(load_done, "screendump_verified", navigation_id=f"nav-{index:02d}",
             profile="official-index", pass_result=True, strict=True,
             capture_path=f"stability/{image.name}", sha256=image_hash, sampling_interval_ms=5000)
@@ -122,6 +131,16 @@ class StabilityGateTests(unittest.TestCase):
     def test_renderer_family_loss_fails(self) -> None:
         evidence, events, console = make_evidence(self.root, missing_renderer_at=20)
         with self.assertRaisesRegex(stability_gate.GateError, "process family missing"):
+            self.run_gate(evidence, events, console, evidence / "stability-gate.json")
+
+    def test_screenshot_before_navigation_settle_deadline_fails(self) -> None:
+        evidence, events, console = make_evidence(self.root, stale_screenshot_at=1)
+        with self.assertRaisesRegex(stability_gate.GateError, "predates the post-navigation settle deadline"):
+            self.run_gate(evidence, events, console, evidence / "stability-gate.json")
+
+    def test_missing_navigation_settle_event_fails(self) -> None:
+        evidence, events, console = make_evidence(self.root, missing_settle_at=1)
+        with self.assertRaisesRegex(stability_gate.GateError, "no navigation settle event"):
             self.run_gate(evidence, events, console, evidence / "stability-gate.json")
 
 

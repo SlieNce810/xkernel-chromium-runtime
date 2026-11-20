@@ -19,7 +19,7 @@ import sys
 import time
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from qmp_input import QmpClient, QmpError
 
@@ -76,6 +76,23 @@ def strict_pass(path: Path, profile: str) -> tuple[bool, str]:
     return result.returncode == 0, detail[-1] if detail else f"ppm_assert rc={result.returncode}"
 
 
+def wait_until_not_before(
+    deadline: float,
+    heartbeat: Callable[[], None],
+    poll_seconds: float,
+    monotonic: Callable[[], float] = time.monotonic,
+    sleeper: Callable[[float], None] = time.sleep,
+) -> None:
+    """Keep QEMU liveness polling while enforcing a post-navigation settle time."""
+
+    while True:
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            return
+        heartbeat()
+        sleeper(min(poll_seconds, remaining))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--socket", required=True)
@@ -88,6 +105,12 @@ def main() -> int:
     parser.add_argument("--reload-count", type=int, default=10)
     parser.add_argument("--reload-interval-seconds", type=int, default=120)
     parser.add_argument("--reload-window-seconds", type=int, default=90)
+    parser.add_argument(
+        "--reload-settle-seconds",
+        type=float,
+        default=30.0,
+        help="minimum delay after QMP navigation input before the first strict screenshot",
+    )
     parser.add_argument("--ready-timeout-seconds", type=int, default=1800)
     parser.add_argument(
         "--bootstrap-poll-seconds",
@@ -121,6 +144,12 @@ def main() -> int:
             parser.error("reload interval must be 120 seconds")
     if args.reload_window_seconds < 1:
         parser.error("reload window must be positive")
+    if args.reload_settle_seconds < 0:
+        parser.error("reload settle delay must be non-negative")
+    if args.reload_settle_seconds >= args.reload_window_seconds:
+        parser.error("reload settle delay must be shorter than the reload window")
+    if not args.diagnostic_only and args.reload_settle_seconds < 30:
+        parser.error("formal stability requires at least 30 seconds after navigation before screenshots")
     if not args.diagnostic_only and args.reload_window_seconds >= args.reload_interval_seconds:
         parser.error("formal reload window must be shorter than the reload interval")
     if args.poll_seconds <= 0 or args.heartbeat_seconds != 30:
@@ -226,7 +255,16 @@ def main() -> int:
             navigation_id: str,
             deadline: float,
             poll_seconds: float,
+            not_before: float | None = None,
         ) -> tuple[Path | None, bool]:
+            if not_before is not None and time.monotonic() < not_before:
+                emit(
+                    "navigation_settle_wait",
+                    navigation_id=navigation_id,
+                    settle_seconds=args.reload_settle_seconds,
+                    first_screendump_not_before_host_monotonic_ns=int(not_before * 1_000_000_000),
+                )
+                wait_until_not_before(not_before, heartbeat, poll_seconds)
             attempt = 0
             last_failed: Path | None = None
             while time.monotonic() < deadline:
@@ -322,15 +360,20 @@ def main() -> int:
             navigation_id = f"nav-{index:02d}"
             try:
                 client.key_chord(["ctrl", "r"])
+                navigation_t_ns = time.monotonic_ns()
+                screenshot_not_before = navigation_t_ns / 1_000_000_000 + args.reload_settle_seconds
                 emit("navigation_requested", navigation_id=navigation_id, action="ctrl+r",
                      transport="QMP send-key", scheduled_t_ns=scheduled_ns,
-                     schedule_slip_ms=slip_s * 1000)
+                     schedule_slip_ms=slip_s * 1000,
+                     request_host_monotonic_ns=navigation_t_ns,
+                     first_screendump_not_before_host_monotonic_ns=int(screenshot_not_before * 1_000_000_000))
             except (OSError, QmpError, TimeoutError) as exc:
                 emit("navigation_error", navigation_id=navigation_id, error=str(exc))
                 break
             load_deadline = time.monotonic() + args.reload_window_seconds
             path, passed = wait_for_page(
-                f"load-{index:02d}-reload", navigation_id, load_deadline, args.poll_seconds
+                f"load-{index:02d}-reload", navigation_id, load_deadline, args.poll_seconds,
+                not_before=screenshot_not_before,
             )
             if not passed or path is None:
                 break

@@ -18,6 +18,7 @@ RELOAD_COUNT="${4:-${STABILITY_RELOAD_COUNT:-10}}"
 RELOAD_INTERVAL="${5:-${STABILITY_RELOAD_INTERVAL:-120}}"
 HOLD_SECONDS="${6:-${STABILITY_HOLD_SECONDS:-1805}}"
 RELOAD_WINDOW="${STABILITY_RELOAD_WINDOW:-90}"
+RELOAD_SETTLE_SECONDS="${STABILITY_RELOAD_SETTLE_SECONDS:-30}"
 DIAGNOSTIC_ONLY="${STABILITY_DIAGNOSTIC_ONLY:-0}"
 TRACE_MODE="${STABILITY_TRACE_MODE:-0}"
 FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
@@ -87,6 +88,11 @@ esac
 case "$RELOAD_WINDOW" in
     ''|*[!0-9]*|0) die "STABILITY_RELOAD_WINDOW must be a positive integer number of seconds" ;;
 esac
+case "$RELOAD_SETTLE_SECONDS" in
+    ''|*[!0-9]*) die "STABILITY_RELOAD_SETTLE_SECONDS must be a non-negative integer number of seconds" ;;
+esac
+[ "$RELOAD_SETTLE_SECONDS" -lt "$RELOAD_WINDOW" ] \
+    || die "reload settle delay must be shorter than STABILITY_RELOAD_WINDOW"
 if [ "${STABILITY_READY_TIMEOUT+x}" = "x" ]; then
     READY_TIMEOUT="$STABILITY_READY_TIMEOUT"
     READY_TIMEOUT_SOURCE=environment
@@ -108,6 +114,7 @@ if [ "$DIAGNOSTIC_ONLY" = "0" ]; then
     [ "$RELOAD_INTERVAL" -eq 120 ] || die "formal stability requires a 120-second reload interval"
     [ "$HOLD_SECONDS" -ge 1800 ] || die "formal stability requires at least 1800 hold seconds"
     [ "$RELOAD_WINDOW" -lt "$RELOAD_INTERVAL" ] || die "formal reload window must be shorter than the reload interval"
+    [ "$RELOAD_SETTLE_SECONDS" -ge 30 ] || die "formal stability requires at least 30 seconds after navigation before screenshots"
 else
     [ "$HOLD_SECONDS" -ge 0 ] || die "diagnostic hold duration must be non-negative"
 fi
@@ -127,6 +134,7 @@ reload_count=$RELOAD_COUNT
 reload_interval_seconds=$RELOAD_INTERVAL
 hold_seconds=$HOLD_SECONDS
 reload_window_seconds=$RELOAD_WINDOW
+reload_settle_seconds=$RELOAD_SETTLE_SECONDS
 memory=2g
 architecture=aarch64
 accelerator=pure TCG
@@ -145,7 +153,7 @@ bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-14
 mkdir -p "$WORK" "$DRIVER_DIR"
 rm -f "$ROUND_LOG"
 
-echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS READY_TIMEOUT=$READY_TIMEOUT READY_TIMEOUT_SOURCE=$READY_TIMEOUT_SOURCE TRACE_MODE=$TRACE_MODE GUEST_MAX_SECONDS=$GUEST_MAX_SECONDS DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5"
+echo "STABILITY_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL AUTORUN=$STABILITY_AUTORUN FAMILY_WATCHDOG_INTERVAL=$FAMILY_WATCHDOG_INTERVAL RELOAD_COUNT=$RELOAD_COUNT RELOAD_INTERVAL=$RELOAD_INTERVAL HOLD_SECONDS=$HOLD_SECONDS READY_TIMEOUT=$READY_TIMEOUT READY_TIMEOUT_SOURCE=$READY_TIMEOUT_SOURCE TRACE_MODE=$TRACE_MODE GUEST_MAX_SECONDS=$GUEST_MAX_SECONDS DIAGNOSTIC_ONLY=$DIAGNOSTIC_ONLY BOOTSTRAP_POLL=30 RELOAD_POLL=5 RELOAD_SETTLE_SECONDS=$RELOAD_SETTLE_SECONDS"
 echo "EVIDENCE=$EVID"
 
 PAGE_URL="file:///usr/share/html-test/index.html" \
@@ -191,10 +199,11 @@ done
     printf 'hold_seconds=%s\n' "$HOLD_SECONDS"
     printf 'diagnostic_only=%s\n' "$DIAGNOSTIC_ONLY"
     printf 'reload_window_seconds=%s\n' "$RELOAD_WINDOW"
+    printf 'reload_settle_seconds=%s\n' "$RELOAD_SETTLE_SECONDS"
     printf 'initial_page_poll_seconds=30\nreload_poll_seconds=5\n'
     printf 'memory=2g\narchitecture=aarch64\naccelerator=tcg\n'
-    printf 'command=STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
-        "$DIAGNOSTIC_ONLY" "$RELOAD_WINDOW" "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" \
+printf 'command=STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s STABILITY_RELOAD_SETTLE_SECONDS=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
+        "$DIAGNOSTIC_ONLY" "$RELOAD_WINDOW" "$RELOAD_SETTLE_SECONDS" "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" \
         "$TAG" "$DUR" "$IVL" "$RELOAD_COUNT" "$RELOAD_INTERVAL" "$HOLD_SECONDS"
 } > "$EVID/stability-run-config.txt"
 
@@ -212,6 +221,7 @@ python3 "$HERE/stability_driver.py" \
     --reload-count "$RELOAD_COUNT" \
     --reload-interval-seconds "$RELOAD_INTERVAL" \
     --reload-window-seconds "$RELOAD_WINDOW" \
+    --reload-settle-seconds "$RELOAD_SETTLE_SECONDS" \
     --ready-timeout-seconds "$READY_TIMEOUT" \
     --bootstrap-poll-seconds 30 \
     --poll-seconds 5 \

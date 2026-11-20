@@ -123,6 +123,20 @@ def main() -> int:
         scheduled = int(navigation.get("scheduled_t_ns", -1))
         if abs(int(navigation["t_ns"]) - scheduled) > tolerance_ns:
             raise GateError(f"reload {index} missed its two-minute schedule tolerance")
+        request_t_ns = int(navigation.get("request_host_monotonic_ns", -1))
+        not_before_t_ns = int(navigation.get("first_screendump_not_before_host_monotonic_ns", -1))
+        if request_t_ns < 0 or request_t_ns > int(navigation["t_ns"]):
+            raise GateError(f"reload {index} has no valid QMP request monotonic timestamp")
+        if not_before_t_ns - request_t_ns < 30_000_000_000:
+            raise GateError(f"reload {index} does not enforce the 30-second screenshot settle delay")
+        settle = next((row for row in events if row.get("event") == "navigation_settle_wait"
+                       and row.get("navigation_id") == nav_id), None)
+        if settle is None:
+            raise GateError(f"reload {index} has no navigation settle event")
+        if float(settle.get("settle_seconds", 0)) < 30:
+            raise GateError(f"reload {index} settle event is shorter than 30 seconds")
+        if int(settle.get("first_screendump_not_before_host_monotonic_ns", -1)) != not_before_t_ns:
+            raise GateError(f"reload {index} settle deadline does not match the QMP request")
         verdict = verdicts.get(nav_id)
         if verdict is None or verdict.get("pass_result") is not True or verdict.get("strict") is not True:
             raise GateError(f"reload {index} lacks a strict page verdict")
@@ -132,6 +146,12 @@ def main() -> int:
                      and row.get("navigation_id") == nav_id), None)
         if shot is None:
             raise GateError(f"reload {index} has no verified screendump")
+        if int(shot["t_ns"]) < not_before_t_ns:
+            raise GateError(f"reload {index} screendump predates the post-navigation settle deadline")
+        if int(verdict["t_ns"]) < int(shot["t_ns"]):
+            raise GateError(f"reload {index} page verdict precedes its verified screendump")
+        if verdict.get("screenshot") != shot.get("capture_path") or verdict.get("sha256") != shot.get("sha256"):
+            raise GateError(f"reload {index} page verdict does not identify its verified screendump")
         verify_image(args.root.resolve(), evidence, shot, args.profile)
         reload_results.append({
             "navigation_id": nav_id,

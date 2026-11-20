@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from stability_driver import parse_family_snapshot
+from stability_driver import parse_family_snapshot, wait_until_not_before
 
 
 class StabilityDriverFamilyParsingTests(unittest.TestCase):
@@ -46,6 +46,35 @@ class StabilityDriverFamilyParsingTests(unittest.TestCase):
         self.assertIsNotNone(snapshot)
         assert snapshot is not None
         self.assertEqual(snapshot["n"], 2)
+
+
+class StabilityReloadSettleTests(unittest.TestCase):
+    def test_screendump_barrier_waits_and_keeps_heartbeat_alive(self) -> None:
+        now = [0.0]
+        sleeps: list[float] = []
+        heartbeats: list[float] = []
+
+        def monotonic() -> float:
+            return now[0]
+
+        def sleeper(duration: float) -> None:
+            sleeps.append(duration)
+            now[0] += duration
+
+        def heartbeat() -> None:
+            heartbeats.append(now[0])
+
+        wait_until_not_before(2.5, heartbeat, 1.0, monotonic, sleeper)
+
+        self.assertEqual(now[0], 2.5)
+        self.assertEqual(sleeps, [1.0, 1.0, 0.5])
+        self.assertEqual(heartbeats, [0.0, 1.0, 2.0])
+
+    def test_screendump_barrier_does_not_wait_after_deadline(self) -> None:
+        calls: list[str] = []
+        wait_until_not_before(1.0, lambda: calls.append("heartbeat"), 1.0,
+                              lambda: 1.0, lambda _: calls.append("sleep"))
+        self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":
