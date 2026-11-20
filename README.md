@@ -28,6 +28,7 @@ R25 修正路径后首页 strict、1/1重载和420秒诊断保持通过；guest-
 R26 补出 Browser launch→main-loop-ready 单轮39.594秒，导航→strict截图保守上界517.017秒；真实重载和420秒保持通过。900秒内存包完成导出但 sampler `FAIL`（220 sample IDs、213 missed、271错误），没有有效峰值；renderer-ready和精确 first-frame 仍缺。采集器拒绝整轮，未计入正式性能统计，见 [report/397](report/397-T490R26Browser启动导航上界与内存采样复测-20261121.md)。
 R27 的 leaf-PTE物理基址直取补丁通过11/11 page-table单测；同条件单轮对照显示 resident-walk 中位/P95下降10.03%/26.58%，但 sampler仍FAIL、错误计数略增、最大 overrun升至59.825秒，仅保留实验补丁，不宣称可靠收益；renderer-ready/first-frame仍缺，见 [report/398](report/398-T490resident-walk直取PTE基址机制对照R27-20261121.md)。
 R28 将 process-role comm 重检降到5秒一次，内存仍按1 Hz采样；页面strict、重载、420秒保持通过，但保持结束时 memory tar 仅收到151块中的145块，缺 END 标记，采集器拒收。R28没有有效内存/采样时间数据，也不用于性能对比；R29改为850秒采样以预留串口导出时间，见 [report/399](report/399-T490R28sampler角色重检降频与串口截断记录-20261121.md)。
+R29 的850秒bundle完整导出；sampler仍 `FAIL`（225 IDs、205 missed、268错误），所以无有效RSS/PSS/USS峰值。相比R27，sample-work中位/P95降低4.77%/22.51%，但只有单轮且请求时长不同，仍不作为可靠收益；R30将恢复900秒采样并延长保持以隔离导出边界，见 [report/400](report/400-T490R29采样窗收缩与role重检机制复测-20261121.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

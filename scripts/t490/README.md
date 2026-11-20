@@ -280,6 +280,8 @@ R27 为 `resident_page_frames()` 去掉每个 present leaf 的重复 `query()`�
 
 R28 把存活进程 role/comm 重检降到5秒一次，AArch64 `-Werror` 静态编译通过；内存 sampler仍1 Hz。页面strict、重载和420秒保持通过，但 memory export 151块仅收到145块、缺 END，数据不可解包。R29把窗口改为850秒以给导出留余量，详见 [report 399](../../report/399-T490R28sampler角色重检降频与串口截断记录-20261121.md)。
 
+R29 将850秒bundle完整解出，sampler仍FAIL（225 sample IDs、205 missed、268错误）。R27/R29 sample-work中位/P95方向向好，但单轮且窗口长度不同，不能记为收益；R30保持同一 role cadence 并恢复900秒窗口，拉长诊断保持以区分采样终点和传输结束，详见 [report 400](../../report/400-T490R29采样窗收缩与role重检机制复测-20261121.md)。
+
 ### 进程树 RSS/PSS/USS 采样器
 
 `proc_tree_sampler.c` 优先读取 `/proc/<root-pid>/tree_smaps_rollup`，通过一次全进程 resident-frame/mapcount 快照取得目标进程树各 PID 的 RSS/PSS/USS，并核对 PID/PPID 关联；端点不存在时才回退到逐 PID `smaps_rollup`。任一已发现进程缺少数值、父链不匹配或页面统计不可用时，该轮样本整体无效。状态文件和结果行记录实际来源，缺失值不会填零。端点实现及 `/proc/<pid>/stat` field 22 起始 tick 修复见 [report 383](../../report/383-T490-proc-stat-starttime与进程树内存单遍回归-20261120.md)。R13 2 GiB guest smoke 仅有两个 shell 进程，8 次采样/0 missed；这验证了工具路径，不代表 Chromium 进程树性能数据。R14 起 smoke 会以 `PROC_TREE_SMOKE_MEMORY_CSV_BEGIN` / `PROC_TREE_SMOKE_EVENTS_BEGIN` 标记完整串口块；用 `python3 scripts/t490/extract_proc_tree_smoke.py <console.log> --run-id proc-tree-smoke-01 --out-dir <new-dir>` 校验并提取 CSV、事件、状态和 root stat。对应回归见 [report 384](../../report/384-T490-procfs-smoke原始数据串口回收与严格提取-20261120.md)。
