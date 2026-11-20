@@ -93,14 +93,16 @@ perf_trace_export_once() {
 
     trace_bytes=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null || echo 0)
     trace_sha=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
-    if ! command -v gzip >/dev/null 2>&1 || ! command -v base64 >/dev/null 2>&1; then
-        log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing)"
+    if ! command -v gzip >/dev/null 2>&1 || ! command -v base64 >/dev/null 2>&1 \
+            || ! command -v fold >/dev/null 2>&1; then
+        log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing) fold=$(command -v fold 2>/dev/null || echo missing)"
         return 1
     fi
 
     trace_b64_file="/tmp/mp-perf-trace-export-$$.b64"
     rm -f "$trace_b64_file"
-    if ! gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null > "$trace_b64_file"; then
+    if ! gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null \
+            | tr -d '\n' | fold -w 256 > "$trace_b64_file"; then
         rm -f "$trace_b64_file"
         log "MP_PERF_TRACE_EXPORT_ENCODE_FAIL run_id=$PERF_TRACE_RUN_ID"
         return 1
