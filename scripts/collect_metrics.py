@@ -405,10 +405,16 @@ def _read_memory(path: Path, expected_run: str, browser_instance: str,
     if times[0] < start_ns or times[0] - start_ns > 1_500_000_000:
         raise InvalidSample("first memory sample is not within 1.5 seconds of Chromium launch")
     required_end = page_ready_ns + 60_000_000_000
-    if times[-1] < required_end:
-        raise InvalidSample("memory sampling ends before 60 seconds after page completion")
-    if times[-1] - required_end > 1_500_000_000:
-        raise InvalidSample("memory sampling extends too far beyond the required 60-second hold")
+    # A guest sampler may continue for a fixed bounded run window because the
+    # guest cannot observe the host-side strict page verdict. Only count rows
+    # through page_ready + 60 seconds; later rows remain raw evidence but must
+    # not inflate the requested peak window.
+    ordered = [(sample_id, group) for sample_id, group in ordered if group["t_ns"] <= required_end]
+    if not ordered:
+        raise InvalidSample("memory sampling has no sample before 60 seconds after page completion")
+    times = [group["t_ns"] for _, group in ordered]
+    if required_end - times[-1] > 1_500_000_000:
+        raise InvalidSample("memory sampling ends more than 1.5 seconds before the required 60-second hold")
     if any(later - earlier > 1_500_000_000 for earlier, later in zip(times, times[1:])):
         raise InvalidSample("memory sampling gap exceeds 1.5 seconds")
 

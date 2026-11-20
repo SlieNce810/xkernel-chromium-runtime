@@ -104,10 +104,28 @@ class CollectMetricsTests(unittest.TestCase):
         self.assertEqual(300.0, values["renderer_create_ms"])
         self.assertEqual(1400.0, values["page_first_frame_ms"])
         self.assertTrue(collect_metrics.REQUIRED_METRICS.issubset(values))
-        self.assertEqual(63, values["memory_sample_count"])
+        self.assertEqual(62, values["memory_sample_count"])
         self.assertGreater(values["peak_chromium_rss_kb"], 24000)
         self.assertGreater(values["peak_chromium_pss_kb"], 18000)
         self.assertGreater(values["peak_chromium_uss_kb"], 12000)
+
+    def test_post_window_samples_do_not_inflate_peak(self) -> None:
+        with self.memory.open(encoding="utf-8") as stream:
+            rows = list(csv.DictReader(stream))
+        for row in rows:
+            if row["sample_id"] == "sample-062":
+                row["rss_kb"] = row["pss_kb"] = row["uss_kb"] = "999999"
+        with self.memory.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+
+        values = {row["metric"]: float(row["value"]) for row in self.validate()}
+
+        self.assertEqual(62, values["memory_sample_count"])
+        self.assertEqual(24183, values["peak_chromium_rss_kb"])
+        self.assertEqual(18183, values["peak_chromium_pss_kb"])
+        self.assertEqual(12183, values["peak_chromium_uss_kb"])
 
     def test_missing_frame_event_is_rejected(self) -> None:
         self.save_events([row for row in self.rows if row["event"] != "first_valid_frame"])
