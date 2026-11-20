@@ -25,7 +25,7 @@ EOF
     exit 0
 fi
 
-TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json"
+TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json"
 if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -q 'ALLOW_CHROMIUM_PERF_TRACE_ONLY' "$HERE/t490_round.sh" \
         || ! grep -q 'CHROME_ARGS=.*\$EXTRA_FLAGS' "$HERE/autorun_mp_score_observe6.sh"; then
@@ -55,7 +55,7 @@ if [ "$DRY_RUN" = "1" ]; then
     RUN_ARGS+=(--dry-run)
 fi
 
-echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1200 ready_timeout=700 reloads=1 interval=30 hold=550 screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_format=json trace_file=/root/mp-perf-trace.json"
+echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1200 ready_timeout=700 reloads=1 interval=30 hold=550 screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_format=json trace_categories=startup,ipc,loading,blink,cc,viz,navigation trace_file=/root/mp-perf-trace.json"
 EXTRA_FLAGS_VALUE="$TRACE_FLAGS" \
 ALLOW_CHROMIUM_PERF_TRACE_ONLY=1 \
 STABILITY_DIAGNOSTIC_ONLY=1 \
