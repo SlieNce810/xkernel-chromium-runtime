@@ -40,6 +40,8 @@ trace 的类别覆盖与 QMP 截图提供了页面活动的交叉核验，但测
 
 `extract_perf_memory.py` 正确保留这组数据并标记 `valid=false`，没有把缺失/超时样本当作有效峰值。当前 `procfs-tree-smaps_rollup` 已避免逐 PID 重复执行全局 mapcount 遍历，但在真实 Chromium 树中仍需定位热点；trace 诊断和串口 IPC 日志也可能增加负载，因此下一步先做不启用 startup trace 的 memory-only 单变量复测，再评估 page-table/PFN mapcount 算法。R15 的 RSS/PSS/USS 数值不能进入资格线或正式峰值报告。
 
+R16 关闭 startup trace 后在 700 秒 ready deadline 内未通过 strict，driver QMP quit 时 900 秒 memory window 尚未完成，因此不能归因 R15 overrun 到 trace；R16 控制轮见 [report 387](387-T490二GiB无trace内存采样控制R16首屏超时无样本-20261120.md)。
+
 ## 后续验收
 
 本轮只有一个 strict 首页与一次重载、约 13 分钟 host hold；尚未满足三次独立冷启动、30 分钟保持、十次加载或每组五次性能样本。浏览器冷启动、renderer create 和 first-frame 指标尚未全部进入统一有效样本；before/after 仍为 `0/0`。R15 用来证明 trace 传输可校验、页面/renderer trace 可观察，并揭示 memory tree sampler 在实际 Chromium 负载下的 overrun。
