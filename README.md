@@ -19,6 +19,7 @@ R14 复测通过相同的两进程 smoke，完整 16 行 CSV 和 4 条生命周�
 R15 真实 Chromium 诊断通过首屏 strict 与 1/1 重载，trace 25,894 events/3,408 chunks 解码通过；进程树内存采样仍因 158 missed、161 错误而无效，未计入四指标样本，collect_metrics 仍因缺少 browser_main_loop_ready 事件拒绝该 ledger；详见 [report/386](report/386-T490二GiB真实Chromium首次帧trace成功但树内存采样超时R15-20261120.md)。
 R16 关闭 trace 的同源内存控制轮在 700 秒首屏 deadline 超时，900 秒采样未完成；它不能用于解释 R15 内存 overrun，下一轮延长诊断 deadline 至 1200 秒，见 [report/387](report/387-T490二GiB无trace内存采样控制R16首屏超时无样本-20261120.md)。
 R17 延长首屏 deadline 后 strict 首页与重载通过，但 trace-off 进程树 sampler 仍 213 missed，状态 FAIL；dense PFN count 单变量候选尚未构建/复测，见 [report/388](report/388-T490二GiB无traceChromium内存采样仍超时R17-20261120.md)。
+R18 dense PFN mapcount 候选已构建，procfs 9 阶段 anon/file/shared/fork-COW/unmap 语义回归通过；它尚未证明 Chromium 1 Hz sampler 提速，R19 将作同条件 trace-off 复测，见 [report/389](report/389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

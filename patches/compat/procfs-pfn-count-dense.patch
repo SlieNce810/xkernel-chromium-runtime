@@ -1,0 +1,68 @@
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -124,7 +124,6 @@
+ /// needs one target row; the Chromium benchmark uses the process-tree file to
+ /// avoid rescanning every address space once for each PID in the same sample.
+ fn process_smaps_rollup_snapshot() -> Option<Vec<ProcessSmapsRollupRow>> {
+-    let mut map_counts = BTreeMap::<usize, usize>::new();
+     let mut process_frames = Vec::<(u32, u32, Vec<usize>)>::new();
+     for process in kprocess::scheduler::processes() {
+         let Ok(aspace) = process.address_space() else {
+@@ -132,11 +131,40 @@
+         };
+         let frames = aspace.lock().resident_page_frames()?;
+         let ppid = process.parent().map_or(0, |parent| parent.pid());
+-        for frame in &frames {
+-            let count = map_counts.entry(*frame).or_default();
+-            *count = count.checked_add(1)?;
+-        }
+         process_frames.push((process.pid(), ppid, frames));
++    }
++
++    // On the 2 GiB competition guest, PFNs fit in a compact dense index. Avoid
++    // allocating a BTreeMap node and doing tree searches for every resident
++    // mapping on the 1 Hz sampler hot path. Keep the sparse fallback for large
++    // physical address spaces so the procfs endpoint remains bounded.
++    const MAX_DENSE_PFN_SLOTS: usize = 4 * 1024 * 1024;
++    let max_frame = process_frames
++        .iter()
++        .flat_map(|(_, _, frames)| frames.iter().copied())
++        .max()?;
++    let slot_count = max_frame.checked_add(1)?;
++    let mut dense_map_counts = if slot_count <= MAX_DENSE_PFN_SLOTS {
++        Some(vec![0u32; slot_count])
++    } else {
++        None
++    };
++    let mut sparse_map_counts = if dense_map_counts.is_none() {
++        Some(BTreeMap::<usize, u32>::new())
++    } else {
++        None
++    };
++    for (_, _, frames) in &process_frames {
++        for frame in frames {
++            if let Some(counts) = dense_map_counts.as_mut() {
++                let count = counts.get_mut(*frame)?;
++                *count = count.checked_add(1)?;
++            } else {
++                let counts = sparse_map_counts.as_mut()?;
++                let count = counts.entry(*frame).or_default();
++                *count = count.checked_add(1)?;
++            }
++        }
+     }
+ 
+     let mut snapshot = Vec::with_capacity(process_frames.len());
+@@ -145,7 +173,11 @@
+         let mut unique_pages = 0u64;
+         let mut shared_pages = 0u64;
+         for frame in &frames {
+-            let map_count = *map_counts.get(frame)?;
++            let map_count = if let Some(counts) = dense_map_counts.as_ref() {
++                *counts.get(*frame)? as usize
++            } else {
++                *sparse_map_counts.as_ref()?.get(frame)? as usize
++            };
+             if map_count == 0 {
+                 return None;
+             }

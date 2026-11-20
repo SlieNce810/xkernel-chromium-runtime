@@ -33,4 +33,4 @@ STABILITY_DIAGNOSTIC_ONLY=1 STABILITY_TRACE_MODE=0 STABILITY_MEMORY_SAMPLER=1 ST
 | R16 | startup trace 关闭 | 700 秒内首页 timeout | sampler 未完成 900 秒窗口 | 无内存包；不能比较 trace 影响 |
 | R17 | startup trace 关闭 | 463.688 秒首页 strict、1/1 重载通过 | 218 sample ID / 8 个有行实例；missed 213，overrun 中位 2,387 ms、最大 78.962 s | 内存无效 |
 
-R16 与 R17 的页面结果不同，且两轮都只有一个 sample，不能据此声明 trace 关闭对采样性能有可靠收益。R17 仍显示真实 Chromium 下的单遍 mapcount 每秒采样超时。下一步以 R17 内核/trace-off 条件作 parent，对 dense PFN count candidate 进行单变量构建和同条件 guest 回归；R15/R17 均留作诊断对照，不纳入正式 before/after 统计。
+R16 与 R17 的页面结果不同，且两轮都只有一个 sample，不能据此声明 trace 关闭对采样性能有可靠收益。R17 仍显示真实 Chromium 下的单遍 mapcount 每秒采样超时。R18 已应用 dense PFN count candidate，memory probe 的 PSS/USS 共享和 COW 语义回归通过；真实 Chromium 同条件性能效果待 R19 复测。R15/R17 均留作诊断对照，不纳入正式 before/after 统计，详见 [report 389](389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md)。
