@@ -54,6 +54,6 @@ R12 的追踪归档存在缺失 base64 字符。trace 与 memory exporter 现于
 
 ## 限制和下一步
 
-guest smoke 将完整 CSV 写在 `/tmp`，串口只打印汇总和 CSV 开头行；本证据包因此保留 8 次/16 行计数、首部行与状态，但没有归档全部 16 条原始 CSV 记录。下一轮会将这类 smoke 原始文件写入 guest `/root` 并通过 `pull_guest_logs.sh` 回收。本轮结果只作为实现 smoke。
+guest smoke 将完整 CSV 写在 `/tmp`，串口只打印汇总和 CSV 开头行；本证据包因此保留 8 次/16 行计数、首部行与状态，但没有归档全部 16 条原始 CSV 记录。后续 R14 以串口标记完整输出 CSV/事件，并由 [report 384](384-T490-procfs-smoke原始数据串口回收与严格提取-20261120.md) 所述提取器保存和校验原始记录；guest `/root` 复制尝试未进入停机后的磁盘镜像，已撤掉该回收路径。本轮结果只作为实现 smoke。
 
 本轮也不能证明 Renderer 子进程树在真实 Chromium 负载下连续 1 Hz 采样成功，也没有采集 Browser 启动、首帧或 Renderer 创建事件。四指标有效 before/after 样本仍为 0/0；还需在 Chromium 启动、实际页面导航和 60 秒保持窗口中复验该采集器，并完成每组至少五次独立冷启动。R13 也没有满足三次冷启动、30 分钟保持、十次加载或 2 GiB 六项功能回归条件。

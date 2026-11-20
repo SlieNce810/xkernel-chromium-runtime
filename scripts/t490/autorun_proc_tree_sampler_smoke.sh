@@ -38,17 +38,25 @@ sample_rows=$((sample_lines - 1))
 started=$(grep -c '"event":"process_started"' "$OUT_DIR/lifecycle-events.jsonl" 2>/dev/null || true)
 missing=$(grep -c 'smaps_rollup=unavailable' "$OUT_DIR/memory-sampling-errors.log" 2>/dev/null || true)
 bad_values=$(awk -F, 'NR > 1 { if ($8 <= 0 || $9 <= 0 || $10 <= 0) bad++ } END { print bad + 0 }' "$OUT_DIR/memory-samples.csv")
+start_ticks=$(grep '"event":"process_started"' "$OUT_DIR/lifecycle-events.jsonl" | sed -n 's/.*"process_instance":"[^"]*-\([0-9][0-9]*\)".*/\1/p')
+start_time_count=$(printf '%s\n' "$start_ticks" | grep -c '^[0-9][0-9]*$' || true)
+bad_start_times=$(printf '%s\n' "$start_ticks" | grep -c '^0$' || true)
 [ -n "$started" ] || started=0
 [ -n "$missing" ] || missing=0
+[ -n "$start_time_count" ] || start_time_count=0
+[ -n "$bad_start_times" ] || bad_start_times=0
 cat "$OUT_DIR/sampler.log" > /dev/console 2>&1
 cat "$OUT_DIR/proc-tree-sampler.status" > /dev/console 2>&1
-echo "PROC_TREE_SMOKE run_id=$RUN_ID sample_rows=$sample_rows processes_started=$started memory_errors=$missing bad_values=$bad_values" > /dev/console
-head -n 4 "$OUT_DIR/memory-samples.csv" > /dev/console 2>&1
+echo "PROC_TREE_SMOKE run_id=$RUN_ID sample_rows=$sample_rows processes_started=$started memory_errors=$missing bad_values=$bad_values start_time_count=$start_time_count bad_start_times=$bad_start_times" > /dev/console
+echo "PROC_TREE_SMOKE_MEMORY_CSV_BEGIN" > /dev/console
+cat "$OUT_DIR/memory-samples.csv" > /dev/console 2>&1
+echo "PROC_TREE_SMOKE_EVENTS_BEGIN" > /dev/console
+cat "$OUT_DIR/lifecycle-events.jsonl" > /dev/console 2>&1
 echo "PROC_TREE_SMOKE_ROOT_SMAPS_BEGIN pid=$root_pid" > /dev/console
 cat "/proc/$root_pid/smaps_rollup" > /dev/console 2>&1
 tail -n 4 "$OUT_DIR/lifecycle-events.jsonl" > /dev/console 2>&1
 
-[ "$sample_rows" -ge 16 ] && [ "$started" -ge 1 ] && [ "$missing" -eq 0 ] && [ "$bad_values" -eq 0 ] \
+[ "$sample_rows" -ge 16 ] && [ "$started" -ge 1 ] && [ "$missing" -eq 0 ] && [ "$bad_values" -eq 0 ] && [ "$start_time_count" -eq "$started" ] && [ "$bad_start_times" -eq 0 ] \
     || { echo "PROC_TREE_SMOKE_FAIL output validation" > /dev/console; exit 1; }
 echo "PROC_TREE_SMOKE_PASS" > /dev/console
 exit 0
