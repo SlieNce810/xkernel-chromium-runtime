@@ -173,6 +173,7 @@ bash scripts/t490/measure-single-initial.sh
 - guest `/proc/<pid>/status` 的 `VmRSS` 不可用，内存指标采用 host 侧 QEMU 进程 RSS（已在报告中标注 host 观测属性）。
 
 R30 900秒内存bundle完整导出，但首页strict在1550秒deadline超时；240秒截图仍为Weston背景，1440秒和timeout截图为空白，Weston/Chrome进程仍存活。页面失败和采样错误已如实归档，排除稳定性及性能PASS；下一轮关闭采样/preload做最小页面复现，见 [report/401](report/401-T490R30默认多进程页面strict超时空白屏复现-20261121.md)。
+R31 保持相同kernel/2 GiB/Wayland/默认多进程页面，关闭sampler、lifecycle preload与guest clock-sync后首页、重载、420秒保持通过，strict elapsed496.649秒。因一次改动多项观测设置，只说明最小配置可通过，不归因；R32将单独重新启用sampler，见 [report/402](report/402-T490R31关闭采样探针后的最小页面复现-20261121.md)。
 
 ## 目录导览
 
