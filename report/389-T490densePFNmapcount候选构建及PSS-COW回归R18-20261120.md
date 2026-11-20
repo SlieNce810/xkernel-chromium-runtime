@@ -34,4 +34,4 @@ QEMU 参数来自正式 platform profile：AArch64 2 GiB、4 vCPU、`cortex-a76`
 - R17 的 BTreeMap trace-off Chromium memory 诊断：首页/重载通过，但 218 sample ID、213 missed、overrun 中位数 2.387 秒、最大 78.962 秒；见 [report 388](388-T490二GiB无traceChromium内存采样仍超时R17-20261120.md)。
 - R18 只验证 dense PFN 计数的页共享/COW 语义，还没有采集 Chromium tree 1 Hz 时间或漏样数据。
 
-R19 将在同一 trace-off Chromium 条件下验证 R18 dense PFN candidate；只有 missed/overrun 和同一时间窗内的 RSS/PSS/USS 峰值都有效后，才将该候选纳入 R19/R17 的机制比较。正式 5+5 before/after 和四项完整性能仍未完成。
+R19 已完成一次 trace-off Chromium 对照：dense PFN 的 sample ID、missed 和 overrun median 优于 R17，但 P95/max overrun 与首屏时间变差；R19 仍 status FAIL，因此暂不认定优化收益。原始数据和单变量比较见 [report 390](390-T490densePFN真实Chromium单变量内存对照R19-20261120.md)。正式 5+5 before/after 和四项完整性能仍未完成。
