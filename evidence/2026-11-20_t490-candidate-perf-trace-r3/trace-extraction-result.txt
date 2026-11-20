@@ -1,0 +1,9 @@
+command: python3 scripts/t490/extract_perf_trace.py console.log --run-id codex-2026-11-20-perf-trace-r3 --out mp-perf-trace.json
+result: FAIL; no output JSON was written
+trace_export_begin: run_id=codex-2026-11-20-perf-trace-r3 bytes=3920137 sha256=3a342f89aa4a51095ecea45d04a23fd283fe4c8dce3d0f7b05a9de0e802b6990
+trace_export_data: 12,258 complete base64 payloads matched; 12,259 serial lines contain the DATA marker
+trace_export_end: present
+gzip_decode: invalid stored block lengths at zero-based payload chunk 10807
+root_cause_evidence: console.log line 170709 starts an MP_PERF_TRACE_DATA record and is interrupted by the host text "[2026-11-20 08:28:03] screendump OK" before a complete payload is captured
+guest_disk_fallback: /root/mp-perf-trace.json absent from KERNEL_DIR/disk.img after QEMU shutdown
+disposition: reject trace; performance metrics accepted=0
