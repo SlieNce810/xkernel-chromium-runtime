@@ -1,0 +1,95 @@
+{
+  "schema": "xkernel.proc-tree-sampler-diagnostic-comparison.v1",
+  "comparison_kind": "one BTreeMap parent diagnostic and two dense-PFN repeat diagnostics",
+  "conditions": {
+    "guest_memory": "2g",
+    "architecture": "aarch64",
+    "accelerator": "pure TCG",
+    "profile": "official-index",
+    "trace": "off for R17/R19/R20",
+    "memory_interval_ms": 1000,
+    "memory_sample_seconds": 900,
+    "reloads": 1,
+    "diagnostic_only": true
+  },
+  "formal_performance_samples": false,
+  "dense_candidate_is_accepted": false,
+  "runs": [
+    {
+      "run_id": "r17-memory-only-ready1200",
+      "kernel_sha256": "f988d68b3d8545875af30a931734b5936f9a13b9850df67b8fe8b074a7ccb3f1",
+      "trace": "off",
+      "page_ready_ms": 463688.291242,
+      "status": "FAIL",
+      "samples": 218,
+      "missed": 213,
+      "status_process_instances": 9,
+      "csv_memory_rows": 1329,
+      "csv_process_instances": 8,
+      "memory_errors": 221,
+      "error_types": {
+        "process_tree_unavailable": 19,
+        "bulk_unavailable": 8,
+        "incomplete": 8,
+        "overrun": 186
+      },
+      "overrun_count": 186,
+      "overrun_median_ms": 2387.0,
+      "overrun_p95_ms": 8401.05,
+      "overrun_max_ms": 78962,
+      "memory_export_valid": false,
+      "collect_metrics_valid": false
+    },
+    {
+      "run_id": "r19-dense-memory-only-ready1200",
+      "kernel_sha256": "beaa86361cdff4a6504d16acbb565c5e598f0095fbccb81565b3a3c2c5ba436f",
+      "trace": "off",
+      "page_ready_ms": 589243.59843,
+      "status": "FAIL",
+      "samples": 298,
+      "missed": 146,
+      "status_process_instances": 10,
+      "csv_memory_rows": 1871,
+      "csv_process_instances": 9,
+      "memory_errors": 150,
+      "error_types": {
+        "process_tree_unavailable": 33,
+        "bulk_unavailable": 4,
+        "incomplete": 4,
+        "overrun": 109
+      },
+      "overrun_count": 109,
+      "overrun_median_ms": 1969,
+      "overrun_p95_ms": 15885.0,
+      "overrun_max_ms": 88210,
+      "memory_export_valid": false,
+      "collect_metrics_valid": false
+    },
+    {
+      "run_id": "r20-dense-memory-repeat",
+      "kernel_sha256": "beaa86361cdff4a6504d16acbb565c5e598f0095fbccb81565b3a3c2c5ba436f",
+      "trace": "off",
+      "page_ready_ms": 589475.078271,
+      "status": "FAIL",
+      "samples": 304,
+      "missed": 151,
+      "status_process_instances": 11,
+      "csv_memory_rows": 1893,
+      "csv_process_instances": 9,
+      "memory_errors": 160,
+      "error_types": {
+        "bulk_unavailable": 9,
+        "incomplete": 9,
+        "process_tree_unavailable": 27,
+        "overrun": 115
+      },
+      "overrun_count": 115,
+      "overrun_median_ms": 2130,
+      "overrun_p95_ms": 17361.0,
+      "overrun_max_ms": 27152,
+      "memory_export_valid": false,
+      "collect_metrics_valid": false
+    }
+  ],
+  "direction_note": "dense runs both increased successful sample IDs and reduced missed/median overrun relative to R17, but all memory bundles remain invalid; dense runs have slower page-ready time and worse P95 overrun than the parent, so benefit is mixed and unaccepted."
+}

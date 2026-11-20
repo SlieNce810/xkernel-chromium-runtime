@@ -19,7 +19,7 @@ R14 复测通过相同的两进程 smoke，完整 16 行 CSV 和 4 条生命周�
 R15 真实 Chromium 诊断通过首屏 strict 与 1/1 重载，trace 25,894 events/3,408 chunks 解码通过；进程树内存采样仍因 158 missed、161 错误而无效，未计入四指标样本，collect_metrics 仍因缺少 browser_main_loop_ready 事件拒绝该 ledger；详见 [report/386](report/386-T490二GiB真实Chromium首次帧trace成功但树内存采样超时R15-20261120.md)。
 R16 关闭 trace 的同源内存控制轮在 700 秒首屏 deadline 超时，900 秒采样未完成；它不能用于解释 R15 内存 overrun，下一轮延长诊断 deadline 至 1200 秒，见 [report/387](report/387-T490二GiB无trace内存采样控制R16首屏超时无样本-20261120.md)。
 R17 延长首屏 deadline 后 strict 首页与重载通过，但 trace-off 进程树 sampler 仍 213 missed，状态 FAIL；dense PFN count 单变量候选尚未构建/复测，见 [report/388](report/388-T490二GiB无traceChromium内存采样仍超时R17-20261120.md)。
-R18 dense PFN mapcount 候选已构建，procfs 9阶段共享/COW 语义回归通过；R19 同条件 dense Chromium 对照中 sample ID 218→298、missed 213→146、中位 overrun 2387→1969 ms，但 P95/max 与 strict 首页时延退化且 sampler 仍 FAIL，单对结果不足以宣称收益，详见 [report/389](report/389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md) 与 [report/390](report/390-T490densePFN真实Chromium单变量内存对照R19-20261120.md)。
+R18 dense PFN mapcount 候选已构建，procfs 9阶段共享/COW 语义回归通过；R19/R20 同条件 Chromium 对照中 sample ID/missed/中位 overrun 均向好，但 P95 与 strict 首页时间恶化、两个 sampler status 仍 FAIL，因此 dense 候选未证明可靠收益，详见 [report/389](report/389-T490densePFNmapcount候选构建及PSS-COW回归R18-20261120.md)、[report/390](report/390-T490densePFN真实Chromium单变量内存对照R19-20261120.md) 与 [report/391](report/391-T490densePFN同条件Chromium内存采样重复对照R20-20261120.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

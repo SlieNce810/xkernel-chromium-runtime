@@ -36,3 +36,6 @@ R19使用R18同一内核文件，SHA-256 `beaa86361cdff4a6504d16acbb565c5e598f00
 ## 后续动作
 
 将dense PFN索引保留为候选/回退提交，继续分析R15/R17/R19的`resident_page_frames()`页表遍历耗时和长尾阻塞；增加单次采样阶段计时并确保采样ledger包含Browser ready、renderer request/ready、navigation、first-frame/page verdict。当前候选尚无5+5有效before/after，也未通过四指标收集器，不能宣称正式收益。
+
+
+R20 在同一 dense kernel、trace-off、2 GiB 与同一 runner 参数下重复后，sample IDs/missed/overrun median 与 R19 方向相近，但 P95 和首屏 strict 时间仍较 parent 差，且 status 仍 FAIL；对照数据见 [report 391](391-T490densePFN同条件Chromium内存采样重复对照R20-20261120.md)。R19/R20 仍只有两次 after、零有效 sampler，不能认定正式收益。
