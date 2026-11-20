@@ -177,6 +177,8 @@ R31 保持相同kernel/2 GiB/Wayland/默认多进程页面，关闭sampler、lif
 
 R32 仅开启1 Hz memory sampler、关闭preload与clock-sync后，首页strict仍在1550秒deadline超时，Weston/Chrome仍存活；memory bundle完整但samplerFAIL（275 IDs、218 missed、280错误），不计PASS或峰值。R31/R32单轮结果提示采样负载相关，但不能确定唯一原因；R33重复sampler-off基线，见 [report/403](report/403-T490R32仅启用内存采样时页面strict超时-20261121.md)。
 
+R33 sampler-off重复控制再次通过首页、重载、420秒保持，host elapsed465.692秒；240秒周期截图仍处于Weston阶段，normalizer另报family快照38.034秒stale，且guest clock-sync关闭，故不用于guest性能/稳定性总验收。R31/R33通过、R30/R32 sampler-on失败增强采样负载相关线索，但仍不能单因果归因，见 [report/404](report/404-T490R33sampler-off重复页面控制与时钟口径-20261121.md)。
+
 ## 目录导览
 
 ```text
