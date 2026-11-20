@@ -34,6 +34,7 @@ typedef struct {
 
 typedef struct {
     char instance[64];
+    char role[32];
     pid_t pid;
     bool active;
 } SeenProcess;
@@ -123,8 +124,64 @@ static bool read_stat(pid_t pid, pid_t *ppid, uint64_t *start_ticks) {
     return true;
 }
 
-static void classify_process_role(Process *process) {
-    if (strcmp(process->role, "browser") == 0)
+static bool assign_process_role(Process *process, const char *name) {
+    const char *role = NULL;
+    if (strcmp(name, "CrRendererMain") == 0 || strstr(name, "--type=renderer"))
+        role = "renderer";
+    else if (strcmp(name, "CrZygoteMain") == 0 || strstr(name, "--type=zygote"))
+        role = "zygote";
+    else if (strcmp(name, "CrUtilityMain") == 0 || strstr(name, "--type=utility"))
+        role = "utility";
+    else if (strcmp(name, "CrGpuMain") == 0 || strstr(name, "--type=gpu-process"))
+        role = "gpu";
+    if (!role)
+        return false;
+    snprintf(process->role, sizeof(process->role), "%s", role);
+    return true;
+}
+
+static bool read_process_comm(const Process *process, char *comm,
+                              size_t capacity) {
+    char path[80];
+    snprintf(path, sizeof(path), "/proc/%d/task/%d/comm", process->pid,
+             process->pid);
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd < 0 || capacity < 2) {
+        if (fd >= 0)
+            close(fd);
+        return false;
+    }
+    ssize_t length = read(fd, comm, capacity - 1);
+    close(fd);
+    if (length <= 0)
+        return false;
+    while (length > 0 && (comm[length - 1] == '\n' || comm[length - 1] == '\r'))
+        --length;
+    comm[length] = '\0';
+    return length > 0;
+}
+
+static void classify_process_role(Process *process, bool recheck_zygote_child) {
+    if (recheck_zygote_child) {
+        if (strcmp(process->role, "browser") == 0 ||
+            strcmp(process->role, "renderer") == 0 ||
+            strcmp(process->role, "utility") == 0 ||
+            strcmp(process->role, "gpu") == 0 ||
+            (strcmp(process->role, "zygote") == 0 && process->depth <= 1))
+            return;
+        char comm[64];
+        if (read_process_comm(process, comm, sizeof(comm)))
+            (void)assign_process_role(process, comm);
+        return;
+    }
+    if (strcmp(process->role, "browser") == 0 ||
+        strcmp(process->role, "renderer") == 0 ||
+        strcmp(process->role, "utility") == 0 ||
+        strcmp(process->role, "gpu") == 0)
+        return;
+    char comm[64];
+    if (read_process_comm(process, comm, sizeof(comm)) &&
+        assign_process_role(process, comm))
         return;
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/cmdline", process->pid);
@@ -141,14 +198,7 @@ static void classify_process_role(Process *process) {
             command[i] = ' ';
     }
     command[length] = '\0';
-    if (strstr(command, "--type=renderer"))
-        snprintf(process->role, sizeof(process->role), "%s", "renderer");
-    else if (strstr(command, "--type=zygote"))
-        snprintf(process->role, sizeof(process->role), "%s", "zygote");
-    else if (strstr(command, "--type=utility"))
-        snprintf(process->role, sizeof(process->role), "%s", "utility");
-    else if (strstr(command, "--type=gpu-process"))
-        snprintf(process->role, sizeof(process->role), "%s", "gpu");
+    (void)assign_process_role(process, command);
 }
 
 static size_t scan_processes(Process *processes) {
@@ -359,6 +409,7 @@ static bool add_seen(SeenProcess *seen, size_t *seen_count, const Process *proce
     SeenProcess *row = &seen[(*seen_count)++];
     memset(row, 0, sizeof(*row));
     snprintf(row->instance, sizeof(row->instance), "%s", process->instance);
+    snprintf(row->role, sizeof(row->role), "%s", process->role);
     row->pid = process->pid;
     row->active = true;
     return true;
@@ -392,9 +443,25 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
         memset(&exited, 0, sizeof(exited));
         exited.pid = seen[i].pid;
         snprintf(exited.instance, sizeof(exited.instance), "%s", seen[i].instance);
-        snprintf(exited.role, sizeof(exited.role), "%s", "child");
+        snprintf(exited.role, sizeof(exited.role), "%s", seen[i].role);
         emit_event(events, run_id, sample_t_ns, "process_exited", &exited, NULL);
         seen[i].active = false;
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        Process *process = &processes[i];
+        if (!process->in_tree)
+            continue;
+        SeenProcess *known = seen_instance(seen, *seen_count, process->instance);
+        if (!known)
+            continue;
+        char previous_role[sizeof(known->role)];
+        snprintf(previous_role, sizeof(previous_role), "%s", known->role);
+        classify_process_role(process, true);
+        if (strcmp(previous_role, process->role) != 0) {
+            emit_event(events, run_id, sample_t_ns, "process_role_changed", process, NULL);
+            snprintf(known->role, sizeof(known->role), "%s", process->role);
+        }
     }
 
     for (int depth = 0; depth < 64; ++depth) {
@@ -404,7 +471,7 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
                 continue;
             int parent_index = process->depth == 0 ? -1 : process_index(processes, count, process->ppid);
             const char *parent_instance = parent_index >= 0 ? processes[parent_index].instance : NULL;
-            classify_process_role(process);
+            classify_process_role(process, false);
             emit_event(events, run_id, sample_t_ns, "process_started", process, parent_instance);
             if (!add_seen(seen, seen_count, process)) {
                 free(processes);

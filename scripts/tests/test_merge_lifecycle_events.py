@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 import tempfile
 import unittest
@@ -47,7 +48,7 @@ def fixture(root: Path, *, frame_event: bool = True, screenshot_present: bool = 
         guest_event(3, 220, "process_started", pid=11, ppid=10,
                     process_instance="11-2", role="zygote", parent_process_instance="10-1"),
         guest_event(4, 400, "process_started", pid=12, ppid=11,
-                    process_instance="12-3", role="renderer", parent_process_instance="11-2"),
+                    process_instance="12-3", role="zygote", parent_process_instance="11-2"),
         guest_event(5, 900, "memory_sampling_finished"),
     ])
     probe_path = root / "lifecycle-probe-events.jsonl"
@@ -57,9 +58,10 @@ def fixture(root: Path, *, frame_event: bool = True, screenshot_present: bool = 
         guest_event(2, 300, "navigation_requested", pid=10,
                     process_instance="10-1", role="browser", navigation_id=NAV_ID,
                     url="file:///usr/share/html-test/index.html", source="browser-file-url-open"),
-        guest_event(3, 350, "renderer_create_requested", pid=11,
+        guest_event(3, 350, "zygote_fork_boundary", pid=11,
                     process_instance="11-2", role="zygote", navigation_id=NAV_ID,
-                    request_id="request-01", child_pid=12),
+                    request_id="request-01", child_pid=12,
+                    source="zygote-fork-boundary"),
         guest_event(4, 450, "renderer_ready", pid=12,
                     process_instance="12-3", role="renderer", navigation_id=NAV_ID,
                     request_id="request-01", renderer_id="12-3"),
@@ -90,14 +92,25 @@ def fixture(root: Path, *, frame_event: bool = True, screenshot_present: bool = 
          "guest_t_ns": 1500},
     ]
     write_jsonl(stability_path, stability_rows)
-    return evidence, memory_path, probe_path, stability_path
+    console_path = root / "console.log"
+    mp_event = {
+        "timestamp_monotonic": 0.460,
+        "process_role": "renderer",
+        "pid": 12,
+        "ppid": 11,
+        "event": "renderer-observed",
+        "status": "observed",
+        "observation_source": "guest-ps-snapshot",
+    }
+    console_path.write_text("MP_EVENT " + json.dumps(mp_event) + "\n", encoding="utf-8")
+    return evidence, memory_path, probe_path, stability_path, console_path
 
 
 class MergeLifecycleEventsTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
-        self.evidence, self.memory, self.probe, self.stability = fixture(self.root)
+        self.evidence, self.memory, self.probe, self.stability, self.console = fixture(self.root)
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -106,8 +119,8 @@ class MergeLifecycleEventsTests(unittest.TestCase):
         out = self.root / "merged.jsonl"
         summary = self.root / "merge-summary.json"
         result = merge_lifecycle_events.merge(
-            self.memory, probe or self.probe, self.stability, evidence or self.evidence,
-            out, summary, RUN_ID, NAV_ID, 30000,
+            self.memory, probe or self.probe, self.stability, self.console,
+            evidence or self.evidence, out, summary, RUN_ID, NAV_ID, 30000,
         )
         return result, out
 
@@ -115,6 +128,7 @@ class MergeLifecycleEventsTests(unittest.TestCase):
         summary, out = self.run_merge()
         rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
         self.assertTrue(summary["valid"])
+        self.assertEqual(1, summary["paired_renderer_create_requests"])
         self.assertEqual(list(range(1, len(rows) + 1)), [row["seq"] for row in rows])
         page = next(row for row in rows if row["event"] == "page_verdict")
         shot = next(row for row in rows if row["event"] == "screendump_verified")
@@ -122,9 +136,14 @@ class MergeLifecycleEventsTests(unittest.TestCase):
         self.assertEqual(1200, shot["t_ns"])
         self.assertEqual("12-3", page["renderer_id"])
         self.assertTrue(shot["sha256"])
+        renderer_create = next(row for row in rows if row["event"] == "renderer_create_requested")
+        self.assertEqual("paired-zygote-fork-boundary", renderer_create["source"])
+        self.assertEqual(12, renderer_create["renderer_child_pid"])
+        role_change = next(row for row in rows if row["event"] == "process_role_changed")
+        self.assertEqual("renderer", role_change["role"])
 
     def test_missing_frame_is_preserved_and_reported_invalid(self) -> None:
-        _evidence, _memory, probe, _stability = fixture(self.root / "missing-frame", frame_event=False)
+        _evidence, _memory, probe, _stability, _console = fixture(self.root / "missing-frame", frame_event=False)
         summary, _out = self.run_merge(evidence=_evidence, probe=probe)
         self.assertFalse(summary["valid"])
         self.assertIn("expected one first_valid_frame", " ".join(summary["errors"]))
@@ -135,8 +154,26 @@ class MergeLifecycleEventsTests(unittest.TestCase):
             if row["event"] == "page_ready":
                 row["t_ns"] = 2500
         write_jsonl(self.stability, rows)
-        with self.assertRaisesRegex(merge_lifecycle_events.MergeError, "outside guest clock-sync anchors"):
-            self.run_merge()
+        summary, output = self.run_merge()
+        self.assertFalse(summary["valid"])
+        self.assertIn("outside guest clock-sync anchors", " ".join(summary["errors"]))
+        self.assertTrue(output.is_file())
+
+    def test_ppm_hash_manifest_is_used_when_raw_ppm_is_remote(self) -> None:
+        screenshot = self.evidence / "stability" / "load-00-initial.ppm"
+        digest = hashlib.sha256(screenshot.read_bytes()).hexdigest()
+        screenshot.unlink()
+        (self.evidence / "ppm-sha256.txt").write_text(
+            f"{digest}  stability/load-00-initial.ppm\n", encoding="utf-8"
+        )
+
+        summary, out = self.run_merge()
+
+        self.assertTrue(summary["valid"])
+        events = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+        shot = next(row for row in events if row["event"] == "screendump_verified")
+        self.assertEqual(digest, shot["sha256"])
+        self.assertEqual("ppm-sha256-manifest", shot["sha256_source"])
 
 
 if __name__ == "__main__":

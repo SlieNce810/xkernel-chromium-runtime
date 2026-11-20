@@ -21,12 +21,20 @@
 typedef int (*epoll_wait_fn)(int, struct epoll_event *, int, int);
 typedef int (*epoll_pwait_fn)(int, struct epoll_event *, int, int,
                               const sigset_t *);
+typedef int (*epoll_pwait2_fn)(int, struct epoll_event *, int,
+                               const struct timespec *, const sigset_t *);
+typedef int (*poll_fn)(struct pollfd *, nfds_t, int);
+typedef int (*ppoll_fn)(struct pollfd *, nfds_t, const struct timespec *,
+                        const sigset_t *);
 typedef pid_t (*fork_fn)(void);
 typedef int (*openat_fn)(int, const char *, int, ...);
 typedef int (*open_fn)(const char *, int, ...);
 
 static epoll_wait_fn next_epoll_wait;
 static epoll_pwait_fn next_epoll_pwait;
+static epoll_pwait2_fn next_epoll_pwait2;
+static poll_fn next_poll;
+static ppoll_fn next_ppoll;
 static fork_fn next_fork;
 static openat_fn next_openat;
 static open_fn next_open;
@@ -88,15 +96,48 @@ static ssize_t read_process_text(pid_t pid, const char *suffix, char *buffer,
     return amount;
 }
 
+static bool read_thread_comm(pid_t pid, pid_t tid, char *buffer,
+                             size_t capacity) {
+    char suffix[64];
+    int size = snprintf(suffix, sizeof(suffix), "task/%d/comm", tid);
+    if (size <= 0 || (size_t)size >= sizeof(suffix) || capacity == 0)
+        return false;
+    ssize_t amount = read_process_text(pid, suffix, buffer, capacity);
+    if (amount <= 0)
+        return false;
+    while (amount > 0 && (buffer[amount - 1] == '\n' || buffer[amount - 1] == '\r'))
+        buffer[--amount] = '\0';
+    return amount > 0;
+}
+
 static void classify_process(void) {
     pid_t pid = getpid();
-    if (pid == cached_pid)
+    if (pid == cached_pid && process_role[0] != '\0' &&
+        !(strcmp(process_role, "zygote") == 0 && pending_request_id[0]))
         return;
+    if (pid != cached_pid) {
+        cached_pid = pid;
+        browser_ready_reported = false;
+        renderer_ready_reported = false;
+        navigation_reported = false;
+        process_role[0] = '\0';
+    }
 
-    cached_pid = pid;
-    browser_ready_reported = false;
-    renderer_ready_reported = false;
-    navigation_reported = false;
+    char comm[64];
+    if (read_thread_comm(pid, pid, comm, sizeof(comm))) {
+        if (strcmp(comm, "CrRendererMain") == 0) {
+            snprintf(process_role, sizeof(process_role), "%s", "renderer");
+            return;
+        }
+        if (strcmp(comm, "CrZygoteMain") == 0) {
+            snprintf(process_role, sizeof(process_role), "%s", "zygote");
+            return;
+        }
+        if (strcmp(comm, "CrBrowserMain") == 0) {
+            snprintf(process_role, sizeof(process_role), "%s", "browser");
+            return;
+        }
+    }
     char cmdline[4096];
     ssize_t cmdline_size = read_process_text(pid, "cmdline", cmdline,
                                              sizeof(cmdline));
@@ -189,10 +230,27 @@ static void append_probe_event(const char *event, uint64_t t_ns, pid_t pid,
 }
 
 static void maybe_report_loop_ready(void) {
-    classify_process();
     pid_t pid = getpid();
+    if (pid == cached_pid &&
+        ((strcmp(process_role, "browser") == 0 && browser_ready_reported) ||
+         (strcmp(process_role, "renderer") == 0 && renderer_ready_reported) ||
+         (strcmp(process_role, "zygote") == 0 && !pending_request_id[0]) ||
+         (strcmp(process_role, "utility") == 0) ||
+         (strcmp(process_role, "gpu") == 0) ||
+         (strcmp(process_role, "other") == 0)))
+        return;
+    classify_process();
+    pid = getpid();
     pid_t tid = (pid_t)syscall(SYS_gettid);
-    if (tid != pid)
+    if (strcmp(process_role, "browser") != 0 &&
+        strcmp(process_role, "renderer") != 0 &&
+        !(strcmp(process_role, "zygote") == 0 && pending_request_id[0]))
+        return;
+    char comm[64];
+    bool got_comm = read_thread_comm(pid, tid, comm, sizeof(comm));
+    bool named_browser_main = got_comm && strcmp(comm, "CrBrowserMain") == 0;
+    bool named_renderer_main = got_comm && strcmp(comm, "CrRendererMain") == 0;
+    if (tid != pid && !named_browser_main && !named_renderer_main)
         return;
     char instance[96];
     get_process_instance(pid, instance, sizeof(instance));
@@ -200,7 +258,7 @@ static void maybe_report_loop_ready(void) {
         browser_ready_reported = true;
         append_probe_event("browser_main_loop_ready", monotonic_time_ns(), pid,
                            getppid(), process_role, instance, "", "", "", 0,
-                           "browser-main-thread-first-epoll-wait", "");
+                           "CrBrowserMain-first-poll-or-epoll-wait", "");
         return;
     }
     if (strcmp(process_role, "renderer") == 0 && !renderer_ready_reported &&
@@ -210,7 +268,7 @@ static void maybe_report_loop_ready(void) {
         append_probe_event("renderer_ready", ready_ns, pid, getppid(),
                            process_role, instance, pending_navigation_id,
                            pending_request_id, instance, 0,
-                           "renderer-main-thread-first-epoll-wait", "");
+                           "CrRendererMain-first-poll-or-epoll-wait", "");
         char state_line[512];
         int size = snprintf(state_line, sizeof(state_line),
                             "%d %s %s %s %llu\n", pid, instance, instance,
@@ -260,6 +318,9 @@ static void *required_symbol(void **destination, const char *name) {
 __attribute__((constructor)) static void initialize_lifecycle_preload(void) {
     required_symbol((void **)&next_epoll_wait, "epoll_wait");
     required_symbol((void **)&next_epoll_pwait, "epoll_pwait");
+    required_symbol((void **)&next_epoll_pwait2, "epoll_pwait2");
+    required_symbol((void **)&next_poll, "poll");
+    required_symbol((void **)&next_ppoll, "ppoll");
     required_symbol((void **)&next_fork, "fork");
     required_symbol((void **)&next_openat, "openat");
     required_symbol((void **)&next_open, "open");
@@ -301,6 +362,32 @@ int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout
     return -1;
 }
 
+int epoll_pwait2(int epfd, struct epoll_event *events, int maxevents,
+                 const struct timespec *timeout, const sigset_t *sigmask) {
+    maybe_report_loop_ready();
+    if (next_epoll_pwait2)
+        return next_epoll_pwait2(epfd, events, maxevents, timeout, sigmask);
+    errno = ENOSYS;
+    return -1;
+}
+
+int poll(struct pollfd *fds, nfds_t count, int timeout) {
+    maybe_report_loop_ready();
+    if (next_poll)
+        return next_poll(fds, count, timeout);
+    errno = ENOSYS;
+    return -1;
+}
+
+int ppoll(struct pollfd *fds, nfds_t count, const struct timespec *timeout,
+          const sigset_t *sigmask) {
+    maybe_report_loop_ready();
+    if (next_ppoll)
+        return next_ppoll(fds, count, timeout, sigmask);
+    errno = ENOSYS;
+    return -1;
+}
+
 pid_t fork(void) {
     classify_process();
     if (!next_fork) {
@@ -328,7 +415,7 @@ pid_t fork(void) {
     if (child > 0) {
         char instance[96];
         get_process_instance(getpid(), instance, sizeof(instance));
-        append_probe_event("renderer_create_requested", request_ns, getpid(),
+        append_probe_event("zygote_fork_boundary", request_ns, getpid(),
                            getppid(), process_role, instance,
                            navigation_id, request_id, "", child,
                            "zygote-fork-boundary", "");

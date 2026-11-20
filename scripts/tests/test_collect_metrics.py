@@ -164,6 +164,20 @@ class CollectMetricsTests(unittest.TestCase):
         with self.assertRaisesRegex(collect_metrics.InvalidSample, "PID reuse"):
             self.validate()
 
+    def test_zygote_child_role_can_resolve_to_renderer(self) -> None:
+        rows = [dict(row) for row in self.rows]
+        rows[6]["role"] = "zygote"
+        rows.append(event(12, 800_000_000, "process_role_changed", pid=102,
+                          process_instance="renderer-1", role="renderer"))
+        rows.sort(key=lambda row: int(row["t_ns"]))
+        for seq, row in enumerate(rows, 1):
+            row["seq"] = seq
+            row["event_id"] = f"event-{seq}"
+        self.save_events(rows)
+
+        values = {row["metric"]: float(row["value"]) for row in self.validate()}
+        self.assertEqual(300.0, values["renderer_create_ms"])
+
     def test_navigation_mismatch_is_rejected(self) -> None:
         rows = [dict(row) for row in self.rows]
         rows[8]["navigation_id"] = "nav-other"

@@ -171,6 +171,19 @@ def _validate_processes(events: list[dict[str, Any]]) -> tuple[dict[str, dict[st
                 raise InvalidSample(f"line {event['_line']}: process exit precedes or equals process start")
             process["end"] = event["_t_ns"]
             live_by_pid.pop(pid, None)
+        elif kind == "process_role_changed":
+            pid = _positive_int(event.get("pid"), f"line {event['_line']} pid")
+            instance = _nonempty(event.get("process_instance"), f"line {event['_line']} process_instance")
+            process = processes.get(instance)
+            if process is None or process["pid"] != pid:
+                raise InvalidSample(f"line {event['_line']}: role change has no matching process instance")
+            if process["end"] is not None or event["_t_ns"] < process["start"]:
+                raise InvalidSample(f"line {event['_line']}: role change is outside the process lifetime")
+            old_role = process["role"]
+            new_role = _nonempty(event.get("role"), f"line {event['_line']} process role")
+            if old_role == "browser" or new_role not in {"browser_child", "child", "zygote", "renderer", "utility", "gpu"}:
+                raise InvalidSample(f"line {event['_line']}: invalid process role transition {old_role!r} -> {new_role!r}")
+            process["role"] = new_role
 
     browser_roots = [instance for instance, process in processes.items() if process["role"] == "browser" and process["parent"] is None]
     if len(browser_roots) != 1:

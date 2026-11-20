@@ -25,6 +25,28 @@ class MergeError(ValueError):
     """Input records cannot be combined without fabricating provenance."""
 
 
+def _screendump_sha256(evidence_dir: Path, capture_path: str) -> tuple[str, str]:
+    relative_path = Path(capture_path)
+    root = evidence_dir.resolve()
+    resolved_capture = (root / relative_path).resolve()
+    if not resolved_capture.is_relative_to(root):
+        raise MergeError("screendump capture path escapes the evidence directory")
+    if resolved_capture.is_file():
+        return hashlib.sha256(resolved_capture.read_bytes()).hexdigest(), "local-file"
+
+    manifest_path = root / "ppm-sha256.txt"
+    if manifest_path.is_file():
+        normalized = relative_path.as_posix()
+        for line_number, line in enumerate(manifest_path.read_text(encoding="utf-8").splitlines(), 1):
+            parts = line.split(None, 1)
+            if len(parts) == 2 and parts[1].replace("\\", "/") == normalized:
+                digest = parts[0].lower()
+                if len(digest) == 64 and all(ch in "0123456789abcdef" for ch in digest):
+                    return digest, "ppm-sha256-manifest"
+                raise MergeError(f"invalid PPM SHA-256 on manifest line {line_number}")
+    raise MergeError(f"screendump capture file and PPM hash are missing: {capture_path}")
+
+
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     if not path.is_file():
         raise MergeError(f"event file is missing: {path}")
@@ -40,6 +62,45 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
             raise MergeError(f"record at {path}:{line_number} is not an object")
         rows.append(value)
     return rows
+
+
+def read_mp_events(path: Path | None) -> list[dict[str, Any]]:
+    if path is None:
+        return []
+    if not path.is_file():
+        raise MergeError(f"Chromium console file is missing: {path}")
+    events: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8", errors="replace") as stream:
+        for line_number, raw_line in enumerate(stream, 1):
+            marker = raw_line.find("MP_EVENT ")
+            if marker < 0:
+                continue
+            try:
+                event = json.loads(raw_line[marker + len("MP_EVENT "):].strip())
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(event, dict):
+                continue
+            if event.get("event") not in {"zygote-observed", "renderer-observed"}:
+                continue
+            try:
+                t_ns = int(round(float(event["timestamp_monotonic"]) * 1_000_000_000))
+                pid = int(event["pid"])
+                ppid = int(event.get("ppid", 0))
+            except (KeyError, TypeError, ValueError):
+                continue
+            if t_ns <= 0 or pid <= 0:
+                continue
+            events.append({
+                "line": line_number,
+                "t_ns": t_ns,
+                "pid": pid,
+                "ppid": ppid,
+                "role": str(event.get("process_role", "")),
+                "event": str(event["event"]),
+                "source": str(event.get("observation_source", "")),
+            })
+    return events
 
 
 def _positive_ns(value: Any, label: str) -> int:
@@ -102,6 +163,7 @@ def merge(
     memory_events_path: Path,
     probe_events_path: Path,
     stability_events_path: Path,
+    console_log_path: Path | None,
     evidence_dir: Path,
     output_path: Path,
     summary_path: Path,
@@ -112,6 +174,7 @@ def merge(
     memory_events = read_jsonl(memory_events_path)
     probe_events = read_jsonl(probe_events_path) if probe_events_path.is_file() else []
     stability_events = read_jsonl(stability_events_path)
+    mp_events = read_mp_events(console_log_path)
     if sampling_interval_ms <= 0:
         raise MergeError("sampling_interval_ms must be positive")
     for index, row in enumerate(stability_events, 1):
@@ -124,12 +187,54 @@ def merge(
     sync_pairs = _read_clock_sync(stability_events, run_id)
 
     events = [dict(row) for row in memory_events]
-    events.extend(dict(row) for row in probe_events)
+    events.extend(
+        dict(row) for row in probe_events
+        if row.get("event") != "renderer_create_requested"
+    )
     browser_instances = {
         row.get("process_instance")
         for row in events
         if row.get("event") == "process_started" and row.get("role") == "browser"
     }
+    process_role_observations = 0
+    unmatched_process_role_observations: list[str] = []
+    process_starts_by_pid: dict[int, list[dict[str, Any]]] = {}
+    process_exits_by_instance: dict[str, int] = {}
+    for row in memory_events:
+        if row.get("event") == "process_started":
+            process_starts_by_pid.setdefault(int(row["pid"]), []).append(row)
+        elif row.get("event") == "process_exited":
+            process_exits_by_instance[str(row.get("process_instance", ""))] = int(row["t_ns"])
+    for observation in mp_events:
+        process_role_observations += 1
+        candidates = [
+            row for row in process_starts_by_pid.get(observation["pid"], [])
+            if int(row["t_ns"]) <= observation["t_ns"]
+            and process_exits_by_instance.get(str(row.get("process_instance", "")), 1 << 63)
+                > observation["t_ns"]
+        ]
+        if not candidates:
+            unmatched_process_role_observations.append(
+                f"MP_EVENT {observation['event']} PID {observation['pid']} at {observation['t_ns']} has no live process instance"
+            )
+            continue
+        process = max(candidates, key=lambda row: int(row["t_ns"]))
+        if process.get("role") == observation["role"]:
+            continue
+        events.append({
+            "schema": SCHEMA,
+            "run_id": run_id,
+            "clock_id": GUEST_CLOCK,
+            "t_ns": observation["t_ns"],
+            "event": "process_role_changed",
+            "pid": observation["pid"],
+            "ppid": observation["ppid"],
+            "process_instance": str(process["process_instance"]),
+            "parent_process_instance": process.get("parent_process_instance"),
+            "role": observation["role"],
+            "source": "mp-event-process-observer",
+            "observation_event": observation["event"],
+        })
     renderers = [
         row for row in events
         if row.get("event") == "renderer_ready" and row.get("navigation_id") == navigation_id
@@ -159,6 +264,7 @@ def merge(
             and row.get("navigation_id") == navigation_id]
     if len(navs) != 1:
         errors.append(f"expected one navigation_requested for {navigation_id}, found {len(navs)}")
+    nav_time_ns = int(navs[0]["t_ns"]) if len(navs) == 1 else None
     if len(page_ready) != 1:
         errors.append(f"expected one passing page_ready for {navigation_id}, found {len(page_ready)}")
     if not screendumps:
@@ -183,9 +289,54 @@ def merge(
         if frame.get("renderer_id") != renderer_id or frame.get("pid") != renderer_pid or frame.get("process_instance") != renderer_instance:
             errors.append("first_valid_frame does not match the selected renderer_ready")
 
+    browser_instance = next(iter(browser_instances), None) if len(browser_instances) == 1 else None
+    browser_process = next((row for row in events
+                            if row.get("event") == "process_started"
+                            and row.get("process_instance") == browser_instance), None)
+    fork_events = [row for row in probe_events
+                   if row.get("event") in {"zygote_fork_boundary", "renderer_create_requested"}]
+    paired_renderer_requests = 0
+    unpaired_renderer_ready = 0
+    for renderer_ready in renderers:
+        request_id = renderer_ready.get("request_id")
+        child_pid = renderer_ready.get("pid")
+        candidates = [row for row in fork_events
+                      if row.get("request_id") == request_id
+                      and int(row.get("child_pid", -1)) == int(child_pid)]
+        candidates = [row for row in candidates
+                      if nav_time_ns is not None and int(row.get("t_ns", -1)) >= nav_time_ns
+                      and int(row.get("t_ns", -1)) < int(renderer_ready.get("t_ns", 0))]
+        if not candidates or browser_process is None:
+            unpaired_renderer_ready += 1
+            continue
+        request = min(candidates, key=lambda row: int(row["t_ns"]))
+        events.append({
+            "schema": SCHEMA,
+            "run_id": run_id,
+            "clock_id": GUEST_CLOCK,
+            "t_ns": int(request["t_ns"]),
+            "event": "renderer_create_requested",
+            "pid": int(browser_process["pid"]),
+            "ppid": int(browser_process.get("ppid", 0)),
+            "process_instance": browser_instance,
+            "role": "browser",
+            "navigation_id": navigation_id,
+            "request_id": str(request_id),
+            "renderer_child_pid": int(child_pid),
+            "source": "paired-zygote-fork-boundary",
+        })
+        paired_renderer_requests += 1
+    if unpaired_renderer_ready:
+        errors.append(f"{unpaired_renderer_ready} renderer_ready events lack a post-navigation matching zygote fork boundary")
+    errors.extend(unmatched_process_role_observations)
+
     for row in page_ready:
-        host_ns = _positive_ns(row.get("t_ns"), "page_ready host t_ns")
-        guest_ns = _map_host_to_guest(host_ns, sync_pairs)
+        try:
+            host_ns = _positive_ns(row.get("t_ns"), "page_ready host t_ns")
+            guest_ns = _map_host_to_guest(host_ns, sync_pairs)
+        except MergeError as exc:
+            errors.append(f"page_ready clock mapping failed: {exc}")
+            continue
         capture_path = str(row.get("capture_path", ""))
         events.append({
             "schema": SCHEMA,
@@ -204,18 +355,18 @@ def merge(
             "capture_path": capture_path,
         })
     for row in screendumps:
-        host_ns = _positive_ns(row.get("t_ns"), "screendump_verified host t_ns")
-        guest_ns = _map_host_to_guest(host_ns, sync_pairs)
+        try:
+            host_ns = _positive_ns(row.get("t_ns"), "screendump_verified host t_ns")
+            guest_ns = _map_host_to_guest(host_ns, sync_pairs)
+        except MergeError as exc:
+            errors.append(f"screendump clock mapping failed: {exc}")
+            continue
         capture_path = str(row.get("capture_path", ""))
-        relative_path = Path(capture_path)
-        resolved_capture = (evidence_dir / relative_path).resolve()
-        if not resolved_capture.is_relative_to(evidence_dir.resolve()):
-            errors.append("screendump capture path escapes the evidence directory")
+        try:
+            capture_sha256, capture_hash_source = _screendump_sha256(evidence_dir, capture_path)
+        except MergeError as exc:
+            errors.append(str(exc))
             continue
-        if not resolved_capture.is_file():
-            errors.append(f"screendump capture file is missing: {capture_path}")
-            continue
-        capture_sha256 = hashlib.sha256(resolved_capture.read_bytes()).hexdigest()
         events.append({
             "schema": SCHEMA,
             "run_id": run_id,
@@ -228,6 +379,7 @@ def merge(
             "profile": str(row.get("profile", "")),
             "capture_path": capture_path,
             "sha256": capture_sha256,
+            "sha256_source": capture_hash_source,
             "sampling_interval_ms": sampling_interval_ms,
             "source": "qmp-clock-sync-mapped",
         })
@@ -273,6 +425,8 @@ def merge(
         "errors": errors,
         "lifecycle_events": len(events),
         "probe_events": len(probe_events),
+        "mp_process_role_observations": process_role_observations,
+        "unmatched_mp_process_role_observations": len(unmatched_process_role_observations),
         "stability_clock_sync_anchors": len(sync_pairs),
         "clock_mapping": {
             "from": "t490-host-CLOCK_MONOTONIC",
@@ -285,6 +439,8 @@ def merge(
         },
         "browser_process_instances": sorted(instance for instance in browser_instances if instance),
         "renderer_instances": sorted({str(row.get("process_instance")) for row in renderers}),
+        "paired_renderer_create_requests": paired_renderer_requests,
+        "unpaired_renderer_ready_events": unpaired_renderer_ready,
         "first_valid_frame_events": len(frames),
         "output": str(output_path.resolve()),
     }
@@ -300,6 +456,8 @@ def main() -> int:
     parser.add_argument("--memory-events", type=Path, required=True)
     parser.add_argument("--probe-events", type=Path, required=True)
     parser.add_argument("--stability-events", type=Path, required=True)
+    parser.add_argument("--console-log", type=Path,
+                        help="optional raw console log; joins MP_EVENT process-role observations by PID instance")
     parser.add_argument("--evidence-dir", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--summary", type=Path, required=True)
@@ -310,7 +468,7 @@ def main() -> int:
     try:
         summary = merge(
             args.memory_events, args.probe_events, args.stability_events,
-            args.evidence_dir, args.out, args.summary, args.run_id,
+            args.console_log, args.evidence_dir, args.out, args.summary, args.run_id,
             args.navigation_id, args.sampling_interval_ms,
         )
     except (MergeError, OSError, ValueError) as exc:
