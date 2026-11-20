@@ -15,7 +15,7 @@
 #define MAX_PROCESSES 4096
 #define MAX_LINE 4096
 #define SCHEMA "xkernel.browser.lifecycle.v1"
-#define CLOCK_ID "linux-CLOCK_MONOTONIC"
+#define CLOCK_ID "LINUX_CLOCK_MONOTONIC"
 
 typedef struct {
     pid_t pid;
@@ -322,12 +322,17 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
 }
 
 int main(int argc, char **argv) {
+    if (argc == 2 && strcmp(argv[1], "--clock-now") == 0) {
+        printf("%" PRIu64 "\n", monotonic_ns());
+        return 0;
+    }
     const char *run_id = NULL;
     const char *out_dir = "/root";
     uint64_t launch_ns = 0;
     int duration_seconds = 900;
     pid_t root_pid = 0;
     int interval_ms = 1000;
+    bool clock_sync_enabled = false;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--run-id") == 0 && i + 1 < argc)
             run_id = argv[++i];
@@ -341,8 +346,10 @@ int main(int argc, char **argv) {
             interval_ms = atoi(argv[++i]);
         else if (strcmp(argv[i], "--out-dir") == 0 && i + 1 < argc)
             out_dir = argv[++i];
+        else if (strcmp(argv[i], "--clock-sync") == 0)
+            clock_sync_enabled = true;
         else {
-            fprintf(stderr, "usage: proc_tree_sampler --run-id ID --root-pid PID --launch-ns NS [--duration-seconds N] [--interval-ms N] [--out-dir PATH]\n");
+            fprintf(stderr, "usage: proc_tree_sampler --run-id ID --root-pid PID --launch-ns NS [--duration-seconds N] [--interval-ms N] [--out-dir PATH] [--clock-sync]\n");
             return 2;
         }
     }
@@ -363,11 +370,13 @@ int main(int argc, char **argv) {
     FILE *events = fopen(events_path, "wx");
     FILE *memory = fopen(memory_path, "wx");
     FILE *errors = fopen(errors_path, "wx");
+    FILE *clock_console = clock_sync_enabled ? fopen("/dev/console", "w") : NULL;
     if (!events || !memory || !errors) {
         fprintf(stderr, "refusing to overwrite sample outputs: %s\n", out_dir);
         if (events) fclose(events);
         if (memory) fclose(memory);
         if (errors) fclose(errors);
+        if (clock_console) fclose(clock_console);
         return 3;
     }
     fputs("run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb\n", memory);
@@ -389,6 +398,11 @@ int main(int argc, char **argv) {
         };
         while (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &deadline, NULL) == EINTR) {}
         uint64_t sample_t_ns = monotonic_ns();
+        if (clock_console) {
+            fprintf(clock_console, "MP_METRICS_CLOCK_SYNC run_id=%s guest_t_ns=%" PRIu64 "\n",
+                    run_id, sample_t_ns);
+            fflush(clock_console);
+        }
         int rc = sample_tree(events, memory, errors, run_id, root_pid, seen, &seen_count, sample_t_ns);
         if (rc == -2) {
             fprintf(errors, "t_ns=%" PRIu64 " chromium_root_pid=%d process_tree=unavailable\n", sample_t_ns, root_pid);
@@ -397,14 +411,19 @@ int main(int argc, char **argv) {
         } else if (rc != 0) {
             missed++;
         }
-        next_ns += (uint64_t)interval_ms * 1000000ULL;
-        if (sample_t_ns > next_ns + 1500000000ULL) {
-            uint64_t overrun_ms = (uint64_t)((sample_t_ns - next_ns) / 1000000ULL);
+        uint64_t sample_finished_ns = monotonic_ns();
+        uint64_t sample_duration_ns = sample_finished_ns - sample_t_ns;
+        if (sample_duration_ns > 1500000000ULL) {
+            uint64_t overrun_ms = (uint64_t)(sample_duration_ns / 1000000ULL);
             fprintf(errors, "t_ns=%" PRIu64 " sampler_overrun_ms=%" PRIu64 "\n",
                     sample_t_ns, overrun_ms);
             fflush(errors);
-            next_ns = sample_t_ns + (uint64_t)interval_ms * 1000000ULL;
+            next_ns = sample_finished_ns + (uint64_t)interval_ms * 1000000ULL;
             missed++;
+        } else {
+            next_ns += (uint64_t)interval_ms * 1000000ULL;
+            if (next_ns < sample_finished_ns)
+                next_ns = sample_finished_ns;
         }
     }
     uint64_t finished_ns = monotonic_ns();
@@ -412,7 +431,23 @@ int main(int argc, char **argv) {
     uint64_t duration_ms = (uint64_t)((finished_ns - start_ns) / 1000000ULL);
     fprintf(stderr, "PROC_TREE_SAMPLER_RESULT run_id=%s samples=%" PRIu64 " processes=%zu missed=%u duration_ms=%" PRIu64 "\n",
             run_id, sample_number, seen_count, missed, duration_ms);
+    char status_path[PATH_MAX];
+    snprintf(status_path, sizeof(status_path), "%s/proc-tree-sampler.status", out_dir);
+    FILE *status = fopen(status_path, "wx");
+    if (status) {
+        fprintf(status,
+                "run_id=%s\nresult=%s\nsamples=%" PRIu64 "\nprocess_instances=%zu\nmissed=%u\nfinished_t_ns=%" PRIu64 "\n",
+                run_id, missed == 0 && sample_number > 0 ? "PASS" : "FAIL",
+                sample_number, seen_count, missed, finished_ns);
+        fclose(status);
+    } else {
+        fprintf(errors, "status_file_write_failed errno=%d\n", errno);
+        fflush(errors);
+        missed++;
+    }
     free(seen);
+    if (clock_console)
+        fclose(clock_console);
     fclose(events);
     fclose(memory);
     fclose(errors);

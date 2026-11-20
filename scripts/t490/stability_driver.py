@@ -18,6 +18,7 @@ import subprocess
 import sys
 import time
 import re
+import threading
 from pathlib import Path
 from typing import Any, Callable
 
@@ -93,6 +94,18 @@ def wait_until_not_before(
         sleeper(min(poll_seconds, remaining))
 
 
+def parse_guest_clock_sync(line: str, expected_run_id: str) -> int | None:
+    # ANSI output from /dev/console can end in the printable character `m`
+    # immediately before this marker, so a word boundary here would miss it.
+    match = re.search(r"MP_METRICS_CLOCK_SYNC\s+run_id=([A-Za-z0-9_.-]+)\s+guest_t_ns=(\d+)\b", line)
+    if match is None or match.group(1) != expected_run_id:
+        return None
+    try:
+        return int(match.group(2))
+    except ValueError:
+        return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--socket", required=True)
@@ -120,6 +133,11 @@ def main() -> int:
     )
     parser.add_argument("--poll-seconds", type=float, default=5.0)
     parser.add_argument("--heartbeat-seconds", type=int, default=30)
+    parser.add_argument(
+        "--capture-guest-clock-sync",
+        action="store_true",
+        help="continuously pair guest CLOCK_MONOTONIC markers with host CLOCK_MONOTONIC receipt times",
+    )
     parser.add_argument("--profile", default="official-index")
     parser.add_argument("--schedule-tolerance-seconds", type=int, default=10)
     parser.add_argument("--connect-timeout-seconds", type=float, default=360)
@@ -165,32 +183,39 @@ def main() -> int:
     qmp_log = out_dir / "qmp-transcript.jsonl"
     temp_ppm = out_dir / ".stability-poll.ppm"
     seq = 0
+    event_lock = threading.Lock()
+    console_lock = threading.Lock()
+    clock_sync_stop = threading.Event()
+    clock_sync_thread: threading.Thread | None = None
     clock_id = "t490-host-CLOCK_MONOTONIC"
     console_offset = 0
     console_buffer = ""
+    clock_sync_console_offset = 0
+    clock_sync_console_buffer = ""
     latest_watchdog: dict[str, Any] = {}
     latest_family: dict[str, Any] = {}
 
     def emit(kind: str, **values: Any) -> dict[str, Any]:
         nonlocal seq
-        seq += 1
-        now_ns = time.monotonic_ns()
-        row = {
-            "schema": SCHEMA,
-            "run_id": args.run_id,
-            "clock_id": clock_id,
-            "seq": seq,
-            "event_id": f"{args.run_id}:{seq}",
-            "t_ns": now_ns,
-            "wall_ns": time.time_ns(),
-            "event": kind,
-            **values,
-        }
-        with events_path.open("a", encoding="utf-8") as stream:
-            stream.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+        with event_lock:
+            seq += 1
+            now_ns = time.monotonic_ns()
+            row = {
+                "schema": SCHEMA,
+                "run_id": args.run_id,
+                "clock_id": clock_id,
+                "seq": seq,
+                "event_id": f"{args.run_id}:{seq}",
+                "t_ns": now_ns,
+                "wall_ns": time.time_ns(),
+                "event": kind,
+                **values,
+            }
+            with events_path.open("a", encoding="utf-8") as stream:
+                stream.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
         return row
 
-    def drain_console() -> None:
+    def drain_console_unlocked() -> None:
         nonlocal console_offset, console_buffer, latest_watchdog, latest_family
         try:
             with args.console_log.open("r", encoding="utf-8", errors="replace") as stream:
@@ -236,6 +261,39 @@ def main() -> int:
             if re.search(r"out of memory|oom-kill|killed process|wayland.*(disconnect|closed)|weston.*(fatal|quitting)", line, re.I):
                 emit("guest_exception", raw=line[-1000:])
 
+    def drain_console() -> None:
+        with console_lock:
+            drain_console_unlocked()
+
+    def poll_guest_clock_sync() -> None:
+        nonlocal clock_sync_console_offset, clock_sync_console_buffer
+        try:
+            with args.console_log.open("r", encoding="utf-8", errors="replace") as stream:
+                stream.seek(clock_sync_console_offset)
+                data = stream.read()
+                clock_sync_console_offset = stream.tell()
+        except OSError:
+            return
+        if not data:
+            return
+        lines = (clock_sync_console_buffer + data).split("\n")
+        clock_sync_console_buffer = lines.pop() if lines else ""
+        for line in lines:
+            guest_clock_ns = parse_guest_clock_sync(line, args.run_id)
+            if guest_clock_ns is not None:
+                receive_ns = time.monotonic_ns()
+                emit(
+                    "clock_sync",
+                    guest_clock_id="LINUX_CLOCK_MONOTONIC",
+                    guest_t_ns=guest_clock_ns,
+                    host_receive_t_ns=receive_ns,
+                    source="guest-console",
+                )
+
+    def watch_console() -> None:
+        while not clock_sync_stop.wait(0.1):
+            poll_guest_clock_sync()
+
     client = QmpClient(str(args.socket), qmp_log, qmp_send_key=True, input_target="auto")
     rc = 1
 
@@ -249,6 +307,9 @@ def main() -> int:
     try:
         client.connect(args.connect_timeout_seconds)
         emit("qmp_connected", socket=args.socket)
+        if args.capture_guest_clock_sync:
+            clock_sync_thread = threading.Thread(target=watch_console, name="guest-clock-sync", daemon=True)
+            clock_sync_thread.start()
 
         def wait_for_page(
             label: str,
@@ -402,6 +463,10 @@ def main() -> int:
         print(f"STABILITY_DRIVER_ERROR: {exc}", file=sys.stderr)
         return 1
     finally:
+        clock_sync_stop.set()
+        if clock_sync_thread is not None:
+            clock_sync_thread.join(timeout=2)
+        drain_console()
         try:
             temp_ppm.unlink()
         except FileNotFoundError:

@@ -54,6 +54,11 @@ TRACE_SNAPSHOT_NEXT_MS=120000
 EXTRA_FLAGS="__EXTRA_FLAGS__"
 PERF_TRACE_RUN_ID="__PROFILE_ID__"
 PERF_TRACE_FILE=""
+PERF_MEMORY_SAMPLER_ENABLED="__MP_MEMORY_SAMPLER__"
+PERF_MEMORY_SAMPLE_SECONDS="__MP_MEMORY_SAMPLE_SECONDS__"
+PERF_MEMORY_EXPORTED=0
+PERF_MEMORY_PID=""
+PERF_MEMORY_FILE="/root/proc-tree-sampler.status"
 for perf_trace_arg in $EXTRA_FLAGS; do
     case "$perf_trace_arg" in
         --trace-startup-file=*) PERF_TRACE_FILE=${perf_trace_arg#*=} ;;
@@ -171,6 +176,67 @@ perf_trace_export_once() {
     fi
     log "MP_PERF_TRACE_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64 chunks=$trace_chunks"
     PERF_TRACE_EXPORTED=1
+}
+
+perf_memory_export_once() {
+    [ "$PERF_MEMORY_SAMPLER_ENABLED" = "1" ] || return 0
+    [ "$PERF_MEMORY_EXPORTED" = "0" ] || return 0
+    [ -s "$PERF_MEMORY_FILE" ] || return 0
+
+    memory_raw_file="/tmp/mp-proc-tree-export-$$.tar"
+    memory_gzip_file="/tmp/mp-proc-tree-export-$$.tar.gz"
+    memory_b64_file="/tmp/mp-proc-tree-export-$$.b64"
+    memory_flat_file="/tmp/mp-proc-tree-export-$$.flat"
+    memory_fold_file="/tmp/mp-proc-tree-export-$$.fold"
+    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+    if ! tar -cf "$memory_raw_file" -C /root lifecycle-events.jsonl memory-samples.csv memory-sampling-errors.log proc-tree-sampler.status 2>/dev/null; then
+        log "MP_PERF_MEMORY_EXPORT_TAR_FAIL run_id=$PERF_TRACE_RUN_ID"
+        rm -f "$memory_raw_file"
+        return 1
+    fi
+    memory_bytes=$(wc -c < "$memory_raw_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    memory_sha=$(sha256sum "$memory_raw_file" 2>/dev/null | awk '{print $1}')
+    sleep 1
+    memory_bytes_after=$(wc -c < "$memory_raw_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    memory_sha_after=$(sha256sum "$memory_raw_file" 2>/dev/null | awk '{print $1}')
+    if [ "$memory_bytes" != "$memory_bytes_after" ] || [ "$memory_sha" != "$memory_sha_after" ]; then
+        log "MP_PERF_MEMORY_EXPORT_WAIT_FILE_STABLE run_id=$PERF_TRACE_RUN_ID before_bytes=$memory_bytes after_bytes=$memory_bytes_after"
+        rm -f "$memory_raw_file"
+        return 0
+    fi
+    if ! gzip -c "$memory_raw_file" > "$memory_gzip_file" 2>/dev/null || ! gzip -t "$memory_gzip_file" 2>/dev/null; then
+        log "MP_PERF_MEMORY_EXPORT_GZIP_FAIL run_id=$PERF_TRACE_RUN_ID"
+        rm -f "$memory_raw_file" "$memory_gzip_file"
+        return 1
+    fi
+    memory_gzip_bytes=$(wc -c < "$memory_gzip_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    memory_gzip_sha=$(sha256sum "$memory_gzip_file" 2>/dev/null | awk '{print $1}')
+    base64 < "$memory_gzip_file" > "$memory_b64_file" 2>/dev/null || return 1
+    tr -d '\n' < "$memory_b64_file" > "$memory_flat_file" 2>/dev/null || return 1
+    fold -w 256 < "$memory_flat_file" > "$memory_fold_file" 2>/dev/null || return 1
+    memory_chunks=$(awk 'END { print NR + 0 }' "$memory_fold_file" 2>/dev/null || echo 0)
+    [ "$memory_chunks" -gt 0 ] || {
+        log "MP_PERF_MEMORY_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
+        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+        return 1
+    }
+
+    log "MP_PERF_MEMORY_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$memory_bytes chunks=$memory_chunks sha256=$memory_sha gzip_bytes=$memory_gzip_bytes gzip_sha256=$memory_gzip_sha"
+    memory_seq=0
+    while IFS= read -r memory_chunk || [ -n "$memory_chunk" ]; do
+        memory_chunk_length=${#memory_chunk}
+        printf '[mpdiag] MP_PERF_MEMORY_DATA run_id=%s seq=%s len=%s %s\n' \
+            "$PERF_TRACE_RUN_ID" "$memory_seq" "$memory_chunk_length" "$memory_chunk" > /dev/console 2>/dev/null || true
+        memory_seq=$((memory_seq + 1))
+    done < "$memory_fold_file"
+    if [ "$memory_seq" -ne "$memory_chunks" ]; then
+        log "MP_PERF_MEMORY_EXPORT_COUNT_MISMATCH run_id=$PERF_TRACE_RUN_ID expected=$memory_chunks emitted=$memory_seq"
+        rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+        return 1
+    fi
+    log "MP_PERF_MEMORY_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64 chunks=$memory_chunks"
+    rm -f "$memory_raw_file" "$memory_gzip_file" "$memory_b64_file" "$memory_flat_file" "$memory_fold_file"
+    PERF_MEMORY_EXPORTED=1
 }
 
 epoch_ms() {
@@ -893,6 +959,21 @@ log "CHROME_ARGS=$CHROME_ARGS"
 mark BROWSER_START_EPOCH_MS "$(epoch_ms)"
 BROWSER_START_MONO_MS_VALUE="$(mono_ms)"
 mark BROWSER_START_MONO_MS "$BROWSER_START_MONO_MS_VALUE"
+BROWSER_START_MONO_NS_VALUE="$((BROWSER_START_MONO_MS_VALUE * 1000000))"
+if [ "$PERF_MEMORY_SAMPLER_ENABLED" = "1" ]; then
+    if [ ! -x /proc_tree_sampler ]; then
+        log "MP_PERF_MEMORY_SAMPLER_MISSING=1"
+        exit 82
+    fi
+    case "$PERF_MEMORY_SAMPLE_SECONDS" in
+        ''|*[!0-9]*|0) log "MP_PERF_MEMORY_SAMPLE_SECONDS_INVALID=$PERF_MEMORY_SAMPLE_SECONDS"; exit 82 ;;
+    esac
+    BROWSER_START_MONO_NS_VALUE=$(/proc_tree_sampler --clock-now 2>/dev/null)
+    case "$BROWSER_START_MONO_NS_VALUE" in
+        ''|*[!0-9]*) log "MP_PERF_MEMORY_CLOCK_NOW_INVALID=$BROWSER_START_MONO_NS_VALUE"; exit 82 ;;
+    esac
+fi
+mark BROWSER_START_MONO_NS "$BROWSER_START_MONO_NS_VALUE"
 
 # 窄过滤生命周期 trace：保留 clone/clone3/execve/execveat/exit_group/wait4/
 # prctl/set_tid_address，并包含 inotify_add_watch 以便区分路径 ENOENT 与
@@ -936,6 +1017,19 @@ log "browser_pid=$BROWSER_PID launcher_pid=$LAUNCHER_PID"
 browser_ppid=$(proc_ppid "$BROWSER_PID")
 emit_process_event browser browser-start "$BROWSER_PID" "$browser_ppid"
 echo "browser:$BROWSER_PID" >> "$PROCESS_EVENTS_SEEN"
+if [ "$PERF_MEMORY_SAMPLER_ENABLED" = "1" ]; then
+    /proc_tree_sampler \
+        --run-id "$PERF_TRACE_RUN_ID" \
+        --root-pid "$BROWSER_PID" \
+        --launch-ns "$BROWSER_START_MONO_NS_VALUE" \
+        --duration-seconds "$PERF_MEMORY_SAMPLE_SECONDS" \
+        --interval-ms 1000 \
+        --out-dir /root \
+        --clock-sync \
+        > /root/proc-tree-sampler.log 2>&1 &
+    PERF_MEMORY_PID=$!
+    log "MP_PERF_MEMORY_SAMPLER_STARTED pid=$PERF_MEMORY_PID run_id=$PERF_TRACE_RUN_ID duration=$PERF_MEMORY_SAMPLE_SECONDS"
+fi
 watchdog &
 WD_PID=$!
 log "WATCHDOG_PID=$WD_PID（独立心跳：它停 = 整机冻死）"
@@ -1101,6 +1195,9 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
     if [ -n "$PERF_TRACE_FILE" ] && [ $((elapsed % 5)) -eq 0 ]; then
         perf_trace_export_once
     fi
+    if [ "$PERF_MEMORY_SAMPLER_ENABLED" = "1" ] && [ $((elapsed % 5)) -eq 0 ]; then
+        perf_memory_export_once
+    fi
     phase loop_body_done "$tick"
     elapsed=$((elapsed + 1))
     sleep 1
@@ -1136,6 +1233,7 @@ fi
 wait "$LAUNCHER_PID" 2>/dev/null
 chrome_rc=$?
 perf_trace_export_once
+perf_memory_export_once
 mark BROWSER_EXIT_EPOCH_MS "$(epoch_ms)"
 mark LAUNCHER_EXIT_RC "$chrome_rc"
 [ "$LAUNCHER_PID" = "$BROWSER_PID" ] && mark LAUNCHER_KIND direct || mark LAUNCHER_KIND strace

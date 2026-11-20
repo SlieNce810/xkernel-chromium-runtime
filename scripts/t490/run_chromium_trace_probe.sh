@@ -11,6 +11,9 @@ fi
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TAG="${1:-chromium-trace-probe}"
+TRACE_PROBE_HOLD_SECONDS="${TRACE_PROBE_HOLD_SECONDS:-800}"
+TRACE_PROBE_GUEST_MAX_SECONDS="${TRACE_PROBE_GUEST_MAX_SECONDS:-1700}"
+TRACE_PROBE_MEMORY_SAMPLE_SECONDS="${TRACE_PROBE_MEMORY_SAMPLE_SECONDS:-900}"
 
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
@@ -28,6 +31,10 @@ fi
 TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json"
 if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -q 'ALLOW_CHROMIUM_PERF_TRACE_ONLY' "$HERE/t490_round.sh" \
+        || ! grep -q '^PERF_MEMORY_SAMPLER_ENABLED="__MP_MEMORY_SAMPLER__"$' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -q '^PERF_MEMORY_SAMPLE_SECONDS="__MP_MEMORY_SAMPLE_SECONDS__"$' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -Fq 's|__MP_MEMORY_SAMPLER__|$MP_MEMORY_SAMPLER_VALUE|g' "$HERE/t490_round.sh" \
+        || ! grep -Fq 's|__MP_MEMORY_SAMPLE_SECONDS__|$MP_MEMORY_SAMPLE_SECONDS_VALUE|g' "$HERE/t490_round.sh" \
         || ! grep -Fq 'fold -w 256' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -Fq 'gzip -t "$trace_gzip_file"' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -Fq 'gzip_sha256=$trace_gzip_sha' "$HERE/autorun_mp_score_observe6.sh" \
@@ -56,9 +63,14 @@ if [ "$trace_test_expected" != "3" ] || [ "$trace_test_observed" != "$trace_test
 fi
 INJECTED_TEMPLATE="$(mktemp)"
 trap 'rm -f "$INJECTED_TEMPLATE"' EXIT
-sed "s|__EXTRA_FLAGS__|$TRACE_FLAGS|g" "$HERE/autorun_mp_score_observe6.sh" > "$INJECTED_TEMPLATE"
+sed -e "s|__EXTRA_FLAGS__|$TRACE_FLAGS|g" \
+    -e 's|__MP_MEMORY_SAMPLER__|1|g' \
+    -e "s|__MP_MEMORY_SAMPLE_SECONDS__|$TRACE_PROBE_MEMORY_SAMPLE_SECONDS|g" \
+    "$HERE/autorun_mp_score_observe6.sh" > "$INJECTED_TEMPLATE"
 if ! grep -F "EXTRA_FLAGS=\"$TRACE_FLAGS\"" "$INJECTED_TEMPLATE" >/dev/null \
-        || ! grep -F 'CHROME_ARGS=' "$INJECTED_TEMPLATE" | grep -F '$EXTRA_FLAGS' >/dev/null; then
+        || ! grep -F 'CHROME_ARGS=' "$INJECTED_TEMPLATE" | grep -F '$EXTRA_FLAGS' >/dev/null \
+        || ! grep -F 'PERF_MEMORY_SAMPLER_ENABLED="1"' "$INJECTED_TEMPLATE" >/dev/null \
+        || ! grep -F "PERF_MEMORY_SAMPLE_SECONDS=\"$TRACE_PROBE_MEMORY_SAMPLE_SECONDS\"" "$INJECTED_TEMPLATE" >/dev/null; then
     echo "PERF_TRACE_PROBE_ABORT: Chrome trace flags did not survive template substitution" >&2
     exit 4
 fi
@@ -67,6 +79,7 @@ echo "PERF_TRACE_TRACE_ONLY_GUARD=PASS"
 echo "PERF_TRACE_COMPRESSED_SELFTEST=PASS"
 echo "PERF_TRACE_CHUNK_LENGTH=PASS"
 echo "PERF_TRACE_CHUNK_EOF_HANDLING=PASS"
+echo "PERF_TRACE_MEMORY_SAMPLER_INJECTION=PASS"
 RUN_ARGS=()
 if [ "$DRY_RUN" = "1" ]; then
     if [ "$(uname -s)" = "Linux" ]; then
@@ -80,18 +93,21 @@ if [ "$DRY_RUN" = "1" ]; then
     RUN_ARGS+=(--dry-run)
 fi
 
-echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1400 ready_timeout=700 reloads=1 interval=30 hold=650 screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_format=json trace_categories=startup,ipc,loading,blink,cc,viz,navigation serial_chunk_chars=256 trace_file=/root/mp-perf-trace.json"
+echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=$TRACE_PROBE_GUEST_MAX_SECONDS ready_timeout=700 reloads=1 interval=30 hold=$TRACE_PROBE_HOLD_SECONDS screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_format=json trace_categories=startup,ipc,loading,blink,cc,viz,navigation serial_chunk_chars=256 trace_file=/root/mp-perf-trace.json memory_sampler=1 memory_seconds=$TRACE_PROBE_MEMORY_SAMPLE_SECONDS guest_clock_sync=1"
 EXTRA_FLAGS_VALUE="$TRACE_FLAGS" \
 ALLOW_CHROMIUM_PERF_TRACE_ONLY=1 \
 STABILITY_DIAGNOSTIC_ONLY=1 \
 STABILITY_TRACE_MODE=0 \
+STABILITY_MEMORY_SAMPLER=1 \
+STABILITY_MEMORY_SAMPLE_SECONDS="$TRACE_PROBE_MEMORY_SAMPLE_SECONDS" \
+STABILITY_CAPTURE_GUEST_CLOCK_SYNC=1 \
 STABILITY_RELOAD_COUNT=1 \
 STABILITY_RELOAD_INTERVAL=30 \
-STABILITY_HOLD_SECONDS=650 \
+STABILITY_HOLD_SECONDS="$TRACE_PROBE_HOLD_SECONDS" \
 STABILITY_READY_TIMEOUT=700 \
-MP_MAX_SECONDS=1400 \
+MP_MAX_SECONDS="$TRACE_PROBE_GUEST_MAX_SECONDS" \
 KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1 \
 BASE_IMG=/home/mo/x-kernel/images/pkg-installed.img \
 XKMAKE_ARGS=--no-build \
 env -u PLAT_MEM_OVERRIDE MP_FAMILY_WATCHDOG_INTERVAL=14 MP_FAMILY_DIAGNOSTICS=1 \
-bash "$HERE/run_stability_round_mp.sh" "${RUN_ARGS[@]}" "$TAG" 1800 1200 1 30 650
+bash "$HERE/run_stability_round_mp.sh" "${RUN_ARGS[@]}" "$TAG" 1800 1200 1 30 "$TRACE_PROBE_HOLD_SECONDS"

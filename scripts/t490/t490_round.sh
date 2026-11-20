@@ -117,6 +117,8 @@ RUN_A0="${RUN_A0:-0}"                   # 1 = 开启 guest 内 A0 探针（默�
 HEADLESS_SANDBOX_TRACE_VALUE="${HEADLESS_SANDBOX_TRACE_VALUE:-1}" # 0=skip broken guest strace probe
 HEADLESS_OVERLAY_VALUE="${HEADLESS_OVERLAY_VALUE:-0}" # 1=explicitly unpack /pkgs.tar.gz for headless diagnostics
 MP_TRACE_VALUE="${MP_TRACE_VALUE:-1}"   # 1 = guest narrow lifecycle trace; 0 = normal run
+MP_MEMORY_SAMPLER_VALUE="${MP_MEMORY_SAMPLER_VALUE:-0}" # 1=inject the 1 Hz Chromium procfs sampler
+MP_MEMORY_SAMPLE_SECONDS_VALUE="${MP_MEMORY_SAMPLE_SECONDS_VALUE:-900}" # bounded startup-to-post-load sampling window
 MP_GL_VALUE="${MP_GL_VALUE:-angle}"     # angle or legacy Chromium GL selection
 MP_NET_VALUE="${MP_NET_VALUE:-normal}"   # normal or disable NetworkService feature
 MP_LEDGER_VALUE="${MP_LEDGER_VALUE:-1}"   # 1=deep procfs ledger, 0=lightweight lifecycle mode
@@ -213,6 +215,13 @@ esac
 case "$MP_TRACE_VALUE" in
     0|1) ;;
     *) echo "!! 非法 MP_TRACE_VALUE=$MP_TRACE_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_MEMORY_SAMPLER_VALUE" in
+    0|1) ;;
+    *) echo "!! 非法 MP_MEMORY_SAMPLER_VALUE=$MP_MEMORY_SAMPLER_VALUE（允许 0|1）"; exit 1 ;;
+esac
+case "$MP_MEMORY_SAMPLE_SECONDS_VALUE" in
+    ''|*[!0-9]*|0) echo "!! 非法 MP_MEMORY_SAMPLE_SECONDS_VALUE=$MP_MEMORY_SAMPLE_SECONDS_VALUE（须为正整数秒）"; exit 1 ;;
 esac
 # ------------------------------------------------- Chromium trace 参数一致性
 # 历史干净 baseline 曾从 EXTRA_FLAGS_VALUE 意外带入 startup trace。这里只检查
@@ -517,6 +526,8 @@ tr -d "\r" < "$SRC_DIR/$AUTORUN" \
         -e "s|__HEADLESS_SANDBOX_TRACE__|$HEADLESS_SANDBOX_TRACE_VALUE|g" \
         -e "s|__HEADLESS_OVERLAY__|$HEADLESS_OVERLAY_VALUE|g" \
         -e "s|__MP_TRACE__|$MP_TRACE_VALUE|g" \
+        -e "s|__MP_MEMORY_SAMPLER__|$MP_MEMORY_SAMPLER_VALUE|g" \
+        -e "s|__MP_MEMORY_SAMPLE_SECONDS__|$MP_MEMORY_SAMPLE_SECONDS_VALUE|g" \
         -e "s|__MP_GL__|$MP_GL_VALUE|g" \
         -e "s|__MP_NET__|$MP_NET_VALUE|g" \
         -e "s|__MP_LEDGER__|$MP_LEDGER_VALUE|g" \

@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from stability_driver import parse_family_snapshot, wait_until_not_before
+from stability_driver import parse_family_snapshot, parse_guest_clock_sync, wait_until_not_before
 
 
 class StabilityDriverFamilyParsingTests(unittest.TestCase):
@@ -75,6 +75,20 @@ class StabilityReloadSettleTests(unittest.TestCase):
         wait_until_not_before(1.0, lambda: calls.append("heartbeat"), 1.0,
                               lambda: 1.0, lambda _: calls.append("sleep"))
         self.assertEqual(calls, [])
+
+
+class StabilityGuestClockSyncTests(unittest.TestCase):
+    def test_clock_sync_marker_matches_run_and_reads_monotonic_ns(self) -> None:
+        line = "\x1b[mMP_METRICS_CLOCK_SYNC run_id=run-12 guest_t_ns=1234567890123"
+        self.assertEqual(1234567890123, parse_guest_clock_sync(line, "run-12"))
+
+    def test_clock_sync_marker_from_another_run_is_ignored(self) -> None:
+        line = "MP_METRICS_CLOCK_SYNC run_id=run-other guest_t_ns=123456"
+        self.assertIsNone(parse_guest_clock_sync(line, "run-12"))
+
+    def test_malformed_clock_sync_marker_is_ignored(self) -> None:
+        line = "MP_METRICS_CLOCK_SYNC run_id=run-12 guest_t_ns=not-a-number"
+        self.assertIsNone(parse_guest_clock_sync(line, "run-12"))
 
 
 if __name__ == "__main__":
