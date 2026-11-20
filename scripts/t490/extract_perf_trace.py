@@ -35,7 +35,7 @@ class TraceExportError(ValueError):
     """The serial log does not contain a complete, verifiable trace export."""
 
 
-def extract_trace(console_log: Path, output: Path, expected_run_id: str | None = None) -> dict[str, Any]:
+def decode_payload(console_log: Path, expected_run_id: str | None = None) -> tuple[str, bytes, str, int]:
     text = console_log.read_text(encoding="utf-8", errors="replace")
     header: tuple[str, int, str] | None = None
     chunks: list[str] = []
@@ -118,6 +118,11 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
     actual_sha = hashlib.sha256(payload).hexdigest()
     if actual_sha != expected_sha:
         raise TraceExportError(f"trace SHA-256 mismatch: expected {expected_sha}, got {actual_sha}")
+    return run_id, payload, actual_sha, len(chunks)
+
+
+def extract_trace(console_log: Path, output: Path, expected_run_id: str | None = None) -> dict[str, Any]:
+    run_id, payload, actual_sha, chunk_count = decode_payload(console_log, expected_run_id)
     try:
         document = json.loads(payload)
     except UnicodeDecodeError as exc:
@@ -135,9 +140,28 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
         stream.write(payload)
     return {
         "run_id": run_id,
+        "format": "json",
         "bytes": len(payload),
         "sha256": actual_sha,
+        "chunks": chunk_count,
         "events": len(document["traceEvents"]),
+        "output": str(output),
+    }
+
+
+def extract_raw_payload(
+    console_log: Path, output: Path, expected_run_id: str | None = None
+) -> dict[str, Any]:
+    run_id, payload, actual_sha, chunk_count = decode_payload(console_log, expected_run_id)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("xb") as stream:
+        stream.write(payload)
+    return {
+        "run_id": run_id,
+        "format": "raw",
+        "bytes": len(payload),
+        "sha256": actual_sha,
+        "chunks": chunk_count,
         "output": str(output),
     }
 
@@ -145,11 +169,18 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("console_log", type=Path, help="QEMU timestamped console.log")
-    parser.add_argument("--out", type=Path, required=True, help="new output JSON path; never overwrites")
+    parser.add_argument("--out", type=Path, required=True, help="new output path; never overwrites")
     parser.add_argument("--run-id", help="reject trace data from any other diagnostic run")
+    parser.add_argument(
+        "--format", choices=("json", "raw"), default="json",
+        help="validate JSON traceEvents (json) or preserve a verified non-JSON payload (raw)",
+    )
     args = parser.parse_args()
     try:
-        summary = extract_trace(args.console_log, args.out, args.run_id)
+        if args.format == "raw":
+            summary = extract_raw_payload(args.console_log, args.out, args.run_id)
+        else:
+            summary = extract_trace(args.console_log, args.out, args.run_id)
     except (OSError, TraceExportError) as exc:
         print(f"PERF_TRACE_EXTRACT_FAIL: {exc}", file=sys.stderr)
         return 1

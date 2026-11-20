@@ -64,6 +64,18 @@ class ExtractPerfTraceTests(unittest.TestCase):
             self.assertEqual(TRACE, out.read_bytes())
             self.assertEqual(1, summary["events"])
 
+    def test_extracts_integrity_checked_non_json_payload(self) -> None:
+        proto_prefix = bytes.fromhex("0a50324a10030a09080610e088e1c6cd030a0c08021080ab88b3fae6e6f4180a")
+        chunks = [base64.b64encode(gzip.compress(proto_prefix)).decode()]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            log = root / "console.log"
+            out = root / "trace.pb"
+            log.write_text(console_text(raw=proto_prefix, chunks=chunks), encoding="utf-8")
+            summary = extract_perf_trace.extract_raw_payload(log, out, RUN_ID)
+            self.assertEqual(proto_prefix, out.read_bytes())
+            self.assertEqual("raw", summary["format"])
+
     def test_rejects_missing_end_marker(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             log = Path(temp) / "console.log"
