@@ -120,6 +120,11 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
         raise TraceExportError(f"trace SHA-256 mismatch: expected {expected_sha}, got {actual_sha}")
     try:
         document = json.loads(payload)
+    except UnicodeDecodeError as exc:
+        prefix_hex = payload[:32].hex()
+        raise TraceExportError(
+            f"trace payload is not UTF-8 JSON: invalid byte at offset {exc.start}; prefix_hex={prefix_hex}"
+        ) from exc
     except json.JSONDecodeError as exc:
         raise TraceExportError(f"trace payload is not valid JSON: {exc}") from exc
     if not isinstance(document, dict) or not isinstance(document.get("traceEvents"), list):

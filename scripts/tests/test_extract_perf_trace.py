@@ -101,6 +101,15 @@ class ExtractPerfTraceTests(unittest.TestCase):
             with self.assertRaisesRegex(extract_perf_trace.TraceExportError, "gzip decode failed"):
                 extract_perf_trace.extract_trace(log, Path(temp) / "trace.json", RUN_ID)
 
+    def test_reports_non_utf8_trace_after_integrity_checks(self) -> None:
+        raw = b'{"traceEvents":[\xe0]}'
+        chunks = [base64.b64encode(gzip.compress(raw)).decode()]
+        with tempfile.TemporaryDirectory() as temp:
+            log = Path(temp) / "console.log"
+            log.write_text(console_text(raw=raw, chunks=chunks), encoding="utf-8")
+            with self.assertRaisesRegex(extract_perf_trace.TraceExportError, "not UTF-8 JSON.*prefix_hex="):
+                extract_perf_trace.extract_trace(log, Path(temp) / "trace.json", RUN_ID)
+
     def test_rejects_missing_chunk_sequence(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             log = Path(temp) / "console.log"
