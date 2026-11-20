@@ -214,6 +214,30 @@ case "$MP_TRACE_VALUE" in
     0|1) ;;
     *) echo "!! 非法 MP_TRACE_VALUE=$MP_TRACE_VALUE（允许 0|1）"; exit 1 ;;
 esac
+# ------------------------------------------------- Chromium trace 参数一致性
+# 历史干净 baseline 曾从 EXTRA_FLAGS_VALUE 意外带入 startup trace。这里只检查
+# 实际附加参数，不扫描注入后的 shell 源码（exporter 自身也会解析这些参数名）。
+# syscall/strace 保持关闭时，仅允许专用 trace probe 的固定参数组合。
+TRACE_REQUESTED=0
+case "$EXTRA_FLAGS_VALUE" in
+    *--trace-startup=*|*--trace-startup-duration=*|*--trace-startup-format=*|*--trace-startup-file=*)
+        TRACE_REQUESTED=1
+        ;;
+esac
+if [ "$MP_TRACE_VALUE" = "0" ] && [ "$TRACE_REQUESTED" = "1" ]; then
+    EXPECTED_PERF_TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500"
+    if [ "${ALLOW_CHROMIUM_PERF_TRACE_ONLY:-0}" != "1" ] \
+            || [ "$EXTRA_FLAGS_VALUE" != "$EXPECTED_PERF_TRACE_FLAGS" ]; then
+        echo "!! MP_TRACE_VALUE=0 时只允许显式、固定的 Chromium startup trace 探针参数"
+        echo "EXTRA_FLAGS_VALUE=$EXTRA_FLAGS_VALUE"
+        exit 1
+    fi
+    echo "CHROMIUM_PERF_TRACE_ONLY=PASS"
+fi
+if [ "${T490_ROUND_TRACE_GUARD_ONLY:-0}" = "1" ]; then
+    echo "T490_ROUND_TRACE_GUARD_ONLY=PASS"
+    exit 0
+fi
 case "$MP_GL_VALUE" in
     # none = --disable-gpu 定位轮。autorun 里本来就有这个分支（并明确标注
     # "不得写入功能验收结论"），但白名单一直没放行，导致 GL_MODE=none 永远跑不起来。
@@ -531,25 +555,6 @@ if grep -nE '__[A-Za-z0-9_]+__' /tmp/autorun_inj.sh; then
     exit 1
 fi
 chmod +x /tmp/autorun_inj.sh
-
-# ------------------------------------------------- 3a. trace 参数一致性硬断言
-# 为什么必须硬失败而不是记一行日志：
-#   历史 12 轮里出现 MP_TRACE_VALUE=0 却仍带 --trace-startup 的组合。原因是
-#   "--trace-startup" 走 __EXTRA_FLAGS__ 注入，而 TRACE_MODE 当时只控制 strace，
-#   两个语义共用一个变量名。后果是"干净 baseline"其实一直在 tracing 下跑，
-#   而 --trace-startup-duration=45 只覆盖 0-45s，白屏发生在 286-406s，等于零覆盖。
-#   这类轮次看起来 PASS/FAIL 都有，实际不可用于任何结论，所以在启动 QEMU 前杀掉。
-# 只看非注释行：模板注释里本来就会提到这些参数名，不能算泄漏。
-if [ "$MP_TRACE_VALUE" = "0" ]; then
-    TRACE_LEAK=$(grep -vE '^[[:space:]]*#' /tmp/autorun_inj.sh \
-        | grep -nE -- '--trace-startup(=|-duration=|-format=|-file=)' | head -3)
-    if [ -n "$TRACE_LEAK" ]; then
-        echo "!! TRACE_MODE=0 但注入后的脚本含 --trace-startup，拒绝启动 QEMU"
-        echo "$TRACE_LEAK"
-        echo "!! 干净 baseline 必须用源模板（不带 trace flags），不能用 prepare_frame_trace 生成的变体"
-        exit 1
-    fi
-fi
 
 echo "--- autorun 行数 ---"
 wc -l /tmp/autorun_inj.sh

@@ -26,8 +26,9 @@ fi
 
 TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500"
 if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -q 'ALLOW_CHROMIUM_PERF_TRACE_ONLY' "$HERE/t490_round.sh" \
         || ! grep -q 'CHROME_ARGS=.*\$EXTRA_FLAGS' "$HERE/autorun_mp_score_observe6.sh"; then
-    echo "PERF_TRACE_PROBE_ABORT: autorun template does not inject EXTRA_FLAGS" >&2
+    echo "PERF_TRACE_PROBE_ABORT: trace-only template guard or EXTRA_FLAGS injection is missing" >&2
     exit 3
 fi
 INJECTED_TEMPLATE="$(mktemp)"
@@ -39,13 +40,23 @@ if ! grep -F "EXTRA_FLAGS=\"$TRACE_FLAGS\"" "$INJECTED_TEMPLATE" >/dev/null \
     exit 4
 fi
 echo "PERF_TRACE_TEMPLATE_INJECTION=PASS"
+echo "PERF_TRACE_TRACE_ONLY_GUARD=PASS"
 RUN_ARGS=()
 if [ "$DRY_RUN" = "1" ]; then
+    if [ "$(uname -s)" = "Linux" ]; then
+        MP_TRACE_VALUE=0 \
+        EXTRA_FLAGS_VALUE="$TRACE_FLAGS" \
+        ALLOW_CHROMIUM_PERF_TRACE_ONLY=1 \
+        T490_ROUND_TRACE_GUARD_ONLY=1 \
+        KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1 \
+            bash "$HERE/t490_round.sh" "$TAG" 1800 1200 autorun_mp_score_observe6.sh
+    fi
     RUN_ARGS+=(--dry-run)
 fi
 
 echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1200 ready_timeout=700 reloads=1 interval=30 hold=550 screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_file=/root/mp-perf-trace.json"
 EXTRA_FLAGS_VALUE="$TRACE_FLAGS" \
+ALLOW_CHROMIUM_PERF_TRACE_ONLY=1 \
 STABILITY_DIAGNOSTIC_ONLY=1 \
 STABILITY_TRACE_MODE=0 \
 STABILITY_RELOAD_COUNT=1 \
