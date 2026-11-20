@@ -264,9 +264,9 @@ bash scripts/t490/run_chromium_trace_probe.sh --dry-run trace-startup-precheck
 bash scripts/t490/run_chromium_trace_probe.sh 2026-11-20-candidate-perf-trace-r1
 ```
 
-它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`。结束前 `autorun_mp_score_observe6.sh` 会将压缩 trace 以 base64 分块写入串口；`round_assert.sh` / `pull_guest_logs.sh` 也会从当前 `KERNEL_DIR/disk.img` 尝试回收持久文件。若 `guest/_root_mp-perf-trace.json` 为空，可用 `python3 scripts/t490/extract_perf_trace.py console.log --run-id <tag> --out trace.json` 从串口日志校验原始字节数、SHA和JSON结构后重建JSON。试采打开trace和诊断日志会增加运行开销，结果不能进入before/after统计。
+它启动一次2 GiB、Wayland、默认 Browser→Zygote→Renderer 会话，保存500秒 Chromium startup trace 到 guest `/root/mp-perf-trace.json`。结束前 `autorun_mp_score_observe6.sh` 会将 gzip+base64 trace 分块写入串口；每块带连续序号，BEGIN/END携带长度、块数和SHA。为避免主机周期截图状态文字打断串口块，trace探针采用1200秒周期截图间隔（首次截图仍为240秒），并关闭额外的内核 syscall trace；Chromium `--trace-startup` 本身保持启用。`round_assert.sh` / `pull_guest_logs.sh` 仍从当前 `KERNEL_DIR/disk.img` 尝试回收持久文件。若 `guest/_root_mp-perf-trace.json` 为空，可用 `python3 scripts/t490/extract_perf_trace.py console.log --run-id <tag> --out trace.json` 校验块序、总数、gzip、原始长度、SHA和JSON结构后重建JSON。试采结果是diagnostic-only，不能进入before/after统计。
 
-首次 R1 试采发现 `autorun_mp_score_observe6.sh` 没有把 `EXTRA_FLAGS_VALUE` 拼进 `CHROME_ARGS`，所以虽请求了 `--trace-startup`，实际 argv 无此参数；模板现已补 `EXTRA_FLAGS` 占位符，probe 会在dry-run之前验证参数注入。R2 已在实际 Chrome argv中确认 `--trace-startup`，Chromium也日志报告trace写完，但文件未被guest回收；旧回收器读取了与QEMU不同的基础镜像，且 worktree disk也未找到该trace文件。`KERNEL_DIR` 回收路径和串口 exporter 已补齐，R3需再核验 trace marker 与extractor输出。R1/R2均不作为性能样本。
+首次 R1 试采发现 `autorun_mp_score_observe6.sh` 没有把 `EXTRA_FLAGS_VALUE` 拼进 `CHROME_ARGS`，所以虽请求了 `--trace-startup`，实际 argv 无此参数；模板现已补 `EXTRA_FLAGS` 占位符，probe 会在dry-run之前验证参数注入。R2 已确认参数生效但guest文件未回收。R3证明串口导出可传输完整trace主体，但周期截图状态文字打断一块数据，抽取器因此拒绝该trace；R4已加入块序号、块总数和明确的gzip失败处理，并把周期截图移出传输窗口。R1/R2/R3均不作为性能样本。
 
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。
 

@@ -10,21 +10,25 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import gzip
 import hashlib
 import json
 import re
 import sys
+import zlib
 from pathlib import Path
 from typing import Any
 
 
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 BEGIN = re.compile(
-    r"MP_PERF_TRACE_EXPORT_BEGIN\s+run_id=(\S+)\s+bytes=(\d+)\s+sha256=([0-9a-f]{64})"
+    r"MP_PERF_TRACE_EXPORT_BEGIN\s+run_id=(\S+)\s+bytes=(\d+)\s+(?:chunks=(\d+)\s+)?sha256=([0-9a-f]{64})"
 )
-DATA = re.compile(r"MP_PERF_TRACE_DATA\s+run_id=(\S+)\s+([A-Za-z0-9+/=]+)")
-END = re.compile(r"MP_PERF_TRACE_EXPORT_END\s+run_id=(\S+)\s+encoding=gzip\+base64")
+DATA = re.compile(r"MP_PERF_TRACE_DATA\s+run_id=(\S+)\s+(?:seq=(\d+)\s+)?([A-Za-z0-9+/=]+)")
+END = re.compile(
+    r"MP_PERF_TRACE_EXPORT_END\s+run_id=(\S+)\s+encoding=gzip\+base64(?:\s+chunks=(\d+))?"
+)
 
 
 class TraceExportError(ValueError):
@@ -36,6 +40,9 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
     header: tuple[str, int, str] | None = None
     chunks: list[str] = []
     ended = False
+    header_chunk_count: int | None = None
+    end_chunk_count: int | None = None
+    sequenced: bool | None = None
 
     for raw_line in text.splitlines():
         line = ANSI_ESCAPE.sub("", raw_line)
@@ -43,7 +50,8 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
         if match:
             if header is not None:
                 raise TraceExportError("multiple trace export begin markers")
-            header = (match.group(1), int(match.group(2)), match.group(3).lower())
+            header_chunk_count = int(match.group(3)) if match.group(3) is not None else None
+            header = (match.group(1), int(match.group(2)), match.group(4).lower())
             continue
 
         match = DATA.search(line)
@@ -52,7 +60,20 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
                 raise TraceExportError("trace data appeared outside the export block")
             if match.group(1) != header[0]:
                 raise TraceExportError("trace data run_id does not match begin marker")
-            chunks.append(match.group(2))
+            sequence = match.group(2)
+            if sequence is not None:
+                if sequenced is False:
+                    raise TraceExportError("trace data mixes sequenced and unsequenced chunks")
+                sequenced = True
+                if int(sequence) != len(chunks):
+                    raise TraceExportError(
+                        f"trace data sequence mismatch: expected {len(chunks)}, got {sequence}"
+                    )
+            elif sequenced is True:
+                raise TraceExportError("trace data mixes sequenced and unsequenced chunks")
+            else:
+                sequenced = False
+            chunks.append(match.group(3))
             continue
 
         match = END.search(line)
@@ -61,6 +82,7 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
                 raise TraceExportError("trace export end marker has no unique begin")
             if match.group(1) != header[0]:
                 raise TraceExportError("trace end run_id does not match begin marker")
+            end_chunk_count = int(match.group(2)) if match.group(2) is not None else None
             ended = True
 
     if header is None:
@@ -72,12 +94,25 @@ def extract_trace(console_log: Path, output: Path, expected_run_id: str | None =
         raise TraceExportError(f"trace run_id {run_id!r} does not match {expected_run_id!r}")
     if not chunks:
         raise TraceExportError("trace export contains no base64 data chunks")
+    if header_chunk_count is not None and header_chunk_count != len(chunks):
+        raise TraceExportError(
+            f"trace chunk count mismatch: begin declares {header_chunk_count}, got {len(chunks)}"
+        )
+    if end_chunk_count is not None and end_chunk_count != len(chunks):
+        raise TraceExportError(
+            f"trace chunk count mismatch: end declares {end_chunk_count}, got {len(chunks)}"
+        )
+    if sequenced is True and end_chunk_count is None:
+        raise TraceExportError("sequenced trace export is missing its end chunk count")
 
     try:
         compressed = base64.b64decode("".join(chunks), validate=True)
+    except (ValueError, binascii.Error) as exc:
+        raise TraceExportError(f"trace base64 decode failed after {len(chunks)} chunks: {exc}") from exc
+    try:
         payload = gzip.decompress(compressed)
-    except (ValueError, OSError) as exc:
-        raise TraceExportError(f"trace payload decode failed: {exc}") from exc
+    except (OSError, EOFError, zlib.error) as exc:
+        raise TraceExportError(f"trace gzip decode failed after {len(chunks)} chunks: {exc}") from exc
     if len(payload) != expected_bytes:
         raise TraceExportError(f"trace byte count mismatch: expected {expected_bytes}, got {len(payload)}")
     actual_sha = hashlib.sha256(payload).hexdigest()

@@ -93,18 +93,39 @@ perf_trace_export_once() {
 
     trace_bytes=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null || echo 0)
     trace_sha=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
-    log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes sha256=$trace_sha"
-    if command -v gzip >/dev/null 2>&1 && command -v base64 >/dev/null 2>&1; then
-        gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null \
-            | while IFS= read -r trace_chunk; do
-                printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s %s\n' \
-                    "$PERF_TRACE_RUN_ID" "$trace_chunk" > /dev/console 2>/dev/null || true
-            done
-        log "MP_PERF_TRACE_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64"
-        PERF_TRACE_EXPORTED=1
-    else
+    if ! command -v gzip >/dev/null 2>&1 || ! command -v base64 >/dev/null 2>&1; then
         log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing)"
+        return 1
     fi
+
+    trace_b64_file="/tmp/mp-perf-trace-export-$$.b64"
+    rm -f "$trace_b64_file"
+    if ! gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null > "$trace_b64_file"; then
+        rm -f "$trace_b64_file"
+        log "MP_PERF_TRACE_EXPORT_ENCODE_FAIL run_id=$PERF_TRACE_RUN_ID"
+        return 1
+    fi
+    trace_chunks=$(wc -l < "$trace_b64_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    [ "$trace_chunks" -gt 0 ] || {
+        rm -f "$trace_b64_file"
+        log "MP_PERF_TRACE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
+        return 1
+    }
+
+    log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes chunks=$trace_chunks sha256=$trace_sha"
+    trace_seq=0
+    while IFS= read -r trace_chunk; do
+        printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s seq=%s %s\n' \
+            "$PERF_TRACE_RUN_ID" "$trace_seq" "$trace_chunk" > /dev/console 2>/dev/null || true
+        trace_seq=$((trace_seq + 1))
+    done < "$trace_b64_file"
+    rm -f "$trace_b64_file"
+    if [ "$trace_seq" -ne "$trace_chunks" ]; then
+        log "MP_PERF_TRACE_EXPORT_COUNT_MISMATCH run_id=$PERF_TRACE_RUN_ID expected=$trace_chunks emitted=$trace_seq"
+        return 1
+    fi
+    log "MP_PERF_TRACE_EXPORT_END run_id=$PERF_TRACE_RUN_ID encoding=gzip+base64 chunks=$trace_chunks"
+    PERF_TRACE_EXPORTED=1
 }
 
 epoch_ms() {

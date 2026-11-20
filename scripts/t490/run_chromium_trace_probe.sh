@@ -17,9 +17,9 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
 Usage: run_chromium_trace_probe.sh [--dry-run] [tag]
 
 Runs one diagnostic-only 2 GiB Wayland session with Chrome startup tracing.
-The guest writes /root/mp-perf-trace.json; round_assert collects that file
-into the new evidence directory. This probe is for event-source validation,
-not formal stability or performance samples.
+The guest writes /root/mp-perf-trace.json and exports verified chunks over the
+serial console; the host screenshot cadence is kept outside the export window.
+This probe validates trace capture only, not formal stability or performance.
 EOF
     exit 0
 fi
@@ -44,10 +44,10 @@ if [ "$DRY_RUN" = "1" ]; then
     RUN_ARGS+=(--dry-run)
 fi
 
-echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1200 ready_timeout=700 reloads=1 interval=30 hold=550 trace_duration=500 trace_file=/root/mp-perf-trace.json"
+echo "PERF_TRACE_PROBE tag=$TAG duration=1800 guest_browser_max=1200 ready_timeout=700 reloads=1 interval=30 hold=550 screenshot_interval=1200 first_screenshot=240 trace_duration=500 trace_file=/root/mp-perf-trace.json"
 EXTRA_FLAGS_VALUE="$TRACE_FLAGS" \
 STABILITY_DIAGNOSTIC_ONLY=1 \
-STABILITY_TRACE_MODE=1 \
+STABILITY_TRACE_MODE=0 \
 STABILITY_RELOAD_COUNT=1 \
 STABILITY_RELOAD_INTERVAL=30 \
 STABILITY_HOLD_SECONDS=550 \
@@ -57,4 +57,4 @@ KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1 \
 BASE_IMG=/home/mo/x-kernel/images/pkg-installed.img \
 XKMAKE_ARGS=--no-build \
 env -u PLAT_MEM_OVERRIDE MP_FAMILY_WATCHDOG_INTERVAL=14 MP_FAMILY_DIAGNOSTICS=1 \
-bash "$HERE/run_stability_round_mp.sh" "${RUN_ARGS[@]}" "$TAG" 1800 30 1 30 550
+bash "$HERE/run_stability_round_mp.sh" "${RUN_ARGS[@]}" "$TAG" 1800 1200 1 30 550
