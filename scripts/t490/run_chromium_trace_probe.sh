@@ -29,6 +29,9 @@ TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace
 if ! grep -q '^EXTRA_FLAGS="__EXTRA_FLAGS__"$' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -q 'ALLOW_CHROMIUM_PERF_TRACE_ONLY' "$HERE/t490_round.sh" \
         || ! grep -Fq 'fold -w 256' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -Fq 'gzip -t "$trace_gzip_file"' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -Fq 'gzip_sha256=$trace_gzip_sha' "$HERE/autorun_mp_score_observe6.sh" \
+        || ! grep -Fq 'len=%s' "$HERE/autorun_mp_score_observe6.sh" \
         || ! grep -q 'CHROME_ARGS=.*\$EXTRA_FLAGS' "$HERE/autorun_mp_score_observe6.sh"; then
     echo "PERF_TRACE_PROBE_ABORT: trace-only template guard or EXTRA_FLAGS injection is missing" >&2
     exit 3
@@ -43,6 +46,8 @@ if ! grep -F "EXTRA_FLAGS=\"$TRACE_FLAGS\"" "$INJECTED_TEMPLATE" >/dev/null \
 fi
 echo "PERF_TRACE_TEMPLATE_INJECTION=PASS"
 echo "PERF_TRACE_TRACE_ONLY_GUARD=PASS"
+echo "PERF_TRACE_COMPRESSED_SELFTEST=PASS"
+echo "PERF_TRACE_CHUNK_LENGTH=PASS"
 RUN_ARGS=()
 if [ "$DRY_RUN" = "1" ]; then
     if [ "$(uname -s)" = "Linux" ]; then

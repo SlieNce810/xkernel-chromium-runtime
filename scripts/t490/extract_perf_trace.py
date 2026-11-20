@@ -24,8 +24,12 @@ from typing import Any
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 BEGIN = re.compile(
     r"MP_PERF_TRACE_EXPORT_BEGIN\s+run_id=(\S+)\s+bytes=(\d+)\s+(?:chunks=(\d+)\s+)?sha256=([0-9a-f]{64})"
+    r"(?:\s+gzip_bytes=(\d+)\s+gzip_sha256=([0-9a-f]{64}))?"
 )
-DATA = re.compile(r"MP_PERF_TRACE_DATA\s+run_id=(\S+)\s+(?:seq=(\d+)\s+)?([A-Za-z0-9+/=]+)")
+DATA = re.compile(
+    r"MP_PERF_TRACE_DATA\s+run_id=(\S+)\s+(?:seq=(\d+)\s+)?"
+    r"(?:len=(\d+)\s+)?([A-Za-z0-9+/=]+)"
+)
 END = re.compile(
     r"MP_PERF_TRACE_EXPORT_END\s+run_id=(\S+)\s+encoding=gzip\+base64(?:\s+chunks=(\d+))?"
 )
@@ -41,6 +45,8 @@ def decode_payload(console_log: Path, expected_run_id: str | None = None) -> tup
     chunks: list[str] = []
     ended = False
     header_chunk_count: int | None = None
+    header_gzip_bytes: int | None = None
+    header_gzip_sha: str | None = None
     end_chunk_count: int | None = None
     sequenced: bool | None = None
 
@@ -52,6 +58,8 @@ def decode_payload(console_log: Path, expected_run_id: str | None = None) -> tup
                 raise TraceExportError("multiple trace export begin markers")
             header_chunk_count = int(match.group(3)) if match.group(3) is not None else None
             header = (match.group(1), int(match.group(2)), match.group(4).lower())
+            header_gzip_bytes = int(match.group(5)) if match.group(5) is not None else None
+            header_gzip_sha = match.group(6).lower() if match.group(6) is not None else None
             continue
 
         match = DATA.search(line)
@@ -73,7 +81,13 @@ def decode_payload(console_log: Path, expected_run_id: str | None = None) -> tup
                 raise TraceExportError("trace data mixes sequenced and unsequenced chunks")
             else:
                 sequenced = False
-            chunks.append(match.group(3))
+            chunk_length = int(match.group(3)) if match.group(3) is not None else None
+            chunk = match.group(4)
+            if chunk_length is not None and chunk_length != len(chunk):
+                raise TraceExportError(
+                    f"trace data length mismatch at chunk {len(chunks)}: declared {chunk_length}, got {len(chunk)}"
+                )
+            chunks.append(chunk)
             continue
 
         match = END.search(line)
@@ -109,6 +123,16 @@ def decode_payload(console_log: Path, expected_run_id: str | None = None) -> tup
         compressed = base64.b64decode("".join(chunks), validate=True)
     except (ValueError, binascii.Error) as exc:
         raise TraceExportError(f"trace base64 decode failed after {len(chunks)} chunks: {exc}") from exc
+    if header_gzip_bytes is not None and len(compressed) != header_gzip_bytes:
+        raise TraceExportError(
+            f"trace gzip byte count mismatch: expected {header_gzip_bytes}, got {len(compressed)}"
+        )
+    if header_gzip_sha is not None:
+        compressed_sha = hashlib.sha256(compressed).hexdigest()
+        if compressed_sha != header_gzip_sha:
+            raise TraceExportError(
+                f"trace gzip SHA-256 mismatch: expected {header_gzip_sha}, got {compressed_sha}"
+            )
     try:
         payload = gzip.decompress(compressed)
     except (OSError, EOFError, zlib.error) as exc:

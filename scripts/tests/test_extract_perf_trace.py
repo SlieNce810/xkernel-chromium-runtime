@@ -8,6 +8,7 @@ import base64
 import gzip
 import hashlib
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -22,19 +23,28 @@ TRACE = json.dumps({"traceEvents": [{"name": "BrowserMain:MESSAGE_LOOP", "ts": 1
                    separators=(",", ":")).encode()
 COMPRESSED = base64.b64encode(gzip.compress(TRACE)).decode()
 CHUNKS = [COMPRESSED[index:index + 32] for index in range(0, len(COMPRESSED), 32)]
+TRACE_WIDE = json.dumps(
+    {"traceEvents": [{"name": f"event-{index}", "ts": index, "args": {"value": index * 7}} for index in range(100)]},
+    separators=(",", ":"),
+).encode()
 
 
 def console_text(*, run_id: str = RUN_ID, chunks: list[str] | None = None,
                  raw: bytes = TRACE, end: bool = True, data_run_id: str | None = None,
-                 sequenced: bool = False, omit_chunk_index: int | None = None) -> str:
+                 sequenced: bool = False, include_chunk_length: bool = False,
+                 include_gzip_digest: bool = False, omit_chunk_index: int | None = None) -> str:
     data_run_id = data_run_id or run_id
     chunks = CHUNKS if chunks is None else chunks
     rows = [f"[mpdiag] MP_PERF_TRACE_EXPORT_BEGIN run_id={run_id} bytes={len(raw)} sha256={hashlib.sha256(raw).hexdigest()}"]
+    if include_gzip_digest:
+        compressed = base64.b64decode("".join(chunks), validate=True)
+        rows[0] += f" gzip_bytes={len(compressed)} gzip_sha256={hashlib.sha256(compressed).hexdigest()}"
     for index, chunk in enumerate(chunks):
         if index == omit_chunk_index:
             continue
         sequence = f" seq={index}" if sequenced else ""
-        rows.append(f"[mpdiag] MP_PERF_TRACE_DATA run_id={data_run_id}{sequence} {chunk}")
+        declared_length = f" len={len(chunk)}" if include_chunk_length else ""
+        rows.append(f"[mpdiag] MP_PERF_TRACE_DATA run_id={data_run_id}{sequence}{declared_length} {chunk}")
     if end:
         chunk_count = f" chunks={len(chunks)}" if sequenced else ""
         rows.append(f"[mpdiag] MP_PERF_TRACE_EXPORT_END run_id={run_id} encoding=gzip+base64{chunk_count}")
@@ -59,10 +69,36 @@ class ExtractPerfTraceTests(unittest.TestCase):
             root = Path(temp)
             log = root / "console.log"
             out = root / "trace.json"
-            log.write_text(console_text(sequenced=True), encoding="utf-8")
+            log.write_text(
+                console_text(sequenced=True, include_chunk_length=True, include_gzip_digest=True),
+                encoding="utf-8",
+            )
             summary = extract_perf_trace.extract_trace(log, out, RUN_ID)
             self.assertEqual(TRACE, out.read_bytes())
             self.assertEqual(1, summary["events"])
+
+    def test_extracts_256_character_transport_frames(self) -> None:
+        compressed = base64.b64encode(gzip.compress(TRACE_WIDE)).decode()
+        wide_chunks = [compressed[index:index + 256] for index in range(0, len(compressed), 256)]
+        self.assertGreater(len(wide_chunks), 1)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            log = root / "console.log"
+            out = root / "trace.json"
+            log.write_text(
+                console_text(
+                    raw=TRACE_WIDE,
+                    chunks=wide_chunks,
+                    sequenced=True,
+                    include_chunk_length=True,
+                    include_gzip_digest=True,
+                ),
+                encoding="utf-8",
+            )
+            summary = extract_perf_trace.extract_trace(log, out, RUN_ID)
+            self.assertEqual(TRACE_WIDE, out.read_bytes())
+            self.assertEqual(100, summary["events"])
+            self.assertEqual(len(wide_chunks), summary["chunks"])
 
     def test_extracts_integrity_checked_non_json_payload(self) -> None:
         proto_prefix = bytes.fromhex("0a50324a10030a09080610e088e1c6cd030a0c08021080ab88b3fae6e6f4180a")
@@ -127,6 +163,24 @@ class ExtractPerfTraceTests(unittest.TestCase):
             log = Path(temp) / "console.log"
             log.write_text(console_text(sequenced=True, omit_chunk_index=1), encoding="utf-8")
             with self.assertRaisesRegex(extract_perf_trace.TraceExportError, "sequence mismatch"):
+                extract_perf_trace.extract_trace(log, Path(temp) / "trace.json", RUN_ID)
+
+    def test_rejects_chunk_length_mismatch(self) -> None:
+        text = console_text(sequenced=True, include_chunk_length=True, include_gzip_digest=True)
+        text = re.sub(r"(MP_PERF_TRACE_DATA run_id=\S+ seq=0 len=)(\d+)", lambda m: m.group(1) + str(int(m.group(2)) + 1), text, count=1)
+        with tempfile.TemporaryDirectory() as temp:
+            log = Path(temp) / "console.log"
+            log.write_text(text, encoding="utf-8")
+            with self.assertRaisesRegex(extract_perf_trace.TraceExportError, "data length mismatch"):
+                extract_perf_trace.extract_trace(log, Path(temp) / "trace.json", RUN_ID)
+
+    def test_rejects_compressed_trace_sha_mismatch(self) -> None:
+        text = console_text(sequenced=True, include_chunk_length=True, include_gzip_digest=True)
+        text = re.sub(r"gzip_sha256=[0-9a-f]{64}", "gzip_sha256=" + "0" * 64, text, count=1)
+        with tempfile.TemporaryDirectory() as temp:
+            log = Path(temp) / "console.log"
+            log.write_text(text, encoding="utf-8")
+            with self.assertRaisesRegex(extract_perf_trace.TraceExportError, "gzip SHA-256 mismatch"):
                 extract_perf_trace.extract_trace(log, Path(temp) / "trace.json", RUN_ID)
 
 

@@ -91,37 +91,80 @@ perf_trace_export_once() {
     [ -n "$PERF_TRACE_FILE" ] && [ -s "$PERF_TRACE_FILE" ] || return 0
     grep -Fq "Completed startup tracing to $PERF_TRACE_FILE" "$CHROME_LOG" 2>/dev/null || return 0
 
-    trace_bytes=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null || echo 0)
-    trace_sha=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
     if ! command -v gzip >/dev/null 2>&1 || ! command -v base64 >/dev/null 2>&1 \
-            || ! command -v fold >/dev/null 2>&1; then
-        log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing) fold=$(command -v fold 2>/dev/null || echo missing)"
+            || ! command -v fold >/dev/null 2>&1 || ! command -v tr >/dev/null 2>&1; then
+        log "MP_PERF_TRACE_EXPORT_UNAVAILABLE gzip=$(command -v gzip 2>/dev/null || echo missing) base64=$(command -v base64 2>/dev/null || echo missing) fold=$(command -v fold 2>/dev/null || echo missing) tr=$(command -v tr 2>/dev/null || echo missing)"
         return 1
     fi
 
+    trace_gzip_file="/tmp/mp-perf-trace-export-$$.gz"
+    trace_base64_file="/tmp/mp-perf-trace-export-$$.base64"
+    trace_flat_file="/tmp/mp-perf-trace-export-$$.flat"
     trace_b64_file="/tmp/mp-perf-trace-export-$$.b64"
-    rm -f "$trace_b64_file"
-    if ! gzip -c "$PERF_TRACE_FILE" 2>/dev/null | base64 2>/dev/null \
-            | tr -d '\n' | fold -w 256 > "$trace_b64_file"; then
-        rm -f "$trace_b64_file"
-        log "MP_PERF_TRACE_EXPORT_ENCODE_FAIL run_id=$PERF_TRACE_RUN_ID"
+    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+
+    trace_bytes_before=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_sha_before=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
+    sleep 1
+    trace_bytes=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_sha=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
+    if [ "$trace_bytes_before" != "$trace_bytes" ] || [ "$trace_sha_before" != "$trace_sha" ]; then
+        log "MP_PERF_TRACE_EXPORT_WAIT_FILE_STABLE run_id=$PERF_TRACE_RUN_ID before_bytes=$trace_bytes_before after_bytes=$trace_bytes"
+        return 0
+    fi
+
+    if ! gzip -c "$PERF_TRACE_FILE" > "$trace_gzip_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file"
+        log "MP_PERF_TRACE_EXPORT_GZIP_FAIL run_id=$PERF_TRACE_RUN_ID"
         return 1
     fi
+    if ! gzip -t "$trace_gzip_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file"
+        log "MP_PERF_TRACE_EXPORT_GZIP_TEST_FAIL run_id=$PERF_TRACE_RUN_ID"
+        return 1
+    fi
+    trace_bytes_after=$(wc -c < "$PERF_TRACE_FILE" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_sha_after=$(sha256sum "$PERF_TRACE_FILE" 2>/dev/null | awk '{print $1}')
+    if [ "$trace_bytes_after" != "$trace_bytes" ] || [ "$trace_sha_after" != "$trace_sha" ]; then
+        rm -f "$trace_gzip_file"
+        log "MP_PERF_TRACE_EXPORT_WAIT_FILE_STABLE run_id=$PERF_TRACE_RUN_ID before_gzip_bytes=$trace_bytes after_gzip_bytes=$trace_bytes_after"
+        return 0
+    fi
+
+    if ! base64 < "$trace_gzip_file" > "$trace_base64_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file" "$trace_base64_file"
+        log "MP_PERF_TRACE_EXPORT_BASE64_FAIL run_id=$PERF_TRACE_RUN_ID"
+        return 1
+    fi
+    if ! tr -d '\n' < "$trace_base64_file" > "$trace_flat_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file"
+        log "MP_PERF_TRACE_EXPORT_FOLD_FAIL run_id=$PERF_TRACE_RUN_ID stage=tr"
+        return 1
+    fi
+    if ! fold -w 256 < "$trace_flat_file" > "$trace_b64_file" 2>/dev/null; then
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
+        log "MP_PERF_TRACE_EXPORT_FOLD_FAIL run_id=$PERF_TRACE_RUN_ID stage=fold"
+        return 1
+    fi
+
+    trace_gzip_bytes=$(wc -c < "$trace_gzip_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    trace_gzip_sha=$(sha256sum "$trace_gzip_file" 2>/dev/null | awk '{print $1}')
     trace_chunks=$(wc -l < "$trace_b64_file" 2>/dev/null | tr -d '[:space:]' || echo 0)
     [ "$trace_chunks" -gt 0 ] || {
-        rm -f "$trace_b64_file"
+        rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
         log "MP_PERF_TRACE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
         return 1
     }
 
-    log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes chunks=$trace_chunks sha256=$trace_sha"
+    log "MP_PERF_TRACE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$trace_bytes chunks=$trace_chunks sha256=$trace_sha gzip_bytes=$trace_gzip_bytes gzip_sha256=$trace_gzip_sha"
     trace_seq=0
     while IFS= read -r trace_chunk; do
-        printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s seq=%s %s\n' \
-            "$PERF_TRACE_RUN_ID" "$trace_seq" "$trace_chunk" > /dev/console 2>/dev/null || true
+        trace_chunk_length=${#trace_chunk}
+        printf '[mpdiag] MP_PERF_TRACE_DATA run_id=%s seq=%s len=%s %s\n' \
+            "$PERF_TRACE_RUN_ID" "$trace_seq" "$trace_chunk_length" "$trace_chunk" > /dev/console 2>/dev/null || true
         trace_seq=$((trace_seq + 1))
     done < "$trace_b64_file"
-    rm -f "$trace_b64_file"
+    rm -f "$trace_gzip_file" "$trace_base64_file" "$trace_flat_file" "$trace_b64_file"
     if [ "$trace_seq" -ne "$trace_chunks" ]; then
         log "MP_PERF_TRACE_EXPORT_COUNT_MISMATCH run_id=$PERF_TRACE_RUN_ID expected=$trace_chunks emitted=$trace_seq"
         return 1
