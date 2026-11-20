@@ -24,6 +24,7 @@ R21 在同一 2 GiB dense trace-off 平台加入 procfs 分阶段计时：首页
 R22 通过 opt-in guest `LD_PRELOAD` 捕获到本地页面 open 和 5 次 Zygote fork 边界；首页 strict、1/1 重载和 800 秒保持通过。Browser main-loop ready、renderer ready、first-frame 仍缺失，merged ledger `valid=false`；内存 sampler 仍 `FAIL`（253 samples、225 missed、283 错误），不计入四指标数据。事件边界和下一步 hook 修正见 [report/393](report/393-T490guest单调生命周期preload事件探针R22缺失BrowserRendererReady-20261121.md)。
 R23 补到 Browser 主线程首次 poll/epoll 事件，guest-clock launch→ready 候选为42.290秒；首页 strict 仍慢至987.609秒 host elapsed，Zygote 子进程的 renderer-ready 和 first-frame 仍缺。900秒采样窗口在页面通过前结束，QMP时间越出clock-sync锚点，sampler也FAIL；R23只作为 hook/窗口边界诊断，不计入性能样本，见 [report/394](report/394-T490guest生命周期hook补覆盖与R23首屏及clock-sync缺口-20261121.md)。
 R24 首次启动时漏传冻结 worktree，QEMU 实际指向 `/home/mo/x-kernel`；约六分钟后在 strict 首页判据前安全终止，记录为路径配置失败，排除性能统计。随后 run-session dry-run 确认修正命令指向冻结 worktree且平台断言15/15通过，详见 [report/395](report/395-T490R24启动路径偏差与提前终止记录-20261121.md)。
+R25 修正路径后首页 strict、1/1重载和420秒诊断保持通过；guest-clock截图上界651.567秒，30秒采样间隔。1200秒内存 sampler 被保持结束时的 QEMU 关闭截断，lifecycle与RSS/PSS/USS导出缺失，指标采集器拒绝该轮。R23/R25单次首屏差异不作为性能收益，下一轮把采样窗改为900秒，详见 [report/396](report/396-T490R25生命周期快路径与采样窗复测-20261121.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态
