@@ -27,6 +27,7 @@ R24 首次启动时漏传冻结 worktree，QEMU 实际指向 `/home/mo/x-kernel`
 R25 修正路径后首页 strict、1/1重载和420秒诊断保持通过；guest-clock截图上界651.567秒，30秒采样间隔。1200秒内存 sampler 被保持结束时的 QEMU 关闭截断，lifecycle与RSS/PSS/USS导出缺失，指标采集器拒绝该轮。R23/R25单次首屏差异不作为性能收益，下一轮把采样窗改为900秒，详见 [report/396](report/396-T490R25生命周期快路径与采样窗复测-20261121.md)。
 R26 补出 Browser launch→main-loop-ready 单轮39.594秒，导航→strict截图保守上界517.017秒；真实重载和420秒保持通过。900秒内存包完成导出但 sampler `FAIL`（220 sample IDs、213 missed、271错误），没有有效峰值；renderer-ready和精确 first-frame 仍缺。采集器拒绝整轮，未计入正式性能统计，见 [report/397](report/397-T490R26Browser启动导航上界与内存采样复测-20261121.md)。
 R27 的 leaf-PTE物理基址直取补丁通过11/11 page-table单测；同条件单轮对照显示 resident-walk 中位/P95下降10.03%/26.58%，但 sampler仍FAIL、错误计数略增、最大 overrun升至59.825秒，仅保留实验补丁，不宣称可靠收益；renderer-ready/first-frame仍缺，见 [report/398](report/398-T490resident-walk直取PTE基址机制对照R27-20261121.md)。
+R28 将 process-role comm 重检降到5秒一次，内存仍按1 Hz采样；页面strict、重载、420秒保持通过，但保持结束时 memory tar 仅收到151块中的145块，缺 END 标记，采集器拒收。R28没有有效内存/采样时间数据，也不用于性能对比；R29改为850秒采样以预留串口导出时间，见 [report/399](report/399-T490R28sampler角色重检降频与串口截断记录-20261121.md)。
 `scripts/final-acceptance.sh --help` 与 `all` 全阶段 dry-run 已复核：入口路由全部 `rc=0`、QEMU 未启动、score 明确为 `NOT_RUN/20`；PowerShell 到 WSL 的环境变量需在 `bash -c` 内设置，详见 [report/385](report/385-T490统一验收入口help与全阶段dry-run复核-20261120.md)。
 
 ## 2026-11-18 决赛验收状态

@@ -1,0 +1,6 @@
+T490 source: /tmp/codex-r13-run/scripts/t490/proc_tree_sampler.c
+cross compile: aarch64-linux-musl-gcc -Wall -Wextra -Werror -static -no-pie -O2 -pthread -o /tmp/r28-proc_tree_sampler /tmp/codex-r13-run/scripts/t490/proc_tree_sampler.c
+cross compile result: ELF 64-bit AArch64 static, exit 0
+run: STABILITY_MEMORY_SAMPLE_SECONDS=900 STABILITY_LIFECYCLE_PRELOAD=1 STABILITY_READY_TIMEOUT=1550 MP_MAX_SECONDS=1700 bash scripts/t490/run_stability_round_mp.sh r28-role-recheck-decimation 1900 1200 1 30 420
+extract: python scripts/t490/extract_perf_memory.py console.log --run-id r28-role-recheck-decimation --out-dir memory-export
+extract result: PERF_MEMORY_EXTRACT_FAIL: memory export is missing MP_PERF_MEMORY_EXPORT_END

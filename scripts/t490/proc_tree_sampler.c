@@ -37,7 +37,10 @@ typedef struct {
     char role[32];
     pid_t pid;
     bool active;
+    uint64_t role_checked_t_ns;
 } SeenProcess;
+
+#define ROLE_RECHECK_INTERVAL_NS 5000000000ULL
 
 static uint64_t sequence_number;
 static uint64_t sample_number;
@@ -455,9 +458,13 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
         SeenProcess *known = seen_instance(seen, *seen_count, process->instance);
         if (!known)
             continue;
+        if (sample_t_ns >= known->role_checked_t_ns &&
+            sample_t_ns - known->role_checked_t_ns < ROLE_RECHECK_INTERVAL_NS)
+            continue;
         char previous_role[sizeof(known->role)];
         snprintf(previous_role, sizeof(previous_role), "%s", known->role);
         classify_process_role(process, true);
+        known->role_checked_t_ns = sample_t_ns;
         if (strcmp(previous_role, process->role) != 0) {
             emit_event(events, run_id, sample_t_ns, "process_role_changed", process, NULL);
             snprintf(known->role, sizeof(known->role), "%s", process->role);
