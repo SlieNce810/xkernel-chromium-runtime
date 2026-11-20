@@ -225,7 +225,7 @@ case "$EXTRA_FLAGS_VALUE" in
         ;;
 esac
 if [ "$MP_TRACE_VALUE" = "0" ] && [ "$TRACE_REQUESTED" = "1" ]; then
-    EXPECTED_PERF_TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500"
+    EXPECTED_PERF_TRACE_FLAGS="--trace-startup=startup,ipc,loading,blink,cc,viz --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json"
     if [ "${ALLOW_CHROMIUM_PERF_TRACE_ONLY:-0}" != "1" ] \
             || [ "$EXTRA_FLAGS_VALUE" != "$EXPECTED_PERF_TRACE_FLAGS" ]; then
         echo "!! MP_TRACE_VALUE=0 时只允许显式、固定的 Chromium startup trace 探针参数"
