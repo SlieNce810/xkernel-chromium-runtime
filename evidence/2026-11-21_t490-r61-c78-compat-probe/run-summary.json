@@ -1,0 +1,39 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r61-c78-compat-probe",
+  "kernel_sha256": "c78ecd57fb47b8269ebecf0a4e99ee5d9f85648e01703726eee7af88ad017a67",
+  "kernel_dir": "/home/mo/xk6/worktrees/r53-no-direct-error-log",
+  "log_level": "ERROR",
+  "direct_pte_patch_applied": false,
+  "memory": "2g",
+  "architecture": "aarch64",
+  "accelerator": "pure-tcg",
+  "compatibility_candidate_accepted": false,
+  "platform_gate_pass": true,
+  "platform_gate_checks": "15/15",
+  "compatprobe": {
+    "pass": 35,
+    "fail": 2,
+    "failures": ["inotify create event poll", "MADV_DONTNEED hole must return ENOMEM"]
+  },
+  "scm_rights_shortread": {
+    "pass": 4,
+    "fail": 2,
+    "failures": ["descriptor missing on first one-byte read", "descriptor repeated on later read"]
+  },
+  "memfd_sealing": {
+    "pass": 6,
+    "fail": 6,
+    "failures": ["F_ADD_SEALS", "F_GET_SEALS", "sealed write", "sealed grow", "sealed shrink", "sealed writable shared mmap"]
+  },
+  "procfs_memory_probe_rc": 0,
+  "procfs_shared_accounting_note": "file_shared_touched reported statm_shared_pages=32 while smaps_shared_kb=0",
+  "bundle_rc": 1,
+  "round_rc": 0,
+  "valid_page_screenshot": false,
+  "notes": [
+    "R61 is an ABI and procfs diagnostic; its two 640x480 black screenshots fail the required 1280x800 visual gate.",
+    "The c78 kernel is not the final compatibility candidate because multiple Chromium-relevant Linux ABI probes fail.",
+    "The existing compatibility-final summary for ac1032fe is retained unchanged."
+  ]
+}
