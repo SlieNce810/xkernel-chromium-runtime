@@ -1,0 +1,415 @@
+### [2026-11-21 23:44:19] SESSION START
+### cwd: /home/mo/xk6/worktrees/r62-no-direct-error-compat
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci -qmp unix:/tmp/xk6-qmp-stability-r63-r62-compat-cold01.sock,server=on,wait=off'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/r62-no-direct-error-compat/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/r62-no-direct-error-compat/target --disk-image /home/mo/xk6/worktrees/r62-no-direct-error-compat/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci -qmp 'unix:/tmp/xk6-qmp-stability-r63-r62-compat-cold01.sock,server=on,wait=off'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/r62-no-direct-error-compat/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/r62-no-direct-error-compat/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ksyscall` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.20s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/r62-no-direct-error-compat/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/r62-no-direct-error-compat/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci \
+  -qmp 'unix:/tmp/xk6-qmp-stability-r63-r62-compat-cold01.sock,server=on,wait=off'
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000815a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000815a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-21 15:44:20.005826016 UTC
+
+arch = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-21T15:33:42.794338499Z
+log_level = error
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 1cb298dfeaaa235a21f29d15499783df63e2575ca10b7dc1008189bce003232e
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 663a59dfcc6b21f273eb8b9155b4b47130c5660a7612b8efa8e9d5272a5223e1
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Sat Nov 21 15:44:21 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1795275861
+[mpdiag] MP_AUTORUN_START_MONO_MS=1700
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=0
+[mpdiag] GL_MODE=angle
+[mpdiag] NET_MODE=normal
+[mpdiag] LEDGER_MODE=0
+[mpdiag] FAMILY_WATCHDOG_INTERVAL=15
+[mpdiag] WESTON_CONTINUE_WITHOUT_INPUT=0
+[mpdiag] MP_FAMILY_DIAGNOSTICS=0
+[mpdiag] MAX_SECONDS=3000 SAMPLE_SECONDS=5 HOLD_SECONDS=40
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] PROC_VERSION=
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] LIFECYCLE_PRELOAD=
+[mpdiag] CHROMIUM_SHA256=d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641
+[mpdiag] OVERLAY_SHA256=a1d9481890e344dcdde157390a2df796ee8c8beb71b54c6bb5b40b0309f16aee
+[mpdiag] PKG_OVERLAY_SKIP=1 (set MP_EXTRACT_OVERLAY_VALUE=1 only for an explicit overlay experiment)
+[mpdiag] STRACE_FILE=/usr/bin/strace
+[mpdiag] STRACE_SELF_TEST=FAIL
+[mpdiag] DRM_NODES=total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+crw-rw-rw-    1 root     root      226, 128 Jan  1  1970 renderD128
+[mpdiag] INPUT_NODES=total 0
+crw-rw-rw-    1 root     root       13,  64 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,  65 Jan  1  1970 event1
+[mpdiag] DRM_SYSFS=/sys/class/drm/card0/dev
+/sys/class/drm/card0/device
+/sys/class/drm/card0/subsystem
+/sys/class/drm/card0/uevent
+/sys/class/drm/renderD128/dev
+/sys/class/drm/renderD128/device
+/sys/class/drm/renderD128/subsystem
+/sys/class/drm/renderD128/uevent
+[mpdiag] INPUT_SEAT dev=/dev/input/event0 major=13 minor=64 name=QEMU Virtio Keyboard data=/run/udev/data/c13:64
+[mpdiag] INPUT_SEAT dev=/dev/input/event1 major=13 minor=65 name=QEMU Virtio Mouse data=/run/udev/data/c13:65
+[mpdiag] WESTON_ARGS=--backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0  --idle-time=0
+[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=45 alive=yes
+[mpdiag] WESTON_INPUT_LINES=15
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --js-flags=--jitless  --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --ipc-connection-timeout=600 --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,AudioServiceOutOfProcess,AudioServiceSandbox,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*file_url_loader_factory*=3,*document_loader*=3,*render_frame_impl*=3,*compositor_frame*=3,*frame_sink*=3,*wayland*=2,*ozone*=2,*navigation*=3,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile 
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1795275900
+[mpdiag] MP_BROWSER_START_MONO_MS=40441
+[mpdiag] MP_BROWSER_START_MONO_NS=40441000000
+[mpdiag] MP_BROWSER_PID=70
+[mpdiag] browser_pid=70 launcher_pid=70
+MP_EVENT {"timestamp_monotonic":40.817000,"process_role":"browser","pid":70,"ppid":5,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"browser-start","status":"observed","error":"","observation_source":"guest-launcher"}
+[mpdiag] MP_PROCESS_OBSERVED role=browser event=browser-start pid=70 ppid=5
+[mpdiag] WATCHDOG_PID=79（独立心跳：它停 = 整机冻死）
+[mpdiag] MP_LEDGER_FORMAT=MP_LEDGER/MP_PROC_EVENT/MP_BLOCK/MP_FAMILY/MP_WATCHDOG
+[mpdiag] MP_BLOCK_READS=disabled:wchan,syscall 会挂住读方（2026-11-02 实测两轮）
+[mpdiag] MP_LEDGER_LIMIT=阻塞读：跨进程读 Chromium 子进程 procfs 会挂住读方；账本在其后停住（待内核侧修复）
+[mpdiag] MP_PHASE p=loop_begin tick=1
+[mpdiag] MP_WATCHDOG uptime_s=41 weston=yes chrome=yes memfree_kb=1157376
+[mpdiag] MP_FAMILY label=43301 n=1 70:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=0
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=1
+[mpdiag] MP_WATCHDOG uptime_s=44 weston=yes chrome=yes memfree_kb=1145044
+[mpdiag] MP_PHASE p=loop_begin tick=2
+[mpdiag] MP_PHASE p=loop_body_done tick=2
+[mpdiag] MP_PHASE p=loop_begin tick=3
+[mpdiag] MP_WATCHDOG uptime_s=46 weston=yes chrome=yes memfree_kb=1130056
+[mpdiag] MP_PHASE p=loop_body_done tick=3
+[mpdiag] MP_PHASE p=loop_begin tick=4
+[mpdiag] MP_WATCHDOG uptime_s=49 weston=yes chrome=yes memfree_kb=1119152
+[mpdiag] MP_PHASE p=loop_body_done tick=4
+[mpdiag] MP_PHASE p=loop_begin tick=5
+[mpdiag] MP_WATCHDOG uptime_s=51 weston=yes chrome=yes memfree_kb=1111696
+[mpdiag] MP_PHASE p=loop_body_done tick=5
+[mpdiag] MP_PHASE p=loop_begin tick=6
+[mpdiag] MP_WATCHDOG uptime_s=53 weston=yes chrome=yes memfree_kb=1105240
+[mpdiag] MP_FAMILY label=55356 n=1 70:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=5
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=12
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=6
+[mpdiag] MP_WATCHDOG uptime_s=56 weston=yes chrome=yes memfree_kb=1098620
+[mpdiag] MP_PHASE p=loop_begin tick=7
+[mpdiag] MP_PHASE p=loop_body_done tick=7
+[mpdiag] MP_WATCHDOG uptime_s=58 weston=yes chrome=yes memfree_kb=1091448
+[mpdiag] MP_FAMILY_WATCHDOG label=58461 n=0
+[mpdiag] MP_PHASE p=loop_begin tick=8
+[mpdiag] MP_PHASE p=loop_body_done tick=8
+[mpdiag] MP_PHASE p=loop_begin tick=9
+[mpdiag] MP_WATCHDOG uptime_s=61 weston=yes chrome=yes memfree_kb=1085616
+[mpdiag] MP_PHASE p=loop_body_done tick=9
+[mpdiag] MP_PHASE p=loop_begin tick=10
+[mpdiag] MP_WATCHDOG uptime_s=63 weston=yes chrome=yes memfree_kb=1082348
+[mpdiag] MP_PHASE p=loop_body_done tick=10
+[mpdiag] MP_PHASE p=loop_begin tick=11
+[mpdiag] MP_WATCHDOG uptime_s=66 weston=yes chrome=yes memfree_kb=1060024
+[mpdiag] MP_WATCHDOG uptime_s=68 weston=yes chrome=yes memfree_kb=1038256
+[mpdiag] MP_WATCHDOG uptime_s=71 weston=yes chrome=yes memfree_kb=1034880
+MP_EVENT {"timestamp_monotonic":70.292001,"process_role":"zygote","pid":171,"ppid":70,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=171 ppid=70
+MP_EVENT {"timestamp_monotonic":71.690002,"process_role":"zygote","pid":177,"ppid":70,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=177 ppid=70
+[mpdiag] MP_FAMILY label=72295 n=3 70:browser/S/2 171:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=10
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=0
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=11
+[mpdiag] MP_WATCHDOG uptime_s=73 weston=yes chrome=yes memfree_kb=1030640
+[mpdiag] MP_PHASE p=loop_begin tick=12
+[mpdiag] MP_PHASE p=loop_body_done tick=12
+[mpdiag] MP_WATCHDOG uptime_s=75 weston=yes chrome=yes memfree_kb=1027484
+[mpdiag] MP_PHASE p=loop_begin tick=13
+[mpdiag] MP_PHASE p=loop_body_done tick=13
+[mpdiag] MP_WATCHDOG uptime_s=78 weston=yes chrome=yes memfree_kb=1023616
+[mpdiag] MP_PHASE p=loop_begin tick=14
+[mpdiag] MP_FAMILY_WATCHDOG label=78177 n=2 171:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_PHASE p=loop_body_done tick=14
+[mpdiag] MP_WATCHDOG uptime_s=82 weston=yes chrome=yes memfree_kb=1013448
+[mpdiag] MP_PHASE p=loop_begin tick=15
+[mpdiag] MP_WATCHDOG uptime_s=84 weston=yes chrome=yes memfree_kb=991764
+[mpdiag] MP_PHASE p=loop_body_done tick=15
+[mpdiag] MP_WATCHDOG uptime_s=87 weston=yes chrome=yes memfree_kb=724480
+[mpdiag] MP_PHASE p=loop_begin tick=16
+[mpdiag] MP_WATCHDOG uptime_s=90 weston=yes chrome=yes memfree_kb=721880
+[mpdiag] MP_WATCHDOG uptime_s=92 weston=yes chrome=yes memfree_kb=717184
+[mpdiag] MP_WATCHDOG uptime_s=95 weston=yes chrome=yes memfree_kb=707764
+MP_EVENT {"timestamp_monotonic":96.721003,"process_role":"zygote","pid":304,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=304 ppid=177
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=304 ppid=177 browser_pid=70
+MP_EVENT {"timestamp_monotonic":97.742004,"process_role":"renderer","pid":304,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=304 ppid=177
+[mpdiag] MP_WATCHDOG uptime_s=98 weston=yes chrome=no memfree_kb=728884
+[mpdiag] MP_FAMILY label=98767 n=4 70:browser/R/36 171:browser_child/S/1 177:browser_child/S/1 304:zygote_child/S/7
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=15
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=16
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=16
+[mpdiag] MP_LEDGER_ELAPSED_SEC=16
+[mpdiag] MP_LOOP_EXIT=browser_gone
+[mpdiag] MP_WATCHDOG uptime_s=101 weston=yes chrome=no memfree_kb=741848
+[mpdiag] MP_FAMILY_WATCHDOG label=101389 n=3 171:browser_child/S/1 177:browser_child/S/1 304:zygote_child/S/7
+[mpdiag] MP_WATCHDOG uptime_s=105 weston=yes chrome=no memfree_kb=759856
+[mpdiag] MP_BROWSER_EXIT_EPOCH_MS=1795275965
+[mpdiag] MP_LAUNCHER_EXIT_RC=0
+[mpdiag] MP_LAUNCHER_KIND=direct
+[mpdiag] MP_RSS_MAX_KB=0
+[mpdiag] MP_RENDERER_CANDIDATE_SEEN=0
+[mpdiag] MP_RENDERER_CANDIDATE_MAX_STREAK=0
+[mpdiag] CHROMIUM_LOG_BYTES=14657
+[mpdiag] MP_WATCHDOG uptime_s=107 weston=yes chrome=no memfree_kb=784604
+[mpdiag] MP_RENDERER_RECEIPT_COUNT=0
+[mpdiag] MP_GATE=0
+[70:70:1121/154509.648499:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[70:70:1121/154511.717205:VERBOSE1:chrome/app/chrome_crash_reporter_client.cc:199] GetCollectStatsConsent(): is_official_chrome_build is false so returning false
+[70:70:1121/154520.381316:WARNING:ui/ozone/platform/wayland/common/drm_render_node_path_finder.cc:111] Preferred drm_render_node not found, picking simpledrm
+[177:177:1121/154527.616719:INFO:third_party/webrtc/rtc_base/cpu_info.cc:77] Available number of cores: 4
+[177:177:1121/154527.728207:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+[70:70:1121/154528.851843:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:120] Skipping mandatory platform policies because no policy file was found at: /etc/chromium/policies/managed
+[70:70:1121/154528.857197:VERBOSE1:components/policy/core/common/config_dir_policy_loader.cc:120] Skipping recommended platform policies because no policy file was found at: /etc/chromium/policies/recommended
+[171:171:1121/154528.998905:INFO:third_party/webrtc/rtc_base/cpu_info.cc:77] Available number of cores: 4
+[171:171:1121/154529.053233:VERBOSE1:content/zygote/zygote_main_linux.cc:202] ZygoteMain: initializing 0 fork delegates
+[70:70:1121/154529.121764:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:77] VariationsSeedUsage:2
+[70:70:1121/154529.133108:VERBOSE1:components/variations/service/variations_field_trial_creator.cc:374] VariationsSetupComplete
+[70:208:1121/154529.510082:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/VariationsSeedV2": No such file or directory (2)
+[70:208:1121/154529.537145:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/VariationsSeedV2": No such file or directory (2)
+[70:211:1121/154529.599991:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[70:70:1121/154529.832521:WARNING:ui/ozone/platform/wayland/common/wayland_object.cc:119] Binding to wl_shm version 1 but version 2 is available.
+[70:70:1121/154534.754701:VERBOSE1:chrome/browser/media/webrtc/webrtc_event_log_manager.cc:126] WebRTC remote-bound event logging enabled.
+[70:70:1121/154534.824998:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:462] 0x240008d040: set chrome proxy config service to 0x2400151340
+[70:70:1121/154534.839310:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_MAIN
+[70:70:1121/154534.839896:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_MAIN
+[70:70:1121/154534.840260:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING
+[70:70:1121/154534.840527:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING
+[70:70:1121/154534.840786:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "497550622367-ubtkmd3b2pp5gulba5n6ha6sq4n35ehj.apps.googleusercontent.com" for API key GOOGLE_CLIENT_ID_REMOTING_HOST
+[70:70:1121/154534.841148:VERBOSE1:google_apis/api_key_cache.cc:120] Using default value "NaCX8tIIAphrjs56n3TpHx_e" for API key GOOGLE_CLIENT_SECRET_REMOTING_HOST
+[70:70:1121/154534.910727:VERBOSE1:components/device_event_log/device_event_log_impl.cc:203] [15:45:34.910] Display: EVENT: wayland_screen.cc:146 Displays updated, count: 1
+[70:70:1121/154535.136192:VERBOSE1:components/device_event_log/device_event_log_impl.cc:203] [15:45:35.135] Display: EVENT: wayland_screen.cc:149 Display[16] bounds=[0,0 1280x800], workarea=[0,0 1280x800], scale=1, rotation=0, panel_rotation=0 external detected
+[70:211:1121/154535.212630:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:211:1121/154535.218422:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[70:211:1121/154535.221210:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[70:211:1121/154535.221938:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:209:1121/154535.302444:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/component_crx_cache/metadata.json": No such file or directory (2)
+[70:70:1121/154536.811109:VERBOSE1:media/audio/pulse/pulse_util.cc:270] Failed to connect to the context.  Error: Connection refused
+[70:70:1121/154536.823558:WARNING:media/audio/linux/audio_manager_linux.cc:53] Falling back to ALSA for audio output. PulseAudio is not available or could not be initialized.
+[70:211:1121/154537.248471:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:208:1121/154537.272857:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Consent To Send Stats": No such file or directory (2)
+[70:70:1121/154538.518424:VERBOSE1:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:204] Cloud management controller initialization aborted as CBCM is not enabled. Please use the `--enable-chrome-browser-cloud-management` command line flag to enable it if you are not using the official Google Chrome build.
+[70:70:1121/154540.311390:VERBOSE1:components/policy/core/common/cloud/user_cloud_policy_store.cc:130] [policy_type=google/chrome/user] Initiating immediate policy load from disk
+[70:70:1121/154540.319419:VERBOSE1:components/policy/core/common/cloud/user_cloud_policy_store.cc:233] [policy_type=google/chrome/user] No policy found on disk
+[70:70:1121/154540.320183:VERBOSE1:components/policy/core/common/cloud/user_cloud_policy_store.cc:130] [policy_type=google/extension-install-cloud-policy/chrome/user] Initiating immediate policy load from disk
+[70:70:1121/154540.322511:VERBOSE1:components/policy/core/common/cloud/user_cloud_policy_store.cc:233] [policy_type=google/extension-install-cloud-policy/chrome/user] No policy found on disk
+[70:208:1121/154543.746398:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Web Applications/Logs": No such file or directory (2)
+[70:211:1121/154544.043342:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:70:1121/154544.535669:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:462] 0x24000931c0: set chrome proxy config service to 0x2400153d40
+[70:70:1121/154544.800775:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:353] MutablePO2TS::MutablePO2TS
+[70:270:1121/154545.126527:VERBOSE1:media/gpu/vaapi/vaapi_wrapper.cc:1710] GetHandle(): Either VADisplayStateSingleton::PreSandboxInitialization() hasn't been called or that method failed to find a suitable render node
+[70:270:1121/154545.356713:VERBOSE1:components/viz/service/main/viz_main_impl.cc:87] VizNullHypothesis is disabled (not a warning)
+[70:264:1121/154545.674944:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Code Cache/pc": No such file or directory (2)
+[70:70:1121/154545.847173:VERBOSE1:components/proxy_config/pref_proxy_config_tracker_impl.cc:462] 0x2400091e40: set chrome proxy config service to 0x2400155400
+[70:70:1121/154545.914786:VERBOSE1:chrome/browser/permissions/prediction_service/prediction_model_handler_provider_factory.cc:61] [PermissionsAI]: PredictionModelHandlerProviderFactory::BuildServiceInstanceForBrowserContext
+[70:70:1121/154545.935101:VERBOSE1:chrome/browser/permissions/prediction_service/prediction_model_handler_provider_factory.cc:70] [PermissionsAI]: OptimizationGuideGlobalStateHolderKeyedService not available.
+[70:208:1121/154546.084242:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[70:208:1121/154546.103458:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Code Cache/js/index-dir/the-real-index": No such file or directory (2)
+[70:209:1121/154546.133617:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[70:209:1121/154546.149886:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Code Cache/wasm/index-dir/the-real-index": No such file or directory (2)
+[70:70:1121/154546.287138:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154546.935070:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154547.639785:VERBOSE1:extensions/browser/extension_registrar.cc:547] AddComponentExtension Web Store
+[70:70:1121/154547.640379:VERBOSE1:extensions/browser/extension_registrar.cc:549] Component extension Web Store (ahfgeienlihckogmohjhadlkjgocpleb) installing/upgrading from '' to 0.2
+[70:70:1121/154547.763035:VERBOSE1:extensions/browser/extension_registrar.cc:547] AddComponentExtension Chromium PDF Viewer
+[70:70:1121/154547.778237:VERBOSE1:extensions/browser/extension_registrar.cc:549] Component extension Chromium PDF Viewer (mhjfbmdgcfjbbpaeojofohoefgiehjai) installing/upgrading from '' to 1
+[70:70:1121/154547.800295:VERBOSE1:extensions/browser/extension_registrar.cc:547] AddComponentExtension Google Hangouts
+[70:70:1121/154547.800763:VERBOSE1:extensions/browser/extension_registrar.cc:549] Component extension Google Hangouts (nkeimhogjdpnpccoofpliimaahmaaome) installing/upgrading from '' to 1.3.26
+[70:70:1121/154547.832583:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154547.841827:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154547.849943:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:150] AccountReconcilor::AccountReconcilor
+[70:70:1121/154547.862412:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:180] AccountReconcilor::Initialize
+[70:70:1121/154547.864229:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:231] AccountReconcilor::RegisterWithContentSettings
+[70:70:1121/154547.864826:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:254] AccountReconcilor::RegisterWithIdentityManager
+[70:211:1121/154548.005952:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:210:1121/154548.044171:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Policy/User Policy": No such file or directory (2)
+[70:210:1121/154548.047346:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Policy/Signing Key": No such file or directory (2)
+[70:210:1121/154548.056871:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Policy/User Extension Install Policy": No such file or directory (2)
+[70:210:1121/154548.072956:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Policy/User Extension Install Signing Key": No such file or directory (2)
+[70:70:1121/154548.135765:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1408] AddKeepAlive(Default, kBrowserWindow). keep_alives=[kWaitingForFirstBrowserWindow (1), kBrowserWindow (1)]
+[70:70:1121/154548.155231:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1490] ClearFirstBrowserWindowKeepAlive(Default). keep_alives=[kBrowserWindow (1)]
+
+(chromium:70): GLib-GIO-CRITICAL **: 15:45:48.350: g_settings_schema_source_lookup: assertion 'source != NULL' failed
+[70:70:1121/154549.387420:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:170] Server doesn't support zcr_alpha_compositing_v1.
+[70:70:1121/154549.387886:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:185] Server doesn't support overlay_prioritizer.
+[70:70:1121/154549.388229:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:200] Server doesn't support wp_content_type_v1
+[70:70:1121/154549.388869:WARNING:ui/ozone/platform/wayland/host/wayland_surface.cc:214] Server doesn't support wp_color_management_surface_v1.
+[70:70:1121/154549.477695:WARNING:ui/ozone/platform/wayland/host/wayland_connection.cc:408] text-input-v3 not available.
+[70:70:1121/154551.369225:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kRevertAll
+[70:70:1121/154552.299727:VERBOSE1:google_apis/gaia/gaia_auth_util.cc:53] Canonicalized @gmail.com to @gmail.com
+[70:70:1121/154552.300494:VERBOSE1:google_apis/gaia/gaia_auth_util.cc:53] Canonicalized @gmail.com to @gmail.com
+[70:70:1121/154553.906066:VERBOSE1:chrome/browser/enterprise/data_protection/data_protection_navigation_observer.cc:227] enterprise.data_protection: same document navigation: 0
+[70:70:1121/154553.908792:VERBOSE1:chrome/browser/enterprise/data_protection/data_protection_navigation_observer.cc:229] enterprise.data_protection: URL to scan: file:///usr/share/html-test/index.html
+[70:70:1121/154554.149024:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154555.675096:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kRevertAll
+[70:70:1121/154555.795928:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/154556.163021:ERROR:ui/events/platform/wayland/wayland_event_watcher.cc:78] Fatal Wayland communication error: Connection reset by peer.
+[mpdiag] MP_WATCHDOG uptime_s=110 weston=yes chrome=no memfree_kb=802168
+[mpdiag] MP_WATCHDOG uptime_s=112 weston=yes chrome=no memfree_kb=812468
+[mpdiag] MP_WATCHDOG uptime_s=115 weston=yes chrome=no memfree_kb=812492
+[mpdiag] MP_WATCHDOG uptime_s=117 weston=yes chrome=no memfree_kb=812456
+[mpdiag] MP_WATCHDOG uptime_s=119 weston=yes chrome=no memfree_kb=813548
+[mpdiag] MP_WATCHDOG uptime_s=122 weston=yes chrome=no memfree_kb=814660
+[mpdiag] MP_FAMILY_WATCHDOG label=121863 n=0
+[mpdiag] MP_WATCHDOG uptime_s=124 weston=yes chrome=no memfree_kb=814632
+[mpdiag] MP_WATCHDOG uptime_s=127 weston=yes chrome=no memfree_kb=814660
+[mpdiag] MP_WATCHDOG uptime_s=129 weston=yes chrome=no memfree_kb=814640
+[mpdiag] MP_WATCHDOG uptime_s=131 weston=yes chrome=no memfree_kb=814632
+[mpdiag] MP_WATCHDOG uptime_s=133 weston=yes chrome=no memfree_kb=814608
+[mpdiag] MP_WATCHDOG uptime_s=136 weston=yes chrome=no memfree_kb=814668
+[mpdiag] MP_WATCHDOG uptime_s=138 weston=yes chrome=no memfree_kb=814648
+[mpdiag] MP_WATCHDOG uptime_s=140 weston=yes chrome=no memfree_kb=814672
+[mpdiag] MP_FAMILY_WATCHDOG label=140254 n=0
+[mpdiag] MP_WATCHDOG uptime_s=143 weston=yes chrome=no memfree_kb=814604
+[mpdiag] MP_WATCHDOG uptime_s=145 weston=yes chrome=no memfree_kb=814692
+[mpdiag] MP_WATCHDOG uptime_s=147 weston=yes chrome=no memfree_kb=814672
+[mpdiag] MP_WATCHDOG uptime_s=149 weston=yes chrome=no memfree_kb=814652
+[mpdiag] DMESG_BEGIN
+[mpdiag] DMESG_END
+[mpdiag] MP_WATCHDOG uptime_s=152 weston=yes chrome=no memfree_kb=814560
+
+### [2026-11-21 23:48:19] MONITOR: screendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01-at0240s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-com[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-comp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-col[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-21_t490-r63-r62-compat-cold01/screenshots/shot-01-at0[K
+
+### [2026-11-21 23:48:23] screendump OK (3072016 bytes)
+qemu: terminating on signal 15 from pid 887189 (bash)
+
+### [2026-11-21 23:49:46] 子进程已退出（elapsed=326.5s）
+
+### [2026-11-21 23:49:46] stopping session...
+### [2026-11-21 23:49:46] SESSION END (exit=0)
