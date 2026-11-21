@@ -12,8 +12,8 @@ R51 首屏 strict 在 **466.008秒 host elapsed** 通过，真实Ctrl+R reload 1
 
 事件normalizer `FAIL`：4个完整 family snapshot freshness 分别超限5.857、2.026、1.026和0.031秒（35秒上限）。因此本轮是页面启动/重载诊断通过，但不是正式30分钟/10 reload稳定性PASS。memory sampler关闭，没有四项性能数据。
 
-## 对 R50/R51 的结论
+## 对 R50/R51/R52 的结论
 
-R50包含direct-PTE walker优化时超时；R51排除该patch后strict首屏、reload和420秒hold通过。两轮其他条件相同，构成一组直接对照，**指向 direct-PTE patch 可能破坏图形页面启动**。R27历史机制测试曾显示resident-walk耗时下降，但未做同内核renderer图形回归；目前不能把该优化保留为已接受的收益。R52应把 direct-PTE patch 重新加回同一父版本、同observer-off配置复跑，检查失败方向是否重复；未完成重复前，报告仅称高风险回归线索。
+R50、R52两个direct-PTE-on构建均在observer-off条件下1800秒首屏超时；R51排除该patch后strict首屏、reload和420秒hold通过。direct-on失败方向在回加复跑中重复，**强烈提示 direct-PTE patch 可能破坏图形页面启动**。R27历史机制测试曾显示resident-walk耗时下降，但未做同内核renderer图形回归；目前应把该优化从候选版本排除，直到证明无回归。R51的normalizer仍拒绝4个stale family snapshots，故no-direct候选需要先修freshness设置并通过稳定性/功能回归。当前direct-on为2轮失败、direct-off为1轮页面通过，样本仍不足以做正式性能收益结论。
 
-完整构建、命令、平台、QMP、liveness、normalizer和PPM判据均在 [R51 evidence](../evidence/2026-11-21_t490-r51-no-direct-pte-control/)。raw PPM 留在T490。
+完整构建、命令、平台、QMP、liveness、normalizer和PPM判据均在 [R51 evidence](../evidence/2026-11-21_t490-r51-no-direct-pte-control/)；R52回加复测及源码/原始记录见 [report/424](424-T490R52direct-PTE回加重复复测首屏仍超时-20261121.md) 和 [R52 evidence](../evidence/2026-11-21_t490-r52-direct-pte-repeat-control/)。raw PPM 留在T490。

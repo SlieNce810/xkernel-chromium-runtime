@@ -11,7 +11,9 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 ## 2026-11-21 当前复核状态
 
-R51机制对照补充：在R50同一冻结派生候选、observer-off条件下移除direct-PTE walker后，strict首屏在466.008秒host elapsed通过，真实reload 1/1和420秒hold通过；normalizer仍因4个family freshness超限失败，所以不是正式稳定性PASS。与R50含direct-PTE时1800秒首屏超时的相反方向，初步指向该优化的页面回归风险；目前每侧各一轮，R52需回加patch重复。见 [report/423](report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md)。
+R52 direct-PTE回加复跑使机制对照重复一侧：R50与R52两个direct-PTE候选在observer-off下都于1800秒首屏超时（各53张strict截图失败），而R51去掉该patch后strict首屏、reload与420秒hold通过。此方向强烈提示 direct-PTE walker是页面回归风险，但direct-off侧目前只有一轮，R51 freshness gate也失败；先从可运行候选排除该优化，继续no-direct稳定性/功能回归，不把它报告为已定因或性能收益。详见 [report/422](report/422-T490R50观测关闭控制仍首屏超时-20261121.md)、[report/423](report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md) 与 [report/424](report/424-T490R52direct-PTE回加重复复测首屏仍超时-20261121.md)。
+
+R51机制对照补充：在R50同一冻结派生候选、observer-off条件下移除direct-PTE walker后，strict首屏在466.008秒host elapsed通过，真实reload 1/1和420秒hold通过；normalizer仍因4个family freshness超限失败，所以不是正式稳定性PASS。与R50含direct-PTE时1800秒首屏超时的相反方向，初步指向该优化的页面回归风险；R52回加复跑仍超时，direct-on两轮/no-direct一轮方向一致；no-direct候选仍需修复freshness并通过稳定性回归，详见report/424。见 [report/423](report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md)。
 
 最新轮次：R44 在冻结 kernel/rootfs（2 GiB AArch64 pure TCG）上通过正式10次重载与1805秒保持。R48应用stat22与procfs驻留页补丁后，guest shell smoke 8次/16行通过严格提取。R49启用timing、lifecycle、clock-sync和sampler后，首屏1800秒超时；53张截图strict全失败，memory bundle缺16个串口块，无法产生有效内存峰值。R50在相同候选kernel下关闭sampler/preload/clock-sync，首屏仍1800秒超时，53张strict截图仍全失败；其normalizer 567/567通过，说明R49白屏不能单独归因于三项观测开关。R49/R50均为诊断失败，不计正式性能或稳定性PASS；四项指标before/after仍无有效批次，需继续拆分候选补丁定位首屏故障并修复串口bundle完整性。详情见 [report/418](report/418-T490冻结基线procfs驻留页候选R46%20smoke与原始归档缺口-20261121.md)、[report/419](report/419-T490R47冻结procfs候选身份复核发现stat22为零-20261121.md)、[report/420](report/420-T490R48冻结快照stat与进程树内存smoke提取通过-20261121.md)、[report/421](report/421-T490R49阶段计时与lifecycle采集诊断首屏超时串口缺块-20261121.md) 与 [report/422](report/422-T490R50观测关闭控制仍首屏超时-20261121.md)。整体仍 `INCOMPLETE`。
 

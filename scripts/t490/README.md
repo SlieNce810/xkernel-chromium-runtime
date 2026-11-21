@@ -323,6 +323,8 @@ R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减�
 
 R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R14 显示它未到达按钮且页面后来出现 unresponsive 对话框。R15 使用 `step3` 后实际打开了 CSS 页面，但 strict gate 未看到页面顶部；R17 的 Home 键也未使截屏回到顶部。R17 请求 `(212,638)` 后指针热点为 `(253,724)`；R18 请求 `(250,588)` 后热点为 `(302,729)`，计数和导航仍未通过。R19 的外推请求 `(233,1138)` / `(287,778)` 把指针移出 viewport，详见 report 322。后续只作小步单变量调整，`test_interaction_score_driver.py` 检查步进、目标映射和覆盖值。
 
+R52 将direct-PTE patch在冻结快照上重建并observer-off复跑：首屏1800秒超时，53张截图strict失败，normalizer592/592通过。结合R50 direct-on失败与R51 direct-off首屏/reload/420秒hold通过，这一回归方向已在两个direct-on构建中重现；仍需要在no-direct版本补正式稳定性和功能回归，见 [report 424](../../report/424-T490R52direct-PTE回加重复复测首屏仍超时-20261121.md)。
+
 ### 本轮新增 autorun
 | 文件 | 场景 |
 |---|---|
