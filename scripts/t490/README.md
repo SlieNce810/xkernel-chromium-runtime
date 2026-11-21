@@ -290,6 +290,8 @@ R32 在sampler-only配置下首页strict同样超时，虽然内存bundle完整�
 
 R33 sampler-off 重复控制也通过页面 strict、1/1重载与420秒保持；guest clock-sync关闭，normalizer报告family快照stale，故不用于guest-clock性能或稳定性总PASS。R31/R33最小配置通过而R30/R32 sampler-on失败，仍需重跑和 IPC/frame诊断，不能单因果归因。详见 [report 404](../../report/404-T490R33sampler-off重复页面控制与时钟口径-20261121.md)。
 
+`run_stability_round_mp.sh` 新增 `STABILITY_PROCESS_SAMPLE_SECONDS`，默认5秒、最多60秒；用于控制 autorun 的 shell process-tree scan 频率。R34 以30秒process scan和30秒family watchdog运行：页面通过，R32的5秒process scan页面超时，但R34 sampler仍FAIL、family snapshot间歇36秒stale。作为降低观测负载候选，需与正常1Hz采样和30秒freshness门限再测，见 [report 405](../../report/405-T490R34sampler与30秒process观察扫描对照-20261121.md)。
+
 ### 进程树 RSS/PSS/USS 采样器
 
 `proc_tree_sampler.c` 优先读取 `/proc/<root-pid>/tree_smaps_rollup`，通过一次全进程 resident-frame/mapcount 快照取得目标进程树各 PID 的 RSS/PSS/USS，并核对 PID/PPID 关联；端点不存在时才回退到逐 PID `smaps_rollup`。任一已发现进程缺少数值、父链不匹配或页面统计不可用时，该轮样本整体无效。状态文件和结果行记录实际来源，缺失值不会填零。端点实现及 `/proc/<pid>/stat` field 22 起始 tick 修复见 [report 383](../../report/383-T490-proc-stat-starttime与进程树内存单遍回归-20261120.md)。R13 2 GiB guest smoke 仅有两个 shell 进程，8 次采样/0 missed；这验证了工具路径，不代表 Chromium 进程树性能数据。R14 起 smoke 会以 `PROC_TREE_SMOKE_MEMORY_CSV_BEGIN` / `PROC_TREE_SMOKE_EVENTS_BEGIN` 标记完整串口块；用 `python3 scripts/t490/extract_proc_tree_smoke.py <console.log> --run-id proc-tree-smoke-01 --out-dir <new-dir>` 校验并提取 CSV、事件、状态和 root stat。对应回归见 [report 384](../../report/384-T490-procfs-smoke原始数据串口回收与严格提取-20261120.md)。
