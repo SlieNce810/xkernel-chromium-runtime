@@ -308,6 +308,7 @@ R46 在冻结tracked snapshot上应用四个procfs resident-page补丁并构建�
 R47 将仓库runner同步到隔离目录后完成CSV/events串口输出；身份检查发现冻结snapshot `/proc/<pid>/stat` field 22为0（`5-0`/`11-0`），提取器正确拒绝；修复补丁为 `patches/compat/proc-stat-starttime.patch`，见 [report 419](../../report/419-T490R47冻结procfs候选身份复核发现stat22为零-20261121.md)。
 R48 在同一冻结快照将stat22补丁与四个驻留页补丁一起构建；root/child ticks非零，8次/16行RSS/PSS/USS smoke完整提取，0 missed。没有启动图形或Chromium，不计四指标。提取器现在将可选kernel timing `UNAVAILABLE` 原样保存并标注不可用，Shared/USS显式0是合法数值；专用测试10/10，全Python suite 77/77，见 [report 420](../../report/420-T490R48冻结快照stat与进程树内存smoke提取通过-20261121.md)。
 R49 候选在相同平台启用 timing patch、lifecycle preload、guest clock-sync 与900秒sampler；首屏1800秒deadline超时，53张1280×800截图全部strict失败。稳定性事件normalizer 1174/1174通过，但900秒memory bundle缺失seq32–47，264块中仅248块收到，严格解包拒收；同时console记录 `MP_LEDGER_LIMIT` 的跨进程procfs阻塞提示。该轮不计性能/稳定性PASS；先降低诊断输出并修复串口完整性，再继续分析页面时序，见 [report 421](../../report/421-T490R49阶段计时与lifecycle采集诊断首屏超时串口缺块-20261121.md)。
+R50 在同一R49 candidate kernel/rootfs/page下关闭memory sampler、lifecycle preload与guest clock-sync，保留family/process liveness observer；首屏仍在1800秒deadline超时，59次poll/53张截图均strict失败，normalizer567/567通过。此控制显示R49失败不能归因于三项高负载观察开关的组合；因为三项同时关闭，不能单项归因。该kernel仍不是R44冻结PASS kernel，也没有memory/performance指标，详见 [report 422](../../report/422-T490R50观测关闭控制仍首屏超时-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
