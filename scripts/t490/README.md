@@ -328,6 +328,7 @@ R52 将direct-PTE patch在冻结快照上重建并observer-off复跑：首屏180
 R53 no-direct-PTE候选把Kconfig日志从WARN降到ERROR后跑正式验收门槛；runner dry-run通过，但initial strict在2400秒超时，没有进入10次reload/1805秒保持。normalizer871/871通过，timeout时Weston/Chrome存活，低噪声console约168 KB。此设置没有独自修复页面；该轮gate失败，详见 [report 425](../../report/425-T490R53ERROR日志候选正式稳定性首屏超时-20261121.md)。
 R54 同一no-direct-PTE/ERROR-only候选正式稳定性PASS：initial strict、真实QMP Ctrl+R 10/10、1805秒hold、60 liveness、0退出/异常；normalizer762/762。原runner因staged source路径计算错误而把正式gate误报RC1；更新后的 `stability_gate.py --checker` 用同一证据重验pass，并修复runner总是将 `$HERE/ppm_assert.py` 显式传入。R54不含memory/lifecycle performance数据，三次独立启动和一键复现仍待补齐，见 [report 426](../../report/426-T490R54no-directPTE-error候选正式稳定性通过并修复checker路径-20261121.md)。
 R55复跑R54同一no-direct-PTE/ERROR-only kernel，首屏 strict 307.305秒通过、reload 1/1、420秒diagnostic hold和normalizer243/243通过；R53同配置的首屏超时仍需保留，反映启动间歇性。R55不计正式30分钟稳定性，见 [report 427](../../report/427-T490R55no-directPTE-error候选独立cold-start通过-20261121.md)。
+R56同一candidate/error配置把readiness设1200秒做短cold-start retry，首屏仍未strict；normalizer430/430通过、Weston/Chrome存活。此轮低于正式2400秒deadline，只作为失败诊断；R57将恢复default deadline，见 [report 428](../../report/428-T490R56ERRORno-direct候选短deadline冷启动重试失败-20261121.md)。
 
 ### 本轮新增 autorun
 | 文件 | 场景 |
