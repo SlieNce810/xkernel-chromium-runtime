@@ -11,6 +11,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 ## 2026-11-21 当前复核状态
 
+R53将no-direct-PTE候选日志设为ERROR并启动正式10 reload/1805秒hold轮；dry-run通过，但2400秒initial strict timeout，未进入reload/hold。normalizer871/871通过，QEMU末端Weston/Chrome存活，console仅167 KB；因此ERROR-only日志降噪没有单独修复页面。R51的WARN诊断曾页面通过，但freshness gate失败；no-direct候选整体仍不稳定，需修复/重复稳定性轮后再选最终candidate。详见 [report/425](report/425-T490R53ERROR日志候选正式稳定性首屏超时-20261121.md)。
+
 R52 direct-PTE回加复跑使机制对照重复一侧：R50与R52两个direct-PTE候选在observer-off下都于1800秒首屏超时（各53张strict截图失败），而R51去掉该patch后strict首屏、reload与420秒hold通过。此方向强烈提示 direct-PTE walker是页面回归风险，但direct-off侧目前只有一轮，R51 freshness gate也失败；先从可运行候选排除该优化，继续no-direct稳定性/功能回归，不把它报告为已定因或性能收益。详见 [report/422](report/422-T490R50观测关闭控制仍首屏超时-20261121.md)、[report/423](report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md) 与 [report/424](report/424-T490R52direct-PTE回加重复复测首屏仍超时-20261121.md)。
 
 R51机制对照补充：在R50同一冻结派生候选、observer-off条件下移除direct-PTE walker后，strict首屏在466.008秒host elapsed通过，真实reload 1/1和420秒hold通过；normalizer仍因4个family freshness超限失败，所以不是正式稳定性PASS。与R50含direct-PTE时1800秒首屏超时的相反方向，初步指向该优化的页面回归风险；R52回加复跑仍超时，direct-on两轮/no-direct一轮方向一致；no-direct候选仍需修复freshness并通过稳定性回归，详见report/424。见 [report/423](report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md)。
