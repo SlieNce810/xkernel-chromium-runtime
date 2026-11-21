@@ -1,0 +1,45 @@
+{
+  "candidate_kernel_sha256": "2bca9a09102d06260ff533bc089f8f3843a2167b537e299eba1f62dfc230d011",
+  "diagnostic_hold_seconds": 420,
+  "diagnostic_only": true,
+  "direct_pte_patch_applied": false,
+  "driver_rc": 0,
+  "formal_performance_sample": false,
+  "formal_stability_pass": false,
+  "gate_rc": 78,
+  "initial_page_ready_host_elapsed_ms": 466007.627953,
+  "initial_page_strict_pass": true,
+  "normalizer": {
+    "errors": [
+      "line 147: complete family snapshot is stale (age_s=40.857, limit_s=35)",
+      "line 177: complete family snapshot is stale (age_s=37.026, limit_s=35)",
+      "line 207: complete family snapshot is stale (age_s=36.026, limit_s=35)",
+      "line 236: complete family snapshot is stale (age_s=35.031, limit_s=35)"
+    ],
+    "input_events": 249,
+    "output_events": 249,
+    "result": "FAIL"
+  },
+  "normalizer_rc": 1,
+  "notes": [
+    "R50 with direct-PTE included timed out after 1800 seconds under the same observer-off settings.",
+    "The two-run direction suggests a direct-PTE page regression but is not a repeat-validated causal conclusion.",
+    "Normaliser rejected four stale complete-family snapshots; R51 is not a formal stability pass.",
+    "Memory sampler was disabled, so there are no four-metric values."
+  ],
+  "observer_options": {
+    "family_watchdog_seconds": 25,
+    "guest_clock_sync": false,
+    "lifecycle_preload": false,
+    "memory_sampler": false,
+    "process_scan_seconds": 30
+  },
+  "post_pass_strict_failures": 0,
+  "ppm_count": 22,
+  "real_reload_strict_passes": 1,
+  "reload_count": 1,
+  "round_rc": 0,
+  "run_id": "r51-no-direct-pte-control",
+  "schema": "xkernel.goal-run-summary.v1",
+  "strict_failures_before_first_pass": 8
+}

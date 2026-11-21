@@ -329,3 +329,5 @@ R13 可设置 `INTERACTION_POINTER_MODE=step1`（单像素、50 ms 间隔），R
 | `autorun_install.sh` | 装包 + weston + Chromium（A/B 两种启动尝试） |
 | `autorun_nnp.sh` | **P3 验收轮**：探针 + weston + Chromium + **全局 `COUNT` 段** |
 | `autorun_r2.sh` | **renderer 追击**：A 段多进程+屏蔽网络 / B 段 `--single-process` |
+
+R51机制对照：R50含direct-PTE patch时observer-off首屏1800秒超时；R51基于同冻结快照和其余相同补丁、去掉direct-PTE后首页466.008秒strict通过、reload 1/1、420秒hold通过。normalizer有4个family freshness超限快照，所以此轮不是稳定性总PASS；只把direct-PTE视为回归候选，R52需回加patch复跑，见 [report 423](../../report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md)。

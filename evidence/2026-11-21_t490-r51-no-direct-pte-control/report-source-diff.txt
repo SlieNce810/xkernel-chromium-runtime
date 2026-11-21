@@ -1,0 +1,5 @@
+R50 candidate patch set included patches/t490-procfs-resident-walk-direct-pte-r27.patch.
+R51 uses the same frozen tracked diff, stat22, smaps_rollup, tree_smaps_rollup, dense PFN and timing patches, but excludes only that direct-PTE patch.
+R50 driver: initial strict page gate timed out at 1800 seconds, 53/53 screenshots failed.
+R51 driver: strict page ready at 466.007627953 seconds host elapsed, reload 1/1, 420.0 second hold; normalizer rejected four stale family snapshots.
+Interpretation: this pair suggests a possible direct-PTE page regression; one run per side is not a reliable final causal result. R52 repeat with the direct-PTE patch is required.
