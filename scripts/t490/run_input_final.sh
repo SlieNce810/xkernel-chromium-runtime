@@ -385,8 +385,14 @@ fi
 PIXEL_RC=0
 if [ -f "$BEFORE" ] && [ -f "$AFTER" ]; then
     : > "$WORK/pixel-policy.log"
+    VERIFY_PIXEL_POLICY="${VERIFY_PIXEL_POLICY_SCRIPT:-$HERE/../verify_pixel_policy.py}"
+    if [ ! -f "$VERIFY_PIXEL_POLICY" ]; then
+        VERIFY_PIXEL_POLICY="$HERE/verify_pixel_policy.py"
+    fi
+    [ -f "$VERIFY_PIXEL_POLICY" ] \
+        || die "pixel policy script missing: $VERIFY_PIXEL_POLICY"
     for ppm in "$BEFORE" "$AFTER"; do
-        python3 "$HERE/../verify_pixel_policy.py" "$ppm" \
+        python3 "$VERIFY_PIXEL_POLICY" "$ppm" \
             >> "$WORK/pixel-policy.log" 2>&1 || PIXEL_RC=$?
     done
 else
@@ -442,6 +448,7 @@ if [ -d "$OUT" ]; then
     if [ -d "$WORK/interaction-shots" ]; then cp -a "$WORK/interaction-shots" "$OUT/"; fi
     if [ -f "$WORK/interaction-events.jsonl" ]; then cp -f "$WORK/interaction-events.jsonl" "$OUT/"; fi
     if [ -f "$WORK/interaction-score-gate.log" ]; then cp -f "$WORK/interaction-score-gate.log" "$OUT/"; fi
+    if [ -f "$WORK/pixel-policy.log" ]; then cp -f "$WORK/pixel-policy.log" "$OUT/"; fi
     if [ -f "$WORK/qmp-quit.log" ]; then cp -f "$WORK/qmp-quit.log" "$OUT/"; fi
     cp -f "$DIFF_JSON" "$OUT/input-diff.json" 2>/dev/null || true
     cp -f "$AFTER" "$OUT/input-after.ppm" 2>/dev/null || true
