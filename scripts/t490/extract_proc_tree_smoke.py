@@ -90,6 +90,7 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
     sample_pids: dict[int, set[int]] = {}
     sample_times: dict[int, int] = {}
     sample_timing: dict[int, dict[str, int]] = {}
+    sample_timing_state: dict[int, str] = {}
     seen_rows: set[tuple[int, int, str]] = set()
     for row in rows:
         if list(row) != expected_fields:
@@ -101,25 +102,40 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         identity_match = re.fullmatch(r"(\d+)-(\d+)", identity)
         if not identity_match or int(identity_match.group(1)) != pid or int(identity_match.group(2)) == 0:
             raise ExtractionError(f"invalid or zero starttime process identity: {identity}")
-        if any(int(row[name]) <= 0 for name in ("rss_kb", "pss_kb", "uss_kb")):
-            raise ExtractionError(f"non-positive RSS/PSS/USS for PID {pid}")
+        try:
+            memory_values = {name: int(row[name]) for name in ("rss_kb", "pss_kb", "uss_kb")}
+        except (TypeError, ValueError) as exc:
+            raise ExtractionError(f"missing or non-integer RSS/PSS/USS for PID {pid}") from exc
+        if any(value < 0 for value in memory_values.values()):
+            raise ExtractionError(f"negative RSS/PSS/USS for PID {pid}")
         if has_timing:
-            timing: dict[str, int] = {}
-            for name in TIMING_FIELDS:
-                try:
-                    value = int(row[name])
-                except (TypeError, ValueError) as exc:
-                    raise ExtractionError(f"invalid timing field {name} for sample {sample_id}") from exc
-                if value < 0:
-                    raise ExtractionError(f"negative timing field {name} for sample {sample_id}")
-                timing[name] = value
-            if timing["tree_snapshot_total_ns"] <= 0 or timing["tree_smaps_rollup_read_ns"] <= 0 or timing["sample_work_ns"] <= 0:
-                raise ExtractionError(f"non-positive timing duration for sample {sample_id}")
-            if timing["tree_snapshot_process_count"] <= 0 or timing["tree_snapshot_resident_pages"] <= 0:
-                raise ExtractionError(f"empty process or resident-page count for sample {sample_id}")
-            if sample_id in sample_timing and sample_timing[sample_id] != timing:
-                raise ExtractionError(f"sample {sample_id} has inconsistent timing metadata")
-            sample_timing[sample_id] = timing
+            raw_timing = {name: row.get(name) for name in TIMING_FIELDS}
+            unavailable = [value == "UNAVAILABLE" for value in raw_timing.values()]
+            if any(unavailable):
+                if not all(unavailable):
+                    raise ExtractionError(f"sample {sample_id} has partially unavailable timing metadata")
+                timing_state = "unavailable"
+            else:
+                timing: dict[str, int] = {}
+                for name, raw_value in raw_timing.items():
+                    try:
+                        value = int(raw_value)
+                    except (TypeError, ValueError) as exc:
+                        raise ExtractionError(f"invalid timing field {name} for sample {sample_id}") from exc
+                    if value < 0:
+                        raise ExtractionError(f"negative timing field {name} for sample {sample_id}")
+                    timing[name] = value
+                if timing["tree_snapshot_total_ns"] <= 0 or timing["tree_smaps_rollup_read_ns"] <= 0 or timing["sample_work_ns"] <= 0:
+                    raise ExtractionError(f"non-positive timing duration for sample {sample_id}")
+                if timing["tree_snapshot_process_count"] <= 0 or timing["tree_snapshot_resident_pages"] <= 0:
+                    raise ExtractionError(f"empty process or resident-page count for sample {sample_id}")
+                if sample_id in sample_timing and sample_timing[sample_id] != timing:
+                    raise ExtractionError(f"sample {sample_id} has inconsistent timing metadata")
+                sample_timing[sample_id] = timing
+                timing_state = "available"
+            if sample_id in sample_timing_state and sample_timing_state[sample_id] != timing_state:
+                raise ExtractionError(f"sample {sample_id} has inconsistent timing availability")
+            sample_timing_state[sample_id] = timing_state
         key = (sample_id, pid, identity)
         if key in seen_rows:
             raise ExtractionError(f"duplicate CSV row: {key}")
@@ -135,6 +151,8 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         raise ExtractionError("process count varies or does not match the smoke summary")
     if any(sample_times[a] >= sample_times[b] for a, b in zip(sample_ids, sample_ids[1:])):
         raise ExtractionError("sample timestamps are not strictly increasing")
+    if has_timing and len(set(sample_timing_state.values())) != 1:
+        raise ExtractionError("timing availability changes between samples")
 
     event_records: dict[int, dict[str, Any]] = {}
     for line in lines[events_marker + 1:smaps_marker]:
@@ -200,8 +218,12 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         match = re.match(r"^(Rss|Pss|USS|Shared):\s+(\d+) kB$", line)
         if match:
             smaps_values[match.group(1)] = int(match.group(2))
-    if set(smaps_values) != {"Rss", "Pss", "USS", "Shared"} or any(value <= 0 for value in smaps_values.values()):
-        raise ExtractionError("root smaps_rollup values are incomplete or non-positive")
+    if (
+        set(smaps_values) != {"Rss", "Pss", "USS", "Shared"}
+        or smaps_values.get("Rss", 0) <= 0
+        or any(value < 0 for value in smaps_values.values())
+    ):
+        raise ExtractionError("root smaps_rollup values are incomplete, negative, or have zero RSS")
 
     if out_dir.exists() and any(out_dir.iterdir()):
         raise ExtractionError(f"refusing to overwrite non-empty output directory: {out_dir}")
@@ -233,7 +255,10 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
         "launch_ns": launch_ns,
         "root_smaps_rollup_kb": smaps_values,
     }
-    if has_timing:
+    timing_available = has_timing and bool(sample_timing_state) and all(
+        state == "available" for state in sample_timing_state.values()
+    )
+    if timing_available:
         timing_statistics: dict[str, dict[str, int | float]] = {}
         for name in TIMING_FIELDS:
             values = sorted(sample[name] for sample in sample_timing.values())
@@ -246,6 +271,7 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
                 "max": values[-1],
             }
         summary["tree_snapshot_timing"] = {
+            "available": True,
             "process_count_semantics": (
                 "all-process mapcount snapshot input rows; this is system-wide and does not equal Chromium tree rows"
             ),
@@ -256,6 +282,19 @@ def extract_smoke(console_path: Path, out_dir: Path, expected_run_id: str | None
                 "from sample_t_ns through process scan and memory reads, stopping immediately before CSV row emission and flush"
             ),
             "fields": timing_statistics,
+        }
+    else:
+        unavailable_samples = sum(
+            state == "unavailable" for state in sample_timing_state.values()
+        )
+        summary["tree_snapshot_timing"] = {
+            "available": False,
+            "unavailable_samples": unavailable_samples,
+            "reason": (
+                "kernel endpoint reported UNAVAILABLE for all optional timing fields"
+                if has_timing
+                else "CSV does not contain optional kernel timing fields"
+            ),
         }
     (out_dir / "extract-summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary

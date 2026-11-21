@@ -304,12 +304,17 @@ R42 正式稳定性gate运行：首页465.976秒strict通过，nav-01至08通过
 R43 同参数正式复跑：首页497.108秒strict通过，nav-01/02通过、nav-03超时，之后保持1805.000秒通过；normalizer 739/739通过、family freshness最大28.895秒，但正式gate因只有2/10 reload失败。详见 [report 415](../../report/415-T490冻结根正式稳定性R43两次重载后nav03超时-20261121.md)。
 R44 正式冻结根stable gate PASS：初始页497.079秒strict通过，真实Ctrl+R 10/10通过、保持1805秒，QEMU liveness 60样本，family age max30.024秒且无进程退出/guest异常。sampler/preload/guest clock sync关闭，不能算内存或四项性能样本，详见 [report 416](../../report/416-T490冻结根正式稳定性R44十次reload与1805秒保持通过-20261121.md)。
 R45 开启lifecycle preload、guest clock sync和900秒sampler后：首页、reload和420秒诊断保持通过；Browser startup单轮候选39.769秒、导航至strict screenshot上界410.029秒。缺renderer-ready/first-frame，memory sampler0 rows/734 missed/1,357错误，不计正式四指标。空CSV bundle保留修复见 [report 417](../../report/417-T490R45lifecycle与内存采集诊断采样器零有效行-20261121.md)。
+R46 在冻结tracked snapshot上应用四个procfs resident-page补丁并构建成功，2 GiB shell sampler自报8次/16行/0 missed；当轮调用的旧runner未输出完整CSV/events，严格提取拒绝，见 [report 418](../../report/418-T490冻结基线procfs驻留页候选R46%20smoke与原始归档缺口-20261121.md)。
+R47 将仓库runner同步到隔离目录后完成CSV/events串口输出；身份检查发现冻结snapshot `/proc/<pid>/stat` field 22为0（`5-0`/`11-0`），提取器正确拒绝；修复补丁为 `patches/compat/proc-stat-starttime.patch`，见 [report 419](../../report/419-T490R47冻结procfs候选身份复核发现stat22为零-20261121.md)。
+R48 在同一冻结快照将stat22补丁与四个驻留页补丁一起构建；root/child ticks非零，8次/16行RSS/PSS/USS smoke完整提取，0 missed。没有启动图形或Chromium，不计四指标。提取器现在将可选kernel timing `UNAVAILABLE` 原样保存并标注不可用，Shared/USS显式0是合法数值；专用测试10/10，全Python suite 77/77，见 [report 420](../../report/420-T490R48冻结快照stat与进程树内存smoke提取通过-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
 `proc_tree_sampler.c` 优先读取 `/proc/<root-pid>/tree_smaps_rollup`，通过一次全进程 resident-frame/mapcount 快照取得目标进程树各 PID 的 RSS/PSS/USS，并核对 PID/PPID 关联；端点不存在时才回退到逐 PID `smaps_rollup`。任一已发现进程缺少数值、父链不匹配或页面统计不可用时，该轮样本整体无效。状态文件和结果行记录实际来源，缺失值不会填零。端点实现及 `/proc/<pid>/stat` field 22 起始 tick 修复见 [report 383](../../report/383-T490-proc-stat-starttime与进程树内存单遍回归-20261120.md)。R13 2 GiB guest smoke 仅有两个 shell 进程，8 次采样/0 missed；这验证了工具路径，不代表 Chromium 进程树性能数据。R14 起 smoke 会以 `PROC_TREE_SMOKE_MEMORY_CSV_BEGIN` / `PROC_TREE_SMOKE_EVENTS_BEGIN` 标记完整串口块；用 `python3 scripts/t490/extract_proc_tree_smoke.py <console.log> --run-id proc-tree-smoke-01 --out-dir <new-dir>` 校验并提取 CSV、事件、状态和 root stat。对应回归见 [report 384](../../report/384-T490-procfs-smoke原始数据串口回收与严格提取-20261120.md)。
 
 R21 新增的 CSV 后缀字段按 sample ID 聚合 `tree_snapshot_total_ns`、resident walk、mapcount、rollup、format、procfs read 和采样前置工作时间；原10列 CSV仍可读。`tree_snapshot_process_count` 计的是全系统 mapcount 输入，`tree_snapshot_resident_pages` 是含共享映射重复数的mapping计数，不能与Chromium树行数比较。复现提取命令：`python3 scripts/t490/extract_perf_memory.py <console.log> --run-id r21-dense-timing --out-dir <new-dir>`；无效样本会保留原始数据并在 `extraction.json` 中标记 `valid=false`、error types 与 overrun min/median/P95/max。阶段计时 patch 和口径见 [report 392](../../report/392-T490procfs阶段计时与R21Chromium进程树采样诊断-20261120.md)。
+
+smoke extractor 接受基础10列CSV、带有效计时扩展的19列CSV，以及带全部 `UNAVAILABLE` 扩展计时列的19列CSV；后者保留字面标记且在 summary 中写 `tree_snapshot_timing.available=false`。同一轮计时列半缺、跨样本可用性变化、零field22、缺CSV行或非数值内存值仍拒收。RSS必须非零；PSS/USS/Shared为显式非负数值时保留，包括 `Shared=0`。
 
 
 R12 的候选坐标 `(247,607)` / `(292,638)` 仍未命中；后续校准应减小相对步幅并降低事件频率，再按截图校准坐标。

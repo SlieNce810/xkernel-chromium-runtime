@@ -18,7 +18,7 @@ HEADER = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb
 TIMING_HEADER = HEADER + ",tree_snapshot_total_ns,tree_snapshot_resident_walk_ns,tree_snapshot_mapcount_ns,tree_snapshot_rollup_ns,tree_snapshot_format_ns,tree_snapshot_process_count,tree_snapshot_resident_pages,tree_smaps_rollup_read_ns,sample_work_ns"
 
 
-def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: bool = False, events: int = 4, duplicate: bool = False, timing: bool = False, timing_mismatch: bool = False) -> str:
+def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: bool = False, zero_child_uss: bool = False, shared_kb: int = 436, events: int = 4, duplicate: bool = False, timing: bool = False, timing_mismatch: bool = False, timing_unavailable: bool = False, timing_partial: bool = False) -> str:
     fields = ["S", "1"] + ["0"] * 17 + [str(root_ticks)]
     root_stat = "5 (autorun.sh) " + " ".join(fields)
     lines = [
@@ -30,11 +30,16 @@ def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: boo
     ]
     rows_text = []
     for sample in range(1, 9):
-        for pid, ppid, instance, rss, pss, uss in [(5, 1, f"5-{0 if zero_instance else root_ticks}", 588, 372, 156), (11, 5, "11-189", 164, 164, 164)]:
+        for pid, ppid, instance, rss, pss, uss in [(5, 1, f"5-{0 if zero_instance else root_ticks}", 588, 372, 156), (11, 5, "11-189", 164, 164, 0 if zero_child_uss else 164)]:
             row = f"{RUN_ID},LINUX_CLOCK_MONOTONIC,{sample},{sample * 1000000000},{pid},{ppid},{instance},{rss},{pss},{uss}"
             if timing:
-                total = 100000 + int(timing_mismatch and pid == 11 and sample == 1)
-                row += f",{total},30000,20000,10000,5000,18,50,110000,250000"
+                if timing_unavailable:
+                    row += "," + ",".join(["UNAVAILABLE"] * 9)
+                else:
+                    total = 100000 + int(timing_mismatch and pid == 11 and sample == 1)
+                    row += f",{total},30000,20000,10000,5000,18,50,110000,250000"
+                    if timing_partial and pid == 11 and sample == 1:
+                        row = row.rsplit(",", 1)[0] + ",UNAVAILABLE"
             rows_text.append(row)
     if duplicate:
         rows_text[-1] = rows_text[0]
@@ -47,7 +52,7 @@ def fixture_console(*, rows: int = 16, root_ticks: int = 159, zero_instance: boo
         {"schema":"xkernel.browser.lifecycle.v1","run_id":RUN_ID,"clock_id":"LINUX_CLOCK_MONOTONIC","seq":4,"event_id":f"{RUN_ID}:4","t_ns":9000000000,"event":"memory_sampling_finished"},
     ]
     lines.extend(json.dumps(record, separators=(",", ":")) for record in records[:events])
-    lines.extend(["PROC_TREE_SMOKE_ROOT_SMAPS_BEGIN pid=5", "Rss:\t588 kB", "Pss:\t334 kB", "USS:\t152 kB", "Shared:\t436 kB", "PROC_TREE_SMOKE_PASS"])
+    lines.extend(["PROC_TREE_SMOKE_ROOT_SMAPS_BEGIN pid=5", "Rss:\t588 kB", "Pss:\t334 kB", "USS:\t152 kB", f"Shared:\t{shared_kb} kB", "PROC_TREE_SMOKE_PASS"])
     return "\n".join(lines) + "\n"
 
 
@@ -79,9 +84,33 @@ class ExtractProcTreeSmokeTests(unittest.TestCase):
             rows = list(csv.DictReader(stream))
         self.assertEqual(len(rows), 16)
         timing = summary["tree_snapshot_timing"]
+        self.assertTrue(timing["available"])
         self.assertEqual(timing["fields"]["tree_snapshot_total_ns"]["samples"], 8)
         self.assertEqual(timing["fields"]["tree_snapshot_total_ns"]["median"], 100000)
         self.assertIn("system-wide", timing["process_count_semantics"])
+
+    def test_preserves_memory_rows_when_optional_timing_is_unavailable(self) -> None:
+        summary, out = self.run_extract(fixture_console(timing=True, timing_unavailable=True))
+        with (out / "memory-samples.csv").open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual(len(rows), 16)
+        self.assertTrue(all(row["tree_snapshot_total_ns"] == "UNAVAILABLE" for row in rows))
+        timing = summary["tree_snapshot_timing"]
+        self.assertFalse(timing["available"])
+        self.assertEqual(timing["unavailable_samples"], 8)
+
+    def test_accepts_zero_shared_and_uss_values(self) -> None:
+        summary, out = self.run_extract(fixture_console(shared_kb=0, zero_child_uss=True))
+        with (out / "memory-samples.csv").open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual(summary["root_smaps_rollup_kb"]["Shared"], 0)
+        child_rows = [row for row in rows if row["pid"] == "11"]
+        self.assertTrue(child_rows)
+        self.assertTrue(all(row["uss_kb"] == "0" for row in child_rows))
+
+    def test_rejects_partially_unavailable_timing_metadata(self) -> None:
+        with self.assertRaisesRegex(module.ExtractionError, "partially unavailable timing metadata"):
+            self.run_extract(fixture_console(timing=True, timing_partial=True))
 
     def test_rejects_inconsistent_timing_metadata_within_sample(self) -> None:
         with self.assertRaisesRegex(module.ExtractionError, "inconsistent timing metadata"):

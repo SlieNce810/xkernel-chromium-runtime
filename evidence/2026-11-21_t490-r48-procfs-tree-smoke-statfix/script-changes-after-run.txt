@@ -1,0 +1,5 @@
+R48 used T490 staged autorun_proc_tree_sampler_smoke.sh SHA-256 687980a8b390c745bf2f69fde719098a32c267a3099cd5132f5d471b1002762a.
+
+After the QEMU session, the repository version changed its bad_values check to reject empty/non-numeric RSS/PSS/USS cells while allowing explicit numeric zero. Its current SHA-256 is 0cc2ab82c516dca5ea89408a7412a965587b00bbfc7b2ae416a36948e11e7bb2. R48's observed memory values were all positive, so the edit does not change R48's verdict. The updated script must be staged and hash-verified before the next guest smoke.
+
+The extractor change for timing UNAVAILABLE and zero Shared/USS was also made after the QEMU session. It affects only host-side evidence interpretation; it does not change the guest kernel, process identities, CSV RSS/PSS/USS, or QEMU run.
