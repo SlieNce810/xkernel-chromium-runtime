@@ -183,7 +183,8 @@ R34 开启 sampler、关闭preload/clock-sync，并把 shell process-tree扫描�
 R35 恢复 preload、guest clock-sync 与1 Hz sampler，使用30秒process scan/25秒family watchdog后首页、重载、600秒保持和normalizer均通过；Browser launch→main-loop-ready为38.511秒、导航→strict截图上界436.389秒。sampler仍FAIL（268 IDs、194 missed、258错误），无有效RSS/PSS/USS峰值；renderer-ready/first-frame也缺，故不进入正式CSV，见 [report/406](report/406-T490R35低频Observer完整采集路径复测-20261121.md)。
 
 R36 首次按冻结根路径重跑，kernel/rootfs SHA与baseline r3一致，2 GiB pure TCG、Jitless和IPC timeout flags均在argv；首页strict仍在1550秒诊断deadline超时，终止截图为空白。历史三次同SHA通过记录仍保留，但不能掩盖新失败；见 [report/408](report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
-R37 在同一冻结根和默认2400秒ready deadline下通过首页strict（466.376秒）、1/1重载和420秒保持，但5个进程族快照超出35秒freshness门限，normalizer失败；该轮只能记页面/保持部分通过，不能算稳定性PASS。R38将family watchdog调至15秒继续复核，见 [report/409](report/409-T490冻结根R37coldstart页面通过但family快照stale-20261121.md) 与 [R37 evidence](evidence/2026-11-21_t490-r37-frozen-cold01/)。
+R37 在同一冻结根和默认2400秒ready deadline下通过首页strict（466.376秒）、1/1重载和420秒保持，但5个进程族快照超出35秒freshness门限，normalizer失败；该轮只能记页面/保持部分通过，不能算稳定性PASS，见 [report/409](report/409-T490冻结根R37coldstart页面通过但family快照stale-20261121.md)。
+R38 在冻结根以15秒family watchdog重跑，首页strict于497.171秒通过、1/1重载及420秒保持通过；267条事件normalizer PASS，family freshness最大30.715秒。该轮仍是diagnostic-only，未执行正式10次重载/30分钟gate，且没有guest-clock性能或内存峰值数据；详见 [report/410](report/410-T490冻结根15秒familywatchdog冷启动与保持通过R38-20261121.md) 及 [R38 evidence](evidence/2026-11-21_t490-r38-frozen-cold02/)。
 
 ## 目录导览
 
