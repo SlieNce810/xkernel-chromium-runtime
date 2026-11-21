@@ -272,7 +272,7 @@ R21 为该 endpoint 加入分阶段 guest-monotonic 计时，首页 strict 589.1
 R22 可用 `STABILITY_LIFECYCLE_PRELOAD=1` opt-in 编译/注入 `lifecycle_event_preload.c`；探针预期观测 Browser/Renderer 主线程等待、file URL open 和 Zygote fork，并将可选 `lifecycle-probe-events.jsonl` 放入 memory export。R22 实际只捕获了 file open 和 5 个 Zygote fork 边界，没有 Browser/renderer ready 或 first-frame。用 `python3 scripts/t490/merge_lifecycle_events.py --memory-events <memory-export/lifecycle-events.jsonl> --probe-events <memory-export/lifecycle-probe-events.jsonl> --stability-events <stability/stability-events.jsonl> --evidence-dir <evidence-dir> --out <new-ledger.jsonl> --summary <new-summary.json> --run-id <tag>` 合并 guest 事件与 QMP strict verdict；缺少的事件会使 summary 标为 invalid，fork 边界不会被误当成已确认的 renderer-create 事件。详见 [report 393](../../report/393-T490guest单调生命周期preload事件探针R22缺失BrowserRendererReady-20261121.md)。
 R23 以 `CrBrowserMain` / `CrRendererMain` comm 及 poll/ppoll hook 补测，捕获 Browser ready 与 guest file-open 导航，startup候选42.290秒；renderer ready、first frame仍缺。R23页面严格通过为987.609秒host elapsed，900秒clock sync无法映射该页事件；采样器状态FAIL。R23实际运行用的是每次等待都读procfs的旧preload；源码已加一次性快路径，但尚未guest A/B验证，详见 [report 394](../../report/394-T490guest生命周期hook补覆盖与R23首屏及clock-sync缺口-20261121.md)。
 
-R24 因漏传 `KERNEL_DIR` 指向默认 `/home/mo/x-kernel` 而提前终止，不能作为冻结 worktree 的对照；R25 使用冻结 kernel/base，首页、1/1重载和420秒诊断保持通过。R25 guest-clock截图上界651.567秒（30秒采样），但1200秒 sampler 在QMP结束guest时未到期，生命周期与RSS/PSS/USS导出缺失，采集器拒收。下一轮缩短采样窗并验证正常导出，详见 [report 395](../../report/395-T490R24启动路径偏差与提前终止记录-20261121.md) 和 [report 396](../../report/396-T490R25生命周期快路径与采样窗复测-20261121.md)。
+R24 实际使用冻结根 /home/mo/x-kernel，但在约六分钟后因错误的路径判断被提前终止，未完成首页strict。R23及R25–R35使用 xk-compat-fix-r1 alternate worktree，只作机制诊断，不计正式基线或性能统计。范围更正见 [report 395](../../report/395-T490R24启动路径偏差与提前终止记录-20261121.md) 与 [report 407](../../report/407-T490冻结基线路径与R23-R35实验范围更正-20261121.md)。
 
 R26 900秒 sampler 已完整导出并由仓库当前 extractor 验证；Browser launch→main-loop-ready 为39.594秒，navigation→strict screenshot上界517.017秒。renderer-ready/first-frame缺失，内存仍因213 missed及271错误而FAIL，不是有效四指标样本。T490 的辅助 extractor 副本旧于仓库版本，遇到新增可选probe成员会拒绝，复现时应使用当前 checkout 的 `extract_perf_memory.py`。详见 [report 397](../../report/397-T490R26Browser启动导航上界与内存采样复测-20261121.md)。
 
@@ -293,6 +293,8 @@ R33 sampler-off 重复控制也通过页面 strict、1/1重载与420秒保持；
 `run_stability_round_mp.sh` 新增 `STABILITY_PROCESS_SAMPLE_SECONDS`，默认5秒、最多60秒；用于控制 autorun 的 shell process-tree scan 频率。R34 以30秒process scan和30秒family watchdog运行：页面通过，R32的5秒process scan页面超时，但R34 sampler仍FAIL、family snapshot间歇36秒stale。作为降低观测负载候选，需与正常1Hz采样和30秒freshness门限再测，见 [report 405](../../report/405-T490R34sampler与30秒process观察扫描对照-20261121.md)。
 
 R35 将 process-tree scan设为30秒、family watchdog设25秒，并开启clock-sync、lifecycle preload与900秒sampler；首页、重载、600秒保持和event normalizer通过。Browser start候选38.511秒，页面截图上界436.389秒；sampler仍FAIL且renderer-ready/first-frame缺，不能报告内存峰值或四指标PASS，详见 [report 406](../../report/406-T490R35低频Observer完整采集路径复测-20261121.md)。
+
+R36 使用baseline freeze r3冻结根 /home/mo/x-kernel（kernel SHA 51c4…）、2 GiB pure TCG，并确认Jitless/IPC timeout flags；首页strict在1550秒diagnostic deadline超时，Browser/Weston仍存活。旧三次冷启动通过需在默认2400秒ready timeout下复核，见 [report 408](../../report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
