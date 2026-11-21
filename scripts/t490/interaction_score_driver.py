@@ -179,6 +179,14 @@ def main() -> int:
     absolute = os.environ.get("INTERACTION_ABSOLUTE", "0") == "1"
     pointer_mode = os.environ.get("INTERACTION_POINTER_MODE", "step4")
     force_hmp = os.environ.get("INTERACTION_FORCE_HMP", "0") == "1"
+    ready_settle = float(os.environ.get("INTERACTION_READY_SETTLE_SECONDS", "5"))
+    selftest_target_raw = os.environ.get("INTERACTION_SELFTEST_TARGET", "272,195")
+    try:
+        selftest_x, selftest_y = (int(part.strip()) for part in selftest_target_raw.split(","))
+    except ValueError as exc:
+        raise SystemExit(
+            f"INTERACTION_SELFTEST_TARGET must be x,y, got {selftest_target_raw!r}"
+        ) from exc
     c = QmpClient(args.socket, args.output, force_hmp=force_hmp,
                   qmp_send_key=True,
                   absolute_pointer=absolute, no_clamp=not absolute)
@@ -197,19 +205,35 @@ def main() -> int:
         c.connect(60.0)
         c._record("checkpoint", {"name": "interaction-score-connected"})
 
-        activate_pointer()
-        time.sleep(2.0)
+        # A strict readiness frame can arrive while Chromium is still
+        # committing the same navigation.  Let the compositor settle before
+        # sending scored input; otherwise the first keyboard samples can be
+        # blank even though the ready frame itself passed.
+        if ready_settle > 0:
+            time.sleep(ready_settle)
+        c._record("checkpoint", {"name": "interaction-ready-settle",
+                                  "seconds": ready_settle})
 
-        # The passing kiosk round first focused and activated the page's
-        # self-test button.  Its resulting focus order is stable: three more
-        # Tab presses then land on the text field.
-        c.key("tab")
-        c.key("ret")
+        # With an absolute tablet, click the visible self-test control twice:
+        # the first press may only activate the Wayland surface and the second
+        # dispatches the button.  This keeps the JS gate on a real pointer
+        # path and avoids relying on a Tab focus order that is intermittent
+        # under pure TCG.  Relative/HMP rounds retain the historical
+        # Tab+Enter activation path.
+        if absolute:
+            click_at(c, selftest_x, selftest_y, "activate-selftest-button")
+            time.sleep(1.0)
+            click_at(c, selftest_x, selftest_y, "run-selftest-button")
+        else:
+            activate_pointer()
+            time.sleep(2.0)
+            c.key("tab")
+            c.key("ret")
         time.sleep(12.0)
         c.screendump(args.shot_dir / "after-selftest.ppm")
 
-        # The self-test button retains focus after Enter; Tab visits Reset and
-        # then the text field, so two additional stops are sufficient here.
+        # The self-test button retains focus after a click or Enter; Tab visits
+        # Reset and then the text field, so two stops are sufficient here.
         for index in range(1, 3):
             c.key("tab")
             time.sleep(args.focus_settle)
@@ -294,6 +318,18 @@ def main() -> int:
                                   "method": "pageup",
                                   "settle_seconds": 2.0})
         c.screendump(args.shot_dir / "after-mouse-navigation.ppm")
+        # The layout page is taller than the 800-pixel output.  Keep the top
+        # geometry frame above and capture a second frame at the document
+        # bottom so the green 6/6 verdict is independently visible.
+        for index in range(1, 9):
+            c.key("pgdn")
+            time.sleep(0.5)
+        c.key("end")
+        time.sleep(3.0)
+        c._record("checkpoint", {"name": "layout-verdict-bottom",
+                                  "method": "pgdn-plus-end",
+                                  "settle_seconds": 3.0})
+        c.screendump(args.shot_dir / "after-mouse-navigation-verdict.ppm")
         c._record("result", {"ok": True})
         return 0
     finally:

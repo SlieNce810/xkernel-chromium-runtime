@@ -50,12 +50,12 @@ def run_ppm(*args: str) -> tuple[bool, str, dict[str, Any]]:
 
 
 def layout_verdict(path: Path) -> tuple[bool, str]:
-    """Require both CSS-specific geometry and the page's 6/6 verdict.
+    """Require top-frame CSS geometry and a bottom-frame 6/6 verdict.
 
-    A green JavaScript self-test bar can appear on interaction.html too, so the
-    verdict color alone cannot prove that a real mouse click navigated to the
-    CSS page. Keep a separate assertion artifact and require the complete
-    official-layout strict profile before accepting navigation.
+    The CSS page is taller than the 800-pixel output.  The driver therefore
+    saves the top geometry frame as ``path`` and, when available, a second
+    frame named ``after-mouse-navigation-verdict.ppm`` after scrolling to the
+    document bottom.  A single-frame fallback keeps the historical behavior.
     """
     if not path.is_file():
         return False, f"missing: {path}"
@@ -67,15 +67,45 @@ def layout_verdict(path: Path) -> tuple[bool, str]:
     )
     try:
         data = json.loads(report.read_text(encoding="utf-8"))
-        check = next(row for row in data.get("checks", [])
-                     if row.get("check") == "layout_verdict_pass")
-    except (OSError, json.JSONDecodeError, StopIteration) as exc:
+    except (OSError, json.JSONDecodeError) as exc:
         return False, f"layout strict assertion unavailable: {exc}"
     strict_failures = data.get("strict_fail_names", [])
-    detail = check.get("detail", f"ppm_assert rc={proc.returncode}")
+    checks = {row.get("check"): row for row in data.get("checks", [])}
+    top_core = (proc.returncode == 0 and not strict_failures
+                and all(checks.get(name, {}).get("pass") for name in (
+                    "official_banner", "layout_c1_flex_row",
+                    "layout_c2_grid_2x2", "layout_c3_box_model")))
+    top_detail = "; ".join(
+        str(checks.get(name, {}).get("detail", f"missing {name}"))
+        for name in ("official_banner", "layout_c1_flex_row",
+                     "layout_c2_grid_2x2", "layout_c3_box_model"))
+
+    verdict_path = path.with_name("after-mouse-navigation-verdict.ppm")
+    if verdict_path.is_file():
+        verdict_report = verdict_path.with_suffix(
+            verdict_path.suffix + ".layout-verdict-validation.json")
+        verdict_proc = subprocess.run(
+            [sys.executable, str(PPM_ASSERT), str(verdict_path),
+             "--profile", "official-layout", "--json", str(verdict_report),
+             "--quiet"], text=True, capture_output=True, check=False,
+        )
+        try:
+            verdict_data = json.loads(verdict_report.read_text(encoding="utf-8"))
+            verdict_check = next(row for row in verdict_data.get("checks", [])
+                                 if row.get("check") == "layout_verdict_pass")
+        except (OSError, json.JSONDecodeError, StopIteration) as exc:
+            return False, f"layout verdict assertion unavailable: {exc}"
+        bottom_ok = verdict_proc.returncode == 0 and bool(verdict_check.get("pass"))
+        detail = (f"top geometry={'PASS' if top_core else 'FAIL'}; "
+                  f"bottom 6/6={'PASS' if bottom_ok else 'FAIL'}; "
+                  f"{verdict_check.get('detail', '')}")
+        return top_core and bottom_ok, detail
+
+    # Backward-compatible single-frame path for older evidence bundles.
+    check = checks.get("layout_verdict_pass", {})
     if proc.returncode != 0 or strict_failures:
-        return False, f"official-layout strict failed {strict_failures}; {detail}"
-    return bool(check.get("pass")), detail
+        return False, f"official-layout strict failed {strict_failures}; {check.get('detail', top_detail)}"
+    return bool(check.get("pass")), check.get("detail", top_detail)
 
 
 def pixel_diff(after: Path, before: Path, roi: str, minimum: int) -> tuple[bool, str]:
