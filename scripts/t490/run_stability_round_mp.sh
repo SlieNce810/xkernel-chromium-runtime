@@ -323,6 +323,7 @@ elif [ "$NORMALIZER_RC" -eq 0 ] && [ -d "$EVID" ]; then
         --run-id "$TAG" \
         --out "$EVID/stability-gate.json" \
         --profile official-index \
+        --checker "$HERE/ppm_assert.py" \
         > "$EVID/stability-gate.log" 2>&1
     GATE_RC=$?
 elif [ -d "$EVID" ]; then

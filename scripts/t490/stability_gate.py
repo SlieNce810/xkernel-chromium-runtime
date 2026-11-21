@@ -58,7 +58,8 @@ def read_events(path: Path, run_id: str) -> list[dict[str, Any]]:
     return rows
 
 
-def verify_image(root: Path, evidence: Path, row: dict[str, Any], profile: str) -> None:
+def verify_image(root: Path, evidence: Path, row: dict[str, Any], profile: str,
+                 checker_path: Path | None = None) -> None:
     if row.get("profile") != profile or row.get("strict") is not True or row.get("pass_result") is not True:
         raise GateError(f"page screenshot is not a strict {profile} PASS")
     rel = row.get("capture_path")
@@ -70,7 +71,9 @@ def verify_image(root: Path, evidence: Path, row: dict[str, Any], profile: str) 
     digest = hashlib.sha256(image.read_bytes()).hexdigest()
     if digest != row.get("sha256"):
         raise GateError(f"screenshot SHA-256 mismatch: {rel}")
-    checker = root / "scripts/t490/ppm_assert.py"
+    checker = (checker_path or (root / "scripts/t490/ppm_assert.py")).resolve()
+    if not checker.is_file():
+        raise GateError(f"pixel checker missing: {checker}")
     result = subprocess.run(
         [sys.executable, str(checker), str(image), "--profile", profile, "--strict", "--quiet"],
         text=True,
@@ -94,6 +97,11 @@ def main() -> int:
     parser.add_argument("--heartbeat-seconds", type=int, default=30)
     parser.add_argument("--schedule-tolerance-seconds", type=float, default=10)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
+    parser.add_argument(
+        "--checker",
+        type=Path,
+        help="pixel checker script; defaults to ROOT/scripts/t490/ppm_assert.py",
+    )
     args = parser.parse_args()
 
     evidence = args.evidence.resolve()
@@ -108,7 +116,7 @@ def main() -> int:
     duration_ns = end_ns - start_ns
     if duration_ns < MIN_DURATION_NS:
         raise GateError(f"measured duration {duration_ns / 1e9:.1f}s is below 1800s")
-    verify_image(args.root.resolve(), evidence, page_ready[0], args.profile)
+    verify_image(args.root.resolve(), evidence, page_ready[0], args.profile, args.checker)
 
     navigations = [row for row in events if row.get("event") == "navigation_requested"]
     verdicts = {row.get("navigation_id"): row for row in events if row.get("event") == "page_verdict"}
@@ -152,7 +160,7 @@ def main() -> int:
             raise GateError(f"reload {index} page verdict precedes its verified screendump")
         if verdict.get("screenshot") != shot.get("capture_path") or verdict.get("sha256") != shot.get("sha256"):
             raise GateError(f"reload {index} page verdict does not identify its verified screendump")
-        verify_image(args.root.resolve(), evidence, shot, args.profile)
+        verify_image(args.root.resolve(), evidence, shot, args.profile, args.checker)
         reload_results.append({
             "navigation_id": nav_id,
             "requested_t_ns": navigation["t_ns"],

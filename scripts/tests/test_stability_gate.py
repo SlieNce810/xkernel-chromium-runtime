@@ -100,11 +100,14 @@ class StabilityGateTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
-    def run_gate(self, evidence: Path, events: Path, console: Path, out: Path) -> int:
+    def run_gate(self, evidence: Path, events: Path, console: Path, out: Path,
+                 checker: Path | None = None) -> int:
         argv = [
             "stability_gate.py", str(evidence), "--events", str(events),
             "--console-log", str(console), "--run-id", RUN_ID, "--out", str(out),
         ]
+        if checker is not None:
+            argv.extend(["--checker", str(checker)])
         with patch.object(sys, "argv", argv), patch("stability_gate.subprocess.run") as run:
             run.return_value.returncode = 0
             return stability_gate.main()
@@ -117,6 +120,22 @@ class StabilityGateTests(unittest.TestCase):
         self.assertTrue(result["pass"])
         self.assertEqual(10, result["strict_reload_passes"])
         self.assertEqual(60, result["qemu_liveness_samples"])
+
+    def test_explicit_checker_path_supports_staged_runner_sources(self) -> None:
+        evidence, events, console = make_evidence(self.root)
+        checker = self.root / "staged-source" / "t490" / "ppm_assert.py"
+        checker.parent.mkdir(parents=True)
+        checker.write_text("# staged pixel checker\n", encoding="utf-8")
+        out = evidence / "stability-gate.json"
+        with patch.object(sys, "argv", [
+            "stability_gate.py", str(evidence), "--events", str(events),
+            "--console-log", str(console), "--run-id", RUN_ID, "--out", str(out),
+            "--checker", str(checker),
+        ]), patch("stability_gate.subprocess.run") as run:
+            run.return_value.returncode = 0
+            self.assertEqual(0, stability_gate.main())
+        self.assertTrue(run.call_args_list)
+        self.assertTrue(all(str(checker.resolve()) in call.args[0] for call in run.call_args_list))
 
     def test_paused_qemu_liveness_fails(self) -> None:
         evidence, events, console = make_evidence(self.root, fail_liveness_at=20)
