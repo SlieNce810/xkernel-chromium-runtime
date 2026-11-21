@@ -11,6 +11,8 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 
 ## 2026-11-21 当前复核状态
 
+R55在R54同一no-direct-PTE/ERROR-only candidate上再次cold start strict通过（307.305秒host elapsed）、reload1/1、420秒诊断保持和normalizer243/243通过。R53仍是同kernel配置2400秒超时，启动长尾没有消失；R54正式10 reload/1805秒PASS、R55是独立短诊断成功。三次独立冷启动尚未同一参数完整计齐，且四项性能数据仍无有效批次。详见 [report/427](report/427-T490R55no-directPTE-error候选独立cold-start通过-20261121.md)。
+
 R54 完成一次 no-direct-PTE、ERROR-only 候选正式稳定性PASS：initial strict、10/10 reload、1805秒保持、60个QEMU liveness点，0退出/异常。原始 runner gate RC1 是暂存路径找错 `ppm_assert.py`；按同一R54原始事件/console/PPM复核后 corrected gate `pass=true`。该脚本路径缺陷已修复，并由staged checker单测覆盖；R54没有memory/lifecycle采样，四项性能仍无数据。R53同配置曾首屏超时，最终候选仍需补足三次独立cold start及fresh-session复现，详见 [report/426](report/426-T490R54no-directPTE-error候选正式稳定性通过并修复checker路径-20261121.md)。
 
 R53将no-direct-PTE候选日志设为ERROR并启动正式10 reload/1805秒hold轮；dry-run通过，但2400秒initial strict timeout，未进入reload/hold。normalizer871/871通过，QEMU末端Weston/Chrome存活，console仅167 KB；因此ERROR-only日志降噪没有单独修复页面。R51的WARN诊断曾页面通过，但freshness gate失败；no-direct候选整体仍不稳定，需修复/重复稳定性轮后再选最终candidate。详见 [report/425](report/425-T490R53ERROR日志候选正式稳定性首屏超时-20261121.md)。
