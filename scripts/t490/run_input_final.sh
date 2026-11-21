@@ -234,14 +234,32 @@ python3 "$HERE/qmp_input.py" \
 SETUP_RC=$?
 [ "$SETUP_RC" -eq 0 ] || die "QMP setup 失败，见 $WORK/qmp-setup.log"
 
+READY_RC=124
 python3 "$HERE/wait_page_ready.py" \
     --socket "$QMP_SOCKET" \
     --out-dir "$READY_DIR" \
     --assert-script "$HERE/ppm_assert.py" \
     --profile official-interaction \
     --timeout "${READY_TIMEOUT:-1400}" --poll 10 \
-    > "$WORK/ready.log" 2>&1
-READY_RC=$?
+    > "$WORK/ready.log" 2>&1 &
+READY_PID=$!
+# A normal round can finish while the QMP socket remains as a stale filesystem
+# entry.  Do not leave the readiness checker blocked until its long timeout;
+# classify the run immediately when the guest session has ended.
+while kill -0 "$READY_PID" 2>/dev/null; do
+    if ! kill -0 "$ROUND_PID" 2>/dev/null; then
+        echo "READY_ABORT=round-ended-before-strict-page" >> "$WORK/ready.log"
+        kill "$READY_PID" 2>/dev/null || true
+        wait "$READY_PID" 2>/dev/null || true
+        READY_RC=125
+        break
+    fi
+    sleep 1
+done
+if [ "$READY_RC" -eq 124 ]; then
+    wait "$READY_PID"
+    READY_RC=$?
+fi
 if [ "$READY_RC" -ne 0 ]; then
     # Stop the guest after the readiness failure is captured. Waiting for the
     # normal session duration wastes many minutes without adding new evidence.
