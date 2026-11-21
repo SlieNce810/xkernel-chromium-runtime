@@ -179,6 +179,7 @@ R32 仅开启1 Hz memory sampler、关闭preload与clock-sync后，首页strict�
 
 R33 sampler-off重复控制再次通过首页、重载、420秒保持，host elapsed465.692秒；240秒周期截图仍处于Weston阶段，normalizer另报family快照38.034秒stale，且guest clock-sync关闭，故不用于guest性能/稳定性总验收。R31/R33通过、R30/R32 sampler-on失败增强采样负载相关线索，但仍不能单因果归因，见 [report/404](report/404-T490R33sampler-off重复页面控制与时钟口径-20261121.md)。
 R34 开启 sampler、关闭preload/clock-sync，并把 shell process-tree扫描设为30秒后首页 strict、重载与600秒保持通过；R32同条件但每5秒扫描时超时，支持诊断扫描负载相关。R34 sampler仍FAIL（274 IDs、215 missed、286错误），normalizer还有36秒family freshness超限，不能计峰值或稳定性PASS；见 [report/405](report/405-T490R34sampler与30秒process观察扫描对照-20261121.md)。
+R35 恢复 preload、guest clock-sync 与1 Hz sampler，使用30秒process scan/25秒family watchdog后首页、重载、600秒保持和normalizer均通过；Browser launch→main-loop-ready为38.511秒、导航→strict截图上界436.389秒。sampler仍FAIL（268 IDs、194 missed、258错误），无有效RSS/PSS/USS峰值；renderer-ready/first-frame也缺，故不进入正式CSV，见 [report/406](report/406-T490R35低频Observer完整采集路径复测-20261121.md)。
 
 ## 目录导览
 
