@@ -185,6 +185,7 @@ R35 恢复 preload、guest clock-sync 与1 Hz sampler，使用30秒process scan/
 R36 首次按冻结根路径重跑，kernel/rootfs SHA与baseline r3一致，2 GiB pure TCG、Jitless和IPC timeout flags均在argv；首页strict仍在1550秒诊断deadline超时，终止截图为空白。历史三次同SHA通过记录仍保留，但不能掩盖新失败；见 [report/408](report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
 R37 在同一冻结根和默认2400秒ready deadline下通过首页strict（466.376秒）、1/1重载和420秒保持，但5个进程族快照超出35秒freshness门限，normalizer失败；该轮只能记页面/保持部分通过，不能算稳定性PASS，见 [report/409](report/409-T490冻结根R37coldstart页面通过但family快照stale-20261121.md)。
 R38 在冻结根以15秒family watchdog重跑，首页strict于497.171秒通过、1/1重载及420秒保持通过；267条事件normalizer PASS，family freshness最大30.715秒。该轮仍是diagnostic-only，未执行正式10次重载/30分钟gate，且没有guest-clock性能或内存峰值数据；详见 [report/410](report/410-T490冻结根15秒familywatchdog冷启动与保持通过R38-20261121.md) 及 [R38 evidence](evidence/2026-11-21_t490-r38-frozen-cold02/)。
+R39 使用相同冻结root/kernel和freshness设置独立复跑，首页strict 466.289秒通过、1/1重载、420秒保持通过；256条normalizer事件PASS，family age最大30.029秒。diagnostic-only正式gate跳过，未采guest-clock性能或RSS/PSS/USS峰值，详见 [report/411](report/411-T490冻结根独立冷启动复现与freshness通过R39-20261121.md) 与 [R39 evidence](evidence/2026-11-21_t490-r39-frozen-cold03/)。
 
 ## 目录导览
 

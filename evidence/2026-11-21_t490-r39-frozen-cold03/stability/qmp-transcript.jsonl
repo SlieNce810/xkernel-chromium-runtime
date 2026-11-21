@@ -1,0 +1,113 @@
+{"kind": "rx", "ts": 1795227624.52671, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1795227624.5268562, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-stability-r39-frozen-cold03.sock"}}
+{"kind": "tx", "ts": 1795227624.5269618, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1795227624.528796, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1795227624.5289154, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1795227624.5302498, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1795227624.5303583, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1795227624.5304594, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1795227624.5318038, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1795227624.5318954, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1795227624.532, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1795227624.533357, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1795227624.5334659, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1795227624.5335586, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1795227624.536673, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1795227624.5367873, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1795227624.5368788, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1795227624.5392213, "value": {"error": {"class": "DeviceNotFound", "desc": "Device '/backend/console[1]' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1795227624.5393028, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device '/backend/console[1]' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1795227624.5393667, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1795227624.5406446, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1795227624.5407178, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1795227624.5407856, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1795227624.542184, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1795227624.542264, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1795227624.5423577, "value": {"arguments": {"command-line": "mouse_set 2"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1795227624.54387, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1795227624.543956, "value": {"index": 2}}
+{"kind": "tx", "ts": 1795227624.5442145, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 10}}
+{"kind": "rx", "ts": 1795227624.548684, "value": {"id": 10, "return": {}}}
+{"kind": "screendump", "ts": 1795227624.9490626, "value": {"bytes": 921615, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227655.0624738, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 11}}
+{"kind": "rx", "ts": 1795227655.0653772, "value": {"id": 11, "return": {}}}
+{"kind": "screendump", "ts": 1795227655.4657092, "value": {"bytes": 921615, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227685.578388, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 12}}
+{"kind": "rx", "ts": 1795227685.5854456, "value": {"id": 12, "return": {}}}
+{"kind": "screendump", "ts": 1795227685.9857645, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227716.3095362, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 13}}
+{"kind": "rx", "ts": 1795227716.318083, "value": {"id": 13, "return": {}}}
+{"kind": "screendump", "ts": 1795227716.7185123, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227747.205735, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 14}}
+{"kind": "rx", "ts": 1795227747.2147942, "value": {"id": 14, "return": {}}}
+{"kind": "screendump", "ts": 1795227747.6152008, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227778.3184505, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 15}}
+{"kind": "rx", "ts": 1795227778.3282566, "value": {"id": 15, "return": {}}}
+{"kind": "screendump", "ts": 1795227778.7287266, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227809.5514514, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 16}}
+{"kind": "rx", "ts": 1795227809.558646, "value": {"id": 16, "return": {}}}
+{"kind": "screendump", "ts": 1795227809.959035, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227840.548085, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 17}}
+{"kind": "rx", "ts": 1795227840.558408, "value": {"id": 17, "return": {}}}
+{"kind": "screendump", "ts": 1795227840.95883, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227871.6676354, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 18}}
+{"kind": "rx", "ts": 1795227871.6787038, "value": {"id": 18, "return": {}}}
+{"kind": "screendump", "ts": 1795227872.079823, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227902.8656244, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 19}}
+{"kind": "rx", "ts": 1795227902.87286, "value": {"id": 19, "return": {}}}
+{"kind": "screendump", "ts": 1795227903.2732947, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227934.2814612, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 20}}
+{"kind": "rx", "ts": 1795227934.287834, "value": {"id": 20, "return": {}}}
+{"kind": "screendump", "ts": 1795227934.6887467, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227965.6083488, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 21}}
+{"kind": "rx", "ts": 1795227965.6180913, "value": {"id": 21, "return": {}}}
+{"kind": "screendump", "ts": 1795227966.0185013, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795227996.9628048, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 22}}
+{"kind": "rx", "ts": 1795227996.969112, "value": {"id": 22, "return": {}}}
+{"kind": "screendump", "ts": 1795227997.3694894, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795228028.334393, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 23}}
+{"kind": "rx", "ts": 1795228028.3404918, "value": {"id": 23, "return": {}}}
+{"kind": "screendump", "ts": 1795228028.740895, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795228059.3908525, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 24}}
+{"kind": "rx", "ts": 1795228059.3966832, "value": {"id": 24, "return": {}}}
+{"kind": "screendump", "ts": 1795228059.797105, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795228090.1294386, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 25}}
+{"kind": "rx", "ts": 1795228090.1350584, "value": {"id": 25, "return": {}}}
+{"kind": "screendump", "ts": 1795228090.5354445, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795228120.8328466, "value": {"arguments": {"keys": [{"data": "ctrl", "type": "qcode"}, {"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 26}}
+{"kind": "rx", "ts": 1795228120.8334796, "value": {"id": 26, "return": {}}}
+{"kind": "action", "ts": 1795228120.8335824, "value": {"op": "key-chord", "qcodes": ["ctrl", "r"], "transport": "send-key-chord"}}
+{"kind": "tx", "ts": 1795228120.8340194, "value": {"execute": "query-status", "id": 27}}
+{"kind": "rx", "ts": 1795228120.8347294, "value": {"id": 27, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228150.8368714, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}, "execute": "screendump", "id": 28}}
+{"kind": "rx", "ts": 1795228150.8428617, "value": {"id": 28, "return": {}}}
+{"kind": "screendump", "ts": 1795228151.2432873, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/stability-r39-frozen-cold03/driver/.stability-poll.ppm"}}
+{"kind": "tx", "ts": 1795228151.5140946, "value": {"execute": "query-status", "id": 29}}
+{"kind": "rx", "ts": 1795228151.5148146, "value": {"id": 29, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228181.5415142, "value": {"execute": "query-status", "id": 30}}
+{"kind": "rx", "ts": 1795228181.5423892, "value": {"id": 30, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228211.562321, "value": {"execute": "query-status", "id": 31}}
+{"kind": "rx", "ts": 1795228211.5627375, "value": {"id": 31, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228241.5830731, "value": {"execute": "query-status", "id": 32}}
+{"kind": "rx", "ts": 1795228241.583879, "value": {"id": 32, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228271.6029983, "value": {"execute": "query-status", "id": 33}}
+{"kind": "rx", "ts": 1795228271.603391, "value": {"id": 33, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228301.6244547, "value": {"execute": "query-status", "id": 34}}
+{"kind": "rx", "ts": 1795228301.6256287, "value": {"id": 34, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228331.645186, "value": {"execute": "query-status", "id": 35}}
+{"kind": "rx", "ts": 1795228331.6455822, "value": {"id": 35, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228361.6659443, "value": {"execute": "query-status", "id": 36}}
+{"kind": "rx", "ts": 1795228361.6662512, "value": {"id": 36, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228391.6873007, "value": {"execute": "query-status", "id": 37}}
+{"kind": "rx", "ts": 1795228391.690671, "value": {"id": 37, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228421.7091136, "value": {"execute": "query-status", "id": 38}}
+{"kind": "rx", "ts": 1795228421.70954, "value": {"id": 38, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228451.7336812, "value": {"execute": "query-status", "id": 39}}
+{"kind": "rx", "ts": 1795228451.7340474, "value": {"id": 39, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228481.7554834, "value": {"execute": "query-status", "id": 40}}
+{"kind": "rx", "ts": 1795228481.7558038, "value": {"id": 40, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228510.8329473, "value": {"execute": "query-status", "id": 41}}
+{"kind": "rx", "ts": 1795228510.833858, "value": {"id": 41, "return": {"running": true, "status": "running"}}}
+{"kind": "tx", "ts": 1795228510.834163, "value": {"execute": "quit", "id": 42}}
+{"kind": "rx", "ts": 1795228510.8359365, "value": {"data": {"guest": false, "reason": "host-qmp-quit"}, "event": "SHUTDOWN", "timestamp": {"microseconds": 835821, "seconds": 1795228510}}}
+{"kind": "rx", "ts": 1795228510.8362257, "value": {"id": 42, "return": {}}}

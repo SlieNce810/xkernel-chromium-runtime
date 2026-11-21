@@ -297,6 +297,7 @@ R35 将 process-tree scan设为30秒、family watchdog设25秒，并开启clock-
 R36 使用baseline freeze r3冻结根 /home/mo/x-kernel（kernel SHA 51c4…）、2 GiB pure TCG，并确认Jitless/IPC timeout flags；首页strict在1550秒diagnostic deadline超时，Browser/Weston仍存活。旧三次冷启动通过需在默认2400秒ready timeout下复核，见 [report 408](../../report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
 R37 在冻结根kernel `51c402…`、rootfs `bab5c9…`、2 GiB下使用默认2400秒ready deadline，通过首页strict、1/1真实重载及420秒保持；但5个family snapshot因38.675–43.023秒间隔超过35秒freshness门限，normalizer失败，因此不算完整稳定性通过，详见 [report 409](../../report/409-T490冻结根R37coldstart页面通过但family快照stale-20261121.md)。
 R38 将family watchdog改为15秒，冻结根首页strict 497.171秒通过、1/1重载及420秒保持通过；normalizer 267/267通过，14个host liveness检查的family freshness最大30.715秒。但本轮为diagnostic-only、正式gate跳过，且未采集guest-clock性能/内存峰值，详见 [report 410](../../report/410-T490冻结根15秒familywatchdog冷启动与保持通过R38-20261121.md)。
+R39 同一冻结kernel/rootfs独立复跑，首页strict 466.289秒、真实重载1/1、保持420秒均通过；normalizer 256/256通过，14个host liveness检查family freshness最大30.029秒。仍为diagnostic-only，不计正式30分钟验收或性能数据，详见 [report 411](../../report/411-T490冻结根独立冷启动复现与freshness通过R39-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
