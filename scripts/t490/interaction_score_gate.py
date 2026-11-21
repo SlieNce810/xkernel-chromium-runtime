@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -20,7 +21,19 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PPM_ASSERT = ROOT / "scripts" / "t490" / "ppm_assert.py"
+# The runner is copied to an isolated T490 staging directory before a guest
+# starts.  In that layout ``parents[2]`` is ``/home/mo/xk6/tmp`` rather than a
+# repository checkout, so resolving only from ROOT silently made every score
+# check fail with a missing ppm_assert.py.  Prefer an explicit override and
+# then the staged helper beside this gate; retain the repository path for the
+# normal in-tree invocation.
+_ppm_override = os.environ.get("PPM_ASSERT_SCRIPT", "").strip()
+if _ppm_override:
+    PPM_ASSERT = Path(_ppm_override).expanduser()
+elif (Path(__file__).resolve().parent / "ppm_assert.py").is_file():
+    PPM_ASSERT = Path(__file__).resolve().parent / "ppm_assert.py"
+else:
+    PPM_ASSERT = ROOT / "scripts" / "t490" / "ppm_assert.py"
 # The interaction page's bold `N` in `当前：N` sits here after two PageDowns.
 # Keep the ROI on the digit alone: HMP can put the cursor over the sentence, so
 # a wider line-level diff can mistake cursor pixels for a counter increment.
@@ -85,7 +98,8 @@ def mouse_counter_diff(after: Path, before: Path) -> tuple[bool, str]:
 
 def input_actions(path: Path) -> tuple[bool, str, dict[str, int]]:
     counts = {"real_key_actions": 0, "hmp_pointer_clicks": 0,
-              "hmp_pointer_moves": 0}
+              "hmp_pointer_moves": 0, "qmp_pointer_clicks": 0,
+              "qmp_absolute_moves": 0}
     if not path.is_file():
         return False, f"missing input event ledger: {path}", counts
     try:
@@ -105,13 +119,19 @@ def input_actions(path: Path) -> tuple[bool, str, dict[str, int]]:
                 counts["hmp_pointer_clicks"] += 1
             if op == "relative" and transport == "hmp":
                 counts["hmp_pointer_moves"] += 1
+            if op == "click" and transport in {"qmp", "qmp-input-event"}:
+                counts["qmp_pointer_clicks"] += 1
+            if op == "absolute" and transport in {"qmp", "qmp-input-event"}:
+                counts["qmp_absolute_moves"] += 1
     except OSError as exc:
         return False, str(exc), counts
-    ok = (counts["real_key_actions"] >= 10
-          and counts["hmp_pointer_clicks"] >= 4
-          and counts["hmp_pointer_moves"] >= 4)
+    relative_ok = (counts["hmp_pointer_clicks"] >= 4
+                   and counts["hmp_pointer_moves"] >= 4)
+    absolute_ok = (counts["qmp_pointer_clicks"] >= 4
+                   and counts["qmp_absolute_moves"] >= 4)
+    ok = counts["real_key_actions"] >= 10 and (relative_ok or absolute_ok)
     return ok, ("real input actions recorded" if ok else
-                "insufficient real key/HMP pointer actions"), counts
+                "insufficient real key/pointer actions"), counts
 
 
 def main() -> int:
@@ -157,7 +177,7 @@ def main() -> int:
         "schema": "xkernel.interaction-score-gate.v2",
         "mode": "default-multiprocess",
         "sandbox_mode": "diagnostic-no-sandbox",
-        "input_transport": "QMP send-key + HMP virtio-mouse",
+        "input_transport": "QMP send-key + relative HMP or absolute QMP pointer",
         "ready_rc": args.ready_rc,
         "driver_rc": args.driver_rc,
         "round_rc": args.round_rc,

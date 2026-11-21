@@ -399,6 +399,12 @@ def move_to(client: QmpClient, x: int, y: int) -> None:
 
 def click_at(client: QmpClient, x: int, y: int, reason: str) -> None:
     move_to(client, x, y)
+    # QEMU accepts the absolute axis packet before the guest compositor has
+    # necessarily delivered the corresponding pointer motion.  Give Weston a
+    # short settle interval before the button packet; without it the cursor
+    # can be visibly over the control while the click is lost under pure TCG.
+    if client.absolute_pointer:
+        time.sleep(float(os.environ.get("QMP_ABSOLUTE_CLICK_SETTLE", "0.50")))
     client.click()
     client._record("checkpoint", {"name": reason, "x": x, "y": y})
 

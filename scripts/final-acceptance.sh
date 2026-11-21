@@ -173,7 +173,7 @@ run_default_stage() {
             ;;
         stability)
             run_remote_stage "$name" \
-                "env -u PLAT_MEM_OVERRIDE MP_FAMILY_WATCHDOG_INTERVAL=14 MP_FAMILY_DIAGNOSTICS=1 bash scripts/t490/run_stability_round_mp.sh ${tag}-stability 4200 30"
+                "env -u PLAT_MEM_OVERRIDE STABILITY_DIAGNOSTIC_ONLY=0 STABILITY_READY_TIMEOUT=2400 STABILITY_RELOAD_WINDOW=90 STABILITY_RELOAD_SETTLE_SECONDS=30 STABILITY_CAPTURE_GUEST_CLOCK_SYNC=0 STABILITY_MEMORY_SAMPLER=0 STABILITY_LIFECYCLE_PRELOAD=0 STABILITY_PROCESS_SAMPLE_SECONDS=30 MP_FAMILY_WATCHDOG_INTERVAL=15 MP_FAMILY_DIAGNOSTICS=0 bash scripts/t490/run_stability_round_mp.sh ${tag}-stability 4200 1200 10 120 1805"
             ;;
         perf)
             local plan="${ACCEPTANCE_PERF_PLAN:-}"

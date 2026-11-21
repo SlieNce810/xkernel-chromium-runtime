@@ -10,11 +10,26 @@
 set -u
 set -o pipefail
 
+DRY_RUN=0
+if [ "${1:-}" = "--dry-run" ]; then
+    DRY_RUN=1
+    shift
+fi
+
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
+# shellcheck source=platform.env
+. "$HERE/platform.env"
 TAG="${1:-input-final}"
 DUR="${2:-900}"
 IVL="${3:-60}"
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+export KERNEL_DIR
+KERNEL_BIN="$KERNEL_DIR/target/xkmake/kplat-aarch64/release/kernel.bin"
+if [ ! -f "$KERNEL_BIN" ]; then
+    KERNEL_BIN="$KERNEL_DIR/xkernel_aarch64-qemu.bin"
+fi
+EXPECTED_KERNEL_SHA256_VALUE="${STABILITY_EXPECTED_KERNEL_SHA256:-${EXPECTED_KERNEL_SHA256:-}}"
 INPUT_MODE="${INPUT_MODE:-pointer}"   # calibrated score path | kbd
 MULTIPROCESS="${MULTIPROCESS:-0}"
 EVDEV_PROBE="${EVDEV_PROBE:-1}"
@@ -29,7 +44,9 @@ NO_CLAMP_DEFAULT=1
 NO_CLAMP="${NO_CLAMP:-$NO_CLAMP_DEFAULT}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-${TAG}.sock}"
 CDP_PORT="${CDP_PORT:-61006}"
-OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+EVID_TAG="$TAG"
+[ "$DRY_RUN" = "0" ] || EVID_TAG="${TAG}-preflight"
+OUT="$HOME/xk6/evidence/$(date +%Y-%m-%d)_t490-$EVID_TAG"
 WORK="$HOME/xk6/tmp/input-$TAG"
 ROUND_LOG="$WORK/round.log"
 QMP_LOG="$WORK/qmp-events.jsonl"
@@ -45,7 +62,7 @@ die() { echo "INPUT_FINAL_ABORT: $*" >&2; exit 2; }
 
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
-Usage: run_input_final.sh [tag] [duration] [interval]
+Usage: run_input_final.sh [--dry-run] [tag] [duration] [interval]
   INPUT_MODE=pointer|kbd MULTIPROCESS=1 selects the decision-round path.
   EVDEV_PROBE=0 skips the optional evdev observer for a clean A/B run.
   INTERACTION_POINTER_MODE=step1|step3 selects a slower relative-pointer calibration.
@@ -54,7 +71,9 @@ Usage: run_input_final.sh [tag] [duration] [interval]
   These are HMP move inputs after the off-screen reset, not absolute screen coordinates.
   Pointer mode defaults to historical HMP step4 and verifies JS, keyboard echo, mouse count, and navigation.
   Kbd mode performs the keyboard-only JavaScript self-test.
-  An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1.
+  An absolute tablet must be selected explicitly with FORCE_HMP=0 ABS_POINTER=1 EXTRA_QEMU_ARGS='-device virtio-tablet-pci'.
+  --dry-run validates input-mode options and prints the resolved 2 GiB QEMU command without starting QEMU.
+  KERNEL_DIR selects an isolated kernel; STABILITY_EXPECTED_KERNEL_SHA256 can pin its binary hash.
   PKG_TARBALL is optional when BASE_IMG already contains the installed runtime.
 EOF
     exit 0
@@ -82,6 +101,24 @@ case "$EVDEV_PROBE" in
 esac
 [ "$FORCE_HMP" != 1 ] || [ "$ABS_POINTER" != 1 ] \
     || die "FORCE_HMP=1 conflicts with ABS_POINTER=1; relative virtio-mouse and absolute tablet modes are separate"
+if [ "$ABS_POINTER" = "1" ]; then
+    [ "$FORCE_HMP" = "0" ] || die "ABS_POINTER=1 requires FORCE_HMP=0"
+    [ "${EXTRA_QEMU_ARGS:-}" = "-device virtio-tablet-pci" ] \
+        || die "ABS_POINTER=1 requires EXTRA_QEMU_ARGS='-device virtio-tablet-pci'"
+fi
+
+if [ -n "$EXPECTED_KERNEL_SHA256_VALUE" ]; then
+    case "$EXPECTED_KERNEL_SHA256_VALUE" in
+        *[!0-9a-fA-F]*) die "STABILITY_EXPECTED_KERNEL_SHA256 must be 64 hexadecimal characters" ;;
+    esac
+    [ "${#EXPECTED_KERNEL_SHA256_VALUE}" -eq 64 ] \
+        || die "STABILITY_EXPECTED_KERNEL_SHA256 must be 64 hexadecimal characters"
+    [ -f "$KERNEL_BIN" ] || die "kernel binary missing: $KERNEL_BIN"
+    ACTUAL_KERNEL_SHA256="$(sha256sum "$KERNEL_BIN" | awk '{print $1}')"
+    NORMALIZED_EXPECTED_KERNEL_SHA256="$(printf '%s' "$EXPECTED_KERNEL_SHA256_VALUE" | tr 'A-F' 'a-f')"
+    [ "$ACTUAL_KERNEL_SHA256" = "$NORMALIZED_EXPECTED_KERNEL_SHA256" ] \
+        || die "kernel SHA-256 mismatch: expected $NORMALIZED_EXPECTED_KERNEL_SHA256 got $ACTUAL_KERNEL_SHA256"
+fi
 
 case "$MULTIPROCESS" in
     0) AUTORUN_SCRIPT="autorun_single_initial.sh" ;;
@@ -136,9 +173,22 @@ fi
 bash "$HERE/verify_chromium_image.sh" "$BASE_IMG" "${EXPECTED_CHROMIUM_MAJOR:-149}" \
     || die "基础镜像 Chromium 版本不匹配"
 
+if [ "$DRY_RUN" = "1" ]; then
+    QEMU_ARGS_VALUE="$PLAT_QEMU_ARGS"
+    [ -z "${EXTRA_QEMU_ARGS:-}" ] || QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $EXTRA_QEMU_ARGS"
+    [ -z "$QMP_SOCKET" ] || QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE -qmp unix:$QMP_SOCKET,server=on,wait=off ${QMP_EXTRA_ARGS:-}"
+    python3 "$HOME/xk6/scripts/run-session.py" \
+        --dry-run --cwd "$KERNEL_DIR" --make-args "$PLAT_MAKE_ARGS" \
+        --with-input --input-devices "$PLAT_INPUT_DEVICES" \
+        --require-platform-compliance --duration "$DUR" --interval "$IVL" \
+        --first-shot 450 --qemu-args "$QEMU_ARGS_VALUE" --out "$OUT"
+    exit $?
+fi
+
 echo "T4P_START=$(date -Is) TAG=$TAG DUR=$DUR IVL=$IVL"
 echo "OUT=$OUT"
 echo "QMP=$QMP_SOCKET CDP_PORT=$CDP_PORT"
+echo "KERNEL_DIR=$KERNEL_DIR KERNEL_BIN=$KERNEL_BIN KERNEL_SHA256=$(sha256sum "$KERNEL_BIN" | awk '{print $1}')"
 echo "RENDERER_MODE=$([ "$MULTIPROCESS" = 1 ] && echo default-multiprocess || echo single-process-comparison) AUTORUN=$AUTORUN_SCRIPT"
 echo "INPUT_KEYBOARD_TRANSPORT=QMP-send-key MOUSE_TRANSPORT=$([ "$FORCE_HMP" = 1 ] && echo HMP-relative-virtio-mouse || echo QMP-input-event) FORCE_HMP=$FORCE_HMP ABS_POINTER=$ABS_POINTER NO_CLAMP=$NO_CLAMP"
 
@@ -148,6 +198,8 @@ echo "INPUT_KEYBOARD_TRANSPORT=QMP-send-key MOUSE_TRANSPORT=$([ "$FORCE_HMP" = 1
 PAGE_URL="file:///usr/share/html-test/interaction.html" \
 QMP_SOCKET="$QMP_SOCKET" \
 QMP_EXTRA_ARGS="${QMP_EXTRA_ARGS:-}" \
+EXTRA_QEMU_ARGS="${EXTRA_QEMU_ARGS:-}" \
+KERNEL_DIR="$KERNEL_DIR" \
 BASE_IMG="$BASE_IMG" \
 PKG_TARBALL="$PKG_TARBALL" \
 INJECT_AUTOSTART=1 \
@@ -261,7 +313,8 @@ else
     # miss controls. Use the selected real-input step mode for keyboard echo,
     # the counter click, and CSS navigation.
     mkdir -p "$WORK/interaction-shots"
-    INTERACTION_FORCE_HMP=1 \
+    INTERACTION_FORCE_HMP="$FORCE_HMP" \
+    INTERACTION_ABSOLUTE="$ABS_POINTER" \
     INTERACTION_POINTER_MODE="${INTERACTION_POINTER_MODE:-step4}" \
         python3 "$HERE/interaction_score_driver.py" \
         --socket "$QMP_SOCKET" --output "$QMP_LOG" \
