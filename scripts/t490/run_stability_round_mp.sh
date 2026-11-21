@@ -30,6 +30,13 @@ FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-stability-${TAG}.sock}"
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}"
 PKG_TARBALL="${PKG_TARBALL-}"
+KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
+export KERNEL_DIR
+KERNEL_BIN="$KERNEL_DIR/target/xkmake/kplat-aarch64/release/kernel.bin"
+if [ ! -f "$KERNEL_BIN" ]; then
+    KERNEL_BIN="$KERNEL_DIR/xkernel_aarch64-qemu.bin"
+fi
+EXPECTED_KERNEL_SHA256="${STABILITY_EXPECTED_KERNEL_SHA256:-}"
 unset PLAT_MEM_OVERRIDE
 RUN_DATE="$(date +%Y-%m-%d)"
 EVID="$HOME/xk6/evidence/${RUN_DATE}_t490-$TAG"
@@ -47,6 +54,9 @@ reloads every 120 seconds; 1805 seconds held after first strict page PASS to cle
 The last three values are diagnostic controls; keep their defaults for formal acceptance.
 Non-formal values require STABILITY_DIAGNOSTIC_ONLY=1; diagnostic-only runs skip the formal gate.
 --dry-run validates and prints the resolved run settings without starting QEMU.
+Set KERNEL_DIR to select an isolated kernel worktree; the resolved kernel path
+and SHA-256 are printed and archived. STABILITY_EXPECTED_KERNEL_SHA256 makes
+the run abort before QEMU if the selected kernel does not match that hash.
 The default initial-page timeout is 2400 seconds; when it would outlast a diagnostic session, it is bounded to max-session-seconds minus 200.
 Set STABILITY_TRACE_MODE=1 only with STABILITY_DIAGNOSTIC_ONLY=1 to capture bounded Chromium log windows and clone/exec/exit/wait4 traces when strace is available.
 Formal memory comes from platform.env (2 GiB); unset PLAT_MEM_OVERRIDE.
@@ -145,11 +155,30 @@ if [ "$DIAGNOSTIC_ONLY" = "0" ]; then
 else
     [ "$HOLD_SECONDS" -ge 0 ] || die "diagnostic hold duration must be non-negative"
 fi
+KERNEL_SHA256="UNAVAILABLE"
+if [ -f "$KERNEL_BIN" ]; then
+    KERNEL_SHA256="$(sha256sum "$KERNEL_BIN" | awk '{print $1}')"
+fi
+if [ -n "$EXPECTED_KERNEL_SHA256" ]; then
+    case "$EXPECTED_KERNEL_SHA256" in
+        *[!0-9a-fA-F]*) die "STABILITY_EXPECTED_KERNEL_SHA256 must be 64 hexadecimal characters" ;;
+    esac
+    [ "${#EXPECTED_KERNEL_SHA256}" -eq 64 ] \
+        || die "STABILITY_EXPECTED_KERNEL_SHA256 must be 64 hexadecimal characters"
+    [ -f "$KERNEL_BIN" ] || die "kernel binary missing: $KERNEL_BIN"
+    NORMALIZED_EXPECTED_KERNEL_SHA256="$(printf '%s' "$EXPECTED_KERNEL_SHA256" | tr 'A-F' 'a-f')"
+    [ "$KERNEL_SHA256" = "$NORMALIZED_EXPECTED_KERNEL_SHA256" ] \
+        || die "kernel SHA-256 mismatch: expected $NORMALIZED_EXPECTED_KERNEL_SHA256 got $KERNEL_SHA256"
+fi
 if [ "$DRY_RUN" = "1" ]; then
     cat <<EOF
 dry_run=1
 qemu_started=0
 run_id=$TAG
+kernel_dir=$KERNEL_DIR
+kernel_bin=$KERNEL_BIN
+kernel_sha256=$KERNEL_SHA256
+expected_kernel_sha256=${EXPECTED_KERNEL_SHA256:-UNSET}
 session_max_seconds=$DUR
 screendump_interval_seconds=$IVL
 diagnostic_only=$DIAGNOSTIC_ONLY
@@ -175,6 +204,8 @@ EOF
 fi
 [ "$(uname -s)" = Linux ] || die "只能在 T490/Linux 主机运行"
 [ -f "$BASE_IMG" ] || die "基础镜像不存在: $BASE_IMG"
+[ -d "$KERNEL_DIR" ] || die "内核工作树不存在: $KERNEL_DIR"
+[ -f "$KERNEL_BIN" ] || die "内核二进制不存在: $KERNEL_BIN"
 [ -d "$HERE" ] || die "T490 scripts directory missing"
 [ ! -e "$EVID" ] || die "证据目录已存在，拒绝覆盖: $EVID"
 [ ! -e "$QMP_SOCKET" ] || die "QMP socket 已存在，拒绝覆盖: $QMP_SOCKET"
@@ -229,7 +260,15 @@ done
 [ -S "$QMP_SOCKET" ] || die "QMP socket 超时: $QMP_SOCKET"
 [ -f "$EVID/console.log" ] || die "console.log 尚未创建: $EVID"
 {
+    EXPECTED_KERNEL_ENV=""
+    if [ -n "$EXPECTED_KERNEL_SHA256" ]; then
+        EXPECTED_KERNEL_ENV=" STABILITY_EXPECTED_KERNEL_SHA256=$EXPECTED_KERNEL_SHA256"
+    fi
     printf 'run_id=%s\n' "$TAG"
+    printf 'kernel_dir=%s\n' "$KERNEL_DIR"
+    printf 'kernel_bin=%s\n' "$KERNEL_BIN"
+    printf 'kernel_sha256=%s\n' "$KERNEL_SHA256"
+    printf 'expected_kernel_sha256=%s\n' "${EXPECTED_KERNEL_SHA256:-UNSET}"
     printf 'session_max_seconds=%s\n' "$DUR"
     printf 'screendump_interval_seconds=%s\n' "$IVL"
     printf 'family_watchdog_target_guest_seconds=%s\n' "$FAMILY_WATCHDOG_INTERVAL"
@@ -249,8 +288,8 @@ done
     printf 'lifecycle_preload_enabled=%s\n' "$LIFECYCLE_PRELOAD_ENABLED"
     printf 'initial_page_poll_seconds=30\nreload_poll_seconds=5\n'
     printf 'memory=2g\narchitecture=aarch64\naccelerator=tcg\n'
-    printf 'command=STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s STABILITY_RELOAD_SETTLE_SECONDS=%s STABILITY_CAPTURE_GUEST_CLOCK_SYNC=%s STABILITY_MEMORY_SAMPLER=%s STABILITY_MEMORY_SAMPLE_SECONDS=%s STABILITY_LIFECYCLE_PRELOAD=%s STABILITY_PROCESS_SAMPLE_SECONDS=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
-        "$DIAGNOSTIC_ONLY" "$RELOAD_WINDOW" "$RELOAD_SETTLE_SECONDS" "$CAPTURE_GUEST_CLOCK_SYNC" "$MEMORY_SAMPLER_ENABLED" "$MEMORY_SAMPLE_SECONDS" "$LIFECYCLE_PRELOAD_ENABLED" "$PROCESS_SAMPLE_SECONDS" "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" \
+    printf 'command=KERNEL_DIR=%s%s STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s STABILITY_RELOAD_SETTLE_SECONDS=%s STABILITY_CAPTURE_GUEST_CLOCK_SYNC=%s STABILITY_MEMORY_SAMPLER=%s STABILITY_MEMORY_SAMPLE_SECONDS=%s STABILITY_LIFECYCLE_PRELOAD=%s STABILITY_PROCESS_SAMPLE_SECONDS=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
+        "$KERNEL_DIR" "$EXPECTED_KERNEL_ENV" "$DIAGNOSTIC_ONLY" "$RELOAD_WINDOW" "$RELOAD_SETTLE_SECONDS" "$CAPTURE_GUEST_CLOCK_SYNC" "$MEMORY_SAMPLER_ENABLED" "$MEMORY_SAMPLE_SECONDS" "$LIFECYCLE_PRELOAD_ENABLED" "$PROCESS_SAMPLE_SECONDS" "${MP_FAMILY_DIAGNOSTICS:-0}" "$FAMILY_WATCHDOG_INTERVAL" \
         "$TAG" "$DUR" "$IVL" "$RELOAD_COUNT" "$RELOAD_INTERVAL" "$HOLD_SECONDS"
 } > "$EVID/stability-run-config.txt"
 
