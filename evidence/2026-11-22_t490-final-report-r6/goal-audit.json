@@ -1,0 +1,125 @@
+{
+  "schema": "xkernel.final-goal-audit.v1",
+  "result": "INCOMPLETE",
+  "baseline_freeze": {
+    "status": "PASS",
+    "path": "evidence\\2026-11-17_t490-goal-baseline-freeze-r3\\baseline.json"
+  },
+  "three_cold_starts_2g": {
+    "status": "PASS",
+    "reports": [
+      "report\\287-T490-2GiB默认多进程首页冷启动首轮-20261117.md",
+      "report\\288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md",
+      "report\\289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md"
+    ]
+  },
+  "browser_score_2g": {
+    "status": "PASS",
+    "points": 20,
+    "max_points": 20,
+    "items": {
+      "html": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-17_t490-goal2g-index-cold01",
+          "evidence\\2026-11-17_t490-goal2g-index-cold02",
+          "evidence\\2026-11-18_t490-goal2g-index-cold03"
+        ],
+        "required_independent_cold_starts": 3
+      },
+      "process_structure": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-18_t490-goal2g-index-cold03-review\\process-structure\\process-structure-summary.json",
+          "evidence\\2026-11-19_t490-codex-2026-11-19-memfd-madvise-final-html-r1\\process-structure-summary.json",
+          "evidence\\2026-11-22_t490-r70-process-structure-review\\process-structure\\process-structure-summary.json"
+        ]
+      },
+      "tabs": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-18_t490-codex-2026-11-18_112626-tabs\\tabs-gate.json"
+        ]
+      },
+      "input": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-22_t490-r78-c80-tablet-input07\\input-gate.json"
+        ]
+      },
+      "javascript": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-18_t490-codex-2026-11-18_133026-javascript\\javascript-gate.json"
+        ]
+      },
+      "css": {
+        "status": "PASS",
+        "evidence": [
+          "evidence\\2026-11-18_t490-codex-2026-11-18_135557-css\\score-page-gate.json"
+        ]
+      }
+    }
+  },
+  "stability_2g": {
+    "status": "PASS",
+    "passing_gates": [
+      "evidence\\2026-11-18_t490-goal2g-stability-r10\\stability-gate.json",
+      "evidence\\2026-11-21_t490-r44-frozen-formal03\\stability-gate.json",
+      "evidence\\2026-11-22_t490-r70-r64-compat-formal-lowshot\\stability-gate.json"
+    ]
+  },
+  "candidate_stability_2g": {
+    "status": "PASS",
+    "expected_kernel_sha256": "a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f",
+    "runs": [
+      {
+        "evidence": "evidence\\2026-11-22_t490-r69-r64-compat-formal01",
+        "kernel_sha256": "a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f",
+        "pass": false,
+        "driver_rc": "1",
+        "round_rc": "0",
+        "normalizer_rc": "0",
+        "gate_rc": "1",
+        "gate_detail": "STABILITY_GATE_FAIL: expected one page_ready, monitor_end, and result event"
+      },
+      {
+        "evidence": "evidence\\2026-11-22_t490-r70-r64-compat-formal-lowshot",
+        "kernel_sha256": "a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f",
+        "pass": true,
+        "driver_rc": "0",
+        "round_rc": "0",
+        "normalizer_rc": "0",
+        "gate_rc": "0",
+        "gate_detail": "{\"schema\": \"xkernel.stability-gate.v1\", \"run_id\": \"r70-r64-compat-formal-lowshot\", \"pass\": true, \"mode\": \"default-multiprocess\", \"guest_memory\": \"2g (platform.env default)\", \"measured_seconds\": 1804.991458567, \"scheduled_reload_count\": 10, \"strict_reload_passes\": 10, \"qemu_liveness_samples\": 60, \"guest_process_exits\": 0, \"unclassified_guest_process_exits\": 0, \"guest_exceptions\": 0, \"reloads\": [{\"navigation_id\": \"nav-01\", \"requested_t_ns\": 365097526240097, \"scheduled_t_ns\": 365097523152521, \"schedule_slip_ms\": 3.087576, \"screenshot\": \"stability/load-01-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-02\", \"requested_t_ns\": 365217524160899, \"scheduled_t_ns\": 365217523152521, \"schedule_slip_ms\": 1.008378, \"screenshot\": \"stability/load-02-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-03\", \"requested_t_ns\": 365337524260420, \"scheduled_t_ns\": 365337523152521, \"schedule_slip_ms\": 1.107899, \"screenshot\": \"stability/load-03-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-04\", \"requested_t_ns\": 365457524141308, \"scheduled_t_ns\": 365457523152521, \"schedule_slip_ms\": 0.988787, \"screenshot\": \"stability/load-04-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-05\", \"requested_t_ns\": 365577524071960, \"scheduled_t_ns\": 365577523152521, \"schedule_slip_ms\": 0.919439, \"screenshot\": \"stability/load-05-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-06\", \"requested_t_ns\": 365697524079900, \"scheduled_t_ns\": 365697523152521, \"schedule_slip_ms\": 0.927379, \"screenshot\": \"stability/load-06-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-07\", \"requested_t_ns\": 365817524083774, \"scheduled_t_ns\": 365817523152521, \"schedule_slip_ms\": 0.931253, \"screenshot\": \"stability/load-07-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-08\", \"requested_t_ns\": 365937524076359, \"scheduled_t_ns\": 365937523152521, \"schedule_slip_ms\": 0.923838, \"screenshot\": \"stability/load-08-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-09\", \"requested_t_ns\": 366057524122558, \"scheduled_t_ns\": 366057523152521, \"schedule_slip_ms\": 0.970037, \"screenshot\": \"stability/load-09-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}, {\"navigation_id\": \"nav-10\", \"requested_t_ns\": 366177524125903, \"scheduled_t_ns\": 366177523152521, \"schedule_slip_ms\": 0.973382, \"screenshot\": \"stability/load-10-reload.ppm\", \"sha256\": \"abbff252ef5c5f6c348c5009eefbc5a3d0ba1358dbb8e4db142364fff1388897\"}], \"evidence\": {\"events\": \"/home/mo/xk6/evidence/2026-11-22_t490-r70-r64-compat-formal-lowshot/stability/stability-events.normalized.jsonl\", \"console_log\": \"/home/mo/xk6/evidence/2026-11-22_t490-r70-r64-compat-formal-lowshot/console.log\"}}"
+      }
+    ]
+  },
+  "compatibility": {
+    "status": "PASS",
+    "completed": [
+      "full compatprobe ABI matrix 38/38 on the a70ecb4a candidate (R64 focused bundle)",
+      "SCM_RIGHTS stream short-read 6/6 on the a70ecb4a candidate (R64 focused bundle); first-byte delivery and no-repeat semantics pass",
+      "memfd sealing 12/12 on the a70ecb4a candidate (R64 focused bundle)",
+      "procfs allocation, file sharing, fork/COW, and unmap memory probe returns numeric RSS/PSS/USS/Shared values on the a70ecb4a candidate (R64 focused bundle)",
+      "inotify, timerfd, and MADV_DONTNEED hole behavior are included in the 38/38 Linux ABI matrix; native T490 Linux 7.0 and WSL2 5.15 control references are retained in report 331/342/344",
+      "Chromium 149 official-index page strict passes on the same a70ecb4a kernel in R65, R66, R68, and the formal R70 run",
+      "Browser to Zygote to Renderer parent chain passes the strict 4/4 process-structure gate on R70",
+      "formal stability gate passes on the same kernel: initial strict page, 10/10 real reloads, 1804.991-second hold, 60 liveness samples, 0 process exits and 0 guest exceptions"
+    ],
+    "pending": [],
+    "summary": "evidence\\compatibility-final\\summary.json"
+  },
+  "performance": {
+    "status": "INCOMPLETE",
+    "required_metrics": [
+      "browser_start",
+      "first_frame",
+      "peak_memory",
+      "renderer_create"
+    ],
+    "present_metrics": [],
+    "before_runs": 0,
+    "after_runs": 0
+  }
+}
