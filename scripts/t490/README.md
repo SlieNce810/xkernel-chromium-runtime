@@ -303,6 +303,7 @@ R41 首页strict 466.226秒通过，真实Ctrl+R nav-01在90秒窗口超时（re
 R42 正式稳定性gate运行：首页465.976秒strict通过，nav-01至08通过，nav-09 timeout，driver hold 1805.000秒通过但最终8/10且gate fail；normalizer 746/746通过、family age最大30.022秒。详见 [report 414](../../report/414-T490冻结根正式稳定性R42八次重载与1805秒保持但nav09超时-20261121.md)。
 R43 同参数正式复跑：首页497.108秒strict通过，nav-01/02通过、nav-03超时，之后保持1805.000秒通过；normalizer 739/739通过、family freshness最大28.895秒，但正式gate因只有2/10 reload失败。详见 [report 415](../../report/415-T490冻结根正式稳定性R43两次重载后nav03超时-20261121.md)。
 R44 正式冻结根stable gate PASS：初始页497.079秒strict通过，真实Ctrl+R 10/10通过、保持1805秒，QEMU liveness 60样本，family age max30.024秒且无进程退出/guest异常。sampler/preload/guest clock sync关闭，不能算内存或四项性能样本，详见 [report 416](../../report/416-T490冻结根正式稳定性R44十次reload与1805秒保持通过-20261121.md)。
+R45 开启lifecycle preload、guest clock sync和900秒sampler后：首页、reload和420秒诊断保持通过；Browser startup单轮候选39.769秒、导航至strict screenshot上界410.029秒。缺renderer-ready/first-frame，memory sampler0 rows/734 missed/1,357错误，不计正式四指标。空CSV bundle保留修复见 [report 417](../../report/417-T490R45lifecycle与内存采集诊断采样器零有效行-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
