@@ -218,6 +218,7 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
             probe_event_ids.add(event_id)
             lifecycle_probe_event_count += 1
 
+    validation_errors: list[str] = []
     rows: list[dict[str, str]] = []
     reader = csv.DictReader(io.StringIO(members["memory-samples.csv"].decode("utf-8")))
     required_columns = {
@@ -273,12 +274,11 @@ def validate_bundle(run_id: str, members: dict[str, bytes]) -> dict[str, Any]:
             timing_by_sample[sample_id] = timing
         rows.append(row)
     if not rows:
-        raise MemoryExportError("memory CSV contains no samples")
+        validation_errors.append("memory CSV contains no samples")
 
     status = members["proc-tree-sampler.status"].decode("utf-8", errors="replace")
     if f"run_id={run_id}" not in status:
         raise MemoryExportError("sampler status run_id does not match this run")
-    validation_errors: list[str] = []
     if "result=PASS" not in status:
         validation_errors.append("sampler status does not report PASS")
     timing_diagnostics: dict[str, Any] | None = None

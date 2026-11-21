@@ -21,7 +21,8 @@ RUN_ID = "metric-memory-test-01"
 def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = False,
                  unsafe_member: bool = False, sampler_failed: bool = False,
                  timing: bool = False, invalid_timing: bool = False,
-                 probe_events: bool = False, invalid_probe_clock: bool = False) -> Path:
+                 probe_events: bool = False, invalid_probe_clock: bool = False,
+                 empty_samples: bool = False) -> Path:
     memory_header = "run_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb"
     memory_row = f"{RUN_ID},LINUX_CLOCK_MONOTONIC,sample-1,200,10,1,browser-10,100,90,80"
     if timing:
@@ -37,7 +38,7 @@ def make_console(root: Path, *, end_marker: bool = True, sequence_gap: bool = Fa
                         "event_id": f"{RUN_ID}:1", "event": "browser_launch_requested"}) + "\n"
         ).encode(),
         "memory-samples.csv": (
-            memory_header + "\n" + memory_row + "\n"
+            memory_header + "\n" + ("" if empty_samples else memory_row + "\n")
         ).encode(),
         "memory-sampling-errors.log": b"sample=2 pid=10 smaps_rollup=unavailable\n" if sampler_failed else b"",
         "proc-tree-sampler.status": f"run_id={RUN_ID}\nresult={'FAIL' if sampler_failed else 'PASS'}\nsamples=1\n".encode(),
@@ -157,6 +158,21 @@ class ExtractPerfMemoryTests(unittest.TestCase):
         self.assertEqual(1, summary["memory_sampling_errors"])
         self.assertEqual(1, summary["memory_error_types"]["per_pid_unavailable"])
         self.assertTrue((out / "memory-samples.csv").is_file())
+
+    def test_empty_sample_bundle_is_preserved_and_marked_invalid(self) -> None:
+        console = make_console(self.root, empty_samples=True)
+        out = self.root / "empty-extracted"
+
+        summary = extract_perf_memory.extract(console, out, RUN_ID)
+
+        self.assertFalse(summary["valid"])
+        self.assertIn("memory CSV contains no samples", summary["errors"])
+        self.assertEqual(0, summary["memory_rows"])
+        self.assertEqual(0, summary["memory_sample_ids"])
+        self.assertTrue((out / "guest-samples.tar.gz").is_file())
+        self.assertTrue((out / "memory-samples.csv").is_file())
+        self.assertTrue((out / "proc-tree-sampler.status").is_file())
+        self.assertTrue((out / "extraction.json").is_file())
 
 
 if __name__ == "__main__":
