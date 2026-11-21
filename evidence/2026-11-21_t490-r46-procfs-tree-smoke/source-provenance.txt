@@ -1,0 +1,21 @@
+run_id=r46-procfs-tree-smoke
+host=mo-ThinkPad-T490
+kernel_worktree=/home/mo/xk6/worktrees/r46-procfs-candidate
+kernel_parent_commit=b73e5814087c9d33c5f0a35b66cc56be689d3dee
+frozen_tracked_diff_sha256=b3a4d5edd9aee8901ea17281f715c6832b6b323cf9711c56c16742caa7c0dea7
+frozen_config_sha256=42e8d16450352712d78813b5f78b7ca221dfb88fadc796f57ecf317d7e33f669
+rootfs=/home/mo/x-kernel/images/pkg-installed.img
+rootfs_sha256=bab5c9f5dbf1e4a910bab569635bb9e44fe38c3b8cea94ae8eae4ce3f7a9fdb1
+injected_disk_sha256=c9197a8fdeebbf458732192d9d17a47540b35df72e643c28aa7d2e300c683265
+kernel_elf_sha256=8209d80083e8eaabc227e29edb425c51e8198f8baea4cbde89d1d539d69b3054
+kernel_bin_sha256=ccf9f066b878b8f60c35c393efb1cc3c1be5e41eef8f0d58f4903ba8846e4ada
+guest=aarch64
+memory_gib=2
+smp=4
+cpu=cortex-a76
+accelerator=pure TCG
+qemu=10.2.1
+patch_order=patches/compat/procfs-smaps-rollup-mapcount.patch,patches/compat/procfs-tree-rollup.patch,patches/compat/procfs-pfn-count-dense.patch,patches/t490-procfs-resident-walk-direct-pte-r27.patch
+build_command=make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
+run_command=KERNEL_DIR=/home/mo/xk6/worktrees/r46-procfs-candidate BASE_IMG=/home/mo/x-kernel/images/pkg-installed.img INJECT_AUTOSTART=1 STRICT_GATE=0 PAGE_URL=file:///usr/share/html-test/index.html bash /home/mo/xk6/scripts/t490/t490_round.sh r46-procfs-tree-smoke 150 30 autorun_proc_tree_sampler_smoke.sh proc_tree_sampler.c
+formal_scope=procfs_shell_smoke_only
