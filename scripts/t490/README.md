@@ -338,3 +338,19 @@ R56同一candidate/error配置把readiness设1200秒做短cold-start retry，首
 | `autorun_r2.sh` | **renderer 追击**：A 段多进程+屏蔽网络 / B 段 `--single-process` |
 
 R51机制对照：R50含direct-PTE patch时observer-off首屏1800秒超时；R51基于同冻结快照和其余相同补丁、去掉direct-PTE后首页466.008秒strict通过、reload 1/1、420秒hold通过。normalizer有4个family freshness超限快照，所以此轮不是稳定性总PASS；只把direct-PTE视为回归候选，R52需回加patch复跑，见 [report 423](../../report/423-T490R51不含direct-PTE候选页面及重载通过但freshness失败-20261121.md)。
+
+## Kernel identity guard（2026-11-22）
+
+R57 发现仅在候选 worktree 中执行 `run_stability_round_mp.sh` 不会自动改变 `t490_round.sh` 的 `KERNEL_DIR` 默认值；当时 QEMU 实际加载了 `/home/mo/x-kernel` 的冻结内核。当前 runner 会解析并导出 `KERNEL_DIR`、记录 kernel 文件路径和 SHA-256；正式候选复现应设置 `STABILITY_EXPECTED_KERNEL_SHA256`，不匹配时在 QEMU 启动前退出。实现和反向哈希校验见 [report 429](../../report/429-T490-R57候选内核路径配置错误-20261121.md)。
+
+`scripts/final-acceptance.sh` 将 `T490_KERNEL_DIR` 作为远端 `KERNEL_DIR` 传递，将 `T490_EXPECTED_KERNEL_SHA256` 传递给 stability runner。以 c80 候选为例，先干跑并核对 kernel hash：
+
+```bash
+T490_TARGET=mo@10.249.11.192 \
+T490_KERNEL_DIR=/home/mo/xk6/worktrees/r64-targeted-scm-no-direct \
+T490_EXPECTED_KERNEL_SHA256=a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f \
+ACCEPTANCE_DRY_RUN=1 \
+bash scripts/final-acceptance.sh stability
+```
+
+该入口的 help、`bash -n`、all-stage dry-run、stability dry-run、expected-hash 负向校验均通过；dry-run 不启动 QEMU。记录见 [final-acceptance wiring preflight](../../evidence/2026-11-22_t490-final-acceptance-wiring-preflight/README.md)。

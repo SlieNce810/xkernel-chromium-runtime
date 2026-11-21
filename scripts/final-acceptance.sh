@@ -13,6 +13,7 @@ Usage: bash scripts/final-acceptance.sh <baseline|precheck|score|score-process|h
 Environment hooks (the default commands are intentionally conservative):
   T490_TARGET         SSH target, e.g. mo@10.249.11.192 (required for live stages)
   T490_KERNEL_DIR     remote kernel tree; pass an isolated candidate to test it
+  T490_EXPECTED_KERNEL_SHA256  expected binary hash; aborts a stability run before QEMU on mismatch
   T490_BASE_IMG       remote base image (default: T490 runner's configured image)
   ACCEPTANCE_OUT      evidence output directory
   ACCEPTANCE_PRECHECK platform command (default: remote T490 read-only precheck)
@@ -67,6 +68,9 @@ mkdir -p "$OUT"
 {
     printf 'command='
     if [[ -n "${T490_TARGET:-}" ]]; then printf 'T490_TARGET=%q ' "$T490_TARGET"; fi
+    if [[ -n "${T490_KERNEL_DIR:-}" ]]; then printf 'T490_KERNEL_DIR=%q ' "$T490_KERNEL_DIR"; fi
+    if [[ -n "${T490_EXPECTED_KERNEL_SHA256:-}" ]]; then printf 'T490_EXPECTED_KERNEL_SHA256=%q ' "$T490_EXPECTED_KERNEL_SHA256"; fi
+    if [[ -n "${T490_BASE_IMG:-}" ]]; then printf 'T490_BASE_IMG=%q ' "$T490_BASE_IMG"; fi
     printf 'bash scripts/final-acceptance.sh %q\n' "$stage"
 } > "$OUT/cmd.txt"
 {
@@ -74,6 +78,7 @@ mkdir -p "$OUT"
     printf 'host_platform=%s\n' "$(uname -srm 2>/dev/null || uname -a)"
     printf 'T490_TARGET=%s\n' "${T490_TARGET:-unset}"
     printf 'T490_KERNEL_DIR=%s\n' "${T490_KERNEL_DIR:-unset}"
+    printf 'T490_EXPECTED_KERNEL_SHA256=%s\n' "${T490_EXPECTED_KERNEL_SHA256:-unset}"
     printf 'T490_BASE_IMG=%s\n' "${T490_BASE_IMG:-unset}"
     printf 'ACCEPTANCE_DRY_RUN=%s\n' "${ACCEPTANCE_DRY_RUN:-0}"
     printf 'PLAT_MEM_OVERRIDE=%s\n' "${PLAT_MEM_OVERRIDE:-unset}"
@@ -120,6 +125,14 @@ run_remote_stage() {
     done
     [[ -z "${T490_KERNEL_DIR:-}" ]] || remote_env+=("KERNEL_DIR=$T490_KERNEL_DIR")
     [[ -z "${T490_BASE_IMG:-}" ]] || remote_env+=("BASE_IMG=$T490_BASE_IMG")
+    if [[ -n "${T490_EXPECTED_KERNEL_SHA256:-}" ]]; then
+        if [[ ! "${T490_EXPECTED_KERNEL_SHA256}" =~ ^[[:xdigit:]]{64}$ ]]; then
+            echo "T490_EXPECTED_KERNEL_SHA256 must be exactly 64 hexadecimal characters" >&2
+            results["$name"]=64
+            return 64
+        fi
+        remote_env+=("STABILITY_EXPECTED_KERNEL_SHA256=$T490_EXPECTED_KERNEL_SHA256")
+    fi
     if (( ${#remote_env[@]} > 0 )); then
         printf -v remote_prefix '%q ' "${remote_env[@]}"
     fi
