@@ -189,6 +189,7 @@ R39 使用相同冻结root/kernel和freshness设置独立复跑，首页strict 4
 R40 在同一冻结根、2 GiB和15秒family watchdog下，首页strict在默认2400秒内超时，79次页面检查均未通过；240秒截图全白，1440秒和最终timeout截图相同。Weston/Browser仍存活，normalizer 793/793通过，但process-family snapshots最大间隔93.572秒且正式gate跳过。R38/R39通过、R40超时，故当前冷启动结果仍显示显著长尾/间歇失败，详见 [report/412](report/412-T490冻结根默认deadlineR40strict页面超时-20261121.md) 与 [R40 evidence](evidence/2026-11-21_t490-r40-frozen-cold04/)。
 R41 在同一冻结root/kernel下首页strict 466.226秒通过，确认第三个独立初始首页成功；真实Ctrl+R的nav-01在90秒窗口中11次检查均未strict，整轮driver fail（reload 0/1），但完成420秒观察保持，normalizer 266/266通过。R40首页timeout、R41重载timeout仍使稳定性结论INCOMPLETE，见 [report/413](report/413-T490冻结根R41首页通过但CtrlR重载超时-20261121.md) 与 [R41 evidence](evidence/2026-11-21_t490-r41-frozen-cold05/)。
 R42 首次首页strict 465.976秒通过；正式10次重载/1805秒保持门禁中，nav-01至nav-08通过、nav-09超时，hold 1805.000秒通过但总结果 `8/10`、formal gate FAIL。终态截图显示Chromium“Page Unresponsive”对话框，底层页仍在；具体阻塞点仍待trace定位。normalizer 746/746 PASS，family age最大30.022秒；采样器关闭，无性能峰值数据。详见 [report/414](report/414-T490冻结根正式稳定性R42八次重载与1805秒保持但nav09超时-20261121.md) 和 [R42 evidence](evidence/2026-11-21_t490-r42-frozen-formal01/)。
+R43 复跑正式门禁，首页strict 497.108秒通过、nav-01/02通过、nav-03 timeout，driver后续nav未执行；初始strict后1805.000秒保持完成，但总结果2/10、formal gate FAIL。normalizer 739/739通过，family age最大28.895秒；nav-03终态为白屏。R42/R43 reload hang位置不同，见 [report/415](report/415-T490冻结根正式稳定性R43两次重载后nav03超时-20261121.md) 与 [R43 evidence](evidence/2026-11-21_t490-r43-frozen-formal02/)。
 
 ## 目录导览
 

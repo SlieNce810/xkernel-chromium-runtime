@@ -301,6 +301,7 @@ R39 同一冻结kernel/rootfs独立复跑，首页strict 466.289秒、真实重�
 R40 在同一2 GiB冻结根、15秒family watchdog配置下，首页strict默认2400秒超时；Weston/Browser仍活、normalizer 793/793通过，但78个process-family snapshots最大间隔93.572秒。它不计冷启动成功/正式稳定性gate，详见 [report 412](../../report/412-T490冻结根默认deadlineR40strict页面超时-20261121.md)。
 R41 首页strict 466.226秒通过，真实Ctrl+R nav-01在90秒窗口超时（reload 0/1），但420秒观察保持和266/266事件normalizer通过。它是第三次初始strict首页通过，不是完整稳定性通过；详见 [report 413](../../report/413-T490冻结根R41首页通过但CtrlR重载超时-20261121.md)。
 R42 正式稳定性gate运行：首页465.976秒strict通过，nav-01至08通过，nav-09 timeout，driver hold 1805.000秒通过但最终8/10且gate fail；normalizer 746/746通过、family age最大30.022秒。详见 [report 414](../../report/414-T490冻结根正式稳定性R42八次重载与1805秒保持但nav09超时-20261121.md)。
+R43 同参数正式复跑：首页497.108秒strict通过，nav-01/02通过、nav-03超时，之后保持1805.000秒通过；normalizer 739/739通过、family freshness最大28.895秒，但正式gate因只有2/10 reload失败。详见 [report 415](../../report/415-T490冻结根正式稳定性R43两次重载后nav03超时-20261121.md)。
 
 ### 进程树 RSS/PSS/USS 采样器
 
