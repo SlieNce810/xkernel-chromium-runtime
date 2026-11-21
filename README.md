@@ -182,7 +182,8 @@ R33 sampler-off重复控制再次通过首页、重载、420秒保持，host ela
 R34 开启 sampler、关闭preload/clock-sync，并把 shell process-tree扫描设为30秒后首页 strict、重载与600秒保持通过；R32同条件但每5秒扫描时超时，支持诊断扫描负载相关。R34 sampler仍FAIL（274 IDs、215 missed、286错误），normalizer还有36秒family freshness超限，不能计峰值或稳定性PASS；见 [report/405](report/405-T490R34sampler与30秒process观察扫描对照-20261121.md)。
 R35 恢复 preload、guest clock-sync 与1 Hz sampler，使用30秒process scan/25秒family watchdog后首页、重载、600秒保持和normalizer均通过；Browser launch→main-loop-ready为38.511秒、导航→strict截图上界436.389秒。sampler仍FAIL（268 IDs、194 missed、258错误），无有效RSS/PSS/USS峰值；renderer-ready/first-frame也缺，故不进入正式CSV，见 [report/406](report/406-T490R35低频Observer完整采集路径复测-20261121.md)。
 
-R36 首次按冻结根路径重跑，kernel/rootfs SHA与baseline r3一致，2 GiB pure TCG、Jitless和IPC timeout flags均在argv；首页strict仍在1550秒诊断deadline超时，终止截图为空白。历史三次同SHA通过记录仍保留，但不能掩盖新失败；R37使用默认2400秒ready timeout继续复核，见 [report/408](report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
+R36 首次按冻结根路径重跑，kernel/rootfs SHA与baseline r3一致，2 GiB pure TCG、Jitless和IPC timeout flags均在argv；首页strict仍在1550秒诊断deadline超时，终止截图为空白。历史三次同SHA通过记录仍保留，但不能掩盖新失败；见 [report/408](report/408-T490冻结根51c冷启动strict超时R36-20261121.md)。
+R37 在同一冻结根和默认2400秒ready deadline下通过首页strict（466.376秒）、1/1重载和420秒保持，但5个进程族快照超出35秒freshness门限，normalizer失败；该轮只能记页面/保持部分通过，不能算稳定性PASS。R38将family watchdog调至15秒继续复核，见 [report/409](report/409-T490冻结根R37coldstart页面通过但family快照stale-20261121.md) 与 [R37 evidence](evidence/2026-11-21_t490-r37-frozen-cold01/)。
 
 ## 目录导览
 
