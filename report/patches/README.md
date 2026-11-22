@@ -44,6 +44,7 @@
 | `0029-lifecycle-event-seq-field.patch` | 为 preload lifecycle JSONL 增加采集器要求的显式 `seq` 字段 | v7 已发现旧格式不能直接进入 `collect_metrics.py`；下一轮使用修复后的 preload 验证 |
 | `0030-crashpad-musl-futex-arity.patch` | 将 Crashpad 两处 futex 调用适配当前四参数 LSS 头 | R117 `[605/23688]` 编译错误已最小复现；修复后构建待继续 |
 | `0031-dawn-khronos-platform-include-path.patch` | 将 Dawn Khronos platform target 指向仓库现有 `third_party/khronos/KHR/khrplatform.h` | R118 `[402/23077]` OpenGL 自动生成对象缺头；修复后需 GN 重生成 |
+| `0032-enable-dawn-tint-glsl-writer.patch` | 为启用的 Dawn OpenGL backend 打开 Tint GLSL writer | R119 ShaderModuleGL 缺 GLSL writer 类型；修改 args.gn 后待继续 |
 
 ---
 
