@@ -97,6 +97,18 @@ def parse_samples(blocks: dict[int, dict[str, Any]]) -> list[dict[str, Any]]:
             for name in ("root_pid", "t_ns", "tree_generation"):
                 if name in header_values:
                     sample[name] = header_values[name]
+            for name in (
+                "resident_walk_ns",
+                "mapcount_ns",
+                "rollup_ns",
+                "process_count",
+                "resident_pages",
+            ):
+                if name in header_values:
+                    try:
+                        sample[name] = int(header_values[name])
+                    except ValueError:
+                        sample["reason"] = "invalid_timing_field"
             sample["reason"] = header_values.get(
                 "reason", "complete" if sample["complete"] else "incomplete"
             )
@@ -133,6 +145,17 @@ def summarize(samples: list[dict[str, Any]], run_id: str) -> dict[str, Any]:
         if later >= earlier
     ]
     reasons = sorted({sample["reason"] for sample in samples})
+
+    def timing_stats(name: str) -> dict[str, Any]:
+        values = [sample[name] for sample in valid if name in sample]
+        return {
+            "count": len(values),
+            "min": min(values) if values else None,
+            "median": statistics.median(values) if values else None,
+            "p95": percentile(values, 0.95),
+            "max": max(values) if values else None,
+        }
+
     return {
         "schema": "xkernel.procfs-snapshot-sampler.v1",
         "run_id": run_id,
@@ -160,6 +183,14 @@ def summarize(samples: list[dict[str, Any]], run_id: str) -> dict[str, Any]:
         "row_count": {
             "min": min((sample["rows"] for sample in valid), default=None),
             "max": max((sample["rows"] for sample in valid), default=None),
+        },
+        "kernel_timing_ns": {
+            name: timing_stats(name)
+            for name in (
+                "resident_walk_ns",
+                "mapcount_ns",
+                "rollup_ns",
+            )
         },
         "formal_metric_status": (
             "diagnostic-only; not a 1 Hz formal before/after sample"

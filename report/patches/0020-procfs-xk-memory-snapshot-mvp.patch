@@ -10,7 +10,7 @@ diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procf
  use ktask::{KtaskRef, TaskState, WeakKtaskRef, current};
  #[cfg(feature = "tee")]
  use kvfs::DirMapping;
-@@ -285,6 +285,118 @@
+@@ -285,6 +285,119 @@
      output.into_bytes()
  }
  
@@ -96,8 +96,9 @@ diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procf
 +    }
 +    let t_ns = khal::time::monotonic_time_nanos();
 +    let mut output = format!(
-+        "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=1 pss_uss_supported=1\n",
-+        root_pid, root_start, generation_before, t_ns
++        "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=1 pss_uss_supported=1 resident_walk_ns={} mapcount_ns={} rollup_ns={} process_count={} resident_pages={}\n",
++        root_pid, root_start, generation_before, t_ns, snapshot.resident_walk_ns, snapshot.mapcount_ns,
++        snapshot.rollup_ns, snapshot.process_count, snapshot.resident_pages
 +    );
 +    let mut rows = 0usize;
 +    for row in snapshot.rows.iter().filter(|row| process_descends_from(row.pid, root_pid, &snapshot.rows)) {

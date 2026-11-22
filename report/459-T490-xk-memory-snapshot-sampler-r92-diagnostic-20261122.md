@@ -20,6 +20,8 @@ guest 侧脚本计数为 30 次尝试、27 次 `complete=1`。串口解析器在
 
 完整原始 console、命令、环境、平台检查、截图判据、PPM SHA-256 和递归 artifact 清单在 [R92 evidence](../evidence/2026-11-22_t490-r92-xk-snapshot-sampler/)；`parse_xk_snapshot_samples.py` 生成 `snapshot-samples.jsonl`、`snapshot-sampler-summary.json` 和 `snapshot-sampler-index.txt`。
 
+R92 使用的是 timing 字段加入前的 kernel，因此该轮 summary 的 `kernel_timing_ns` 为空；后续轮次会用同一接口头部补充 resident walk、mapcount 和 rollup 的 guest 时长。
+
 ## 判定
 
 这轮证明了新接口可以在进程树变化时拒绝不一致结果，也能在树稳定时输出逐进程 RSS/PSS/USS/共享页。但它还不是正式 1 Hz 采集：读取 P95 达到 9.5 秒，且串口 marker 存在丢失/交错，begin 间隔中位数约 2 秒。R92 不写入正式 before/after CSV，也不改变当前性能 0/0 审计。
