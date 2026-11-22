@@ -206,3 +206,4 @@ docs/         赛题原文、操作卡（OBS 录屏、VNC 演示）
 
 2026-11-23 T490 `preload-exec-probe` 运行约303.7秒，10/10截图判据和会话收尾通过；观测器仍报告 `MP_RENDERER_COUNT=0`，没有真实 Chromium `renderer_ready`/`renderer_exec`，因此该轮只作为诊断证据，不改变三次冷启动、30分钟稳定性或四项性能完成度。详见 [report/479](report/479-T490-preload-exec-probe-20261123.md) 与 [evidence/2026-11-23_t490-preload-exec-probe](evidence/2026-11-23_t490-preload-exec-probe/)。
 同日 Chromium 149.0.7827.53 多进程基线轮在 `pkg-installed.img` 上12/12截图判据通过，后段观察到3–4个 renderer；由于旧 autorun 未接入 preload，日志为 `LD_PRELOAD=<unset>`，这轮不计生命周期 ready 或性能样本。当前 autorun 已同步到 T490，详见 [report/481](report/481-T490-chromium149-multiprocess-baseline-20261123.md)。
+随后 v7 在同一 Chromium 149 上增量导出了 `preload_attached`、Browser main-loop ready、5 个 zygote fork boundary 和导航事件；Renderer ready/first frame 仍缺，因此保持性能 invalid。详见 [report/482](report/482-T490-chromium149-preload-lifecycle-v7-20261123.md)。
