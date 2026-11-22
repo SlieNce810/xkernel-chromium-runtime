@@ -59,10 +59,11 @@ def decode(console: Path, run_id: str) -> bytes:
         match = BEGIN.search(line)
         if match:
             if header is not None:
-                if not ended:
-                    raise ExportError("lifecycle export header appeared before previous end")
-                if header["run_id"] == run_id:
+                if ended and header["run_id"] == run_id:
                     completed.append(decode_block(header, chunks, end_count))
+                # A console screendump can interrupt an early export before its
+                # chunks/end marker. Discard that incomplete block and use the
+                # later complete export, which contains more observations.
             header = {
                 "run_id": match.group(1),
                 "raw_bytes": int(match.group(2)),

@@ -342,6 +342,14 @@ __attribute__((constructor)) static void initialize_lifecycle_preload(void) {
     if (run_id[0])
         snprintf(renderer_state_path, sizeof(renderer_state_path),
                  "/root/lifecycle-renderer-%s.state", run_id);
+    {
+        pid_t pid = getpid();
+        char instance[96];
+        get_process_instance(pid, instance, sizeof(instance));
+        append_probe_event("preload_attached", monotonic_time_ns(), pid,
+                           getppid(), "unknown", instance, "", "", "", 0,
+                           "preload-constructor", "");
+    }
     classify_process();
 }
 
