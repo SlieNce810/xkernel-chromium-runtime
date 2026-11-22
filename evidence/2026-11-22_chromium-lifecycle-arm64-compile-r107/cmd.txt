@@ -1,0 +1,12 @@
+R107 AArch64 direct object compile for Chromium lifecycle hook (T490)
+
+Remote target: mo@10.249.11.192
+Source: /home/mo/chromium-src
+Source revision: 4b8153ab58d3c3f4c9f7e4baad9616ecf80db5fa
+Output: /home/mo/chromium-src/out/lifecycle-arm64
+
+1. Reused the independently generated GN output and generated Mojo/protobuf/buildflag dependencies from R106.
+2. Used the exact Ninja-emitted compile command for content/browser/renderer_host/render_process_host_impl.cc, with a temporary musl/libc++ include overlay. The overlay disabled only the generated PartitionAlloc thread-isolation flag and supplied generated Perfetto/ICU include roots; it was outside the source tree and not used for runtime.
+3. Executed the AArch64 clang command. Result: PASS, 42.49 s. `file` reports an ARM aarch64 relocatable object with debug information.
+4. Executed the exact Ninja-emitted compile command for content/zygote/zygote_linux.cc / zygote_main_linux.o with the same temporary overlay. Result: PASS, 1.97 s. `file` reports an ARM aarch64 relocatable object with debug information.
+5. No linker invocation, Chromium binary replacement, guest boot, or formal performance run was performed.
