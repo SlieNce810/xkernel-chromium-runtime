@@ -58,7 +58,8 @@ opaque 类型、枚举常量和函数指针签名，避免链接 libcurl。临�
 8b38cc81b01f5a2dc011d9cbd7134e579f39d20782c090a0a4a5c6db8c67165a
 ```
 
-R113 已启动，当前仍在增量编译，尚未形成 `chrome` 链接或 guest 运行证据；不能将
+R113 已转为 T490 后台增量构建，当前 PID 为 `1131073`，日志为
+`/tmp/chrome-build-r113-bg.log`；尚未形成 `chrome` 链接或 guest 运行证据，不能将
 本轮记为可运行 Chromium 或性能样本通过。
 
 ## 当前构建命令
