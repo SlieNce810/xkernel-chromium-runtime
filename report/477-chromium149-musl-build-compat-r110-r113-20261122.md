@@ -48,7 +48,7 @@ R112 曾将 GN 参数 `crashpad_http_transport_impl` 临时设为 `"socket"`，�
 生成了 35041 个 GN targets；Crashpad socket 路径本身可编译。但 GN 参数变化使
 整个 `chrome` 闭包出现大量命令行/生成物重编译，未继续保留该方案。
 
-### R113：临时 curl 声明头
+### R113：临时 curl 声明头与生成物缺口
 
 R113 恢复了 R111 的 GN 参数，在源码 include 根下临时加入
 `third_party/crashpad/crashpad/curl/curl.h`，只声明 Crashpad 动态加载代码所需的
@@ -58,9 +58,28 @@ opaque 类型、枚举常量和函数指针签名，避免链接 libcurl。临�
 8b38cc81b01f5a2dc011d9cbd7134e579f39d20782c090a0a4a5c6db8c67165a
 ```
 
-R113 已转为 T490 后台增量构建，当前 PID 为 `1131073`，日志为
-`/tmp/chrome-build-r113-bg.log`；尚未形成 `chrome` 链接或 guest 运行证据，不能将
-本轮记为可运行 Chromium 或性能样本通过。
+R113 已转为 T490 后台增量构建，PID 为 `1131073`，日志为
+`/tmp/chrome-build-r113-bg.log`。该轮随后暴露了两个源快照生成物缺口：
+
+```
+content/browser/gpu/gpu_internals_ui.cc:
+fatal error: 'gpu/config/gpu_lists_version.h' file not found
+
+gpu_internals_ui.cc:744:
+error: expected ')'
+```
+
+原因是该 Chromium 源码快照把两个诊断元数据文件列在 `.gitignore` 中，但没有随
+源快照提供。为保持诊断页可编译，T490 临时补入：
+
+- `gpu/config/gpu_lists_version.h`，SHA-256
+  `a562e81cc2d8a24d41f23e343b08ea8654fc2eb5b2357396fa55faa4191051d5`；
+- `skia/ext/skia_commit_hash.h` 中的 `SKIA_COMMIT_HASH` 定义，SHA-256
+  `0e4e8f21a303b5b7dd0e40689f4fd4106660ed4bc748083f32c36288ded0f300`。
+
+补入后 `gpu_internals_ui.o` 单独编译通过。R114 已使用同一输出目录重新启动，PID
+为 `1133481`，日志为 `/tmp/chrome-build-r114-bg.log`。在最终 `chrome` 链接前，
+本轮仍不能记为可运行 Chromium 或性能样本通过。
 
 ## 当前构建命令
 
@@ -70,7 +89,8 @@ export PATH=/home/mo/chromium-src-149-alpine/third_party/node/linux/node-linux-x
 /home/mo/ninja-src/ninja -C out/tryframe-root4 -j8 chrome
 ```
 
-R113 的完整日志在 T490 `/tmp/chrome-build-r113.log`。下一步应等待该会话结束，
+R113 的完整日志在 T490 `/tmp/chrome-build-r113-bg.log`；R114 的完整日志在
+T490 `/tmp/chrome-build-r114-bg.log`。下一步应等待 R114 会话结束，
 核对 `chrome` 的 AArch64 ELF 和 lifecycle hook 对象，再决定是否清理临时 curl 头并
 重编译带 `CHROMIUM_ENABLE_MULTIPROCESS_EVENTLOG=1` 的 RPH/zygote 对象。
 
@@ -78,4 +98,5 @@ R113 的完整日志在 T490 `/tmp/chrome-build-r113.log`。下一步应等待�
 
 - R110 的失败日志位于 T490 `/tmp/chrome-build-r110.log`，失败原因已定位。
 - R111/R112 只用于增量定位，未导出正式 evidence bundle。
-- R113 仍在进行中；当前性能有效样本仍为 `0/0`，没有运行时 renderer-ready 结论。
+- R113 已因生成物缺口停止；R114 仍在进行中。当前性能有效样本仍为 `0/0`，没有
+  运行时 renderer-ready 结论。
