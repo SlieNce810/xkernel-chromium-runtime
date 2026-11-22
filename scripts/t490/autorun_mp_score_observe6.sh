@@ -41,6 +41,7 @@ LEDGER_HEAD=/root/mp-ledger.head
 LIFE=/root/mp-life.log
 WLOG=/root/mp-weston.log
 CHROME_LOG=/root/mp-chromium.log
+CHROMIUM_BIN=__CHROMIUM_BIN__
 SEATD_LOG=/root/mp-seatd.log
 UDEVD_LOG=/root/mp-udevd.log
 EVENT_LOG=/root/multiprocess-events.jsonl
@@ -849,7 +850,8 @@ log "kernel=$(uname -srm 2>/dev/null || true)"
 log "PROC_VERSION=$(cat /proc/version 2>/dev/null || true)"
 log "LD_PRELOAD=${LD_PRELOAD:-<unset>}"
 log "LIFECYCLE_PRELOAD=$LIFECYCLE_PRELOAD"
-log "CHROMIUM_SHA256=$(sha256sum /usr/lib/chromium/chromium 2>/dev/null | awk '{print $1}')"
+log "CHROMIUM_BIN=$CHROMIUM_BIN"
+log "CHROMIUM_SHA256=$(sha256sum "$CHROMIUM_BIN" 2>/dev/null | awk '{print $1}')"
 log "OVERLAY_SHA256=$(sha256sum /pkgs.tar.gz 2>/dev/null | awk '{print $1}')"
 
 # The installed guest image already contains the Chromium/Wayland package set.
@@ -994,6 +996,10 @@ case "$CHROME_ARGS" in
         ;;
 esac
 log "CHROME_ARGS=$CHROME_ARGS"
+if [ ! -x "$CHROMIUM_BIN" ]; then
+    log "CHROMIUM_BIN_MISSING=$CHROMIUM_BIN"
+    exit 86
+fi
 mark BROWSER_START_EPOCH_MS "$(epoch_ms)"
 BROWSER_START_MONO_MS_VALUE="$(mono_ms)"
 mark BROWSER_START_MONO_MS "$BROWSER_START_MONO_MS_VALUE"
@@ -1049,7 +1055,7 @@ if [ "$TRACE_MODE" = "1" ] && [ "$STRACE_OK" = "1" ]; then
     strace -f -ttt -T -s 256 \
         -e trace="$TRACE_SYSCALLS" \
         -o "$LIFE" \
-        /usr/lib/chromium/chromium $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
+        "$CHROMIUM_BIN" $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
     LAUNCHER_PID=$!
     BROWSER_PID=""
     i=0
@@ -1073,7 +1079,7 @@ if [ "$TRACE_MODE" = "1" ] && [ "$STRACE_OK" = "1" ]; then
     fi
 else
     [ "$TRACE_MODE" = "1" ] && log "STRACE_SKIPPED=unavailable"
-    /usr/lib/chromium/chromium $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
+    "$CHROMIUM_BIN" $CHROME_ARGS "$PAGE_URL" >> "$CHROME_LOG" 2>&1 &
     BROWSER_PID=$!
     LAUNCHER_PID=$BROWSER_PID
 fi
