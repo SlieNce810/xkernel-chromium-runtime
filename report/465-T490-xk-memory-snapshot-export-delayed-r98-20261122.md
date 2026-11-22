@@ -32,6 +32,8 @@ host extractor 对 R98 console 完成二次校验：
 
 完整原始 console、恢复的快照日志、导出校验 JSON、解析 JSONL、命令和哈希材料在 [R98 evidence](../evidence/2026-11-22_t490-r98-xk-snapshot-export-delayed/)。原始 PPM 仍只保留 SHA-256 清单。
 
+对 20 个完整样本按进程树求和得到 [partial-memory-summary.json](../evidence/2026-11-22_t490-r98-xk-snapshot-export-delayed/partial-memory-summary.json)：RSS 峰值 `136228` 页（532.140625 MiB）、PSS 峰值 `93484` 页（365.171875 MiB）、USS 峰值 `76338` 页（298.1953125 MiB）、共享页 `59890` 页（233.9453125 MiB）。这组值的 `formal_valid=false`，因为窗口从延迟读取开始，未覆盖 Chromium 启动到页面完成后 60 秒。
+
 ## 判定
 
 R98 是目前最接近完整内存采集口径的一轮：进程树完整、20/20 快照有效，begin 间隔中位数低于 1 秒，且传输完整性可独立复核。它仍是单轮诊断，尚未完成 60 秒峰值窗口、before/after 各五轮，也没有 renderer-ready/first-valid-frame 事件，因此不改变正式性能 0/0 审计。
