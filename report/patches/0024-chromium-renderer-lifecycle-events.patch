@@ -1,0 +1,50 @@
+diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
+index 512feca6faaa4..96569938822e1 100644
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -67,6 +67,7 @@
+ #include "base/threading/thread_restrictions.h"
+ #include "base/time/time.h"
+ #include "base/trace_event/memory_dump_manager.h"
++#include "base/trace_event/chromium_multiprocess_eventlog.h"
+ #include "base/trace_event/trace_event.h"
+ #include "base/trace_event/typed_macros.h"
+ #include "base/tracing/protos/chrome_track_event.pbzero.h"
+@@ -4001,6 +4002,11 @@ void RenderProcessHostImpl::OnAssociatedInterfaceRequest(
+ void RenderProcessHostImpl::OnChannelConnected(int32_t peer_pid) {
+   channel_connected_ = true;
+ 
++  const std::string peer_pid_string = base::NumberToString(peer_pid);
++  base::multiprocess_eventlog::Emit(
++      "browser", "renderer-ready", "ok", 0, 0, "", peer_pid_string.c_str(),
++      "child-process-channel-connected");
++
+   // Propagate the pseudonymization salt to all the child processes.
+   //
+   // Doing this as the first step in this method helps to minimize scenarios
+diff --git a/content/zygote/zygote_linux.cc b/content/zygote/zygote_linux.cc
+index c90abfaf2e346..4b64548a3d16e 100644
+--- a/content/zygote/zygote_linux.cc
++++ b/content/zygote/zygote_linux.cc
+@@ -40,6 +40,7 @@
+ #include "base/time/time.h"
+ #include "base/trace_event/trace_event.h"
+ #include "base/trace_event/trace_log.h"
++#include "base/trace_event/chromium_multiprocess_eventlog.h"
+ #include "build/build_config.h"
+ #include "content/common/zygote/zygote_commands_linux.h"
+ #include "content/public/common/content_descriptors.h"
+@@ -517,6 +518,13 @@ int Zygote::ForkWithRealPid(const std::string& process_type,
+     return -1;
+   }
+ 
++  if (process_type == "renderer") {
++    const std::string child_pid = base::NumberToString(real_pid);
++    base::multiprocess_eventlog::Emit(
++        "zygote", "renderer-create-requested", "ok", 0, 0, "",
++        child_pid.c_str(), "zygote-fork-real-pid");
++  }
++
+   // If we're not using a helper, send the PID back to the child process.
+   if (!helper) {
+     ssize_t written =
