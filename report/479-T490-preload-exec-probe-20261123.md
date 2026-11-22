@@ -7,10 +7,13 @@ Wayland 和默认 Browser→Zygote→Renderer 启动参数，运行了约 300 �
 `preload-exec-probe` 诊断。QEMU 会话正常收尾（`SESSION END (exit=0)`），
 10/10 定时 PPM 截图和 strict 判据文件均生成，页面注入与读回校验通过。
 
-这不是正式稳定性或性能样本：本轮的串口/观测日志没有出现 Browser 进程、
-`renderer_ready`、`renderer_exec` 或 `preload_attached` 事件，观测器连续报告
-`MP_RENDERER_COUNT=0`。因此不能把这轮的 300 秒保持、截图序列或缺失的
-renderer 事件写入三次冷启动、30 分钟稳定性或四项性能统计。
+这不是正式稳定性或性能样本：串口日志确认 Browser（PID 68）和一个被观察到的
+renderer（PID 391）曾出现，但没有 `renderer_ready`、`renderer_exec` 或
+`preload_attached` 事件；约 90–143 秒的多个监视点仍报告
+`MP_RENDERER_COUNT=0`。本轮使用的是镜像内现有 Chromium 142（日志中的
+Crashpad annotation 为 `142.0.7444.59`），不是正在构建的 Chromium 149。
+因此不能把这轮的 300 秒保持、截图序列或缺失的 renderer 事件写入三次冷启动、
+30 分钟稳定性或四项性能统计。
 
 ## 固定条件
 
@@ -22,6 +25,7 @@ renderer 事件写入三次冷启动、30 分钟稳定性或四项性能统计�
 | 页面 | `file:///usr/share/html-test/index.html` |
 | Chromium 参数 | `--ozone-platform=wayland --no-sandbox --disable-gpu --disable-dev-shm-usage` |
 | 观测开关 | lifecycle preload，MP trace/ledger/memory sampler 均按本轮命令固定 |
+| 实际 guest Chromium | 142.0.7444.59（`CHROMIUM_SHA256=a4806a250dbcf64720a6d8cd71bb4003c84cda95acaca2f6d3e5f13f92e2d852`） |
 | 会话 | 请求 300 s，截图间隔 30 s，实际 303.7 s |
 | 内核 SHA-256 | `51c4028594e4aff9fc5b9964c4294a2904621c93e84093ac711858c454aed284` |
 | 基础镜像 SHA-256 | `bb25e0b298d619a62df06b0ab044750c0885adc2d34602eb0c5875a022aaee09` |
@@ -39,9 +43,10 @@ renderer 事件写入三次冷启动、30 分钟稳定性或四项性能统计�
 - `ppm-summary.txt`：10 个截图的判据结果已保存在 T490；原始 PPM 按仓库约定
   不复制进 Git，仅保留远端文件和哈希索引。
 - `console.log`：会话末尾为 `QEMU: Terminated` 和 `SESSION END (exit=0)`；
-  期间可见 zygote 与 Chromium futex/Unix IPC 诊断，但未见 renderer ready 链。
-- `MP_RENDERER_COUNT=0` 在多个监视点出现，且没有可用于 renderer 创建延迟的
-  request/ready 配对。
+  期间记录了 Browser/zygote、一个 `renderer-observed` 和 Chromium
+  futex/Unix IPC 诊断，但未见 renderer ready 链。
+- `MP_RENDERER_COUNT=0` 在多个早期监视点出现；后续只得到
+  `renderer-observed`，没有可用于 renderer 创建延迟的 request/ready 配对。
 
 ## 验收边界
 

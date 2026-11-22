@@ -15,10 +15,12 @@ original directory.
 
 The run used the 2 GiB AArch64 pure-TCG platform configuration and ended with
 `SESSION END (exit=0)`. Ten scheduled screenshot checks returned `result=True`.
-The session is diagnostic-only: the observer reported `MP_RENDERER_COUNT=0`,
-and no Chromium `renderer_ready`/`renderer_exec` event was present. It therefore
-does not count toward the three cold starts, the 30-minute stability gate, or
-the four formal performance metrics.
+The session is diagnostic-only: Browser and one `renderer-observed` process were
+seen, but no Chromium `renderer_ready`/`renderer_exec` event was present;
+multiple early monitor points reported `MP_RENDERER_COUNT=0`. The guest binary
+was the existing Chromium 142 image, not the Chromium 149 build in progress.
+It therefore does not count toward the three cold starts, the 30-minute
+stability gate, or the four formal performance metrics.
 
 See [report 479](../../report/479-T490-preload-exec-probe-20261123.md) for the
 fixed parameters, evidence boundary, and hashes.
