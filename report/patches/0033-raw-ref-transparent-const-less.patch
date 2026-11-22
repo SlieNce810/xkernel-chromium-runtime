@@ -1,0 +1,23 @@
+diff --git a/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ref.h b/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ref.h
+index 0000000..0000000 100644
+--- a/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ref.h
++++ b/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ref.h
+@@ -434,11 +434,21 @@ struct less<raw_ref<T, Traits>> {
+     return lhs < rhs;
+   }
+ 
++  bool operator()(const T& lhs, const raw_ref<T, Traits>& rhs) const {
++    Impl::IncrementLessCountForTest();
++    return lhs < rhs;
++  }
++
+   bool operator()(const raw_ref<T, Traits>& lhs, T& rhs) const {
+     Impl::IncrementLessCountForTest();
+     return lhs < rhs;
+   }
++
++  bool operator()(const raw_ref<T, Traits>& lhs, const T& rhs) const {
++    Impl::IncrementLessCountForTest();
++    return lhs < rhs;
++  }
+ };
