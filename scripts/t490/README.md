@@ -372,3 +372,4 @@ bash scripts/final-acceptance.sh stability
 该入口的 help、`bash -n`、all-stage dry-run、stability dry-run、expected-hash 负向校验均通过；dry-run 不启动 QEMU。记录见 [final-acceptance wiring preflight](../../evidence/2026-11-22_t490-final-acceptance-wiring-preflight/README.md)。
 
 2026-11-23 的 `preload-exec-probe` 在 T490 完成约303.7秒、10/10截图判据通过并正常收尾；但运行期仍为 `MP_RENDERER_COUNT=0`，没有 `renderer_ready`/`renderer_exec`，所以只归档为 preload 诊断，不能进入三次冷启动、30分钟稳定性或四项性能统计。原始材料在 [report 479](../../report/479-T490-preload-exec-probe-20261123.md) 和 [evidence/2026-11-23_t490-preload-exec-probe](../../evidence/2026-11-23_t490-preload-exec-probe/)。
+同日使用 `pkg-installed.img` 的 Chromium 149.0.7827.53 基线轮实际 SHA 为 `d7d89bcb…`，12/12截图判据通过，后段观察到3–4个 renderer；该轮使用的 T490 autorun 尚未接入 preload，日志为 `LD_PRELOAD=<unset>`，因此只计多进程基线诊断。随后已将当前版本 autorun、`t490_round.sh` 和 `lifecycle_event_preload.c` 同步到 T490，下一轮使用相同 Chromium 149 二进制验证 exec 继承。详见 [report 481](../../report/481-T490-chromium149-multiprocess-baseline-20261123.md)。
