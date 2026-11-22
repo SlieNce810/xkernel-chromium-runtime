@@ -35,7 +35,7 @@
 
 | 文件 | 主题 | 状态 |
 |---|---|---|
-| `0020-procfs-xk-memory-snapshot-mvp.patch` | `/proc/<pid>/xk_memory_snapshot` 一致性快照（RSS/PSS/USS/共享页） | T490 R89/R91 已编译并读取成功；尚未并入正式 before/after 性能批次 |
+| `0020-procfs-xk-memory-snapshot-mvp.patch` | `/proc/<pid>/xk_memory_snapshot` 一致性快照（RSS/PSS/USS/共享页）及 RSS-only 对照端点 | T490 R89/R91/R93 已读取；R94 RSS-only 候选因开销退回，未并入正式 before/after 性能批次 |
 
 ---
 

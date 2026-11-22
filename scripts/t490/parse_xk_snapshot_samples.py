@@ -18,13 +18,6 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-BEGIN_RE = re.compile(
-    r"^XK_MEMORY_SNAPSHOT_SAMPLE_BEGIN id=(\d+) pid=(\d+) begin_ms=(\d+)$"
-)
-DATA_RE = re.compile(r"^XK_MEMORY_SNAPSHOT_SAMPLE_DATA id=(\d+) end_ms=(\d+)$")
-END_RE = re.compile(r"^XK_MEMORY_SNAPSHOT_SAMPLE_END id=(\d+)$")
-
-
 def key_values(line: str) -> dict[str, str]:
     values: dict[str, str] = {}
     for token in line.split():
@@ -34,12 +27,19 @@ def key_values(line: str) -> dict[str, str]:
     return values
 
 
-def read_blocks(console: Path) -> dict[int, dict[str, Any]]:
+def read_blocks(console: Path, marker_prefix: str) -> dict[int, dict[str, Any]]:
+    begin_re = re.compile(
+        rf"^{re.escape(marker_prefix)}_SAMPLE_BEGIN id=(\d+) pid=(\d+) begin_ms=(\d+)$"
+    )
+    data_re = re.compile(
+        rf"^{re.escape(marker_prefix)}_SAMPLE_DATA id=(\d+) end_ms=(\d+)$"
+    )
+    end_re = re.compile(rf"^{re.escape(marker_prefix)}_SAMPLE_END id=(\d+)$")
     blocks: dict[int, dict[str, Any]] = {}
     active: int | None = None
     for raw_line in console.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw_line.rstrip("\r")
-        match = BEGIN_RE.match(line)
+        match = begin_re.match(line)
         if match:
             active = int(match.group(1))
             blocks[active] = {
@@ -51,12 +51,12 @@ def read_blocks(console: Path) -> dict[int, dict[str, Any]]:
             continue
         if active is None:
             continue
-        match = DATA_RE.match(line)
+        match = data_re.match(line)
         if match and int(match.group(1)) == active:
             blocks[active]["end_ms"] = int(match.group(2))
             blocks[active]["data_seen"] = True
             continue
-        match = END_RE.match(line)
+        match = end_re.match(line)
         if match and int(match.group(1)) == active:
             blocks[active]["end_seen"] = True
             active = None
@@ -98,6 +98,7 @@ def parse_samples(blocks: dict[int, dict[str, Any]]) -> list[dict[str, Any]]:
                 if name in header_values:
                     sample[name] = header_values[name]
             for name in (
+                "memory_walk_ns",
                 "resident_walk_ns",
                 "mapcount_ns",
                 "rollup_ns",
@@ -187,6 +188,7 @@ def summarize(samples: list[dict[str, Any]], run_id: str) -> dict[str, Any]:
         "kernel_timing_ns": {
             name: timing_stats(name)
             for name in (
+                "memory_walk_ns",
                 "resident_walk_ns",
                 "mapcount_ns",
                 "rollup_ns",
@@ -203,9 +205,14 @@ def main() -> int:
     parser.add_argument("console", type=Path)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--run", required=True)
+    parser.add_argument(
+        "--prefix",
+        default="XK_MEMORY_SNAPSHOT",
+        help="guest marker prefix (default: XK_MEMORY_SNAPSHOT)",
+    )
     args = parser.parse_args()
 
-    samples = parse_samples(read_blocks(args.console))
+    samples = parse_samples(read_blocks(args.console, args.prefix))
     summary = summarize(samples, args.run)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     (args.out_dir / "snapshot-sampler-summary.json").write_text(
