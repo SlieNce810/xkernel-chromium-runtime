@@ -376,3 +376,17 @@ bash scripts/final-acceptance.sh stability
 v7 已在同一 Chromium 149 二进制上恢复可解析 lifecycle 事件：增量导出 `preload_attached`、`browser_main_loop_ready`、5 个带 request ID 的 `zygote_fork_boundary` 和 `navigation_requested`；Renderer 已被观察到，但 `renderer_ready`/`first_valid_frame` 仍缺，不能进入正式性能 CSV。原始事件和边界见 [report 482](../../report/482-T490-chromium149-preload-lifecycle-v7-20261123.md)。
 v9 进一步把 JSON `seq` 改为全进程树共享的 guest monotonic `t_ns`，恢复的14条事件已通过 `collect_metrics.read_events()` 的严格 schema/run/clock/seq/event-id 校验；`renderer_ready` 仍缺。详见 [report 487](../../report/487-collector-lifecycle-seq-validation-v9-20261123.md)。
 新增 `extract_lifecycle_probe_events.py` 将 `MP_LIFECYCLE_PROBE_EVENT` 从原始 console 中去除 ANSI、验证序号和身份后导出 JSONL；v9 实际提取命令返回 `LIFECYCLE_VALID ... events=14`，对应单测覆盖 run mismatch、重复 event ID、序号缺口和 ANSI 前缀。
+
+源码 Chromium 149 构建完成后，使用 `package_chromium_binary.sh` 生成只包含
+`usr/lib/chromium/chromium` 的 AArch64 tarball，并保存二进制/tar SHA-256：
+
+```bash
+bash scripts/t490/package_chromium_binary.sh \
+    /home/mo/chromium-src-149-alpine/out/tryframe-root4/chrome \
+    /home/mo/xk6/tmp/chromium149-build.tar.gz
+```
+
+将该 tarball 作为 `PKG_TARBALL`、将 `CHROMIUM_BIN_VALUE=/usr/lib/chromium/chromium`
+传给 `t490_round.sh` 或稳定性入口；`autorun_mp_score_observe6.sh` 会记录实际路径和
+SHA-256，并在 guest 中拒绝缺失/不可执行的路径。该流程用于把源码构建与镜像预装的
+Chromium 149 明确分开。
