@@ -46,6 +46,7 @@ UDEVD_LOG=/root/mp-udevd.log
 EVENT_LOG=/root/multiprocess-events.jsonl
 PROCESS_EVENTS_SEEN=/tmp/mp-process-events-seen
 PROCESS_FAMILY_SEEN=/tmp/mp-process-family-seen
+LIFECYCLE_PROBE_IDS=/tmp/lifecycle-probe-event-ids
 RUNTIME_DIR=/run/user/0
 PAGE_URL=${PAGE_URL:-file:///usr/share/html-test/index.html}
 # 以下四个由 t490_round.sh 在注入时烘焙；宿主环境变量本身不跨 QEMU 边界。
@@ -85,6 +86,7 @@ LEDGER_MAX_PIDS=${MP_LEDGER_MAX_PIDS:-40}
 : > "$EVENT_LOG"
 : > "$PROCESS_EVENTS_SEEN"
 : > "$PROCESS_FAMILY_SEEN"
+: > "$LIFECYCLE_PROBE_IDS"
 
 log() {
     line="[mpdiag] $*"
@@ -1127,6 +1129,7 @@ tick=0
 # 这里在 tick≥6 时导一次，只导一次，代价 120 行串口输出。
 CHROME_LOG_DUMPED=0
 LIFECYCLE_PROBE_LINES_EMITTED=0
+LIFECYCLE_PROBE_EXPORT_SEQ=0
 LIFECYCLE_RENDERER_OBSERVED=0
 LIFECYCLE_RENDERER_REQUEST_ID=""
 LIFECYCLE_RENDERER_NAV_ID=""
@@ -1141,8 +1144,16 @@ export_lifecycle_probe() {
     probe_new_file="/tmp/lifecycle-probe-new-$$.jsonl"
     tail -n +"$probe_start" /root/lifecycle-probe-events.jsonl > "$probe_new_file" 2>/dev/null || return 0
     log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines from=$probe_start sha256=$probe_sha"
-    probe_seq=$LIFECYCLE_PROBE_LINES_EMITTED
+    probe_seq=$LIFECYCLE_PROBE_EXPORT_SEQ
     while IFS= read -r probe_line || [ -n "$probe_line" ]; do
+        probe_event_id=$(printf '%s\n' "$probe_line" \
+            | sed -n 's/.*"event_id":"\([^"]*\)".*/\1/p')
+        if [ -n "$probe_event_id" ] &&
+           grep -qxF "$probe_event_id" "$LIFECYCLE_PROBE_IDS" 2>/dev/null; then
+            log "LIFECYCLE_PROBE_DUPLICATE event_id=$probe_event_id source_line=$probe_seq"
+            continue
+        fi
+        [ -z "$probe_event_id" ] || echo "$probe_event_id" >> "$LIFECYCLE_PROBE_IDS"
         printf '[mpdiag] MP_LIFECYCLE_PROBE_EVENT run_id=%s seq=%s %s\n' \
             "$PERF_TRACE_RUN_ID" "$probe_seq" "$probe_line" > /dev/console 2>/dev/null || true
         echo "MP_LIFECYCLE_PROBE_EVENT run_id=$PERF_TRACE_RUN_ID seq=$probe_seq $probe_line" >> "$LOG"
@@ -1150,6 +1161,7 @@ export_lifecycle_probe() {
     done < "$probe_new_file"
     rm -f "$probe_new_file"
     LIFECYCLE_PROBE_LINES_EMITTED=$probe_lines
+    LIFECYCLE_PROBE_EXPORT_SEQ=$probe_seq
     log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
 }
 
