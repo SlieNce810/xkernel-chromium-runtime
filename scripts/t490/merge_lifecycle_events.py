@@ -384,6 +384,54 @@ def merge(
             "source": "qmp-clock-sync-mapped",
         })
 
+    # The preload observes Browser/Renderer readiness and the QMP gate observes
+    # the first strict frame, but it cannot see compositor frame commits inside
+    # Chromium.  When no native first-frame callback was exported, use the
+    # earliest passing screendump for this navigation as a conservative upper
+    # bound.  The separate screendump metric remains in the ledger and carries
+    # the sampling interval, so this derived event cannot be mistaken for an
+    # exact compositor timestamp.
+    frames = [
+        row for row in events
+        if row.get("event") == "first_valid_frame"
+        and row.get("navigation_id") == navigation_id
+    ]
+    if not frames and renderer is not None:
+        verdict_times = [
+            int(row["t_ns"]) for row in events
+            if row.get("event") == "page_verdict"
+            and row.get("navigation_id") == navigation_id
+        ]
+        verdict_ns = min(verdict_times) if verdict_times else None
+        candidate_shots = [
+            row for row in events
+            if row.get("event") == "screendump_verified"
+            and row.get("navigation_id") == navigation_id
+            and row.get("pass") is True
+            and int(row.get("t_ns", 0)) >= int(renderer.get("t_ns", 0))
+            and (verdict_ns is None or int(row.get("t_ns", 0)) <= verdict_ns)
+        ]
+        if candidate_shots or verdict_ns is not None:
+            shot = (min(candidate_shots, key=lambda row: int(row["t_ns"]))
+                    if candidate_shots else None)
+            frame_ns = int(shot["t_ns"]) if shot else verdict_ns
+            events.append({
+                "schema": SCHEMA,
+                "run_id": run_id,
+                "clock_id": GUEST_CLOCK,
+                "t_ns": frame_ns,
+                "event": "first_valid_frame",
+                "navigation_id": navigation_id,
+                "renderer_id": renderer_id,
+                "pid": renderer_pid,
+                "process_instance": renderer_instance,
+                "valid": True,
+                "source": ("qmp-screendump-conservative-upper-bound"
+                           if shot else "qmp-page-verdict-conservative-upper-bound"),
+                "sampling_interval_ms": sampling_interval_ms,
+            })
+            frames = [events[-1]]
+
     priority = {
         "browser_launch_requested": 0,
         "process_started": 1,
@@ -442,6 +490,9 @@ def merge(
         "paired_renderer_create_requests": paired_renderer_requests,
         "unpaired_renderer_ready_events": unpaired_renderer_ready,
         "first_valid_frame_events": len(frames),
+        "first_valid_frame_source": (
+            frames[0].get("source") if frames else None
+        ),
         "output": str(output_path.resolve()),
     }
     summary_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,1300 @@
+### [2026-11-22 06:49:11] SESSION START
+### cwd: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target --disk-image /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ksyscall` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.56s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/r64-targeted-scm-no-direct/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000815a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000815a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-21 22:49:12.006180432 UTC
+
+arch = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-21T16:02:01.006230683Z
+log_level = error
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 1cb298dfeaaa235a21f29d15499783df63e2575ca10b7dc1008189bce003232e
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 12e8cf625ee21ec2b6344cf3cc631eaaa701190ebefc451c37c939519c7dd154
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Sat Nov 21 22:49:13 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1795301353
+[mpdiag] MP_AUTORUN_START_MONO_MS=1715
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=0
+[mpdiag] GL_MODE=angle
+[mpdiag] NET_MODE=normal
+[mpdiag] LEDGER_MODE=0
+[mpdiag] FAMILY_WATCHDOG_INTERVAL=15
+[mpdiag] WESTON_CONTINUE_WITHOUT_INPUT=0
+[mpdiag] MP_FAMILY_DIAGNOSTICS=0
+[mpdiag] MAX_SECONDS=600 SAMPLE_SECONDS=5 HOLD_SECONDS=600
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] PROC_VERSION=
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] LIFECYCLE_PRELOAD=/lifecycle_event_preload.so
+[mpdiag] CHROMIUM_SHA256=d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641
+[mpdiag] OVERLAY_SHA256=a1d9481890e344dcdde157390a2df796ee8c8beb71b54c6bb5b40b0309f16aee
+[mpdiag] PKG_OVERLAY_SKIP=1 (set MP_EXTRACT_OVERLAY_VALUE=1 only for an explicit overlay experiment)
+[mpdiag] STRACE_FILE=/usr/bin/strace
+[mpdiag] STRACE_SELF_TEST=FAIL
+[mpdiag] DRM_NODES=total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+crw-rw-rw-    1 root     root      226, 128 Jan  1  1970 renderD128
+[mpdiag] INPUT_NODES=total 0
+crw-rw-rw-    1 root     root       13,  64 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,  65 Jan  1  1970 event1
+[mpdiag] DRM_SYSFS=/sys/class/drm/card0/dev
+/sys/class/drm/card0/device
+/sys/class/drm/card0/subsystem
+/sys/class/drm/card0/uevent
+/sys/class/drm/renderD128/dev
+/sys/class/drm/renderD128/device
+/sys/class/drm/renderD128/subsystem
+/sys/class/drm/renderD128/uevent
+[mpdiag] INPUT_SEAT dev=/dev/input/event0 major=13 minor=64 name=QEMU Virtio Keyboard data=/run/udev/data/c13:64
+[mpdiag] INPUT_SEAT dev=/dev/input/event1 major=13 minor=65 name=QEMU Virtio Mouse data=/run/udev/data/c13:65
+[mpdiag] WESTON_ARGS=--backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0  --idle-time=0
+[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=45 alive=yes
+[mpdiag] WESTON_INPUT_LINES=15
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --js-flags=--jitless  --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --ipc-connection-timeout=600 --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,AudioServiceOutOfProcess,AudioServiceSandbox,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*file_url_loader_factory*=3,*document_loader*=3,*render_frame_impl*=3,*compositor_frame*=3,*frame_sink*=3,*wayland*=2,*ozone*=2,*navigation*=3,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile 
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1795301392
+[mpdiag] MP_BROWSER_START_MONO_MS=41043
+[mpdiag] MP_BROWSER_START_MONO_NS=41145694944
+[mpdiag] LIFECYCLE_PRELOAD_ACTIVE=/lifecycle_event_preload.so run_id=perf-before-r3 nav_id=nav-00
+[mpdiag] MP_BROWSER_PID=72
+[mpdiag] browser_pid=72 launcher_pid=72
+MP_EVENT {"timestamp_monotonic":41.677000,"process_role":"browser","pid":72,"ppid":5,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"browser-start","status":"observed","error":"","observation_source":"guest-launcher"}
+[mpdiag] MP_PROCESS_OBSERVED role=browser event=browser-start pid=72 ppid=5
+[mpdiag] MP_PERF_MEMORY_SAMPLER_STARTED pid=81 run_id=perf-before-r3 duration=600
+[mpdiag] WATCHDOG_PID=82（独立心跳：它停 = 整机冻死）
+[mpdiag] MP_LEDGER_FORMAT=MP_LEDGER/MP_PROC_EVENT/MP_BLOCK/MP_FAMILY/MP_WATCHDOG
+[mpdiag] MP_BLOCK_READS=disabled:wchan,syscall 会挂住读方（2026-11-02 实测两轮）
+[mpdiag] MP_LEDGER_LIMIT=阻塞读：跨进程读 Chromium 子进程 procfs 会挂住读方；账本在其后停住（待内核侧修复）
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=42313761968
+[mpdiag] MP_PHASE p=loop_begin tick=1
+[mpdiag] MP_WATCHDOG uptime_s=42 weston=yes chrome=yes memfree_kb=1157380
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=43310057328
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=44309644992
+[mpdiag] MP_WATCHDOG uptime_s=45 weston=yes chrome=yes memfree_kb=1147668
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=45309445680
+[mpdiag] MP_FAMILY label=45520 n=1 72:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=10
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=1
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=46309187584
+[mpdiag] MP_PHASE p=loop_begin tick=2
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=47309476640
+[mpdiag] MP_WATCHDOG uptime_s=47 weston=yes chrome=yes memfree_kb=1140032
+[mpdiag] MP_PHASE p=loop_body_done tick=2
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=48309238128
+[mpdiag] MP_PHASE p=loop_begin tick=3
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=49309572576
+[mpdiag] MP_PHASE p=loop_body_done tick=3
+[mpdiag] MP_WATCHDOG uptime_s=50 weston=yes chrome=yes memfree_kb=1124788
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=50309621216
+[mpdiag] MP_PHASE p=loop_begin tick=4
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=51310440544
+[mpdiag] MP_PHASE p=loop_body_done tick=4
+[mpdiag] MP_WATCHDOG uptime_s=52 weston=yes chrome=yes memfree_kb=1112732
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=52309964960
+[mpdiag] MP_PHASE p=loop_begin tick=5
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=53332593104
+[mpdiag] MP_PHASE p=loop_body_done tick=5
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=54333659760
+[mpdiag] MP_WATCHDOG uptime_s=54 weston=yes chrome=yes memfree_kb=1111176
+[mpdiag] MP_PHASE p=loop_begin tick=6
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=55332936208
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=56333570720
+[mpdiag] MP_WATCHDOG uptime_s=57 weston=yes chrome=yes memfree_kb=1103816
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=57333098768
+[mpdiag] MP_FAMILY label=58025 n=1 72:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=5
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=13
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=6
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=58333149536
+[mpdiag] MP_PHASE p=loop_begin tick=7
+[mpdiag] MP_WATCHDOG uptime_s=59 weston=yes chrome=yes memfree_kb=1097532
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=59333129552
+[mpdiag] MP_FAMILY_WATCHDOG label=59369 n=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=60333992128
+[mpdiag] MP_PHASE p=loop_body_done tick=7
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=61333231824
+[mpdiag] MP_PHASE p=loop_begin tick=8
+[mpdiag] MP_WATCHDOG uptime_s=62 weston=yes chrome=yes memfree_kb=1090852
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=62333380304
+[mpdiag] MP_PHASE p=loop_body_done tick=8
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=63333101312
+[mpdiag] MP_PHASE p=loop_begin tick=9
+[mpdiag] MP_WATCHDOG uptime_s=64 weston=yes chrome=yes memfree_kb=1085732
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=64332892192
+[mpdiag] MP_PHASE p=loop_body_done tick=9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=65332932896
+[mpdiag] MP_PHASE p=loop_begin tick=10
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=66352765472
+[mpdiag] MP_WATCHDOG uptime_s=66 weston=yes chrome=yes memfree_kb=1083512
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=67353990336
+[mpdiag] MP_PHASE p=loop_body_done tick=10
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=68353096928
+[mpdiag] MP_WATCHDOG uptime_s=69 weston=yes chrome=yes memfree_kb=1069132
+[mpdiag] MP_PHASE p=loop_begin tick=11
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=69353783408
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=70353464240
+[mpdiag] MP_WATCHDOG uptime_s=71 weston=yes chrome=yes memfree_kb=1048828
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=72938772912
+[mpdiag] MP_WATCHDOG uptime_s=74 weston=yes chrome=yes memfree_kb=1037236
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=73938969984
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=74939523152
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=75939206976
+[mpdiag] MP_WATCHDOG uptime_s=76 weston=yes chrome=yes memfree_kb=1036004
+MP_EVENT {"timestamp_monotonic":75.714001,"process_role":"zygote","pid":183,"ppid":72,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=183 ppid=72
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=76939368720
+MP_EVENT {"timestamp_monotonic":77.148002,"process_role":"zygote","pid":185,"ppid":72,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=185 ppid=72
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=77939259728
+[mpdiag] MP_FAMILY label=77962 n=3 72:browser/R/2 183:browser_child/S/1 185:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=10
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=15
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=11
+[mpdiag] MP_WATCHDOG uptime_s=78 weston=yes chrome=yes memfree_kb=1032540
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=78938757008
+[mpdiag] MP_PHASE p=loop_begin tick=12
+[mpdiag] MP_FAMILY_WATCHDOG label=78684 n=2 183:browser_child/S/1 185:browser_child/S/1
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=79938993136
+[mpdiag] MP_PHASE p=loop_body_done tick=12
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=80938463232
+[mpdiag] MP_PHASE p=loop_begin tick=13
+[mpdiag] MP_WATCHDOG uptime_s=82 weston=yes chrome=yes memfree_kb=1028616
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=81939438928
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=82938524256
+[mpdiag] MP_PHASE p=loop_body_done tick=13
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=83938645200
+[mpdiag] MP_WATCHDOG uptime_s=84 weston=yes chrome=yes memfree_kb=1027288
+[mpdiag] MP_PHASE p=loop_begin tick=14
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=84939057712
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=86018389632
+[mpdiag] MP_PHASE p=loop_body_done tick=14
+[mpdiag] MP_WATCHDOG uptime_s=86 weston=yes chrome=yes memfree_kb=1023752
+[mpdiag] MP_PHASE p=loop_begin tick=15
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=88617832384
+[mpdiag] MP_WATCHDOG uptime_s=89 weston=yes chrome=yes memfree_kb=1017544
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=89850086976
+[mpdiag] MP_PHASE p=loop_body_done tick=15
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=90850723184
+[mpdiag] MP_PHASE p=loop_begin tick=16
+[mpdiag] MP_WATCHDOG uptime_s=92 weston=yes chrome=yes memfree_kb=1003360
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=93801390176
+[mpdiag] MP_WATCHDOG uptime_s=94 weston=yes chrome=yes memfree_kb=991192
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=96742086336
+[mpdiag] MP_WATCHDOG uptime_s=97 weston=yes chrome=yes memfree_kb=725808
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=98159433808
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=99583995488
+[mpdiag] MP_WATCHDOG uptime_s=100 weston=yes chrome=yes memfree_kb=724452
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=101074759776
+[mpdiag] MP_FAMILY_WATCHDOG label=100683 n=2 183:browser_child/S/1 185:browser_child/S/1
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=102341316656
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=103341892320
+MP_EVENT {"timestamp_monotonic":103.196003,"process_role":"zygote","pid":330,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=330 ppid=185
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=330 ppid=185 browser_pid=72
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=104342398560
+[mpdiag] MP_WATCHDOG uptime_s=104 weston=yes chrome=yes memfree_kb=721840
+MP_EVENT {"timestamp_monotonic":104.112004,"process_role":"renderer","pid":330,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=330 ppid=185
+[mpdiag] MP_FAMILY label=104952 n=4 72:browser/R/34 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=15
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=15
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=16
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=105351854656
+[mpdiag] MP_PHASE p=loop_begin tick=17
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=106351900720
+[mpdiag] MP_WATCHDOG uptime_s=107 weston=yes chrome=yes memfree_kb=717208
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=107360275744
+[mpdiag] MP_RENDERER_FIRST_STREAK_EPOCH_MS=1795301460
+[mpdiag] MP_PHASE p=loop_body_done tick=17
+[mpdiag] MP_WATCHDOG uptime_s=109 weston=yes chrome=yes memfree_kb=711876
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=109953405648
+[mpdiag] MP_PHASE p=loop_begin tick=18
+[mpdiag] MP_WATCHDOG uptime_s=112 weston=yes chrome=yes memfree_kb=706344
+[mpdiag] MP_PHASE p=loop_body_done tick=18
+[mpdiag] MP_WATCHDOG uptime_s=115 weston=yes chrome=yes memfree_kb=706248
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=116672371264
+[mpdiag] MP_PHASE p=loop_begin tick=19
+[mpdiag] MP_WATCHDOG uptime_s=119 weston=yes chrome=yes memfree_kb=699868
+[mpdiag] MP_WATCHDOG uptime_s=124 weston=yes chrome=yes memfree_kb=696812
+[mpdiag] MP_WATCHDOG uptime_s=127 weston=yes chrome=yes memfree_kb=697972
+[mpdiag] MP_PHASE p=loop_body_done tick=19
+[mpdiag] MP_FAMILY_WATCHDOG label=127885 n=3 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7
+[mpdiag] MP_PHASE p=loop_begin tick=20
+[mpdiag] MP_WATCHDOG uptime_s=132 weston=yes chrome=yes memfree_kb=697776
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=132699040848
+[mpdiag] MP_WATCHDOG uptime_s=135 weston=yes chrome=yes memfree_kb=697672
+[mpdiag] MP_PHASE p=loop_body_done tick=20
+[mpdiag] MP_WATCHDOG uptime_s=138 weston=yes chrome=yes memfree_kb=697476
+[mpdiag] MP_PHASE p=loop_begin tick=21
+[mpdiag] MP_WATCHDOG uptime_s=141 weston=yes chrome=yes memfree_kb=695384
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=141700193808
+[mpdiag] MP_WATCHDOG uptime_s=144 weston=yes chrome=yes memfree_kb=692260
+[mpdiag] MP_WATCHDOG uptime_s=147 weston=yes chrome=yes memfree_kb=686556
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=148495528112
+[mpdiag] MP_WATCHDOG uptime_s=150 weston=yes chrome=yes memfree_kb=689764
+[mpdiag] MP_WATCHDOG uptime_s=154 weston=yes chrome=yes memfree_kb=685688
+[mpdiag] MP_FAMILY_WATCHDOG label=155276 n=3 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7
+[mpdiag] MP_WATCHDOG uptime_s=161 weston=yes chrome=yes memfree_kb=680308
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=162624495328
+[mpdiag] MP_WATCHDOG uptime_s=165 weston=yes chrome=yes memfree_kb=676412
+[mpdiag] MP_WATCHDOG uptime_s=168 weston=yes chrome=yes memfree_kb=672576
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=170250137536
+[mpdiag] MP_WATCHDOG uptime_s=171 weston=yes chrome=yes memfree_kb=664492
+MP_EVENT {"timestamp_monotonic":172.330005,"process_role":"zygote","pid":422,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=422 ppid=185
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=422 ppid=185 browser_pid=72
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=174278207520
+[mpdiag] MP_WATCHDOG uptime_s=174 weston=yes chrome=yes memfree_kb=655024
+MP_EVENT {"timestamp_monotonic":173.983006,"process_role":"zygote","pid":451,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=451 ppid=185
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=451 ppid=185 browser_pid=72
+MP_EVENT {"timestamp_monotonic":175.959007,"process_role":"zygote","pid":454,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=454 ppid=185
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=454 ppid=185 browser_pid=72
+[mpdiag] MP_WATCHDOG uptime_s=177 weston=yes chrome=yes memfree_kb=649820
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=177721115472
+[mpdiag] MP_WATCHDOG uptime_s=180 weston=yes chrome=yes memfree_kb=645456
+MP_EVENT {"timestamp_monotonic":178.635008,"process_role":"renderer","pid":422,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=422 ppid=185
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=181869283600
+MP_EVENT {"timestamp_monotonic":181.074009,"process_role":"renderer","pid":451,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=451 ppid=185
+[mpdiag] MP_WATCHDOG uptime_s=182 weston=yes chrome=yes memfree_kb=640408
+MP_EVENT {"timestamp_monotonic":183.430010,"process_role":"renderer","pid":454,"ppid":185,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=454 ppid=185
+[mpdiag] MP_FAMILY label=184773 n=7 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9 454:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=20
+[mpdiag] MP_RENDERER_COUNT=1
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=21
+[mpdiag] MP_PHASE p=loop_begin tick=22
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=186694203984
+[mpdiag] MP_FAMILY_WATCHDOG label=183316 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=191100327984
+[mpdiag] MP_PHASE p=loop_body_done tick=22
+[mpdiag] MP_WATCHDOG uptime_s=192 weston=yes chrome=yes memfree_kb=635184
+[mpdiag] MP_PHASE p=loop_begin tick=23
+[mpdiag] MP_WATCHDOG uptime_s=194 weston=yes chrome=yes memfree_kb=633184
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=195799999520
+[mpdiag] MP_WATCHDOG uptime_s=197 weston=yes chrome=yes memfree_kb=629748
+[mpdiag] MP_PHASE p=loop_body_done tick=23
+[mpdiag] MP_PHASE p=loop_begin tick=24
+[mpdiag] MP_WATCHDOG uptime_s=200 weston=yes chrome=yes memfree_kb=625124
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=200930480720
+[mpdiag] MP_WATCHDOG uptime_s=203 weston=yes chrome=yes memfree_kb=623056
+[mpdiag] MP_PHASE p=loop_body_done tick=24
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=206121068624
+[mpdiag] MP_PHASE p=loop_begin tick=25
+[mpdiag] MP_WATCHDOG uptime_s=206 weston=yes chrome=yes memfree_kb=622756
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=207122609360
+[mpdiag] MP_WATCHDOG uptime_s=209 weston=yes chrome=yes memfree_kb=622704
+[mpdiag] MP_WATCHDOG uptime_s=212 weston=yes chrome=yes memfree_kb=620128
+CHROMIUM_EARLY_LOG_BEGIN tick=25 bytes=30877
+[72:72:1121/225101.165373:VERBOSE1:chrome/browser/enterprise/data_protection/data_protection_navigation_observer.cc:227] enterprise.data_protection: same document navigation: 0
+[72:72:1121/225101.168171:VERBOSE1:chrome/browser/enterprise/data_protection/data_protection_navigation_observer.cc:229] enterprise.data_protection: URL to scan: file:///usr/share/html-test/index.html
+[72:72:1121/225101.635461:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[72:72:1121/225104.196375:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kRevertAll
+[72:72:1121/225104.263027:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[72:72:1121/225104.875934:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kBrowserWidgetMoved
+[72:72:1121/225105.601413:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:222:1121/225105.605467:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[72:72:1121/225105.608753:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+[72:72:1121/225105.614232:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225105.615000:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.freedesktop.ScreenSaver D-Bus service does not exist
+[72:222:1121/225105.622134:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[72:72:1121/225105.640862:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225107.104869:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[302:340:1121/225108.083909:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: http://clients2.google.com/time/1/current?cup2key=10:cQeIsU_saRz-0eFn0umZBA-g3Cow_n9JiMTg9j0HoEw&cup2hreq=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+[72:72:1121/225108.663720:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[72:72:1121/225109.164655:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225109.209164:WARNING:ui/ozone/platform/wayland/host/org_gnome_mutter_idle_monitor.cc:87] org.gnome.Mutter.IdleMonitor D-Bus service does not exist
+[72:221:1121/225110.772174:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+[302:455:1121/225111.654744:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[302:455:1121/225111.685828:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Shared Dictionary/cache/index-dir/the-real-index": No such file or directory (2)
+[72:222:1121/225114.392865:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[72:222:1121/225114.416569:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[302:340:1121/225114.470747:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://www.google.com/async/folae?async=_fmt:pb&udm=50&client_locale=en-US
+[72:72:1121/225114.565822:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225114.689718:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225114.706378:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.cinnamon.ScreenSaver D-Bus service does not exist
+[72:222:1121/225114.737941:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[72:220:1121/225117.299398:VERBOSE1:components/signin/public/webdata/token_service_table.cc:259] Loaded tokens: result = 3 ; number of tokens loaded = 0
+[302:339:1121/225125.272400:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[302:339:1121/225125.278891:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/index-dir/the-real-index": No such file or directory (2)
+[302:455:1121/225125.306583:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/cfc3e0bad1972083_0": No such file or directory (2)
+[302:455:1121/225125.316035:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/cfc3e0bad1972083_1": No such file or directory (2)
+[302:455:1121/225125.322840:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/cfc3e0bad1972083_s": No such file or directory (2)
+[302:346:1121/225125.324632:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/No_Vary_Search/snapshot-new.baf": No such file or directory (2)
+[302:346:1121/225125.359320:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/No_Vary_Search/journal.baj": No such file or directory (2)
+[72:72:1121/225127.627790:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+[72:72:1121/225127.632114:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[72:72:1121/225127.632660:WARNING:dbus/property.cc:174] GetAll request failed for: org.freedesktop.UPower.Device
+[72:72:1121/225127.751950:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[72:72:1121/225128.279474:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225128.280134:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.gnome.ScreenSaver D-Bus service does not exist
+[72:222:1121/225128.286788:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[72:224:1121/225130.460756:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/DeferredBrowserMetrics": No such file or directory (2)
+[72:220:1121/225130.502722:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/CrashpadMetrics.pma": No such file or directory (2)
+[72:221:1121/225130.513752:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Breadcrumbs": No such file or directory (2)
+[72:221:1121/225130.546052:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/webrtc_event_logs": No such file or directory (2)
+[72:220:1121/225130.571824:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Media Cache": No such file or directory (2)
+[72:220:1121/225130.590062:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/databases": No such file or directory (2)
+[72:224:1121/225130.773573:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Web Applications/Logs": No such file or directory (2)
+[72:72:1121/225130.795518:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[72:72:1121/225130.814890:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[72:72:1121/225132.871546:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:599] MutablePO2TS::OnWebDataServiceRequestDone. Result type: 5
+[72:72:1121/225132.894539:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:661] MutablePO2TS::LoadAllCredentialsIntoMemory; 0 credential(s).
+[72:72:1121/225132.960863:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:339] AccountReconcilor::OnEndBatchOfRefreshTokenStateChanges. Reconcilor state: 1
+[72:72:1121/225134.998299:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225135.055979:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.mate.ScreenSaver D-Bus service does not exist
+[72:222:1121/225135.066485:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[72:72:1121/225135.174909:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[302:340:1121/225135.744254:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/checkin
+[72:72:1121/225135.980896:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[72:72:1121/225135.981680:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.xfce.ScreenSaver D-Bus service does not exist
+[72:72:1121/225135.982345:WARNING:ui/base/idle/idle_linux.cc:111] None of the known D-Bus ScreenSaver services could be used.
+[422:422:1121/225142.504937:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  0x3402030d48
+  URL:                    
+  context_type:           WEB_PAGE
+  effective extension id: (none)
+  effective context type: WEB_PAGE
+[422:422:1121/225143.714706:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  (nil)
+  URL:                    
+  context_type:           UNSPECIFIED
+  effective extension id: (none)
+  effective context type: UNSPECIFIED
+[422:422:1121/225143.766880:VERBOSE1:extensions/renderer/dispatcher.cc:493] Num tracked contexts: 1
+[454:454:1121/225150.788977:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           nkeimhogjdpnpccoofpliimaahmaaome
+  frame:                  0x3402030d48
+  URL:                    
+  context_type:           BLESSED_EXTENSION
+  effective extension id: nkeimhogjdpnpccoofpliimaahmaaome
+  effective context type: BLESSED_EXTENSION
+[454:454:1121/225150.842439:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  (nil)
+  URL:                    
+  context_type:           UNSPECIFIED
+  effective extension id: (none)
+  effective context type: UNSPECIFIED
+[454:454:1121/225151.073746:VERBOSE1:extensions/renderer/dispatcher.cc:493] Num tracked contexts: 1
+[72:72:1121/225152.872027:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[72:72:1121/225152.872739:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[72:72:1121/225156.572893:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[72:72:1121/225159.511992:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1408] AddKeepAlive(Default, kExtensionUpdater). keep_alives=[kBrowserWindow (1), kExtensionUpdater (1)]
+[72:72:1121/225159.836358:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1469] RemoveKeepAlive(Default, kExtensionUpdater). keep_alives=[kBrowserWindow (1)]
+[72:224:1121/225159.893343:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/extensions_crx_cache/metadata.json": No such file or directory (2)
+[72:72:1121/225200.924927:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[72:72:1121/225200.929932:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[72:72:1121/225200.943654:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[302:340:1121/225232.664482:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/checkin
+[302:339:1121/225233.358419:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_0": No such file or directory (2)
+[302:339:1121/225233.370154:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_1": No such file or directory (2)
+[302:339:1121/225233.378584:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_s": No such file or directory (2)
+[302:340:1121/225234.384314:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[302:340:1121/225234.455863:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[302:340:1121/225234.511596:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[302:339:1121/225234.947317:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_0": No such file or directory (2)
+[302:339:1121/225234.955822:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_1": No such file or directory (2)
+[302:339:1121/225234.960775:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_s": No such file or directory (2)
+[72:225:1121/225235.056513:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[72:225:1121/225235.071407:VERBOSE1:google_apis/gcm/engine/registration_request.cc:256] Delaying GCM registration of app: com.google.android.gms, for 26794 milliseconds.
+[302:339:1121/225237.552482:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_0": No such file or directory (2)
+[302:339:1121/225237.557895:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_1": No such file or directory (2)
+[302:339:1121/225237.565770:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_s": No such file or directory (2)
+[72:72:1121/225242.317540:VERBOSE1:chrome/browser/policy/cloud/fm_registration_token_uploader.cc:193] Client is missing for kUser scope
+[72:72:1121/225242.385972:VERBOSE1:chrome/browser/policy/cloud/fm_registration_token_uploader.cc:193] Client is missing for kUser scope
+[302:340:1121/225245.027246:ERROR:net/socket/ssl_client_socket_impl.cc:944] handshake failed; returned -1, SSL error code 1, net_error -101
+CHROMIUM_EARLY_LOG_END
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=215388537648
+[mpdiag] MP_PHASE p=loop_body_done tick=25
+[mpdiag] MP_PHASE p=loop_begin tick=26
+[mpdiag] MP_FAMILY_WATCHDOG label=213316 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=222 weston=yes chrome=yes memfree_kb=617184
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=222349604608
+[mpdiag] MP_WATCHDOG uptime_s=225 weston=yes chrome=yes memfree_kb=614444
+[mpdiag] MP_WATCHDOG uptime_s=228 weston=yes chrome=yes memfree_kb=613844
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=228318961424
+[mpdiag] MP_WATCHDOG uptime_s=230 weston=yes chrome=yes memfree_kb=613676
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=233885693744
+[mpdiag] MP_WATCHDOG uptime_s=233 weston=yes chrome=yes memfree_kb=612116
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=234882298432
+[mpdiag] MP_WATCHDOG uptime_s=237 weston=yes chrome=yes memfree_kb=611732
+[mpdiag] MP_WATCHDOG uptime_s=240 weston=yes chrome=yes memfree_kb=611696
+[mpdiag] MP_WATCHDOG uptime_s=243 weston=yes chrome=yes memfree_kb=608024
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=246792381184
+[mpdiag] MP_FAMILY label=247603 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+[mpdiag] MP_FAMILY_WATCHDOG label=243987 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=25
+[mpdiag] MP_RENDERER_COUNT=4
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,454,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=26
+[mpdiag] MP_PHASE p=loop_begin tick=27
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=250742592064
+[mpdiag] MP_WATCHDOG uptime_s=250 weston=yes chrome=yes memfree_kb=599816
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=253815864992
+[mpdiag] MP_WATCHDOG uptime_s=253 weston=yes chrome=yes memfree_kb=596160
+[mpdiag] MP_PHASE p=loop_body_done tick=27
+[mpdiag] MP_PHASE p=loop_begin tick=28
+[mpdiag] MP_WATCHDOG uptime_s=256 weston=yes chrome=yes memfree_kb=591708
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=256637419776
+[mpdiag] MP_WATCHDOG uptime_s=259 weston=yes chrome=yes memfree_kb=589576
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=259468275072
+[mpdiag] MP_PHASE p=loop_body_done tick=28
+[mpdiag] MP_PHASE p=loop_begin tick=29
+[mpdiag] MP_WATCHDOG uptime_s=262 weston=yes chrome=yes memfree_kb=585944
+[mpdiag] MP_PHASE p=loop_body_done tick=29
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=262318942032
+[mpdiag] MP_PHASE p=loop_begin tick=30
+[mpdiag] MP_WATCHDOG uptime_s=265 weston=yes chrome=yes memfree_kb=583716
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=266144857392
+[mpdiag] MP_WATCHDOG uptime_s=267 weston=yes chrome=yes memfree_kb=581896
+[mpdiag] MP_PHASE p=loop_body_done tick=30
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=269210575824
+[mpdiag] MP_WATCHDOG uptime_s=270 weston=yes chrome=yes memfree_kb=581652
+[mpdiag] MP_FAMILY_WATCHDOG label=270176 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=274203972832
+[mpdiag] MP_WATCHDOG uptime_s=276 weston=yes chrome=yes memfree_kb=569524
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=277030043968
+[mpdiag] MP_WATCHDOG uptime_s=279 weston=yes chrome=yes memfree_kb=562404
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=280216746832
+[mpdiag] MP_WATCHDOG uptime_s=281 weston=yes chrome=yes memfree_kb=558568
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=282896469232
+[mpdiag] MP_WATCHDOG uptime_s=284 weston=yes chrome=yes memfree_kb=556292
+[mpdiag] MP_FAMILY label=284551 n=6 72:browser/R/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=30
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=285475827600
+[mpdiag] MP_WATCHDOG uptime_s=286 weston=yes chrome=yes memfree_kb=555420
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=287986645808
+[mpdiag] MP_WATCHDOG uptime_s=289 weston=yes chrome=yes memfree_kb=555068
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=289195079968
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=290602059120
+[mpdiag] MP_WATCHDOG uptime_s=291 weston=yes chrome=yes memfree_kb=553864
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=291986432336
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=293016907216
+[mpdiag] MP_WATCHDOG uptime_s=294 weston=yes chrome=yes memfree_kb=553420
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=296049781888
+[mpdiag] MP_FAMILY_WATCHDOG label=293960 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=297329017664
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=298534852672
+[mpdiag] MP_WATCHDOG uptime_s=299 weston=yes chrome=yes memfree_kb=552704
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=299891851024
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=301102170928
+[mpdiag] MP_WATCHDOG uptime_s=301 weston=yes chrome=yes memfree_kb=552320
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=302102671696
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=303374344096
+[mpdiag] MP_WATCHDOG uptime_s=304 weston=yes chrome=yes memfree_kb=552040
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=305978203312
+[mpdiag] MP_WATCHDOG uptime_s=306 weston=yes chrome=yes memfree_kb=551256
+[mpdiag] MP_WATCHDOG uptime_s=309 weston=yes chrome=yes memfree_kb=551144
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=309016360848
+[mpdiag] MP_WATCHDOG uptime_s=311 weston=yes chrome=yes memfree_kb=539908
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=311802364976
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=313193946224
+[mpdiag] MP_FAMILY label=313562 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=35
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=314 weston=yes chrome=yes memfree_kb=539884
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=314475589264
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=315850238320
+[mpdiag] MP_WATCHDOG uptime_s=316 weston=yes chrome=yes memfree_kb=539664
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=317307386480
+[mpdiag] MP_FAMILY_WATCHDOG label=316763 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=319876369392
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=321139249216
+[mpdiag] MP_WATCHDOG uptime_s=321 weston=yes chrome=yes memfree_kb=537304
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=322305544848
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=323520433664
+[mpdiag] MP_WATCHDOG uptime_s=324 weston=yes chrome=yes memfree_kb=538956
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=326340519792
+[mpdiag] MP_WATCHDOG uptime_s=326 weston=yes chrome=yes memfree_kb=538140
+[mpdiag] MP_WATCHDOG uptime_s=329 weston=yes chrome=yes memfree_kb=538380
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=329564719312
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=330890328384
+[mpdiag] MP_WATCHDOG uptime_s=331 weston=yes chrome=yes memfree_kb=536264
+[mpdiag] MP_WATCHDOG uptime_s=334 weston=yes chrome=yes memfree_kb=536472
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=334426810544
+[mpdiag] MP_WATCHDOG uptime_s=336 weston=yes chrome=yes memfree_kb=535212
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=337353830896
+[mpdiag] MP_WATCHDOG uptime_s=339 weston=yes chrome=yes memfree_kb=535516
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=340567818848
+[mpdiag] MP_FAMILY_WATCHDOG label=339024 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/9 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=343697513008
+[mpdiag] MP_WATCHDOG uptime_s=345 weston=yes chrome=yes memfree_kb=532236
+[mpdiag] MP_FAMILY label=346788 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=40
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=347135543264
+[mpdiag] MP_WATCHDOG uptime_s=348 weston=yes chrome=yes memfree_kb=532156
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=350424457632
+[mpdiag] MP_WATCHDOG uptime_s=350 weston=yes chrome=yes memfree_kb=532660
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=352955750704
+[mpdiag] MP_WATCHDOG uptime_s=353 weston=yes chrome=yes memfree_kb=532504
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=354097720016
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=355240010192
+[mpdiag] MP_WATCHDOG uptime_s=355 weston=yes chrome=yes memfree_kb=532692
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=356240430064
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=357273017888
+[mpdiag] MP_WATCHDOG uptime_s=358 weston=yes chrome=yes memfree_kb=532852
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=358526584432
+
+### [2026-11-22 06:55:11] MONITOR: screendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at0360s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=359527116304
+s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r8[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-pe[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-per[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-b[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-be[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-bef[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-befo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-befor[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at036[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-01-at0360[K
+
+
+
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=362078629600
+### [2026-11-22 06:55:14] screendump OK (3072016 bytes)
+[mpdiag] MP_WATCHDOG uptime_s=363 weston=yes chrome=yes memfree_kb=532696
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=363100026544
+[mpdiag] MP_FAMILY_WATCHDOG label=362865 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=365649284976
+[mpdiag] MP_WATCHDOG uptime_s=367 weston=yes chrome=yes memfree_kb=532664
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=368193574560
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=369678796000
+[mpdiag] MP_WATCHDOG uptime_s=369 weston=yes chrome=yes memfree_kb=532824
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=370894724608
+[mpdiag] MP_WATCHDOG uptime_s=372 weston=yes chrome=yes memfree_kb=532856
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=372214211280
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=373490788992
+[mpdiag] MP_FAMILY label=373920 n=6 72:browser/R/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=45
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=374491215472
+[mpdiag] MP_WATCHDOG uptime_s=374 weston=yes chrome=yes memfree_kb=532780
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=375491245664
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=376534144192
+[mpdiag] MP_WATCHDOG uptime_s=377 weston=yes chrome=yes memfree_kb=532928
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=377735488624
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=378735793344
+[mpdiag] MP_WATCHDOG uptime_s=379 weston=yes chrome=yes memfree_kb=532972
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=379902270352
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=380933330944
+[mpdiag] MP_WATCHDOG uptime_s=382 weston=yes chrome=yes memfree_kb=532908
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=381933767696
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=383117021520
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=384201558400
+[mpdiag] MP_WATCHDOG uptime_s=384 weston=yes chrome=yes memfree_kb=532804
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=385475932224
+[mpdiag] MP_FAMILY_WATCHDOG label=384384 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=388461426080
+[mpdiag] MP_WATCHDOG uptime_s=389 weston=yes chrome=yes memfree_kb=532948
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=391452057888
+[mpdiag] MP_WATCHDOG uptime_s=391 weston=yes chrome=yes memfree_kb=533068
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=392704438176
+[mpdiag] MP_WATCHDOG uptime_s=394 weston=yes chrome=yes memfree_kb=532812
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=394105306528
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=395105623168
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=396465886656
+[mpdiag] MP_WATCHDOG uptime_s=396 weston=yes chrome=yes memfree_kb=533048
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=397466261344
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=398467126672
+[mpdiag] MP_WATCHDOG uptime_s=399 weston=yes chrome=yes memfree_kb=533060
+[mpdiag] MP_FAMILY label=399121 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=50
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=399730155824
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=400730567152
+[mpdiag] MP_WATCHDOG uptime_s=401 weston=yes chrome=yes memfree_kb=533092
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=402020026720
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=403020796624
+[mpdiag] MP_WATCHDOG uptime_s=404 weston=yes chrome=yes memfree_kb=532956
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=404020523616
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=405144544976
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=406208886752
+[mpdiag] MP_WATCHDOG uptime_s=406 weston=yes chrome=yes memfree_kb=533040
+[mpdiag] MP_FAMILY_WATCHDOG label=406444 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=409067887296
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=410068230208
+[mpdiag] MP_WATCHDOG uptime_s=410 weston=yes chrome=yes memfree_kb=533036
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=411390986432
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=412429393936
+[mpdiag] MP_WATCHDOG uptime_s=413 weston=yes chrome=yes memfree_kb=533060
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=413451153504
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=414567080048
+[mpdiag] MP_WATCHDOG uptime_s=415 weston=yes chrome=yes memfree_kb=533252
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=415770856736
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=416893983808
+[mpdiag] MP_WATCHDOG uptime_s=418 weston=yes chrome=yes memfree_kb=532992
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=418361400288
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=419553206080
+[mpdiag] MP_WATCHDOG uptime_s=420 weston=yes chrome=yes memfree_kb=533280
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=420993660784
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=422189707264
+[mpdiag] MP_WATCHDOG uptime_s=423 weston=yes chrome=yes memfree_kb=533240
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=423527206992
+[mpdiag] MP_FAMILY label=423871 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=55
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=424550781792
+[mpdiag] MP_WATCHDOG uptime_s=425 weston=yes chrome=yes memfree_kb=533232
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=425612351088
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=426612767632
+[mpdiag] MP_WATCHDOG uptime_s=427 weston=yes chrome=yes memfree_kb=533304
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=427928253536
+[mpdiag] MP_FAMILY_WATCHDOG label=427792 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=430531493888
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=431733203728
+[mpdiag] MP_WATCHDOG uptime_s=432 weston=yes chrome=yes memfree_kb=533268
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=432949388496
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=433950045424
+[mpdiag] MP_WATCHDOG uptime_s=434 weston=yes chrome=yes memfree_kb=533100
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=435310566688
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=436343476288
+[mpdiag] MP_WATCHDOG uptime_s=437 weston=yes chrome=yes memfree_kb=533148
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=437343868480
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=438503544592
+[mpdiag] MP_WATCHDOG uptime_s=439 weston=yes chrome=yes memfree_kb=533308
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=439733461888
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=440991262544
+[mpdiag] MP_WATCHDOG uptime_s=442 weston=yes chrome=yes memfree_kb=533016
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=442303689904
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=443424454768
+[mpdiag] MP_WATCHDOG uptime_s=444 weston=yes chrome=yes memfree_kb=533024
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=446172132320
+[mpdiag] MP_WATCHDOG uptime_s=447 weston=yes chrome=yes memfree_kb=532976
+[mpdiag] MP_FAMILY label=448366 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=60
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=449 weston=yes chrome=yes memfree_kb=533136
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=449708391184
+[mpdiag] MP_FAMILY_WATCHDOG label=449547 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=453258242976
+[mpdiag] MP_WATCHDOG uptime_s=454 weston=yes chrome=yes memfree_kb=533100
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=456167537888
+[mpdiag] MP_WATCHDOG uptime_s=457 weston=yes chrome=yes memfree_kb=533272
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=457649220496
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=458984954320
+[mpdiag] MP_WATCHDOG uptime_s=459 weston=yes chrome=yes memfree_kb=533300
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=460329478576
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=461330255104
+[mpdiag] MP_WATCHDOG uptime_s=462 weston=yes chrome=yes memfree_kb=533132
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=462676363424
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=463897291792
+[mpdiag] MP_WATCHDOG uptime_s=464 weston=yes chrome=yes memfree_kb=533104
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=465348215376
+[mpdiag] MP_WATCHDOG uptime_s=467 weston=yes chrome=yes memfree_kb=533288
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=468382958528
+[mpdiag] MP_WATCHDOG uptime_s=469 weston=yes chrome=yes memfree_kb=533128
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=469706808704
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=470914282384
+[mpdiag] MP_WATCHDOG uptime_s=472 weston=yes chrome=yes memfree_kb=532980
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=472326636160
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=473327416000
+[mpdiag] MP_FAMILY_WATCHDOG label=471995 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_FAMILY label=475765 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=65
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=475895844064
+[mpdiag] MP_WATCHDOG uptime_s=476 weston=yes chrome=yes memfree_kb=533104
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=476895855952
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=477991869040
+[mpdiag] MP_WATCHDOG uptime_s=479 weston=yes chrome=yes memfree_kb=529172
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=479117161568
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=480117506416
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=481331234560
+[mpdiag] MP_WATCHDOG uptime_s=481 weston=yes chrome=yes memfree_kb=533300
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=482331910048
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=483331618624
+[mpdiag] MP_WATCHDOG uptime_s=484 weston=yes chrome=yes memfree_kb=533104
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=484595496880
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=485728399856
+[mpdiag] MP_WATCHDOG uptime_s=486 weston=yes chrome=yes memfree_kb=533124
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=486728977072
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=487817064512
+[mpdiag] MP_WATCHDOG uptime_s=488 weston=yes chrome=yes memfree_kb=533280
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=488984091648
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=490204653472
+[mpdiag] MP_WATCHDOG uptime_s=491 weston=yes chrome=yes memfree_kb=533072
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=492956798256
+[mpdiag] MP_WATCHDOG uptime_s=493 weston=yes chrome=yes memfree_kb=533056
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=495642078544
+[mpdiag] MP_FAMILY_WATCHDOG label=493908 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=498302078304
+[mpdiag] MP_WATCHDOG uptime_s=499 weston=yes chrome=yes memfree_kb=532948
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=500875793616
+[mpdiag] MP_WATCHDOG uptime_s=501 weston=yes chrome=yes memfree_kb=532984
+[mpdiag] MP_FAMILY label=502182 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/R/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=70
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=502311603904
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=503312280800
+[mpdiag] MP_WATCHDOG uptime_s=504 weston=yes chrome=yes memfree_kb=533108
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=504608534064
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=505662798608
+[mpdiag] MP_WATCHDOG uptime_s=506 weston=yes chrome=yes memfree_kb=533120
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=508774004448
+[mpdiag] MP_WATCHDOG uptime_s=509 weston=yes chrome=yes memfree_kb=533216
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=509776002848
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=510773933728
+[mpdiag] MP_WATCHDOG uptime_s=511 weston=yes chrome=yes memfree_kb=533080
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=512114556352
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=513175343872
+[mpdiag] MP_WATCHDOG uptime_s=514 weston=yes chrome=yes memfree_kb=533096
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=514256807888
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=515324437408
+[mpdiag] MP_WATCHDOG uptime_s=516 weston=yes chrome=yes memfree_kb=533296
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=516598967952
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=517815349136
+[mpdiag] MP_FAMILY_WATCHDOG label=516331 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=519103305248
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=520349014496
+[mpdiag] MP_WATCHDOG uptime_s=520 weston=yes chrome=yes memfree_kb=533072
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=521613684576
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=522727399104
+[mpdiag] MP_WATCHDOG uptime_s=523 weston=yes chrome=yes memfree_kb=533168
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=524083419952
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=525408946288
+[mpdiag] MP_WATCHDOG uptime_s=525 weston=yes chrome=yes memfree_kb=532872
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=526751283264
+[mpdiag] MP_FAMILY label=526727 n=3 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=75
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=527751752720
+[mpdiag] MP_WATCHDOG uptime_s=528 weston=yes chrome=yes memfree_kb=533272
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=529009066816
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=530121847376
+[mpdiag] MP_WATCHDOG uptime_s=530 weston=yes chrome=yes memfree_kb=533136
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=531165964048
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=532237234784
+[mpdiag] MP_WATCHDOG uptime_s=533 weston=yes chrome=yes memfree_kb=533268
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=533670677472
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=534671081568
+[mpdiag] MP_WATCHDOG uptime_s=535 weston=yes chrome=yes memfree_kb=533096
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=536047626624
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=537118664352
+[mpdiag] MP_WATCHDOG uptime_s=538 weston=yes chrome=yes memfree_kb=533116
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=538119235472
+[mpdiag] MP_FAMILY_WATCHDOG label=537998 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=540702953088
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=541703140000
+[mpdiag] MP_WATCHDOG uptime_s=542 weston=yes chrome=yes memfree_kb=533156
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=542991676128
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=544031728592
+[mpdiag] MP_WATCHDOG uptime_s=545 weston=yes chrome=yes memfree_kb=533108
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=545353071760
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=546592852112
+[mpdiag] MP_WATCHDOG uptime_s=547 weston=yes chrome=yes memfree_kb=533156
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=547823527392
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=548977073248
+[mpdiag] MP_WATCHDOG uptime_s=550 weston=yes chrome=yes memfree_kb=533216
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=550257793824
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=551617039312
+[mpdiag] MP_FAMILY label=551867 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=80
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=552 weston=yes chrome=yes memfree_kb=533140
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=552807801024
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=553998879424
+[mpdiag] MP_WATCHDOG uptime_s=555 weston=yes chrome=yes memfree_kb=533268
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=555282844464
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=556283432304
+[mpdiag] MP_WATCHDOG uptime_s=557 weston=yes chrome=yes memfree_kb=533060
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=557546516896
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=558561230160
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=559561588560
+[mpdiag] MP_WATCHDOG uptime_s=559 weston=yes chrome=yes memfree_kb=533112
+[mpdiag] MP_FAMILY_WATCHDOG label=559697 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=562176873408
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=563176841232
+[mpdiag] MP_WATCHDOG uptime_s=564 weston=yes chrome=yes memfree_kb=533092
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=565769831056
+[mpdiag] MP_WATCHDOG uptime_s=566 weston=yes chrome=yes memfree_kb=533104
+[mpdiag] MP_WATCHDOG uptime_s=569 weston=yes chrome=yes memfree_kb=533260
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=569633217696
+[mpdiag] MP_WATCHDOG uptime_s=571 weston=yes chrome=yes memfree_kb=532984
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=572284397056
+[mpdiag] MP_WATCHDOG uptime_s=574 weston=yes chrome=yes memfree_kb=532964
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=575408306256
+[mpdiag] MP_WATCHDOG uptime_s=576 weston=yes chrome=yes memfree_kb=533132
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=578286485184
+[mpdiag] MP_WATCHDOG uptime_s=579 weston=yes chrome=yes memfree_kb=532972
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=579625563024
+[mpdiag] MP_FAMILY label=579828 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=85
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=19
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=580626307712
+[mpdiag] MP_WATCHDOG uptime_s=582 weston=yes chrome=yes memfree_kb=532908
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=581972446192
+[mpdiag] MP_FAMILY_WATCHDOG label=581891 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=584625202496
+[mpdiag] MP_WATCHDOG uptime_s=587 weston=yes chrome=yes memfree_kb=533052
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=587200742400
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=588269972432
+[mpdiag] MP_WATCHDOG uptime_s=589 weston=yes chrome=yes memfree_kb=532984
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=589271101808
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=590270410224
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=591480186880
+[mpdiag] MP_WATCHDOG uptime_s=591 weston=yes chrome=yes memfree_kb=533120
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=592607272240
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=593607643408
+[mpdiag] MP_WATCHDOG uptime_s=594 weston=yes chrome=yes memfree_kb=532928
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=594881986096
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=595964475616
+[mpdiag] MP_WATCHDOG uptime_s=596 weston=yes chrome=yes memfree_kb=532884
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=597425631648
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=598449008144
+[mpdiag] MP_WATCHDOG uptime_s=599 weston=yes chrome=yes memfree_kb=532980
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=599941792640
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=601088049424
+[mpdiag] MP_WATCHDOG uptime_s=601 weston=yes chrome=yes memfree_kb=533012
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=602515436432
+[mpdiag] MP_FAMILY label=602775 n=3 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=90
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=603533096832
+[mpdiag] MP_WATCHDOG uptime_s=604 weston=yes chrome=yes memfree_kb=533084
+[mpdiag] MP_FAMILY_WATCHDOG label=604236 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=606335848720
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=607335736992
+[mpdiag] MP_WATCHDOG uptime_s=608 weston=yes chrome=yes memfree_kb=532992
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=608608766512
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=609688089344
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=610688417824
+[mpdiag] MP_WATCHDOG uptime_s=611 weston=yes chrome=yes memfree_kb=532960
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=611839878320
+[mpdiag] MP_WATCHDOG uptime_s=613 weston=yes chrome=yes memfree_kb=533128
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=614604470448
+[mpdiag] MP_WATCHDOG uptime_s=615 weston=yes chrome=yes memfree_kb=533160
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=615899313616
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=616952543712
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=617953314960
+[mpdiag] MP_WATCHDOG uptime_s=618 weston=yes chrome=yes memfree_kb=533028
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=619260609520
+[mpdiag] MP_WATCHDOG uptime_s=620 weston=yes chrome=yes memfree_kb=532980
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=620626607472
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=621712710816
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=622864586672
+[mpdiag] MP_WATCHDOG uptime_s=623 weston=yes chrome=yes memfree_kb=529072
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=624173874944
+[mpdiag] MP_WATCHDOG uptime_s=625 weston=yes chrome=yes memfree_kb=532940
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=626692819616
+[mpdiag] MP_FAMILY label=627165 n=3 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=95
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_FAMILY_WATCHDOG label=625576 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=629838770656
+[mpdiag] MP_WATCHDOG uptime_s=630 weston=yes chrome=yes memfree_kb=533168
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=632642825216
+[mpdiag] MP_WATCHDOG uptime_s=633 weston=yes chrome=yes memfree_kb=532976
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=633998097520
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=635015616560
+[mpdiag] MP_WATCHDOG uptime_s=635 weston=yes chrome=yes memfree_kb=532996
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=636016026880
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=637054096208
+[mpdiag] MP_WATCHDOG uptime_s=638 weston=yes chrome=yes memfree_kb=533156
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=638195320816
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=639195793568
+[mpdiag] MP_WATCHDOG uptime_s=640 weston=yes chrome=yes memfree_kb=533208
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=640424668096
+MP_METRICS_CLOCK_SYNC run_id=perf-before-r3 guest_t_ns=641543661824
+[mpdiag] MP_WATCHDOG uptime_s=643 weston=yes chrome=yes memfree_kb=533184
+[mpdiag] MP_WATCHDOG uptime_s=645 weston=yes chrome=yes memfree_kb=533096
+[mpdiag] MP_WATCHDOG uptime_s=647 weston=yes chrome=yes memfree_kb=533148
+[mpdiag] MP_FAMILY_WATCHDOG label=647724 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_FAMILY label=650776 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=100
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=652 weston=yes chrome=yes memfree_kb=532848
+[mpdiag] MP_PERF_MEMORY_EXPORT_BEGIN run_id=perf-before-r3 bytes=284160 chunks=136 sha256=a5073a1afadcf2bf6f3e2df1dc6ba7169064c7a69881f3e1cf4b87b960aa49c2 gzip_bytes=26045 gzip_sha256=97a3fe745a70cda65d792dc22e2e52ab60932d75955975dff336403ad3cebb42
+[mpdiag] MP_WATCHDOG uptime_s=654 weston=yes chrome=yes memfree_kb=532756
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=0 len=256 H4sIAAAAAAAAA+29S49c2ZGlm+P8FYkcO1P7/UhAg3sLuEDhVldNuoGeERQzpGSLyWBFkFKpGv3fey3b7h4ex4/7tnSpjrkAsUpJMuiP7zz2Oma27fHxw+8f3v/l/ceHNw9/evj05fmH//X8+OnjN3/TXw6/SkryO34tfvexlviNz9G5FJwL4Rvnkyvhm+/c3xZj/dfX5y/vnr777punx8cv1143+/e/01//+/vn9z8//PLu+x+//48/Pjx9evj4
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=1 len=256 w++eHv/8/PD0w8fDrfHDn/z3u++fvn56++EnvO7zw9Pv3/zu4fePTw9vniL+5f3Hx/d/HP/2L//8r//jf779p3/5t3/6/9/+t3/713/77//2r//8T3jJ88O/f/+j330vN9nax/zIr/jy9tPz9z8m71MuPfWU9m/Aq/dQbz+++/rp/c9vnx7+/evD85eHn77/P99ueQjh2iGEl0MIkbe176W9HMLnp8f3D8/Pb3nDkXz3/Wd+SsVnfpY/5d3xNR8+
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=2 len=256 4VWf3j/gbTW8ST4K/uPHh5dTsfGRx2tHHo9HnkN0vZfUi5seuQ/1cOhyEs6PHa94k0OoZwf/9v3PHz7KB717ItSV87btaUrXTlN6OU0xxpB79C6dn6aH//iwfpbcTSdp2xOQr52AfDwBBWcg9BhaL/P7pMXZfdLiG9xz6eUU/Odf/vD45eEOb5By7fyUG89Pnp6f/KZkH/4Ozk+9dn7qy/kpMYdacqrh/PzwGHHzv/v0h7/uJrJcR+3aeWh/zXn4
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=3 len=256 9TeL5Xno185DP56HVhyuH1ZLXDkPi/USXZicArziTYM8v5yCr18+fPzw5S93uGC8u2pWuZdT1IqvLYbYVp45a7fKLefJ8lbx1w3MFwuzlwpXo5UY5+IaozuchLF0Vs5CdG967P5XqetxlW18jq5asP7FhO3N555ibG7FhF29W245USa3yVVT1r/Ysh6WbI7J5ZLmZnzydXb4eMkb71r6+7hRrlqyPt14lkKYnqUQcJa6738XZ+mquetf7F3vS6kh
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=4 len=256 Vh+KUn1vu6FMFtRVm9aXv+Yk3HS/mJyEq4arr8qTsFwv2U+PP/s3+Mz064x7q/Vy1az1L3atj6H07hLu7hVVee0hn6yUdQ/5XtbJVVvWd+XBr66Tm+4Ti5MQrpqrwSlPwtk6SfPjTzj+WurfwzoJV03Z8GLKetzbzvmut9NuO1Umt8r1aOuLrepbKR0Wfexrrs1CLF4O/4JY3MnBX7VSw4uVihUdc3ENyCch118efnl8+svb53e/fP744dMf3v7+
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=5 len=256 w6cPzz9LvPxV/H+87o287uH5h/fPf/rb7zFc3f+pNZXkF/s/MeR/7P9s8mvcqLvDXbkbNwL/xLtrh3Wy+yz/WSyU3RP+8sff7T6P376O3748PTy8ff707vPzz49f3n55/PLuIz/l9Y+fHp4//MQb+8/vPv7x/J9/eff5/ePXT19W3vj48ePXz+c/x6L45d3K6w/M8nGXID6/+8PD4Y346ufDtzw9vPuJH7k/IX9+fCLrt6/X4W51Ce/87nQDqIZd
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=6 len=256 3u1jQzvv8JMWw67Wsis+4UV4vOHlreEps/M1tNzwjloi/mkXg6sZP/Y7LJK0w+tdhsi5Hbzo5gqWvY4o7ODKe+dyjWFJ1Fvb+ZL7zmd8VawuZ1Dsoks+dPyhwHQqIe2ir4kvrT5Cabzb1dTTrsYeQnVpF4oPPiXndERxl3AwHbrQe3hNFGvEkfNPoeHfUq498ptj85R5fKfznjsnkIyQC+BbqHKSuit11wPkI+HnoabceulFR5R2qYDIt5rxGHlF
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=7 len=256 1HAK8Jecd6Xh30LPpRaY7yFGCC+uWy7RN54jnEJcz5BxrhuJyNl3JXQXEq467K8cWmvKk5R3qQIp8cvc8kbindSDA12DUYXL20pOYMrAT73scJ06rQJcLbnhgsfFxGXj9iqOrwaXIi54wJPD4fwpkcouNSDhhvXLOyngZsVZx+f3Hf4IFjybUiJ6rr774hx+gouHV6Wewb7LnS/jeUoFj3uPR3gKvPzBdxDC9NNRVXwgqHDjZnz4a6qML96F5OR6
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=8 len=256 Zf4brkRr+GvEf3rn+qL5xPsQNzc3n3c+OGJzTQRcVo8TFSIXMxZkdCEWJVfbZce7HOfeL7lq5p1SeFtwKxBLD8ecXePtg5XKxViYG4GzgbuAX94dt4N4tjIs413BqQw8jpBw2L32oIPqu+y585gc75fXS69QfHCWcA5wzIIAd5UseG1suGi7lmtzkYoSCm/yHmoZN1bDicEfsPhwPIXLBCcf71WqJm6Hk93j11wdwoKTVRxFMFFVPYxeugc7LHDc
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=9 len=256 XfxCH1MYUoBXOL6hid75iFPUcAy1l9xi5IV2ATcb7Cblbb+A46Ysv2e/9cobi98DhcxYjpvD+d3phvLKmYuNQjEeNgWvypAjiJZPtfL74Ag4uf1x2zvcqNCL5uRGwy3n+WPcFg4/4jMk8eorwUAyNjJLcAu1wDOPTz4q+U6ih9R9rBJ8S+gVbxJUJ4/BnAvXtXd8wPBTA8/QruF5JgcQvc8F8qdUepxynukIocpxsSyhtbgWtEnxhMoNd1rCdZAr
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=10 len=256 iJXgYuHpwYmuon6QB9ypjsuB19FTxPA8jHgd1zZds6B9/uD5js/HDdDDmbRm6A4uGOyJjP/CTt7hkYwzh2VacQjQ/rTDsUBrsD4CVAyvKNnVgRVhUePRg9sz8rGU+Eff1esSTz086LgVEJd3F6RAbiScKPyXNzxsgri/VRp3JXG5+KzkH/Csl8d1THwC8CrCuY98XvPq8R214bIEpbbiQkA8uUWOh8XChKBlBe3CcUOBO28uiBgOuwqmK3Kz40GU
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=11 len=256 aUt5PGH5jPCFnAOsNwpt97Bq5P6CxDa16vu6O92/X5DhoQyyxEXbaUTwUtROmwNWRuxyw/c0TB7cPV1WRBZ2z8c7ZAP3fxK/T46ipR5wADexcVucx7zf++YH40SAYddrsUbLA21EYCBKeBBGmBaiWJuCQYlqzFiZLi71YlxP6BAWfM5i1ccEs5TSh5tHorz4KvyMZKVwCdGU4IWnJQm7BOe7UwF5X3Tw0Xa8CWx5MfGpiVC06vksMgR7fSlrpf2A
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=12 len=256 xyEegmFbMBjjDWCwyfpSZA+XMsilDHhs1o4HDu9FfDlPIc0cPE55D0GJO8HGI8DTYWmp4g+UfspLpiUZ1Kb+Amx5KfGo4pKActHepy1piPb6YtLFoTFaaITTO9uOLIzrH2uTu2XtakIj8LQPYtRXV3vnEvUZruywXmn6B6pGDuJ4wxGn/4GHXoTNIQ9xH8Qq67gXE724m9jOhDZ1R5OZXhAef+L7m+K9vqgQSwpl4ZPcJy9+/6Z4HmYV8CjZS9d3
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=13 len=256 f2V5BmGuJX4fzRBa1YxhwDeSB4N4H3RDXGxih8BvY4wUIpIA5ekyw4UR5wXmIAw/PC5uolteWxiHEn6QWEHgf80BF1e3el5XWKpy8/G/WwPSYOv4WPzXL403eAa4vniydzHB6YlkHAme13x0F8cIFH/mxDjDGpL0N8bGKE+AyzAFcA6SPIMoRJF1Blr/eMG2vLrDWYGJkrwEgMzxXl9b4tG5hIsCvCABg03xImOCTMXrfRlHg/vJv0e6C4nCAw3C
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=14 len=256 P0AjGGWsXf6A7xMnOI64A6N4PEyG52AOMAZagtzVsAAZ0EzpJrCLlzXG/WW1ZLtwTUPfX9Mt2RIjvRFiAD9tuVSbmJilZHqnYm7DVYIljm+GA5FLpGz45oOEscUhdIwy5WGZMxpIjey+BbpgsBcZXdaG/RZoly4pPvu4Ui3p1i9q8y8LdUs60GTQBdiUy5gpLAO5T/AkwHNWtixgp/VM95+xKz7ya/UMG0ukljJBz22Y6ABNtCiqr+PhjbfABy/a
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=15 len=256 ++012PyiWrLNLumWbLiIjc+FXN3SGIaVxHB8cE32KmiXeNxNYo3jCYCTKZEjfJdE6VOg1yURkdoGW+NBMGIG856h6MbvAfFNbPNraow3u6wb41U4VXw69OiX8QeuUcYcYoQC18LndS9JthEKH+FenuBV3gglqRLYrbDTx7NejokBxeBouGc8m31Uh+wXYPPLask2u6ZbskFQHdgSND4uHqm10ucqqXLLoclOSGE8jOHOFv0eDPefPDB8pQPJ3Sov
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=16 len=256 bhc88Br5sGjwj2RnGTedU+/KLsAuX1C3v6CWbJcuaNlf0C3Z+q5xyyfhfluGlaAsEgzhdh+sbz6p4e97bs02l+TWYsQ1U/RxS1V5HAS4Y254Wh23IXwxRrElmgzzrjLQeBPZfImaws3W6JZwEZYF/awcZNvidUKAbDnABoDqFsYidw0/b/J8T9ws46Pfwb8mGK48lzQcZYl6QaddKhKOyvSe6RDhtqww/G8Cu3hJfTsYSIZsl65oOhhIG7Lhup2U
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=17 len=256 ib26oF1kvOK68h8ivrbjz55WU6PjxCRU73uLTm41fAZ3yEUiKB8ZNnpj0IzbpBQYJjb0WrU+1gLt4iV19bBKTekuXFQXD8vUkI5Va1V+k9K0naQuZc89vI25wu605O717QbfHHc6zMUOWZLNR0+jkVE2rB04gZC2gEdUF5cgZ98lljhSLbKEtWnDJ1gLTOJgNM5jeWidvwXbpfuNunpwnE3x1m+4JGbI8JwN8ZZ3XGe4HAwMgvMLt2WLO3gkGW7M
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=18 len=256 uVvfMyMJLVSezypnNuQaJaEQlEwpFBs9j7OeS6D5ybQSgsDKra5XCR57zzWDhzZw8bi9Ce3STRfpHI+bzpRu/Z6TxI5xzxnSLW85Hyhz9GEZY936uiZmpjHbRPJQXt9ylalkjck+cMdkv6Fxx5bNXTzuRqwEiUunyrwMHBCWAc4tXiD7vRnOGGNnkRt4kpLnO2PIzOa7Ce7CTVdPgvnGfKu3XT2J5pvyLW+8/U5SiyJmxeD65t1pOfciRzaTrjU6
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=19 len=256 Cg33NDzD5FuRnIQQYVxKGldjVIYh1gox5r/gduU1wAdBhXENEj+GqY8e3mLMv8KFeA136eZL7hj2ssVb3ntyjQouHk1vW7jljZeY3MwHaenMfy3WeHHssh5K3Jk+z0/NXBiBOZUb49EIf6ngXyyLyvA+ljVMlMbdIaw/5mgWOcE8qsIwlwcy07OZFCrZ0y2PBKvKqGPkFnxodaTgswyNGQDaR8ZrvEsLA9d4vzDMAS8tDZxYe7yLiyPn3XDErQHP
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=20 len=256 l0eWTa0oiXl00bYGrDtmOUT8h5/4eoHgwSEJhS7A7Kp1XHmfehvVJqzGEAMQj7pRFNA9E2NoURXxHenTSS0N/k/Sa1IrTVLHb6K7vD760Wqx5bu0PKIsD1u6tdWRTlaH9dVdWRxl7PhGScRqm/MxZQ9PCRhtkvC1WBy+jWzzUPEAY445nNnoZZfTw6yTHE6W8lTZyvYdf2V2dx5+FfEkc8vxyTaKbeCz4Mpod0+WePPVYQ54fXkY462tD4lR5Lpf
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=21 len=256 H9aAlxcIT548ILYF7JILx/VQynJvgPVviXu8eJztJNBDUl+LBLWTY0KIVNfARORWEzdAuBkFAkmlLIzNwORmyUWNsl2M65G83vZb0F1eH4dosjXfpeXhx9PDlO5sdSSmCLw4HuZ8FxcHk8W4OLblk4KaFFOIfGAtq1ZpyTVZmnSg6ojyMfOiSDCeewh8OLdcR3FcY0oTK1LEDqTdBxie+Fb2lZrOMU1RXTW0xLu8OMoxCmnLd2lxuLE4TOlWFkcQ
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=22 len=256 x4Nm/VgctnyXF0fbL45t+eh9n/RLe704YupZ9jIkzgcjjwErqCAOyAtvSCVLihEWELwrqUmMiaHfMFJFvCxXLPxE2y/4UZ1XXcRS1+YyLBkvrRA4Y0fzyp5xdZUApu4YD7cnvLBSWPDIlTJKLqwZV1YLmHtMWVzwO0Bkry8iHlt67WJq0kJAImsl3AVkGJvkx9Z03FWWSqmIp560KDCA5PeftJ5bSA81kBIYOo0DJ6UrBfCuS8VWzp3PbLbjSDVU
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=23 len=256 Fh6XNno4BCms3Emyci8sy2ajENY00dZ23Nrk/vltlBfF5yVT9C4o1+QHBlUZ6nMHiGf605leHoOo+CgKugfKcwXi6sbTmHvidwK5pkHs39F85+0Y74TyXISk60MTh14KpO+BMvtBeehOiHNZmQTmqZTFGS2euHvVWO+1VuJ7miQnBHnwVLdXbvaUGF0qWuPOjtRPZukmBAMxMKU/jmJIXAzvIfldui9lJuePshyovrqLxRLyolTGoydzD5DnSimN
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=24 len=256 bRjLvwvCpVBmJ4WtWOKNW7W85HcAuaKT3Olmv4uwD35ZM54LkHQqZPkwE3hlo/MOKM8FKLNXDcMkzG4o9wGZ9pD73pTU8tbY8kJWuM3CoUecQm3So24Z6KnSM46Vpw7fknKWwpjKNzhqU/WtuzyyqKQ7TCy+S/ciVkU5QaRpj8cq25qNTGD8xiIptcm7ILyokO6QcWZPuC6PhfLYzPHOtNEzNwFODRNYKk1dc8JzYWQNVu1wYX1nSoUx4Lkq4rtp
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=25 len=256 2AamyDVau+aIZ5KIf+R3xdGyz9/BWTwTxNxYHUt3RqpEDM5iZrywsUWKBA1fy2EP+4pAiDNVsUtJKBswMq+BrRql3xsOw3Gij2MOppQyxVjGvhZLXdhNh0kTLbEPJTtiBrYCrOrw44LxsiAeauDvgfGCJHqRRHvAFVEcBmOtUoRf7oFxRRa5sc+0UrhL93AvrgqjOHaB61I6JNpDrkij7ANIX0C24b4LyDVxlFY0uQ5xNIDkPu9Jm/aFPPYsaV0c
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=26 len=256 /AmVDI0NLTrc/SwdSNjpZPQ2rKXXzKaMAGLXxZyHnVm5hx9rZuyyMoOY/NypTTCMlanES8SL6pjasZzZHPFMHMWtYmQixzs4h5fEUUqrpJ+0PeKaycjWymyayQQrc8KL0tglAlW9VK9bQ16SRrafZtMJi7uxshG1DwFOaFzmIgRf9/UKnV9WR6iQPc/prcruIe6GwJ5YbK/AYQVsndqkmUs49GvfsQNWYiFESTV7tlJiE2q42UVbsrWkvKw78ViN
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=27 len=256 dw+Ul6SHhbn3cSbP1CdwZz0madlcJR55D5QrAsT8fF/os4b7gFzRoD4Evgr+aKtwB5yXZajuZcgEkyYDc6wCTtqy+By3I4ui4MCSHP9jLJfduvB31kTFVCBRPUpcF3Ip/YNiYC9bbjvF2PaCyVaokcadYw9ciV2ysL2zgv42zrkW3QvndTW6D8oVPWJ6a/ISxmUF8J1wrilSoiIxYswX3AXmqiZR4EU/vUztuBPSNVWSluNHVTICZTZbqTLP46x4
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=28 len=256 dz/kI3gnXXK6pFUHVqZJ5TATV9jRN8h4AemGhQORgs+SxXIWz7E2CYFUHAm3GUJPnnM+onabYUF4WZHCsYjSmvCSFnnRImu+yyoU9ypkTjjTH2vAK8rD/GxRHnPGueZsjZjZdQCXMjBlY5mDhuXBZqJQtCJblD1KZVmrvXFD1tfEsRqSGRtk8o1kyXH+TY6SCiKEDdqHFcd4++hjXSqze7V22pJwrjb2hNfVxppvrjbmhDO1sQbUqI0541xtNkfk
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=29 len=256 8C8m1MqYr6XPlTL3NAM8V3Eh46gzxrJpVWLeyY1xHp6JXp7bss5XepitScGM7Bl2lgMkjnZiyiwvRQ+Z/7mNUGHbmBNeUhs3bBtjvstqEw62jTXh1LYxBlTZNtaMV9Qm7G2brRE5xq8U6Ig/L5oGCZtEBvYN5tkr7CMbUupBBiByIEpzUqEH40q6IKT9WKvM9pZjD45H0dlqtoxxar6FFnOr2mj4klDjSVkTzjwpWz6NJ2VMOPekbAF1npQxo8aT
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=30 len=256 2hgxst9D4uRbGfP3Wm1YiUS1yRK1Zq3viEcVSXoKnCgrA1CpcEHmsyZXy+iBLS3Lu+SfgjAxsTiO/R42XubIwdsIFWpjTjixbYz5FLaNNeFUbYwBVWpjzaiwbbZGZBkOGwDKbv+Z2ojjBrXJTBt0h0B07DWItDnZNpP8R4AnJkml2Amzq2OyqigisDMTqeAZjlu6BWgipxLdBnm5HubYNOkeIC9oDgeXxrs4jxdlh/PdqpSN3gHkReVx+xiOPeO5
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=31 len=256 +HDgGsfF4Qu4CVzv4npf0Z/CHEeZIr89JcsBCydLZikAXEhQZX4oP7HIaJsooZ1SkkzrDk5mmUOW2Nt7NASvnqHsVMd6o0ZyBMQuO1b1FWlqxYwAzqO+DXAuP+aA16XHGO+i7BSOVqzcYTUGnEmOMd+a3EgSXfVsm8VkFnPEK1KThtRsTcgmEp2mUWUH7IXMFNfFT4FBxeWbZdCIr6nnMbrLi4Mn1lCtXTobS4E4O0bB+ZMHepVqOGoiW3mnwq5L
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=32 len=256 sTfPoIG2x9KS8rJv9TL47h4or/tX98C4pjpBVEdIRsG3PeXU2rkDyCv6w/TLUPN9XPJrIpT39o4FJlNUYRnCQpQ2n6+VCP8iPaUrfD4KEseJRBaBjJagRYLYxOUAdSa9pjhK3TgCoozsIRwSvoSdxLK0Xg/Qj8q2IFqtXBDOVcie8LoCWfOdqw9zwGKS6p1Kb96ccKY81oAa1TFnnCvO5oiwtJrDiYJatbMID+fuscEwzCuqTU4SDe0p7yeZxtqG
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=33 len=256 EKbouyw0510S99BL1EkYM+d27Tg6HgdAX7fwgVr1ttmCca4398A4iylbE65YPHxaJU7OYEjiHs7i3NUyR9Tozh1QzpXHALIzGtR6STDLzrWH7pvs/oulU0dlqvMxsfw7Sh89kgSXc06i7qmU0SCvyNBWEHLjf5cTlDHIkPLMjTlcmRsJFZaOOeHE0jHmW1OdJEFlie7kOyCcWjrGgCpLx5pRYelsjChT3HKi71fP+nRAbUajuZRkQmljRnLGf3iC
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=34 len=256 8cLAFlaiiL7DBZSyjTrKV1Mue1sM64078jlUOIUyONI1GGpZ6/ktCedqY094XW2s+eZqY044UxtrQI3amDPO1WZzRGpK52iK2s+jOC3xZwFaV4cNy2pgD4GTJEW4ej6ksZIgcBxgzmJV+afaxlwYEhZ8FGs0mEs0UovgDeLa3EZ4WW0OM9/tCS9tXPVh2xjzrUVxpOrciUdV74BwatsYA15Tm3KwbawZFbbN1ohQETYLZAWXX7ZkhFRKK9icqyxl
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=35 len=256 9u5hJlBq+4YbbLLLLuo9N9lmiwX/Fd+rjUIjAeyZCQss1aIcRjYM547ebYBzsTEHvK41xngrUuPEsGnH3BxjwOlOlS2fRmisERX7UxsTRhDujaazobtsMiaTC4p0WaGXxlPoACPJQFhGrrCGozuYUiNFnf7WLkEOeSydgB03NlyxylAzw06h55KLtn/3ElCRCmgNOEkDtMW7LDP1KDO2gHOZMeXTyYwt4jwXZ2tCmk3RQaycdP9aykwXVeP2GGWG
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=36 len=256 gy5bgj8nE1MqFC2xDQYnV+coJRLcU+PvsLZ62Xt3VWahNUimJFEHF+Hlcb7mbYjzUM0dIF6P1ZgDXhabvhcbe8SZ3JgTagTHHnJu2WzPmOmrwSyqjW30l6LDjG2mG0eWOiQ2EmNT5+qkUY7PKQfZZ2vsJkhVDNlJD7Hs+r7vPhS0il2c8Vl8MgXZZINHeRugwraxBpzYNrZ4a3LjRG7ifv/bGnBq29jyqWwbY0SFbbMxIc5Ml2n2+K6z+s1WpSdP
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=37 len=256 rkz7CbwV2X4LFpcf++v43Q0rK+TIQR+Rzh4zg2rP+4qLHAJ+w7/iLEjeauSWWu3aCtMloSJUY044idUY813MtKlhX9FgTjiVGmNAldZYMyriNVsjVt51WAmlepaGLtWGPwv7CRpwp/jQ7q4HKbvwMnGSQ4R84vBmVstmL8Em3B1+3xmMT83KQozWg2gkU6wjnD3trvyCUKM21oQztbHl06iNMeFcbWwBdWpjzKhRm40RaVTHWGWs2IraRMmwqRzz
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=38 len=256 GGSwPF7eXSuSt4wbAX+iAuFXG7N66mhRWNmya299RUYrWqhRJvzgYGGb+art1bMkvOxDHSY92BNeUps69ryN+S6rjd+rjTnhdM/bGPCa2uTDnrc149yR2hyx4ytz52iwyGqZM7VpErCRgdZJwkU4wXD2mHITW3V5ZByyKp0DATpznSlQvUpJ1978Cn2Hf42xjEbtnJMIO01rfi0Q58bNHSBet27MAefmjT3iTHHMCVclh8v0WCJ+B7eiwsLZnLEO
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=39 len=256 i8CXWKQ067Xo9NyYmlgKNJtdUllKE31qRYqJ+YNUZK+s0CqjL1Obc2HkO2fpz8MoFER3V3KWRoZ8DaQzQiuVEaYloiavzxxxlthnDHhRdErbV4fbI85T+4wJ10SH3xVrZNw2iFdiDnlZdHLbyaio7Rk9EwoblgO+5azDKHMSmV/qvGdDseSY6wdbKo3oDl7TMu/T5D1bhsFacy4yDxFaH9yeEKusMzMaT9HErA7O5Ar0FG8jnGuOPeF1ybHmmyuO
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=40 len=256 OeG0NtMYcE1vUhO94SZukM5R1oxzudkckY+KiCvYUwlnnXA4boaGtnOJJs7ortBbrBwMAWXrrozpvUx8JhlHSsTM6PZoG0bPL6fIqDZbWUjuYmgO3hrk4TZCxU64OeFkK9yY77La1EP3G2vCeczYFnBdbZKoTd3PJzdnnKvN5oiR9lSqObcelpNhopP+NqFC7aRcilEc33uDgjYpIgC3REmh6EHiTImRbrbB6KznHIQ4enxk6350+8UVwZ9K0+rh
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=41 len=256 glCjNtaEM7Wx5dOojTHhXG1sAXVqY8x4RW3qQW02RqSjnlvmUohndVK9y6yGypkw9KSC2Fw4o+xtLAmFEEGGKxzHSTBwUpn1TF9PgtySh5hjdsxUrNlxmqdnhXsCrlYPF4SKXjfmhJNON8Z8l9WmHzwpa8J5Q1FbwGtq0/ZqY86o8KS2RsQl5VfW2Aodz4Vt42IUT6oy+pUT98s4J6aU2MZcvpakRIh1FYVV9h3/KN2VB434ejnGXcK9HOQbfGY4
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=42 len=256 HOaZcsd+SaiI25gTTuI2xnyKuI014VRtjAE1to05o0JttkZkvjLcNKb8nFVNUe5kWohvzClgKbhsu8SReshsxNAl5z3AeqvcxMRrx2i8LvlBYn016AMTgngYrLYokF/mPt5GqKnOtCaclWfa8ik8KWvCeYGmLaDKk7JmVMRttkas+FSKE3XtPG5DX45q48aeVJdN3Nhbk0nivbMlqkyLiT1Jo+02Epwju/qEgx72vCs5xbovYPe1spPyjYSafXBr
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=43 len=256 wtk2uC2fZhfcmHC+CW4LqFEbc0bNFvjGiLjNWEOeKq7iMtcP92OhlVWj95JgLDvgrvZ9HBsOW61jCmgcQeqYnDQsDYHHPfSwwErbSbrj6A0WAw6mw3K7jVAxBcaccDIGxphvbtuYE049KWPAVbVham8Nna58S/a3oSJKvDlixyVNCariHZN7FmqTWLXFRGbOD89NevcFz849Ui9QUx0RJOcYpU5shCHlo7hD/H4uH1w773bcNOtu5ENLU8LubiRU
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=44 len=256 1DGYE07qGIz5VtSmh9d1DNaEU9vGGFCjNuaMc7XZGlFCchXOW4tSmLVUG6YuQ20StTo3GV6emPYDg23XQmYdlUSLQkgSmfI0KDlIooxcQxJyOh5UqzbP2cC4Fq4DNWl7YywRNd1uzBFn3W6MAS8LTtwLjj3ivNuNMeE1yfF7ybGHnGvO9oyehlMu0idjWccQR1udUHNkJ7/cQxrlYJ59i6U5ih9NMnPDHUEjrBVpCgZLK4gvSJ+vwMODzxdohNE/
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=45 len=256 YylYZZr0bYiK+I094iSAYw04Fx17xHm5pjGhRnTsIRWGzuaMvNVi6TX7SKtmITp1P2sxS+64jwDL3G3rDErlyhbJUsHuYqd1BRusSguexOHC+wanNca8A7eLkuod5N+K98o405Jwrjn2hNclx5rvouIcs2/MCS8JTm77CQzGgGt6I017qswqCa3fAeMVuWGtpjdAjLsIlw02FAyj5XQpfFAdrbJ9zDLflzStQtwY1faVzQd5G4C4sog0sjscH/Gp
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=46 len=256 hLoPM9XIsvfcZeSVGGx4SvE7bwPUbIcbA852w03xLktNOW6G2wLOlMaYb01o2Eoz1sx+z3FMK7BFvKIzaejM1oTc6Aqcwpkd21gsZUZG69XCYi/IjIzDrp0GY5WteuBl6abMtjh8GGUvRey5l4PVVaGAApgYwuYEPrwYx6V19RaAig5b1oCTBlu2eJdl5phzYww4lRlbPpXMGCMqZGZjQlzPnLFGnXe+n1szKzLTXGYDZVLDduoccEVjLUpzD6BL
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=47 len=256 O64aSn5FCE3wcjl6ZYa0un/yElAz4cUYcDbhxRRPITPGgHNrxpRPZ83YImqsmW0J2RiQYeaE7zhP61uTmdJ8HaGinHuLFDe4p/K7NPaSooEcezjl46zhLhVcLnqOo7kVUCEz1oATmbHFU8iMMeBUZmz5VDJjjKiQmY0JKwhrwOf7ejZsATKTJSgtKT+QGWY1w6ErNY1aicixnBKvKS5QR3Hj1tHpq4WjDnqOuurwHWWKBKu8SsIJ0bp1C0JFZZQ5
+[mpdiag] MP_WATCHDOG uptime_s=657 weston=yes chrome=yes memfree_kb=532644
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=48 len=256 4aQyyphvrjTmhDOpsQbUaI0541xsNkdso7d6yS2llUjwUW3iQW18idXlMHbhfZJxnS2mMhI3OAUY/xIZMdrHkPjSyJlUsNDCrrkORy9oO+4s+TSTXWz5ZoNdLOkUYWBbvrlBY4mns2dMCTXmzKaAnYEdjgr34o7NrRnfsFZSF9LO3TzO7XQtNtmPzHn0MWUQ+lQAC9QySgscRsNzD0678b4A1MRmjAFnsRlTPE1sxhZwHpsx5dPFZmwRNbGZTQk7
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=49 len=256 26i7jjuO7QNXnKY6ZCYMmamsP+ldMpFx0SsToPEz/LO0mpAUDKYrpzHrbA/omPkT696rYwtl9hO8DVDhM1kDTlwmWzyFx2QMOHWYbPlU/pIxosJd2pjQc3S4q60EiTtflJl8lJkMPYuyYBgrkqZd+Eo4a7hd8SmJP8h+jNKrQuhwxLCy0thAc76XqM/sWRIqemSZE056ZBnzXVaaY9caa8KLUtP3UmMMqNIaa8Z5lt7miEGaUKTOzlrL3uZUGw5U
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=50 len=256 qGNWA9RGOjwBuY3GgNx6TzLqIXjujEUWffKknwzsrBGc/ILKMDZ+wCL1ULVNvJaA81JLc8DrlZbGePPwjDXg1Kix5bsmNOUgNMaICqNmY0LuiTdcvlxlLMO5zIx9bXwJZaaIC4W/0uoK0UPaWH8Jw3uMqfDscczmFsFB+Thqb0ihT5RCXx2zgXxqMdV0M6PCrLkDxolhY064MuablVgpSBt7SQK3Z5waN+aIKvPGnlJh4GwPibNUeqmtjhExZ9oj
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=51 len=256 c/EKyzioPdKTIwJbtrpawNsSt3dTG/29shspy2nYZAeXL+7weSRjUVCAPwj8po0sLQg1gRtrwlnkxpbvsur4g+pYE85jN7aAuuCNMaMmerMxIi4pJ/imKhbWitq0oTbD0qH2xOZr4957YG8baYscSgyji6hvThqWeu8PbZFlfz51V0KRHbTIlqU4zBsJFXaOOeHEyjHmW1EbLz7VKHEr9td4buEYA6rUxppRYd1sjcgxxUG22KWN6EW1KUe1cQkc
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=52 len=256 cZQLcry4mF05Rgpjrtwe56Jy7lg4wbs41VhKlLYYoaYGddQ281oSamwba8KZbWPLd1lt6kFtrAnnto0toM62MWbU2DYbI1YWvSeJE3EXbKk2o5dFaWkfvuHGfOVUFyYSZqhiZ2sL76iRSconYpfmq6fWF1u9J07yZSFYC3AJHT7yNkBNdYIx4Kw6wRRvLjXWgPNkPlM+XTafLaImnW9bQvbyySTEV64UQa3ITO05jdzYUnKvXTKBJCDOaHalr5fw
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=53 len=256 opZO+XLBp0jyMxso46u0CYdLQFVJty3gtKTbEk8hM8aAipJuSz5lSbcpoqqke1PCTs2qMXMa+Hmb4ZKG71SH71QkcR2GVePP2aUiBApRg4gyTSP6xoDELsDJO0wCZp8d3DMw6Zq0TwMeW7yrza0FoMaaMQacWTOmeBprxhZwbs2Y8umsGVtEjTWzKaGX4Xa9u8DJlnnFazrXmd6YMygZsqWynXrbtToGdcZQepSMw9ZiOCWsfYyr4i6a8zSQlEGk
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=54 len=256 M0KF0JgTTpTGmE8hNdaEU60xBlSJjTWjQm22RsSVbA5iiAvbVVZN4IhyaTqKu9NHx5McfC9evDq4eNLigsVZ7QQxyXwHimTH8Xkfg9LsOiPUlHZbE85Ku235FBFha8J5abctoK6025hRU9q9MSLHTeECQsVqOR+eUJKM2IV7NpLlJKOn5Ra56Q47KrPYKzDx0NG04qQIKcpoLr2ErDMrwwrzi/jY9C3wPXo9XBBqYjXWhLNgjS2fJlpjTDgP19gC
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=55 len=256 6uI1xoyagM3GiJEahs/PuaWVTD6Z0UK16aI2sleLE+qDGFfw6JIUN8fWU2xjQJ5sInQvQVLZj3fMny5w9mQ+MEyv0DkI4lZERXKNPeIku8YaUJFeY444za+xJtRteVtDKjJsNmek4cRRmriMeNtl0WlH0UkQxeo4FiamFthCfdezZ625dCBlMmIEUHoJMGGldXYMpHcIWy3ioFNRB5gWhAqHypxw4lAZ8ykcKmvCqUNlDKjSG2tGhUO1NSIuaWsi
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=56 len=256 V8WtJPQlPxyqPNQGX1FywrlssLEKTKsuEzc539NJr6MS/Si1iDK/h4QBRy0VG02qKThIuDr1EJkzwnlBpj3h9X5Z1nxrJZlFpkK5/VQoc8KZ2lgDrqqNRGtxMnc4ny3ZM87VZnPEQlMpcaLUah/Q5EaweGTajJlTDcYW8xMD17n0A2RjQKkXjT2z44Xk5rQDYeGCCzk0cQMD3UTWZNxIqCj/Niec1H8b8ykKwK0J58FiW0CN2pgzaoLFGyNWILKZ
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=57 len=256 cWKVxEqw+ExtIo4HhpoMV8Zictyq96H5zgAVMKqMWKtFepmOMnWch9JChpFOBzB2iGlWJzifIc5bgd4B4nXrxhxw3kbLHnGmOOaEGsmxh5xrzvaMeJ50NswpMJxWuvZJZ3WKjsSMpVWorwxJsc2Wc4H1XwxVu5xbZiCpSITJwzoP7lDE5ThHMcXsMj1FHxkVbziGGxkVQeM7YJxEjc0JFU217BmncWNzxGvKE4/GjjmlInK8PWTfsTSiVB9KWauX
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=58 len=256 OmhPPWiP55i9OmrUC8ws1oRC78YATmmJzP5WtLkOJpmH7vsYcncS3IY9liiwNxIqWp+bE06anxvzKdqfWxNOd8eNATWKY86o2B3fGNHjDPXOQRCQtJWNqjgah9YgYxYyV00JZVRoeT4VpZyrwtRi4mEsbZAy8TkdCKWVAHsuyxc0im/Utho8A9TMWTAGnA1aMMXTTFqwBZzXM5jyqYTGGFFTz7Atocc6cCDMEMOVcoajzKSjzEhzLZn5yN1yaf6F
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=59 len=256 H5Qqaeh4Wxs5iS8FF4GjOmEDjz200Fpke2VtVHtJqEn5syacpfzZ8mlm7hoTzlP+bAFVWmPNqEn52xhRIs6OHltht1KFUVNjw8LhqgIwfMTG26B1NryI/BFD17G9zB8XOUyx+DFAomeX6CXeCKgwaqwBJ0aNLZ7CqDEGnCuNKZ9OaGwRNTqzLWHcsTYiuNpZ2XlZZvJBZkKo3o19sO5ijZKyIdOCGU1KXebrRfzGV4xgUmSYirWjzFnsoWbnQ9LG
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=60 len=256 kpaEihixOeEkQmzMp4gPWxNOo8PGgKrYsDWjIjK8NSKXKxURZ6n4843wOKZ8lzHlO3Mt4X50ed9DoXfHLu8NtpfknoeSRllXqPFYaQHbjrPO3Ygv+RBazEkduV4Salwoa8KZC2XLp3GhjAnnho0toM6yMWbUmDYbI4LGdccKhRpWajSDrORS2BqbqcrSFK/WLj1Kc+6caNd2LeNcy3jX0mjQcXynNFoQQskRhZcnLZN7dOww5tXG1wJQExc2BpzF
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=61 len=256 hU3xNHFhW0BF1z5LPl1c2BZR1bVvU0JAeYfPDTS+zhNtjjITDjKDf2lRika5lU8QdtfB9ZddysKZw/gY76vM+hSzq8Ni6zWnLAVgMbAzYdb2FTxDnFs1d4B43awxB5zbNfaIM7kxJ9QIjj3kXHK2Z6w79quAEdWk18RcdHwteXThAWd3gdnNeHuWdOPI45UAdj8ODSYhRLHhcKTJYGQVu3qa5xmhajPKmHC6GWXKp9qMsiVUbEaZAio3o2wZVZtR
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=62 len=256 2yJCBH1IAdc0sjnpmdqMuE0ecZt9Fx7wSd05NG6ErRs7YrClqe++yjyrmI8tTV2DeZxbyUk29BnGCmx8eiOhQm3MCSdqY8ynUBtrwqnaGAOq1MaaUaE2WyN2GUOV4fvF7M73pM7VJpCLu+87iF7e350cUE7XD4u9e94uOY8YxgERX1DLKMTwPuWa9BVdS0RF5wl7xEnrCWvAueDYI04LNK0JVRtT5pCKEs2tGbk7j7cUfI5ji46LolOPohMiO31J
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=63 len=256 o0EXknQaxE2RpEtJqr2OQa8uHPvxOKYd1ZJGj57gOPBKn3+4JNRshFsTzjbCbfk0G+HGhPONcFtA3Ua4MaNmI3xjRLwbnwLCLGk7S7UZHd5KHrnEUSaZSM06pa1C2CqJ4PnFMQwo5MzhwWXM0tvnBXHeDcC6TCjwzF3kcd1IOO8/YU94vf+ENZ9id8qacO5Q2QJqisHNGTUO1caIDFA3dutyLqx0uzmoTRSHKspJhLmWZShkdbhFO/vxxCgNliOs
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=64 len=256 rDhGfqZj83b2Goyl1lw6D9B3mGg4A2o9XBBqwjfWhLPwjS2fJnxjTDhXG1tAXfjGmFGjNhsjcop4zzkGt9rJz4+tqTy2prhTFjxbfFX+CQZbSgWrvCes+SpdXEYXwiJ/PRDSxOupFRkfkdgAKHV1gGlJqBrEYEw4HcRgyqeI3VgTKgYxmALq2k0YM6oGMWyLKDEv3zo+KKzMzFxRG26PsVcg5+655oM4cLHCwMJDqUTHoeExN4a3TxDxUT42brnF
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=65 len=256 SIsp34yomQRujjgbBW4MqBAcc8T5MHBjQpXkmENqxoFvzchzFjOWrCuc/XtRdPxBdDzUrYwsEyx2HppjTmKXLnAcg8WHfJROhPucxMw7J8EtlIkRLsgYmazdsV8SalKLrQlnucW2fJrkYmPCeXaxLaAuvdiYUZNfvDEiA19w4Vxtstd+UW3i0cRhRhDblcIcwxurNG/vYzYE9LByEy7ksXHPcHbpclVyTVlC3LD2Um36dspLQs3WlDXhbGvKlk+z
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=66 len=256 NWVMON+asgXUbU0ZM2q2pjZGrHw3vjlm79aCxSu2Db5V+pd6OG65cfoVA9zSh8flJoNP0hhY86KHWGk100+srZbIyVg3AmpMG2PAmWVjiqcxbGwB53aNKZ/OrLFF1Fg12xLyvLE+gVP3VgoYVowa76F9Tkqeq2+SfhgcgKXGoo3+gsBj0tCpEiYXWFgBk4z/l3AMNyJquhObI86aExsDanoTWyPOWxMbE+pCxdaQmsbEWzN2vBuWEuypmNfSbs5F
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=67 len=256 h0NncpFoXfSN+2T4WQgjtNSC574aXsha9hfE7HxzVcoviuOoCBzQjYgK0bFHnIiONaBCdMwRp6JjTagSHXNIhehszYgrC6spR5hVcW3W1PkOFZw576t4dPDyijQ27c4lRo9icmO4efD5pbyrEpm9M2iKee68QTvVs/eWhJpSTWvCWammLZ+mVNOYcF6qaQuoK9U0ZtSUam6M6IHoa4xQNyqaQm3w8a1wn97XULJjzVZjfSgLXuAVMuBEzTwOMxfC
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=68 len=256 TGNPUlMAH5gepPX8loSaXD9rwlmuny2fJtfPmHCe62cLqMv1M2bU5PptjAiGGLrIYVppsbUWLHa5yZYZRBQLiDnPLbCgC4LUq5fSaPYUa6/CTEwr4sHUzs7uUZ36vATUBIuNAWfBYlM8TbDYFnAeLDbl0wWLbRE1weJtCSMIOZjTJU7A0yT54T+jtQ4tqSbNvnB80pgn4iAlspSkielJRhBe24I0O4254UrABLmRUJHjZ044SfEz5lNk+FkTThP8
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=69 len=256 jAF1IRtjRkV639aIoIpw8rBkS1EGbJhk6AU7liyFXPAPR2Qv+Sp9eYL0cD918sAolaWegSi8tmszgpaEqt5axoTT3lqmfKreWraEit5apoDK3lq2jKreWtsigiaWmPBFZbU4s8iszMwZ4VAblk/gckPuuHnh5ERT+EKplbnM7JUh88uLd/VY0VUYJ8dJcBxx3npkDqK6j/KSUFMuZU04K5ey5dOUSxkTzsulbAF1e+DGjJpyqY0R4d7FCsT97vpc
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=70 len=256 bXxzIUcpqYCElsghwT2P6XrMm2Z+EGwzKVY/AsbiPRw96dqeW65RPyNiSagJD1sTzsLDtnya8LAx4Tw8bAuoCw8bM2rCwxsjViC2DB1JKa9WLuzVph9tG04HFuOKUx+8zArGCa/4AFZs1RwlWL9MCSqeUW86e9DCkksOtyJqShfMEWe1C8aAmuIFa8R59YIxoa58wRpSU7+wNSM+LvYaIz/jskPFSLc07ZJsEbwhSTvlEiCpeFcPTmrXY3aZNeux
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=71 len=256 B6lZ3/fj8bvUfIPLx+1hoNfAYPeNhIreWuaEk95axnya4ZnGhIp8G1NAVW8ta0ZVvs22iPDGkusdTluApClMHPYTbFFmN4cKs4oThJl0WBlpSjC1OutIIU/xtKIrw0vEwUppqYchhv9XJyAuEOcmzh0gXjdxzAHnJo494szEMSfUmDj2kHMTZ3NGWk6Jb0450Vm7KDr16Ff1UJp0D4T3F1rjLnzg0BpWh5UMFpnGk/tJz8GwK676FLxkQqccPTRS
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=72 len=256 G9ZeIs4Tb+4A8XrqjTmgImxsjjiNG1sTqvwqc0hF5HhzRthJsMMqviTEsBI6ZtdSio4T0UlYNPDhPHfsdzC7YJV5jgxOoXjRTIiiuGDs734MNzXJQUyc1YeP4ZxhDuy7FXEeO74DxOvBY3PAuejYI85Ex5xQIzr2kHPR2Z4xcA55dQ2X1bcV94q2DUVnNErPROSQicwxm2yzkWiMJfAl7v8HiKMkQcPu8v4Y5paJoHhFjzFyqkxmT2ZGnW6k1OjO
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=73 len=256 PVDOpMeece5n3QXlXIDsIXUadAecGhkywIz4shhy4/CsulLqcFCifFCiwIRqcfpCdTC5mgRyOdkGlDnlXvkxuJX9S+SbcsqR6CNzGsZa7V4di1oiKvay7BEne1nWgIq9LHPE6V6WNaHO57KGVOxlbc5IOcSn1Rzr6l7WQXTiQXRwBCVxR18qwFxLSeLfIoRwFlOXlqjevww/h6hGAgbmE3kaapktDG8kVBRYmRNOKqyM+TRzYowJ5+k6toC6dB1j
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=74 len=256 Rk26zsaIpOHOeAhutZrzzNlKzF3MIxXJVygp17fDf9mvMIaRNc0Ghu6YLV1wMQCIF3MtRhyHY+/mGxHnntYdIF53s8wB5xEee8SZ4pgTaiTHHnKuOdszEosFWj2n9bDyUnSABYNL2ivDfevMfsadENrY9Ezyd2YzxrI7zWIsMPIk+YgJ2pBidUuNJaGm2sqacFZtZcunqbYyJpyn69gC6qqtjBk16TobI9YdCFjtji++FsV5cahoggUpdYe3yMp1
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=75 len=256 t2tJIkd4A3fbnJSYhnRqhEXng0zYaq3g1sl6j28BqGlYYQw4a1hhiqdpWGELOG9YYcqna1hhi6hpWLEtYWMGM94fcuYe2dyoic3TUnP7WlKZCYoXO+m/jDUl9e8ef/GnSph7yzgG3sXQweaYXX0j4tyquQPE62aNOeDcrrFHnMmNOaEqK9Acci452zN2MMbWa+gX5sScVZInLB6IEIuaUinsTsh6i9LlTsEaY/JQ7D28KnYHePNV5p6n1PHH5NS6
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=76 len=256 uEBUlJLbI05qya0BFVmB5ojTrEBrQtUOlTmkIitwa8YMLWOXjBZgWK05VCmNaqvhUMm2bk3dccs+s59PkQosyOGYnu4Pz8niJO49NtFgrIUcMvf42bY5pMqMpRsR59vid4B4fVvcHFCRl2OOONsWNydUZeSYQ863xbdn9GBssYWeW15rcnwmOqG7xpJ3+ls+Zxn7GVh8yq36BImlUVbaqAPYI4ZdYR/mXhhkYYd4H/vNiJpcHHPEWS6OMaAmF8ca
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=77 len=256 cZ6LY0yoy8WxhtTk4mzNCIjSmdHspNjiXHRGXXlrh7rywPlZ0mQjVO9ioUJ2xrYZdIIz2WV0Xy/9xQGUDbuIO4cSGhwrxJy63caSUOFdmRNOnCtjPoVvZU04da2MAVV6Y82ocKy2Roy7VHG6Uhgjai6qTT+qTXKhitwFDiGW3u+e3X2YJpQ5qI/mZIDAlhMrLOPdFdfDsR7EsXOZOt60RFSYOPaIExPHGlBh4pgjTk0ca0JdMMcaUmHibM4IrJob
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=78 len=256 viLJgJq5iePxRaky7Rl3aMX5pWPnW2CqYuhRuqVSHU/273kHNe9l7l/PhK5dW/i+BFQ1B7QFnPYGtMRTtQY0BVwTG0ex4VIQp9WUT9kY0BRR1RdwU0LAQJXo60mpqMKTYl+eLMVcnZUXo1UPyylksE1Msqqgfv6UMLlOA4zwrrNITJ+VuETU9Dw2R5w1PTYG1HQ9tkacyY05oa7vsTWkpvHx1owFjLV330rn/pjCoZIBEq0KbKxSZeo5B5SrK+Yg
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=79 len=256 /0Twl7B27Uyb5kgcInp4PgVaqja/FoiaXqTmiLNepMaAml6k1ogXRSfvRceaUNeL1BpS04t0a8YKRg4A9Uz5W9uo2otOPTpUOfQu/TTgvUH+2LewwgSTBqq4JcQmT1Jwuk9UTB162YOXATitcMAWPuhGQEW6sTXgJN3YFk+RbmwMOHWobPlUDpUxosKh2pgQULCUfM1OeibPbZuUCm5HpjsniB6rMOj7xTF3InXHeNOuAMudKiGhevXS3hD2W86/
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=80 len=256 IrS0QJzbNneAeN22MQec2zb2iDPbxpxQWbhpDDm3bbZnhGXUsFR995xRrrFtSnF+xCpyguvG5oUcKJGlJLAy15mqKOL4oooxlCgdNZoPcA+jPsy0ANSUUhkDzkqpTPE0pVS2gFPbxpZPV0pli6gppdqUkE2+Wox8cytrs39X9qS6zOBidanDr84sfs+BE71AAWNidUUbWdKnoSUowKhEDVDSzvKLGxE1u1LmiLN9KWNAzc6UNeJ8b8qYULc7ZQ2p
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=81 len=256 2Z/ampEzIRJEDl/Q1sbkrW2Ew9+TKsVSa5Rs6M78QtlV4DhAtoXop51RWZCBHxW5VfDB+MLq1bK4IFTthBsTTrfCTflUe+G2hIrNcFNA5W64LaNqO3xbRDDAggot9k63TRMlLnDcWD7Ogq3IHl+7hp/ItNDuvYz4i6Ntxkl8KXvPWVzsSFg61pzW1VsCaqLExoCzKLEpniZKbAs4jxKb8umixLaImijxtoQRhFgHrY+xwoq0m1AblzPzHlwrLOli
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=82 len=256 HlBsVWbddBf3m/XiURztrtCTr3QL+SacjaqusVgiKtJu7BEnaTfWgIq0G3PEadqNNaFuB9waUpF2szkj3t1q8/wcLg+FJ1UL1k0gQEmJNV5t13KDOYXTHXzzY2y67J29WF/ZcWufouoLVDilqLa+FoSa9n7WhLP2frZ8mvZ+xoRT+8YYUNfez5hR095vY0TQNHYgxCkrq3tS+8JwfygM55hhN1KfawIqD6xVADDAFwDPHfss5V6HxmDwIT2HR/AL
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=83 len=256 mLIYEzf4byTU9Eu3Jpz1S7fl0/RLNyacx21sAXVxG2NGTdxmY8TCjXUOF84SnL6oNuGgNrGBqbJINBLVcYa6jxXWFVMhII9eOqeE6F7Mr7wrnJs+sGvq7AmmLiNdImq6/Jkjzrr8GQNquvxZI84Ux5xQ1+XPGlLT5W9rxgrG0CFjvYXVYPEQnTbGcHIOVix9DB8OzDkMgphYtL6fH8F/ijHXl5noHIJcoaZJ2r/jq7xjE/gbERWzf+0RJ7N/rQHn
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=84 len=256 Vo494jSKY014TXTCIYpjDqmI4mzOyBRCLNrgqrRmn1s6PJk+jZI5V4osKo+Fz7JU2SuTKox9nfpLwwz2fJcuG7D/WqgZV+RGRE3o2BxxFjo2BtSEjq0R56FjY0Jd6NgaUhM63poRktUbbj4wxtWGW2eiEzscPyYiBtm/lzouGGOxSboWDotGnZe+GQfEssuu5Th+hh/EhONR6+ICUSE69ogT0bEGVIiOOeLc0jEmVImOOaTG0tmYkd2QsRaA46Sn
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=85 len=256 lyKCDOvLVfZV5sC9wCnou+ZjjtSl1sdAJh6CO0ad8ElQw5BlF74V59kT/kZATS6OMeAsF8cUT5OLYws4z8Ux5dPl4tgianJxtiX0IIzRh9AcT9aZzMQyojhjQIx4er71su+KkWtkj55eamwS7su+yUZ6CCcb93FH0ys3SZcOPTXp8n4joaYDjjXhrAGOLZ+m/40x4bz9jS2grvuNMaOm+c3GiFAXBwZYRet9/c7UBhLao89S5NVqkdZf3LgfD6Q0
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=86 len=256 +i77/X7NgRCeXg5FGmVwXGjH8Wp9vSWhJgnHmnCWhGPLp0nCMSacJ+HYAuqScIwZNUk4GyPiZsNyZckVrKKVJJwztYksnJCu7LHhsGTGcC9QQjYsKS7Jqi+vJmVFcFW8Q0Qy8OpUgKoFcYGo2Ba3R5xsi1sDKrbFzRGn2+LWhKptcXNIxbb45oz4YterfEDTdaOovsOvc+KdMgOoQxZbZqyI2UKsHMW/BO7jn3h8Bb4g2/TsOiPdzaurL5aAiriN
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=87 len=256 NeAkbmOLp4jbGAPOzRtTvnWpSSI1VaTGHlFj3GxLmHcZMsWxDrGuTp46K2dgtwvZG/NV2jKzmDRHlofS13OOsZ24n4Zy2DWLLci8Tidtl1lYqk6BXhIqPClzwoknZcyn8KSsCadSYwyo0hprRoXYbI1YgBi8TzmXqGuU7rJvI7mks06dPX1aw9fT38ZLpTlP9qy/eNkui7Vkjipu9PU61VM96HxJqIgSmxNOosTGfIoosTXhNEpsDKhRG3NGRZR4
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=88 len=256 a8QKxAhdjEki0Qq1gei1fX06NFDaJ2ONj9158LgGQSx4+0mnjLJLsbBrM+kdt9oYiLoRUZNvY444y7cxBtTk21gjzvNtjAlVkmMOqcm32ZqxgTEF9h2trakcqlpwPOI4FKm5oBHGjCLWlMaUGFPiZM/yShahk1BKNu7BXxO+Tj04Ykmoqg83JpzWh5vyqerDbQkV9eGmgLrgjTGjqj58W0QsAJ8jS8prWtuaOh8C4xqHlItHxznD3DzrKWZmCiXf
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=89 len=256 Aivacwqe2/L7rspN+mWU0QEVWhpyd01thC0IFTNgzAknI2CM+VbUhpsoiY0ooTb3QDgdAGMMqHOojBkV4182RuQwTqgiKFPnprfCtoHDJvPJGZ5yWEhj20ymY0VWWmTcrbmlV9tmvAqpJWbtBKmAz+oSiyWhpouoNeGsi6gt30W1yX2vNuaE824UtoAq28aaUdONYmNEj5vNRRn1wF0wRfimQA4lo5AFpT1SGfGnUL3MJ3adwhjwxpPMII9/CD6I
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=90 len=256 H+hDiTnXrp5Ts0RUhG/sESfhG2vAFcGp4kwlcaaYS2GOOA3fWBOqDBxzSEX4ZnPGMG64Gnv3q+VS5/vhPjVu8dNh5NQJNj1lro+Mlu9sp8G1L+7dIMyVe2iJVp7UYKQWWahxI6FmP9yacLYfbsu3ojjs/iCXHIpDl9CacL4fbguo2w83ZtTsh2+MyJst471wyYIqWAz9zMwylPuhVgkocbhw6JUpsynwRZDJXMsJIny+ygHEREw+ZLZmvhFRsyFu
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=91 len=256 jjjbETcGnAuOPeJ8T9yYUBfDsYbU7IpvzYgvZq8uOGQxrBVPrc3wjcExmuT5IllUsKmEMPQQmCaEn6f80teddzeuQ2bf5Zb5UriJNwKqZvjaAk5n+FriXZYbd7BvjAEVM3wt+VTWjTGiaobvpoQZhBWEPElBM3IKwtm7NMAIyUMJM658L2E8j+DIBRk2nKpMzR5CyANuBfIn4WwcJvfYtLnPS0KFaWNOOLFsjPlWlIaFA3hARVEa+zM4t2uMAVVm
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=92 len=256 jTWjwqrZGrEAsTvXHVuUqoLFkDrOJGYfhVZyYZAJtwFuAt4lOFhGlmKQpMQXQl96kfY93LLHIWZ9ZGlBqEn1syacZfrZ8inUxppwnudnC6hL8zNm1GT5bYxYsQAc0wlTjVU14A4rqHJkBL6djUwZkMJNG7ja8QZuwsP4amKd7Y0v1ntVdm+X3OcUwej11teCUDMr3JpwNizclu+y2oS92pgTzseF2wKq/ChrRs3A8I0RuQA4OqaX5K6Vgp/MuQud
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=93 len=256 r2YELOHQpJzUUw5ZwI7DYwJibG5kRxwFEbZXbRJBdcyMdpCHGxE1zYrNEWfNio0BFeaNOeK8WbExocrAMYfUNCvempGrIJaKVVHXZ8GsmDhw36SfV8arMuu4Wipj0ww/jjTCkjQgPJXF1pJ00Wih5NxdUKcHLQBVFo4t4NTAscRT2TemgArzxpJPad2YIqqMmy0JO3PqU4EN1TzfryhgYA5Y5x59oOkFV7GwgSBElUrqWqE04pBHVcvIenYcgwOr
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=94 len=256 q4xuy6nlEtWtTZeIigoGe8RJCYM14GWxSQfbxhxxWsRgTaiybcwhFWUMmzN6MFbP8XpJ2YYi5QRpYzg7gLyIA1GhhpwVkQsOgymKNYos7s0vKEOB8TGaoeaKg+7qtjxLQoU/ZU44caeM+RTelDXh1JkyBlTpjTWjwpXaGhHqEht9tZivelJHEydyLsRoY9pwcFHGCeeas+SCQh+liXtJY97eQRAzEwGKtPLNjWFw/V79EnFu4twB4nUTxxxwbuLY
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=95 len=256 I85MHHNCjeTYQ85NnO0ZccMlV13oObprmcUn4RsYWll6XmS2bmeHwcbReyx4wcGKpbWneXH8YnP4SQy7hrMBi6ypVXEBqAnfGAPOwjemeJrwjS3gPHxjyqcL39giasI32xLia5OvLuJj3NrYl3PbplX6esz6rLHXGGRHzNO0IGEIQfK2xxbNixK2mHuSSXyhVQhmVTfkWSIqbBt7xIltYw2osG3MEae2jTWhyrYxh1TYNpszZna16N2XWryuZzHw
+[mpdiag] MP_WATCHDOG uptime_s=659 weston=yes chrome=yes memfree_kb=532632
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=96 len=256 oGtUxQJcz6Sf7p3kNcPPq5KNiH94GbqHgwMTjoyNDr3jVHQXbyZUtdgyJpy22DLlm4dvzAkVLbZMAZUttmwZVS22tkUsQEwQRHwy55JfUps6PClp8AVkaVAI7SuBVRe7lvoYfuh7p1SG4vOREGq5S+yH2kdXZd8b2zhrt+qXhHNXyp7wui9lzafJLDYmnGcW2wJeU5tyzCw2ZtRkFm+MWIGYI6f9eu6IaXL9SsucD8F2YGls0MMOZ/v2xMUkBaWZ
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=97 len=256 07Dc7jT5mUWAScyv2FLj325E1OT6mSPOcv2MATW5ftaI81w/Y0Jdrp81pCbXb2tGtgksUMSWg/ea/XBfWykSvPYlw3tjDzCOgmChRUxJzDMoQPbhlRHWWo7S3h0XI5aa1DXrS0KNQ2VNOHOobPk0DpUx4dyhsgXUOVTGjBqHamNELIBUW2DMJ15xqE5MHHxHGjMgOnw/CWp7T4XjEMYWx7Rs+HcpvRJEToyQmaaeoz/Lr4gwLRA1s8LNEWfDwo0B
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=98 len=256 FSaOOeJ8XLgxocrEMYfUDAzfljHg43JqHffZCFAr8oy5U++8tDpKKQ93rkH2YGPtYJUlySDaB5peshJZuVolBzdUqdhISl08Q1TkGdsjTvKMrQEVecbmiNM8Y2tCnV9lDanIM96c0e9ydiHXOubNKCwdl2HCRXHsAhYTbTBy9ISXllCTsGF9Leq8Si61i1sB+60nDke/kVE38M6acT7yzpZQYezYM2rG3tkiagffGVPqRt9tDAmtyb5wK7/HazGd
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=99 len=256 k/nhGXoaJYko5iGDzAcKYzyfZ8gb9pg00XhJHUp4R5SxKV7enbQVpmeEmgHi1oSzCeK2fIocQGvCeUzHFlAX0zFm1MR0NkbEzZYD52Q5qpjC0kkR1xs/cOzDE5I0+YcaSvNlGnQMbue8H8h00MMSmJ/IPTcSskLMK2PcZ4RzO8ee8LqVY803t3HMCWdqYw2oURtzxrnabI6I782x4+zAJlKpDZZ5jCPGXdlvmZlA0NLOZqcx9izb+Mmd7qjhHwpe
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=100 len=256 gA+g59dwUDTWbiTUzKGyJpzNobLlU+xXWRPO51DZAurmUBkzauZQbYyYgQhFDC2lpOuXXtiIp7CRci6xSoVpS2XfIrdndm/2OGgSnhRhhO4dS95bjwWrTztF4gxQVUplCzgtpbLEU5VSmQIqSqks+ZSlVKaIqlKqTQkLCEtoMcUQr02eOu5QJQ8jTWabw45y0Db2zfB4eWQ6Oid7ys597BKaOMSzYXf5LO18fCieyYle7eUtEOc7VHeAeH2Hyhxw
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=101 len=256 vkNljzjboTInVPlR5pDzHartGSsdM2YMeU4dV2X+OTp5XES59l5ofbUaxQqLgUNBncD3l2k1uHMSHMokuYnOx9EG/kZCTeafNeEs88+WT5P5Z0w4jxLbAuqixMaMmijxxogw7zMcNM/kwWvFDUdPKgK5OxlX5MSDowPnWhtzJNgZjJ/RktSzD0S8GUeIqyKd3YtnTdivCGQvEOe+1B0gXvemzAHngmOPOFMcc0JVtbg55FxztmfEU7dQ0qBsjEBr
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=102 len=256 wjc4liZgmRw0LRpL1TsHZbWxFRyLrLKTFqjdRUkTaq02GH3aFqhngKpGxraA00bGlniqRsamgIpGxpZ8ykbGpoiqRsZbEnqHr40k5HNN0+Wvdoc1Lq8tgZWlNLNKSKO2FBCs+8q+j3HEB2cPRlf2DGPxuDoWHa20Gxnn8Zt7YLwewLEnnEdw7oBxFsKxR9Sozh1QzoM4BpCefUtr6Y1zgleiOMxrroXmE7UHXw8TDF/PVOjCVs0+7Xt/5EbDjKFt
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=103 len=256 epAt15f6ixJ3uHN6HftrDV5hTzjMGxHnYZw7QLwexzEHnPtV9ogzU8ecUCM79pBzc2d7RogMB+hJuGgldEwXj6IjjU0dmwuG5ji0nD8vzbNpc9pRKznZPLL1qZTj9JcBxMEzTQhnYjQ0LOzyzgqxGwkvO1btUNpgTnhJcuoobDDmm7tW5oTTogZjQFVfHGtGRUHD1oi42TjJiu/jdy3VJg21aS5TbWDqyMQszy48TKBmw2UZb16qoyJB65rk8pTR
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=104 len=256 EbWO6HbEgXKMDa0QDx+Nppo6K3GJqKnfNEec1W8aA64IjnQlYF0wx4bcwTlU1G8aE65LjhPJiSI56Q4gNfWbWzNC7GqHTMFnW6tqOIpOPIgOnLmMdU4bK+UAMWRPZZ9k8nDo3UkCYhxJRUMWg2eP1J4d4fFb8Pgc7YbaElAROrYGnISObfHW5IZ1MT6K3HjzCzwPHdvyaaTGGlEROt6YEPrWfIdhkGT2zFJmONcGMiPmNSHHyIsoLl5osSUnA5hi
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=105 len=256 TWPiFry/IlmYrZZDxYXP7CVfY2arZsbGIY2s8rgRcR6+uQPE6+Ebc8DLYlP2YmOPON0WtybUCI49pGJbfHPGwl12yGJg1fl5+CZy1HAtpachOvgte48vld6y3Mhi1wzcAzITK9YmMyViHTmLe1WESJSamBAtyDDECHsjoaKtsTnhpK2xMZ8ifGNNOA3fGANe05tw8KWsGRXhm60RKxDhruNqhrQyJ+aoNuWgNr5DA6s0GKy1eEdjq3OKBIdKRLyw
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=106 len=256 0Znx/aTxMqu8UoOXRxPOsXrD1aYOMC0IFXnG5oSTPGNjPkWesTXh1JsyBlS5U9aMCn9qa0Q8blsLpdMEW8nFWVGbWpnGKLlXrrkg7Qd9T6557pp1L0Z5D/44E5SICRqaM/B3ne15WAp2I6GmqsGacFbVYMunqWowJpxXNdgCqtTGmlFT1bAxIhZA66F6eGltJcE4yl4F1MYPteGd6EEoIencW/FcP/TsnAzpg7pyPcEoO8aXOFU9poD3Ru6zcZYo
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=107 len=256 VEFtfC0ANY22jAFnfbZM8TRttmwB50pjyqcTGltEjc5sSsgeOt1xTB4Wwspm1FFmwkFmYmyZnb/wJ998dpX10KFVz8anuC1kbcXYY3qxu/KuOO/DSB8KrtbW1NNAzxAVUWJ7xEmU2BpQUTxljjiNElsTqqLE5pCKKPHmjB6MeCtEkWdMITqeDZk7d8wggbF39ulplaPOSZbG9j2YmzshhCpW14ahhs8Jrqs3z5aEqvpwY8Jpfbgpn6o+3JZQUR9u
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=108 len=256 CqgzcIwZVfXh2yJCXTreU7FcuV4VnhQLT51c8gRlC8wEgsuXRrpxz4yN++hkjMSLDeZLqVKC2iLnSeiLvJaAmnwbY8BZvo0pnsKTMgac59uY8unybWwRNfk22xLiRmNzrlrSakW4DGKAzLSx9U2IxPA1C6dCYPW6BJeCz3mUdKUqpWHppLjCO2Ye1sBBWoGTI8CIw1DbXQtExVQGe8TJUAZrQMVMBnPE6fa3NaEql9gcUrEBvjkjvrjDB/O9SUOd
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=109 len=256 ueh4ObN+5CPiF7MPceNKGDuGLr3cOUWrnRJG6fVe6Ovhhankqh09fEao8KTMCSeelDGfwpOyJlR0EjUFVBk41oyqXqLbImYg1hRYu15Wxt3FMDypOuI2rKOJ8Au5X8ZOYs0V7s371qM04okUJG6ap+hPEGHcObY3lIILBw8TwOqJfEtEhYljjzgxcawBFSaOOeLUxLEmVJk45pAKE2dzxgJGOGI0kMpa+OZcdFyExVVHtj5cQPHwQquS9sPRwyzx
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=110 len=256 in4/4HYg4qN69TgNzJDGG3BX6yu6loiaaXfmiLNhd8aAmll31ojzUXfGhCrRMYfUDLrbmpHNAZmU7NLqLBjO3KPoFOlgnD2LmvFlXZL/2KUixpEp5GQWDQ4tSSfCJFmK+04Zve9SwYEl8ToSM635wTciKkTHHnEiOtaACtExR5yKjjWhrjDcGlIhOpszNjCGjCsJS2ktwfggOvUgOp6dC4MMP+FIT9mhh3U2mrNB9GQ0KM+7O4S4JSUh025r0h2s
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=111 len=256 4POSujvPklA1E8aYcDoUxpRPNRXGllARzDEFVAZzbBlVwZxtEXGeYFbhsvbSrqlNP6gNvolT9xhmbhVmlcSQIqvgaQxXVlq4XW5ASodOGR5/crmn2MeEbdhgLWV1gdeScd785h4Yr3e/sSectxa9A8ZZ/xt7RI3u3AHlvAPO9pC4uIWbU/hEGeN5pj1eelOUPLRHWntxnJ9oYA5Jtsh2DS9hznM8NHFnDOpFHdkVnrMluOg6d+Xobt4IqDF0jAFn
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=112 len=256 do4pnsbMsQWcWzmmfDojxxZRY+NsS+hBWEFY8ba1FjhnMpO9RLWpm61nN0ZicVaWVG/4KB0IY9q7FkIYKV84/aFLUKr62nzKaiVcIM6F5g4Qr0uNOeA8imOPOJMbc0KN4NhDziVne0Z2DWz4fwqLvyw6xR1tm0rPTWLa0MdRWtpay0GGsjZJ4slF+oQd4kyVfTRyrBISH9UXRT0wa0moKW6wJpwVN9jyaYobjAnnxQ22gLriBmNGTXHDxoiRPUp5
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=113 len=256 qppEjM76pfehNlFMHKnWKnDpfB42GNzphLfQtxtPTtyyDCbFJCMjhg1WK+f2pTDSonPKvehbLC8BVZ6ULeDUk7LEU3lSpoAKT8qST+lJmSKqPKlNCdOOHXYgTTCGVvbDDzKT3EFm6Nu1kWrSaUFJaNTXBDic61zGgMQsAx0OSihPAccExsYt+453Z/XQ4SWiYj/cHnGyH24NqNgPN0ec7odbE6r2w80hFfvhmzNmMGL99lYlZnRRdPxBdHDtu0vS
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=114 len=256 VrTVjNUkhWpgknny0YtMco6xWOSCyEotenccjEPrLXQA6iNMC8T5BtUdIF7fnzIHnG9P2SPOdqfMCXUdjK0h53tT2zMWMAKCCYNppcYhjImbeUzcTJIqW3Mebfw7HTtZZHh1iCz6ylBKRpqaJ+l+Mh/LOxhYGl0CQ48wxYq60nSJqBgJY484GQljDTgXHXvE6UgYa8J10WkUHSweiA4f2OaQipEwmzPWHaed9x59LH5l6t1BdNpBdHyXrjsMGVWc
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=115 len=256 VrHBmufUGnYh3IeuU2VTwsO8c4a5a2pB2vs43OAVx6iOai8INY2MrQlnjYxt+TSNjI0J542MbQE1emPOqGlkvDFiA2LpOeQU68oO1VFt6lFtsmf/07E7n/BdnO1cWPvFV8KrY5I0D+sYbSpyg4NRHLfUOj9c7fgtADUNcYwBZw1xTPE0DXFsAecNcUz5VEJjjKhpiLMtIc4SBC3HOMbrncmMH6N8i/SmSLJ5lkosXcLbHtLGRdRdEC8hYuGzsUak
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=116 len=256 G3goLYWdBnss4JEplV/4UBfDrwgwLQg1G+HWhLONcFs+zUa4MeF8I9wWUKU11oyajfBtEfGxnIpV8DZJI7yoNvmgNsH33gLL1oPjCPMxFCK2SEss+VZYi5HdyHDee3nMg8bx9i6DtDjiBr6e1u5aIiriNvaIk7iNNaAibmOOOI3bWBOq4jbmkIq4zeaMfldYHAojis29FCYOO4T1zArUEEpNYzstx5RGQwFIbC0MdQcZxXTQxcQWzWN6n2up40PU
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=117 len=256 PXuWiLqef8aI855/poC6nn+2iJqef6aEKtExh9T1/NuWMYDRV4k2t7Vg8Zml41vnhpt0/0sOf5Ydet/ZUXkXe2wJb8Fxu8OIc9HFFLlvNmLfbArf9a7fEnFu6dwB4nVLxxxwbunYI84sHXNClXNlDjm3dLZnjPi4AAsqN2m1pbB0fIzZcQ+eGGMsX6cOSiZ0aBLEdtIR9UQWfSoMPIkD2Dh5It9KqMn/syacpf/Z8mmy/4wJ58l/toA6z8qYUZP6
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=118 len=256 tzFiAmLyNbaa+lpVw5mJk10qrfC1qXaAyeDs/ZwInO3SfWm4gWuiUB4FsbbSgthunr06AhMEbkScmzh3gHjdxDEHnJs49ogzE8ecUCM59pBzE2d7xryj44eP9301CecgOvFo4rjOzhcyzhziB5/P7Vr3+y1NdiN0nIlOlTxsqLldwX996qKqKfpOV/FGwvm+uD3h9Y1xa775zrg54bzJqC2gLunPmFHTYnRjRPpnvUEQq3QQPFOb0X4rjw6jdOcC
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=119 len=256 jgcSylRoGFhFAk0ttZGUCI+P7Qjxv9hedtRw5Pj4GEddo5PpEvo404JQ4VCZE04cKmM+hUNlTThVG2NAldpYMyrUZmvEuitS/QnjKFyzbV7CN5ndCNnHFMZbHv0xmKeY5JnEIi/ucrj02uWLuGectISPObbC2o0bCRVqY044URtjPoXaWBNO1cYYUKU21owKtdkasQGRnb5cr1dzcV4y/7qDqVWJzQYYUcrZu28S5MOP2IXZx/7S312yhYorsLkk
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=120 len=256 Bdpz/I2+4GJJqClnsCaclTPY8mnKGYwJ5+UMtoC6cgZjRk05w8aIOE8xO48vL1mZZ9xhgNUqzVxogMlKat5zIaWS28gTKvk1YubsCR5XhxS2X9HYfUmoyTO2JpzlGdvyafKMjQnneca2gLo8Y2NGTZ7xtojZAVFqJoIMPFdVNfRQG7kKJ0Jws6xBDQs3zTjmnLO0gpfxEi+AqbvaJObtYuEgG3Uce0moqmowJpxWNZjyqaoabAkVVQ2mgMqqBltG
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=121 len=256 VVXDtogeiNXJQJmwMlR8paohRSddTTm1BjLnKyMBOMk822ycwZZgVeywV5lBNeBU8E72yYXAvoU3IiqqGuwRJ1UN1oCKqgZzxGlVgzWhLsHYGlJR1bA5YwAjzleunZ++IjphiM7ou+Vk2jnuUJkYgzOdeh55zVW6tkP+Kj8GniADTnvE1ncptRAkPdrj947vLGpdXCAqRMcecSI61oAK0TFHnIqONaFKdMwhFaKzOWPcleTIAVuqr+1Q7UXHHUQH
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=122 len=256 F5wR7Lj3AR33zDqZZQJ9lj00n6X1+8EWS7tYGIcSi9hDQIGql8UFoSZmbE04ixnb8mlixsaE85ixLaAuZmzMqIkZb4yYgCjT+Ypf7We8V5sxGUbUpuQK44vrJ+NGaJX6xzFbEtUOMj7Lx1HlNfKD8F7cyjgeXg8GpFgPr60sXQJq2qYbA87appviadqm2wLO26ab8qmExhhR0zb9b0T4zX/tr18efnl8+sub53e/fP744dMf3jw8PT0+Pf/w8fEP
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=123 len=256 f7vvgG/oSkryO34tfg8Ry+IbnCUHJcdfwzeOPcjcN9+5vx3C5V9fn7+8e/ruu2+eHh+/XHvd7N//Tn/JhX/4bfru84efflvDd1+eHh7ePv/y7vPz26fHjx+/fv7t10/v/vTuw8d3v/v48Pbx6e2HT3969/HDT98e3zjuoLfj7/jn94/8w5eH3/pvv7z99PxbLJsYS+54aH73/uenx18+fP3lLc/m2/1Xfn56fP/w/PyWX336bYev8PFWOLxzSlcj
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=124 len=256 J1hyff5KuvH2jrf7QK/lxoPLNx9cvnZwhxeVmz++aD6+3fzxbXppKqeLJqhrct+NFz29ffwTBOrrp7e/POP4Wzp8Wrj5MMPVwxwclSkEuIHDTbdIY5VsSYzh33aLRH/rweGds4NrxcHUa/Cgw/pJ7m28sLuWWXjnW1p9IVz349fefE/Hq/f04IjN+didr2WdI/bxQu8inqet4/ly44lPN5/4dPXE/31//P7k1gjnqeaa1m8HZgzvX9lZrUAvoq29
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=125 len=256 kgNj9q/0rBJlHUS58JkulCPjzQ+FNH8o+BgY2oY3ts5ce0/7VyYPk97zprxwdP0oUun2h+z8KetTk9gZDMf1hcym0tuQSEoVYGJYPSWFCVebgFQXMjPE4BWugcBFO9x5NYXa2Iw7rD5qcDgvy+pmcUtzcfO11uC9DBtYRYZlvH9l841lR9x5WX1lw+Xev7KUDss69nXlxtp8uR715oOr84Pr3jsHa/8SSMGzZhsQLEv+unC54auXTUBgEvToUsNz
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=126 len=256 9QJIa4dXwqnkGB0snluMENzbPoSCryur31SxZo/gNxt1aW7UBTh6rTFyf+Fx0IvbBiSEyBaT7EK7eu65o7ANSINR1YuHobsKksv+URoiT13pkQ/dW26CmFqTiSwXjD0HI2//0lQqLCc8TdbXauhpLy+QWKgnHvdu/amNn/fDK/F5ubEF3vrXQ4EPrywFB+mZbXfhlcfP7Kk02CFuXTCBvxdM3OA8zRTC1VeyyuHwSo7VZFe/dU4e6eGVHYsy19zW
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=127 len=256 L13EkR7uhHyzkGSFkFQReHgoF67sy8GxtMu5xA2z1YPz7fDK5oIvFaf3wmeWerhZWsD9mwpN7XXD7eWVeLJlDmJff2rBxDt6EeVm+7XM7dcA3fWl467xq3cY75Ljx93sXBaND11uvjHK/MbAUXpcRg5Iu8l5jXCiamKNcl9ficXFwyvhIWMFMxxy4YzWwyvhvTEf7oJ1zakn+1f6GuFoQDLahdvlRaPrzVepaq5SvfkqVcVVCsy6STGWC55P88dl
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=128 len=256 UW9+FtX5swh+D101CO8F6cOv48f1m0H6HCS61rEGWZi6CpJjPrwypVCazMNZDwjAmNu/srK+jJ+8vuZhee9fSXe1wsK+cIcGf/zMxDzL7CGp669MuOv3h91udlnb3GWNHNuRc4oXnGdYGXsNjpk7pinXiyGfeLTA2s3OTtNEJ3GT3fjxeOf0jJToub1QLt0YOR3OCJPoIZCpXzA38sHYwR0kKbacfntbTKnfvGr61VWzzcd7d3ss3iluYjEPeoTK
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=129 len=256 XFjLLR1e2RItZjxE1p8Mve0txNgTtCG6km98AtKyyQ1OdC63vR8mVAnFx19ttB/O3F+xR6DbJPgv+wI5A8kxAZXJ6/mCcZqPT3E4qTejhKuacHzVzSEnvnV6rAFPzsan03rMiSUAx89L7mYUvHWKArNNqrDruqXPuQmHVxZfWUsQL4S/jg/blNj4M/aLbmFO+2WXcgx0i8IlTaWreTyam1WLb52eiJLh+DLwsI4Cy3SvKomNBeF6Fn/zXmW+/fbK
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=130 len=256 iturxghfzzPd+oJBvDeyU/O0xGPKv/pQxvs5QkPO3AXHGkbP4ZWh42s77voLt/xBtBNeBz+1tktP5JIPd0+HmcZXRnfh2V1fllG9fRnV+TLKMAULY5YX4kQwGt3hla3WBN86pV/7pDnwtNsPpV09lOOrbnaq+VbNF9yu302l37db0f66GX181e1i1FQ2VL/9GvR5ZINBNvg88dIWgs/tuA+Ex/LN++Zu7k3mjAWP7+O89vX17vfKkGGr4zHFfNxL
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=131 len=256 29Dh8Eo4LlAH2HTrYt7K8ZW9QC092wBcUJujnxNuzzEJqiQTuF8JluAl6JO9uf9ylJzwBHflklpDw14+72a7MCjswsw24oHGx4V4MEz2wyuTFEGyNeeFx8FLKki4HTporOXwVySbKLJNCrNeousXw67N7c/K6YTz9Uf0IU592hF1/fwd9uBPmxmu36np+JkvjcgucL7c0/nmpwLfeuWUWafP/d3/oknyhhflzf4a/vD85d2Xr89/y++4nv/JlE93
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=132 len=256 yP+EPyn5n7Bb/5H/ucUvrlaszNd50N8+PTx//fjlt//f//PP/7JfiOLbfXswYD98wln7hD/+FsbvLx+enx9+gojkbw8r9fHr0/uH3/LVv3/e310nS/7b33/49OH554ef3g4lSbBWYF1Dr9w/FvTGvz5++P3D+7+8//jwBlfrdw9vHv708OnL8w//6/nx08e/1XdM1n/OLp7kf+Pn7Khd/rH+t/j1v79/fv/zwy/vvv/x+//448PTp4ePP/zu6fHP
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=133 len=256 z3gQHG+NH/7kv999P5QCr3utFfiX9x8f3/9x/NtqAQVewoX+/Y+VW+WwWNhQ/Xu509Y+8ccaTl/5I79cXoxX7tne/vLuw6e3Hx8fP799enj301/wis/8pBrwB/lTxh8WYoW37wuveDSPHx9ePg8/gBXy4Q/vvnx43B8lX/Pw718fnr+c/P3TTw9P+PbDD97//OHjT2/l+9zu+6F6+Jd/evp/x8f+N1C++f2Hp+cvbz5D+d48Pr15kD/8+d2HL3j/
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=134 len=256 16eP/KD/8+2mV6GzqjbA53Du2lXwLZ++9NVl+M+//OHxy8NbvPSPb3/3+PXTT++ejteAhTH7iyCX4/wqHEq3Xi7D+LyVq4C/v3FueS0WpP+5hnrtYrEE6uVyjS9/w4N5c3IwNheHHaW4xeR9LLOrc/raH8N9X54z1mvXB97KHV8fpthyXMR09Zy+9sd499fnNevV6xPC3V4fn3GXxZxyuPqMkWM+ee2P6c6vz5L16vXJ/n6vT+EU3Fw57mB6fV5e
+[mpdiag] MP_PERF_MEMORY_DATA run_id=perf-before-r3 seq=135 len=168 +2O+9+uzYL1+fdL9Xp/OKozAxLiJjXb60lePn5OzuD9vDz/9F1ho6xfnV9hp+4+GhQb3B6f7zePnh0/HM8+f/vib3/zm6/PTb55/fvf08Jufv/zy8c0XfNNvPuAL/uMH/h3Xx9qE/8evf/z6x69//Lrp1/8FXj7PnQBWBAA=
+[mpdiag] MP_PERF_MEMORY_EXPORT_END run_id=perf-before-r3 encoding=gzip+base64 chunks=136
+[mpdiag] MP_WATCHDOG uptime_s=662 weston=yes chrome=yes memfree_kb=533140
+[mpdiag] MP_WATCHDOG uptime_s=664 weston=yes chrome=yes memfree_kb=533076
+[mpdiag] MP_WATCHDOG uptime_s=666 weston=yes chrome=yes memfree_kb=533240
+[mpdiag] MP_WATCHDOG uptime_s=669 weston=yes chrome=yes memfree_kb=533252
+[mpdiag] MP_FAMILY_WATCHDOG label=668832 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=672 weston=yes chrome=yes memfree_kb=533112
+[mpdiag] MP_WATCHDOG uptime_s=675 weston=yes chrome=yes memfree_kb=533064
+[mpdiag] MP_WATCHDOG uptime_s=677 weston=yes chrome=yes memfree_kb=533232
+[mpdiag] MP_WATCHDOG uptime_s=680 weston=yes chrome=yes memfree_kb=532988
+[mpdiag] MP_FAMILY label=680829 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=105
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=682 weston=yes chrome=yes memfree_kb=533076
+[mpdiag] MP_WATCHDOG uptime_s=684 weston=yes chrome=yes memfree_kb=533128
+[mpdiag] MP_WATCHDOG uptime_s=687 weston=yes chrome=yes memfree_kb=533224
+[mpdiag] MP_WATCHDOG uptime_s=689 weston=yes chrome=yes memfree_kb=533084
+[mpdiag] MP_FAMILY_WATCHDOG label=689660 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=694 weston=yes chrome=yes memfree_kb=533252
+[mpdiag] MP_WATCHDOG uptime_s=696 weston=yes chrome=yes memfree_kb=533080
+[mpdiag] MP_WATCHDOG uptime_s=699 weston=yes chrome=yes memfree_kb=533156
+[mpdiag] MP_WATCHDOG uptime_s=701 weston=yes chrome=yes memfree_kb=532964
+[mpdiag] MP_WATCHDOG uptime_s=704 weston=yes chrome=yes memfree_kb=533080
+[mpdiag] MP_FAMILY label=704227 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=110
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=706 weston=yes chrome=yes memfree_kb=533252
+[mpdiag] MP_WATCHDOG uptime_s=709 weston=yes chrome=yes memfree_kb=533116
+[mpdiag] MP_WATCHDOG uptime_s=711 weston=yes chrome=yes memfree_kb=533084
+[mpdiag] MP_FAMILY_WATCHDOG label=711379 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=715 weston=yes chrome=yes memfree_kb=533216
+[mpdiag] MP_WATCHDOG uptime_s=718 weston=yes chrome=yes memfree_kb=533052
+[mpdiag] MP_WATCHDOG uptime_s=720 weston=yes chrome=yes memfree_kb=533004
+[mpdiag] MP_WATCHDOG uptime_s=722 weston=yes chrome=yes memfree_kb=533008
+[mpdiag] MP_WATCHDOG uptime_s=725 weston=yes chrome=yes memfree_kb=532988
+[mpdiag] MP_FAMILY label=725010 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=115
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=727 weston=yes chrome=yes memfree_kb=533256
+[mpdiag] MP_WATCHDOG uptime_s=730 weston=yes chrome=yes memfree_kb=533228
+[mpdiag] MP_WATCHDOG uptime_s=732 weston=yes chrome=yes memfree_kb=533132
+[mpdiag] MP_FAMILY_WATCHDOG label=732325 n=5 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=736 weston=yes chrome=yes memfree_kb=533240
+[mpdiag] MP_WATCHDOG uptime_s=739 weston=yes chrome=yes memfree_kb=533204
+[mpdiag] MP_WATCHDOG uptime_s=741 weston=yes chrome=yes memfree_kb=532984
+[mpdiag] MP_WATCHDOG uptime_s=743 weston=yes chrome=yes memfree_kb=533284
+[mpdiag] MP_FAMILY label=745502 n=6 72:browser/S/37 183:browser_child/S/1 185:browser_child/S/1 330:zygote_child/S/7 422:zygote_child/S/10 451:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=120
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=330,422,451,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=746 weston=yes chrome=yes memfree_kb=533104
+[mpdiag] MP_WATCHDOG uptime_s=748 weston=yes chrome=yes memfree_kb=533264
+
+### [2026-11-22 07:01:41] MONITOR: screendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-final.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r8[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-pe[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-per[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-b[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-be[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-bef[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-befo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-befor[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-f[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-fi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-fin[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-fina[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-final[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r81-perf-before-r3/screenshots/shot-02-final.[K
+
+
+### [2026-11-22 07:01:44] screendump OK (3072016 bytes)
+
+### [2026-11-22 07:01:44] stopping session...
+QEMU: Terminated
+### [2026-11-22 07:01:45] SESSION END (exit=0)

@@ -1,0 +1,151 @@
+++ date -Is
++ echo '### 本轮指纹（归档时间 2026-11-22T07:01:47+08:00）'
+### 本轮指纹（归档时间 2026-11-22T07:01:47+08:00）
++ echo 'ROUND_TAG    r81-perf-before-r3  DUR=750 IVL=9999'
+ROUND_TAG    r81-perf-before-r3  DUR=750 IVL=9999
++ echo 'AUTORUN      autorun_mp_score_observe6.sh'
+AUTORUN      autorun_mp_score_observe6.sh
++ echo 'KERNEL_DIR   /home/mo/xk6/worktrees/r64-targeted-scm-no-direct'
+KERNEL_DIR   /home/mo/xk6/worktrees/r64-targeted-scm-no-direct
++ echo '--- 内核 ---'
+--- 内核 ---
++ echo 'KERNEL_BIN   /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin'
+KERNEL_BIN   /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin
++ sha256sum /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin
+a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f  /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin
++ echo '--- 基础镜像 ---'
+--- 基础镜像 ---
++ echo 'BASE_IMG     /home/mo/x-kernel/images/pkg-installed.img'
+BASE_IMG     /home/mo/x-kernel/images/pkg-installed.img
++ sha256sum /home/mo/x-kernel/images/pkg-installed.img
+bab5c9f5dbf1e4a910bab569635bb9e44fe38c3b8cea94ae8eae4ce3f7a9fdb1  /home/mo/x-kernel/images/pkg-installed.img
++ echo '--- 用户态 overlay ---'
+--- 用户态 overlay ---
++ echo 'PKG_TARBALL  <none>'
+PKG_TARBALL  <none>
++ '[' -z '' ']'
++ echo '--- 页面集 ---'
+--- 页面集 ---
++ echo 'PAGE_DIR        PAGE_URL=file:///usr/share/html-test/index.html'
+PAGE_DIR        PAGE_URL=file:///usr/share/html-test/index.html
++ for f in $PAGE_FILES
++ sha256sum /index.html
++ for f in $PAGE_FILES
++ sha256sum /interaction.html
++ for f in $PAGE_FILES
++ sha256sum /layout.html
++ echo '--- 关键脚本 ---'
+--- 关键脚本 ---
++ sha256sum /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/autorun_mp_score_observe6.sh /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/t490_round.sh /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/run_session_t490.sh /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/round_assert.sh /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/ppm_assert.py
+09c7c273d0a55360f29c9c4143f90a8dc3f374b8d3f34f814789810290334141  /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/autorun_mp_score_observe6.sh
+d536491443655435ff2f2791a1912058ccd6ce7dfdf1ca55d4864c866b29bccf  /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/t490_round.sh
+ceced5067446949aaac45fbadddae2f26c6428c6d63ed3d0aa53f2bea945a2c2  /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/run_session_t490.sh
+a183d879ce5fa5c38f44c96e91186f2100829580664f08f47040bc4b25553b63  /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/round_assert.sh
+597a3e0d28a7c244b3ef315fe1acadc3586d0092447256dc2e87208c184a1f54  /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/ppm_assert.py
++ echo '--- 源码状态 ---'
+--- 源码状态 ---
++ cd /home/mo/xk6/worktrees/r64-targeted-scm-no-direct
++ git rev-parse HEAD
+b73e5814087c9d33c5f0a35b66cc56be689d3dee
++ git status --porcelain
+ M arch/kcpu/src/aarch64/userspace.rs
+ M core/ksyscall/src/dispatch.rs
+ M core/ksyscall/src/io_mpx/epoll.rs
+ M core/ksyscall/src/io_mpx/poll.rs
+ M core/ksyscall/src/sync/futex.rs
+ M core/ksyscall/src/sys.rs
+ M core/ksyscall/src/task/clone.rs
+ M core/ksyscall/src/task/credentials.rs
+ M core/ksyscall/src/task/ctl.rs
+ M core/ksyscall/src/task/execve.rs
+ M core/ksyscall/src/task/exit.rs
+ M core/ksyscall/src/task/ids.rs
+ M core/ksyscall/src/task/mod.rs
+ M core/ksyscall/src/task/signal.rs
+ M core/ksyscall/src/task/thread.rs
+ M core/ksyscall/src/task/wait.rs
+ M fs/boot/src/lib.rs
+ M fs/filesystems/memfs/src/shmem.rs
+ M fs/filesystems/procfs/src/task_nodes/root.rs
+ M mm/filemap/src/private.rs
+ M mm/filemap/src/shared.rs
+ M mm/kaddr_layout/src/lib.rs
+ M mm/memspace/src/aspace.rs
+ M mm/memspace/src/stats.rs
+ M mm/memspace/src/vma.rs
+ M net/knet/src/unix/dgram.rs
+ M net/knet/src/unix/stream.rs
+ M net/knet/src/unix/stream/channel.rs
+ M posix/fs/src/dir.rs
+ M posix/fs/src/fd_ops.rs
+ M posix/fs/src/io.rs
+ M posix/fs/src/namei.rs
+ M posix/fs/src/open.rs
+ M posix/mm/src/memfd.rs
+ M posix/mm/src/mmap.rs
+ M posix/net/src/cmsg.rs
+ M posix/net/src/io.rs
+ M posix/net/src/name.rs
+ M posix/net/src/socket.rs
+ M posix/process/src/runtime.rs
+ M process/kcred/src/credentials/model.rs
+ M process/kcred/src/namespace.rs
+ M process/kfd_objects/src/inotify.rs
+ M process/kns/src/nsproxy.rs
+ M process/kprocess/src/lib.rs
+ M process/kprocess/src/process.rs
+ M process/kprocess/src/process/exit.rs
+ M process/kprocess/src/process/runtime_access.rs
+ M process/kprocess/src/process_exit.rs
+ M process/kprocess/src/process_runtime/mod.rs
+ M process/kprocess/src/stat.rs
+ M process/kprocess/src/thread/core.rs
+ M process/kprocess/src/thread/current.rs
+ M process/kprocess/src/thread/mod.rs
+ M process/ksignal/src/types.rs
+ M task/ktask/src/task.rs
+?? core/ksyscall/src/task/namespace.rs
+?? core/ksyscall/src/task/seccomp.rs
+?? process/kprocess/src/seccomp_cbpf.rs
++ echo '--- 平台参数（单一真源 platform.env 的实际取值）---'
+--- 平台参数（单一真源 platform.env 的实际取值）---
++ '[' -f /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/platform.env ']'
++ . /home/mo/xk6/tmp/r71-input-source-2026-11-22/t490/platform.env
+++ PLAT_ARCH=aarch64
+++ PLAT_HAL=kplat-aarch64
+++ PLAT_DEFCONFIG=platforms/kplat-aarch64/qemu_defconfig
+++ PLAT_KCONFIG_SYMBOLS_YES='ARCH_AARCH64=y MACHINE_AARCH64_QEMU=y KFEAT_DRIVER_VIRTIO_GPU=y KFEAT_DRIVER_VIRTIO_INPUT=y KFEAT_VIRTIO_BUS_PCI=y'
+++ PLAT_KCONFIG_ARCH_LINE='^ARCH="aarch64"$'
+++ PLAT_KCONFIG_FORBIDDEN='^ARCH_\(RISCV64\|X86_64\|LOONGARCH64\)=y'
+++ PLAT_QEMU_BIN_NAME=qemu-system-aarch64
+++ PLAT_QEMU_MIN_MAJOR=8
+++ PLAT_ACCEL=n
+++ PLAT_MACHINE=virt,gic-version=3
+++ PLAT_CPU_TCG=cortex-a76
+++ PLAT_GRAPHIC=y
+++ PLAT_MEM=2g
+++ PLAT_SMP=4
+++ PLAT_VSOCK=n
+++ PLAT_INPUT_DEVICES='virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_REQUIRED_DEVICES='virtio-gpu-pci virtio-blk-pci virtio-net-pci virtio-keyboard-pci virtio-mouse-pci'
+++ PLAT_FORBIDDEN_ACCEL='kvm hvf'
+++ PLAT_MAKE_ARGS='GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-keyboard-pci
++++ sed 's/ *$//'
++++ for d in $PLAT_INPUT_DEVICES
++++ printf -- '-device %s ' virtio-mouse-pci
+++ PLAT_QEMU_ARGS='-device virtio-keyboard-pci -device virtio-mouse-pci'
+++ PLAT_REPEAT_MIN=5
+++ PLAT_STAT=median
+++ PLAT_EVIDENCE_FILES='env.txt console.log cmd.txt timestamps.csv manifest.txt platform-compliance.txt'
+++ PLAT_SCREENSHOT_PREFIX=screenshots/
+++ PLAT_REF_XKERNEL=https://gitee.com/openkylin/x-kernel
+++ PLAT_REF_WAYLAND=https://wayland.freedesktop.org/
+++ PLAT_REF_XORG_WIKI=https://www.x.org/wiki/
+++ PLAT_REF_XORG_DOC=https://xorg.freedesktop.org/archive/current/doc/
+++ PLAT_REF_OZONE=https://chromium.googlesource.com/chromium/src/+/main/docs/ozone_overview.md
++ echo 'PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n'
+PLAT_MAKE_ARGS=GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
++ echo 'PLAT_QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+PLAT_QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci
