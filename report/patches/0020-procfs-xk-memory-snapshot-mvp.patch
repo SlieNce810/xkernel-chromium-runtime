@@ -1,0 +1,156 @@
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs	2026-11-21 23:28:33.113489126 +0800
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs	2026-11-22 14:34:13.498009429 +0800
+@@ -20,7 +20,7 @@
+ 
+ use kaddr_layout::{SIGNAL_TRAMPOLINE, USER_HEAP_BASE, USER_STACK_SIZE, USER_STACK_TOP};
+ use khal::paging::MappingFlags;
+-use kprocess::{AsThread, LiveAddressSpace, Process, TaskStat, procfs};
++use kprocess::{AsThread, LiveAddressSpace, Process, TaskStat, procfs, scheduler};
+ use ktask::{KtaskRef, TaskState, WeakKtaskRef, current};
+ #[cfg(feature = "tee")]
+ use kvfs::DirMapping;
+@@ -285,6 +285,118 @@
+     output.into_bytes()
+ }
+ 
++fn tree_identity(root_pid: u32) -> Option<(u64, u64)> {
++    let mut rows: Vec<(u32, u32, u64)> = Vec::new();
++    let mut root_start = None;
++    for process in scheduler::processes() {
++        let pid = process.pid();
++        let Ok(task) = procfs::process_task(pid) else {
++            continue;
++        };
++        let start = task.start_time_ns();
++        let ppid = process.parent().map_or(0, |parent| parent.pid());
++        if pid == root_pid {
++            root_start = Some(start);
++        }
++        rows.push((pid, ppid, start));
++    }
++    let root_start = root_start?;
++    let is_descendant = |pid: u32, rows: &[(u32, u32, u64)]| {
++        let mut current = pid;
++        for _ in 0..=rows.len() {
++            if current == root_pid {
++                return true;
++            }
++            let Some((_, ppid, _)) = rows.iter().find(|(candidate, _, _)| *candidate == current) else {
++                return false;
++            };
++            if *ppid == 0 || *ppid == current {
++                return false;
++            }
++            current = *ppid;
++        }
++        false
++    };
++    let all_rows = rows.clone();
++    rows.retain(|(pid, _, _)| is_descendant(*pid, &all_rows));
++    rows.sort_by_key(|(pid, _, _)| *pid);
++    let mut hash = 1469598103934665603u64;
++    for (pid, ppid, start) in rows {
++        for value in [pid as u64, ppid as u64, start] {
++            hash ^= value;
++            hash = hash.wrapping_mul(1099511628211u64);
++        }
++    }
++    Some((hash, root_start))
++}
++
++fn format_xk_memory_snapshot(task: &KtaskRef) -> Vec<u8> {
++    let Some(thread) = task.try_as_thread() else {
++        return b"snapshot version=1 complete=0 reason=root_exited\nsnapshot-end rows=0\n".to_vec();
++    };
++    let root_pid = thread.process().pid();
++    let Some((generation_before, root_start)) = tree_identity(root_pid) else {
++        return format!(
++            "snapshot version=1 root_pid={} complete=0 reason=root_exited\nsnapshot-end rows=0\n",
++            root_pid
++        ).into_bytes();
++    };
++    let Some(snapshot) = process_smaps_rollup_snapshot() else {
++        return format!(
++            "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=page_walk_error\nsnapshot-end rows=0\n",
++            root_pid, root_start, generation_before, khal::time::monotonic_time_nanos()
++        ).into_bytes();
++    };
++    let Some((generation_after, _)) = tree_identity(root_pid) else {
++        return format!(
++            "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=tree_changed\nsnapshot-end rows=0\n",
++            root_pid, root_start, generation_before, khal::time::monotonic_time_nanos()
++        ).into_bytes();
++    };
++    if generation_before != generation_after {
++        return format!(
++            "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=tree_changed\nsnapshot-end rows=0\n",
++            root_pid, root_start, generation_after, khal::time::monotonic_time_nanos()
++        ).into_bytes();
++    }
++    if !snapshot.rows.iter().any(|row| row.pid == root_pid) {
++        return format!(
++            "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=root_exited\nsnapshot-end rows=0\n",
++            root_pid, root_start, generation_before, khal::time::monotonic_time_nanos()
++        ).into_bytes();
++    }
++    let t_ns = khal::time::monotonic_time_nanos();
++    let mut output = format!(
++        "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=1 pss_uss_supported=1\n",
++        root_pid, root_start, generation_before, t_ns
++    );
++    let mut rows = 0usize;
++    for row in snapshot.rows.iter().filter(|row| process_descends_from(row.pid, root_pid, &snapshot.rows)) {
++        let start = procfs::process_task(row.pid).ok().map(|task| task.start_time_ns()).unwrap_or(0);
++        if start == 0 {
++            return format!(
++                "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=pid_reused\nsnapshot-end rows=0\n",
++                root_pid, root_start, generation_before, t_ns
++            ).into_bytes();
++        }
++        let role = if row.pid == root_pid { "browser" } else { "unknown" };
++        output.push_str(&format!(
++            "process pid={} ppid={} start={} role={} rss_pages={} pss_pages={} uss_pages={} shared_pages={}\n",
++            row.pid, row.ppid, start, role, row.usage.rss_kb / 4,
++            row.usage.pss_kb / 4, row.usage.uss_kb / 4, row.usage.shared_kb / 4
++        ));
++        rows += 1;
++    }
++    if rows == 0 {
++        return format!(
++            "snapshot version=1 root_pid={} root_start={} tree_generation={} t_ns={} clock_id=monotonic complete=0 reason=partial_tree\nsnapshot-end rows=0\n",
++            root_pid, root_start, generation_before, t_ns
++        ).into_bytes();
++    }
++    output.push_str(&format!("snapshot-end rows={}\n", rows));
++    output.into_bytes()
++}
++
+ fn format_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
+     let Some(usage) = task_smaps_rollup_usage(task) else {
+         return b"Rss: UNAVAILABLE\nPss: UNAVAILABLE\nUSS: UNAVAILABLE\nShared: UNAVAILABLE\n"
+@@ -1038,6 +1150,7 @@
+                 "status",
+                 "smaps_rollup",
+                 "tree_smaps_rollup",
++                "xk_memory_snapshot",
+                 "uid_map",
+                 "gid_map",
+                 "setgroups",
+@@ -1094,6 +1207,16 @@
+                     }
+                 }),
+             ),
++            "xk_memory_snapshot" => lookup.file(
++                name,
++                SimpleFile::new_regular(fs.clone(), {
++                    let task_weak = task_weak.clone();
++                    move || {
++                        let task = upgrade_task(&task_weak)?;
++                        Ok(format_xk_memory_snapshot(&task))
++                    }
++                }),
++            ),
+             "tree_smaps_rollup" => lookup.file(
+                 name,
+                 SimpleFile::new_regular(fs.clone(), {

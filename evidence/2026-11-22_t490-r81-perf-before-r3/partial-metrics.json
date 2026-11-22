@@ -1,0 +1,38 @@
+{
+  "schema": "xkernel.partial-perf.v1",
+  "run": "perf-before-r3",
+  "valid_partial": true,
+  "clock_id": "LINUX_CLOCK_MONOTONIC",
+  "startup": {
+    "valid": true,
+    "value_ms": 34613.292224,
+    "source": "guest lifecycle events"
+  },
+  "page_first_screendump_upper_bound": {
+    "valid": true,
+    "value_ms": 360000.0,
+    "screenshot": "shot-01-at0360s.ppm",
+    "source": "strict QMP screendump timestamp",
+    "sampling_interval_ms": 393299.99999999994
+  },
+  "page_first_frame": {
+    "valid": false,
+    "reason": "native first_valid_frame event is unavailable; screendump upper bound is reported separately"
+  },
+  "renderer_create": {
+    "valid": false,
+    "reason": "renderer_ready event is unavailable in this run"
+  },
+  "peak_memory": {
+    "valid": false,
+    "reason": "RSS/PSS/USS sampler validation failed",
+    "validation": {
+      "valid": false,
+      "errors": [
+        "sampler status does not report PASS",
+        "sampler recorded 212 memory/tree errors"
+      ],
+      "sample_count": 254
+    }
+  }
+}
