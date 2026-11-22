@@ -11,6 +11,8 @@
 #include <time.h>
 #include <unistd.h>
 
+extern char **environ;
+
 int main(int argc, char **argv) {
     if (argc == 3 && strcmp(argv[1], "--type=zygote") == 0) {
         pid_t child = fork();
@@ -29,6 +31,29 @@ int main(int argc, char **argv) {
         if (waitpid(child, &status, 0) != child)
             return 6;
         return WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 0 : 7;
+    }
+    if (argc == 3 && strcmp(argv[1], "--type=zygote-exec") == 0) {
+        pid_t child = fork();
+        if (child < 0)
+            return 8;
+        if (child == 0) {
+            char *const child_argv[] = {argv[0], "--type=renderer", argv[2], NULL};
+            execve(argv[0], child_argv, environ);
+            _exit(9);
+        }
+        int status = 0;
+        if (waitpid(child, &status, 0) != child)
+            return 10;
+        return WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 0 : 11;
+    }
+    if (argc == 3 && strcmp(argv[1], "--type=renderer") == 0) {
+        (void)prctl(PR_SET_NAME, "CrRendererMain", 0, 0, 0);
+        struct pollfd event = {.fd = -1, .events = POLLIN};
+        struct timespec timeout = {.tv_sec = 0, .tv_nsec = 0};
+        sigset_t mask;
+        sigemptyset(&mask);
+        (void)ppoll(&event, 1, &timeout, &mask);
+        return 0;
     }
     if (argc != 2)
         return 2;

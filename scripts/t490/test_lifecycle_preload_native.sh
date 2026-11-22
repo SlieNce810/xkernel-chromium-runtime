@@ -30,7 +30,13 @@ XK_METRICS_PAGE_URL="file://$TEST_DIR/page.html" \
 XK_METRICS_EVENT_PATH="$TEST_DIR/zygote-events.jsonl" \
 LD_PRELOAD="$TEST_DIR/lifecycle_event_preload.so" \
     "$TEST_DIR/lifecycle_preload_smoke" --type=zygote "$TEST_DIR/page.html"
-
+XK_METRICS_RUN_ID=lifecycle-preload-smoke \
+XK_METRICS_NAV_ID=nav-00 \
+XK_METRICS_PAGE_PATH="$TEST_DIR/page.html" \
+XK_METRICS_PAGE_URL="file://$TEST_DIR/page.html" \
+XK_METRICS_EVENT_PATH="$TEST_DIR/zygote-exec-events.jsonl" \
+LD_PRELOAD="$TEST_DIR/lifecycle_event_preload.so" \
+    "$TEST_DIR/lifecycle_preload_smoke" --type=zygote-exec "$TEST_DIR/page.html"
 python3 - "$TEST_DIR" <<'PY'
 import json
 import sys
@@ -40,6 +46,8 @@ root = Path(sys.argv[1])
 for wait_kind in ("epoll", "poll", "ppoll"):
     events = [json.loads(line) for line in (root / f"events-{wait_kind}.jsonl").read_text().splitlines()]
     names = [event["event"] for event in events]
+    assert names.count("preload_attached") == 1, (wait_kind, names)
+    names = [name for name in names if name != "preload_attached"]
     assert names == ["navigation_requested", "browser_main_loop_ready"], (wait_kind, names)
     assert all(event["clock_id"] == "LINUX_CLOCK_MONOTONIC" for event in events)
     assert all(event["run_id"] == "lifecycle-preload-smoke" for event in events)
@@ -52,5 +60,11 @@ assert request["request_id"] == ready["request_id"]
 assert request["child_pid"] == ready["pid"]
 assert ready["role"] == "renderer"
 assert ready["renderer_id"] == ready["process_instance"]
+exec_events = [json.loads(line) for line in (root / "zygote-exec-events.jsonl").read_text().splitlines()]
+exec_request = next(event for event in exec_events if event["event"] == "zygote_fork_boundary")
+exec_ready = next(event for event in exec_events if event["event"] == "renderer_ready")
+assert exec_request["request_id"] == exec_ready["request_id"]
+assert exec_request["child_pid"] == exec_ready["pid"]
+assert exec_ready["source"] == "CrRendererMain-first-poll-or-epoll-wait"
 print("LIFECYCLE_PRELOAD_NATIVE_SMOKE=PASS waits=epoll,poll,ppoll fork-ready=paired")
 PY

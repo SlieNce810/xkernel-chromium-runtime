@@ -27,6 +27,8 @@ typedef int (*poll_fn)(struct pollfd *, nfds_t, int);
 typedef int (*ppoll_fn)(struct pollfd *, nfds_t, const struct timespec *,
                         const sigset_t *);
 typedef pid_t (*fork_fn)(void);
+typedef int (*execve_fn)(const char *, char *const[], char *const[]);
+typedef int (*execveat_fn)(int, const char *, char *const[], char *const[], int);
 typedef int (*openat_fn)(int, const char *, int, ...);
 typedef int (*open_fn)(const char *, int, ...);
 
@@ -36,6 +38,8 @@ static epoll_pwait2_fn next_epoll_pwait2;
 static poll_fn next_poll;
 static ppoll_fn next_ppoll;
 static fork_fn next_fork;
+static execve_fn next_execve;
+static execveat_fn next_execveat;
 static openat_fn next_openat;
 static open_fn next_open;
 
@@ -315,6 +319,146 @@ static void *required_symbol(void **destination, const char *name) {
     return symbol;
 }
 
+static bool renderer_command(char *const argv[]) {
+    if (!argv)
+        return false;
+    for (size_t index = 0; argv[index]; ++index) {
+        if (strcmp(argv[index], "--type=renderer") == 0)
+            return true;
+    }
+    return false;
+}
+
+static bool add_renderer_preload(char *const envp[], char ***out_envp,
+                                 char *preload_entry, size_t preload_capacity,
+                                 const char *request_entry,
+                                 const char *navigation_entry) {
+    if (!envp || !out_envp || !preload_entry || preload_capacity == 0)
+        return false;
+    const char *existing = NULL;
+    size_t count = 0;
+    for (; envp[count]; ++count) {
+        if (strncmp(envp[count], "LD_PRELOAD=", 11) == 0)
+            existing = envp[count] + 11;
+    }
+    const char *library = "/lifecycle_event_preload.so";
+    bool need_preload = !(existing && *existing &&
+                          strstr(existing, "lifecycle_event_preload.so"));
+    if (need_preload && existing && *existing) {
+        int size = snprintf(preload_entry, preload_capacity, "LD_PRELOAD=%s:%s",
+                            existing, library);
+        if (size <= 0 || (size_t)size >= preload_capacity)
+            return false;
+    } else if (need_preload) {
+        int size = snprintf(preload_entry, preload_capacity, "LD_PRELOAD=%s",
+                            library);
+        if (size <= 0 || (size_t)size >= preload_capacity)
+            return false;
+    }
+
+    size_t extra = (need_preload ? 1 : 0) +
+                   ((request_entry && *request_entry) ? 1 : 0) +
+                   ((navigation_entry && *navigation_entry) ? 1 : 0);
+    char **copy = calloc(count + extra + 1, sizeof(*copy));
+    if (!copy)
+        return false;
+    size_t output = 0;
+    for (size_t index = 0; index < count; ++index) {
+        if (!need_preload || strncmp(envp[index], "LD_PRELOAD=", 11) != 0)
+            copy[output++] = envp[index];
+    }
+    if (need_preload)
+        copy[output++] = preload_entry;
+    if (request_entry && *request_entry)
+        copy[output++] = (char *)request_entry;
+    if (navigation_entry && *navigation_entry)
+        copy[output++] = (char *)navigation_entry;
+    copy[output] = NULL;
+    *out_envp = copy;
+    return true;
+}
+
+static int execve_renderer_with_preload(const char *filename,
+                                        char *const argv[],
+                                        char *const envp[]) {
+    if (!renderer_command(argv))
+        return next_execve ? next_execve(filename, argv, envp) : -1;
+    if (pending_request_id[0]) {
+        // Chromium's zygote passes the inherited environment to execve. Carry
+        // the observer's request identity across that exec so the freshly
+        // loaded renderer preload can emit a paired renderer_ready event.
+        (void)setenv("XK_METRICS_RENDERER_REQUEST_ID", pending_request_id, 1);
+        (void)setenv("XK_METRICS_RENDERER_NAV_ID", pending_navigation_id, 1);
+    }
+    char preload_entry[1024];
+    char request_entry[256];
+    char navigation_entry[128];
+    char **new_envp = NULL;
+    request_entry[0] = navigation_entry[0] = '\0';
+    if (pending_request_id[0]) {
+        snprintf(request_entry, sizeof(request_entry),
+                 "XK_METRICS_RENDERER_REQUEST_ID=%s", pending_request_id);
+        snprintf(navigation_entry, sizeof(navigation_entry),
+                 "XK_METRICS_RENDERER_NAV_ID=%s", pending_navigation_id);
+    }
+    if (!add_renderer_preload(envp, &new_envp, preload_entry,
+                              sizeof(preload_entry), request_entry,
+                              navigation_entry))
+        return next_execve ? next_execve(filename, argv, envp) : -1;
+    int result = next_execve ? next_execve(filename, argv, new_envp) : -1;
+    int saved_errno = errno;
+    free(new_envp);
+    errno = saved_errno;
+    return result;
+}
+
+static int execveat_renderer_with_preload(int dirfd, const char *filename,
+                                          char *const argv[],
+                                          char *const envp[], int flags) {
+    if (!renderer_command(argv))
+        return next_execveat ? next_execveat(dirfd, filename, argv, envp, flags)
+                             : (int)syscall(SYS_execveat, dirfd, filename,
+                                             argv, envp, flags);
+    if (pending_request_id[0]) {
+        (void)setenv("XK_METRICS_RENDERER_REQUEST_ID", pending_request_id, 1);
+        (void)setenv("XK_METRICS_RENDERER_NAV_ID", pending_navigation_id, 1);
+    }
+    char preload_entry[1024];
+    char request_entry[256];
+    char navigation_entry[128];
+    char **new_envp = NULL;
+    request_entry[0] = navigation_entry[0] = '\0';
+    if (pending_request_id[0]) {
+        snprintf(request_entry, sizeof(request_entry),
+                 "XK_METRICS_RENDERER_REQUEST_ID=%s", pending_request_id);
+        snprintf(navigation_entry, sizeof(navigation_entry),
+                 "XK_METRICS_RENDERER_NAV_ID=%s", pending_navigation_id);
+    }
+    if (!add_renderer_preload(envp, &new_envp, preload_entry,
+                              sizeof(preload_entry), request_entry,
+                              navigation_entry))
+        return next_execveat ? next_execveat(dirfd, filename, argv, envp, flags)
+                             : (int)syscall(SYS_execveat, dirfd, filename,
+                                             argv, envp, flags);
+    int result = next_execveat
+                     ? next_execveat(dirfd, filename, argv, new_envp, flags)
+                     : (int)syscall(SYS_execveat, dirfd, filename, argv,
+                                     new_envp, flags);
+    int saved_errno = errno;
+    free(new_envp);
+    errno = saved_errno;
+    return result;
+}
+
+int execve(const char *filename, char *const argv[], char *const envp[]) {
+    return execve_renderer_with_preload(filename, argv, envp);
+}
+
+int execveat(int dirfd, const char *filename, char *const argv[],
+            char *const envp[], int flags) {
+    return execveat_renderer_with_preload(dirfd, filename, argv, envp, flags);
+}
+
 __attribute__((constructor)) static void initialize_lifecycle_preload(void) {
     required_symbol((void **)&next_epoll_wait, "epoll_wait");
     required_symbol((void **)&next_epoll_pwait, "epoll_pwait");
@@ -322,6 +466,8 @@ __attribute__((constructor)) static void initialize_lifecycle_preload(void) {
     required_symbol((void **)&next_poll, "poll");
     required_symbol((void **)&next_ppoll, "ppoll");
     required_symbol((void **)&next_fork, "fork");
+    required_symbol((void **)&next_execve, "execve");
+    required_symbol((void **)&next_execveat, "execveat");
     required_symbol((void **)&next_openat, "openat");
     required_symbol((void **)&next_open, "open");
     const char *value = getenv("XK_METRICS_RUN_ID");
@@ -330,6 +476,12 @@ __attribute__((constructor)) static void initialize_lifecycle_preload(void) {
     value = getenv("XK_METRICS_NAV_ID");
     if (value)
         snprintf(navigation_id, sizeof(navigation_id), "%s", value);
+    value = getenv("XK_METRICS_RENDERER_REQUEST_ID");
+    if (value)
+        snprintf(pending_request_id, sizeof(pending_request_id), "%s", value);
+    value = getenv("XK_METRICS_RENDERER_NAV_ID");
+    if (value)
+        snprintf(pending_navigation_id, sizeof(pending_navigation_id), "%s", value);
     value = getenv("XK_METRICS_PAGE_PATH");
     snprintf(page_path, sizeof(page_path), "%s",
              value && *value ? value : "/usr/share/html-test/index.html");
