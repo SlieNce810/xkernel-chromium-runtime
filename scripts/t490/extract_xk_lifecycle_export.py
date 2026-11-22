@@ -32,18 +32,37 @@ class ExportError(ValueError):
     """Lifecycle export is incomplete or fails integrity validation."""
 
 
+def decode_block(header: dict[str, Any], chunks: list[str], end_count: int | None) -> bytes:
+    if end_count is None or len(chunks) != header["chunks"] or end_count != len(chunks):
+        raise ExportError("lifecycle export chunk count mismatch")
+    try:
+        compressed = base64.b64decode("".join(chunks), validate=True)
+        raw = gzip.decompress(compressed)
+    except (ValueError, binascii.Error, OSError, EOFError) as exc:
+        raise ExportError(f"lifecycle gzip/base64 decode failed: {exc}") from exc
+    if len(compressed) != header["gzip_bytes"] or hashlib.sha256(compressed).hexdigest() != header["gzip_sha256"]:
+        raise ExportError("lifecycle gzip length/SHA mismatch")
+    if len(raw) != header["raw_bytes"] or hashlib.sha256(raw).hexdigest() != header["raw_sha256"]:
+        raise ExportError("lifecycle raw length/SHA mismatch")
+    return raw
+
+
 def decode(console: Path, run_id: str) -> bytes:
     header: dict[str, Any] | None = None
     chunks: list[str] = []
     ended = False
     end_count: int | None = None
+    completed: list[bytes] = []
     for line_no, line in enumerate(
         console.read_text(encoding="utf-8", errors="replace").splitlines(), 1
     ):
         match = BEGIN.search(line)
         if match:
             if header is not None:
-                raise ExportError("multiple lifecycle export headers")
+                if not ended:
+                    raise ExportError("lifecycle export header appeared before previous end")
+                if header["run_id"] == run_id:
+                    completed.append(decode_block(header, chunks, end_count))
             header = {
                 "run_id": match.group(1),
                 "raw_bytes": int(match.group(2)),
@@ -52,6 +71,9 @@ def decode(console: Path, run_id: str) -> bytes:
                 "gzip_bytes": int(match.group(5)),
                 "gzip_sha256": match.group(6),
             }
+            chunks = []
+            ended = False
+            end_count = None
             continue
         match = DATA.search(line)
         if match:
@@ -69,20 +91,13 @@ def decode(console: Path, run_id: str) -> bytes:
                 raise ExportError("invalid lifecycle export end marker")
             end_count = int(match.group(2))
             ended = True
-    if header is None or header["run_id"] != run_id:
-        raise ExportError("lifecycle export run_id mismatch or missing header")
-    if not ended or end_count is None or len(chunks) != header["chunks"] or end_count != len(chunks):
-        raise ExportError("lifecycle export chunk count mismatch")
-    try:
-        compressed = base64.b64decode("".join(chunks), validate=True)
-        raw = gzip.decompress(compressed)
-    except (ValueError, binascii.Error, OSError, EOFError) as exc:
-        raise ExportError(f"lifecycle gzip/base64 decode failed: {exc}") from exc
-    if len(compressed) != header["gzip_bytes"] or hashlib.sha256(compressed).hexdigest() != header["gzip_sha256"]:
-        raise ExportError("lifecycle gzip length/SHA mismatch")
-    if len(raw) != header["raw_bytes"] or hashlib.sha256(raw).hexdigest() != header["raw_sha256"]:
-        raise ExportError("lifecycle raw length/SHA mismatch")
-    return raw
+    if header is not None and header["run_id"] == run_id and ended:
+        completed.append(decode_block(header, chunks, end_count))
+    if not completed:
+        raise ExportError("no complete lifecycle export for requested run_id")
+    # A watcher can export an early partial file and a later, larger file. Use
+    # the last complete block, which has the most lifecycle observations.
+    return completed[-1]
 
 
 def read_members(raw: bytes) -> dict[str, bytes]:
