@@ -9,4 +9,12 @@ checks for schema, run ID, clock domain, monotonic sequence, and unique event
 ID. The run still lacks a real `renderer_ready` and `first_valid_frame`, so it
 is an event and collector diagnostic rather than a formal performance sample.
 
+The reusable console extractor also returns:
+
+```text
+LIFECYCLE_VALID run=preload-exec149-v9 events=14
+```
+
+Its derived output and summary are kept beside the original evidence.
+
 See [report 487](../../report/487-collector-lifecycle-seq-validation-v9-20261123.md).

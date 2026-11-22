@@ -12,6 +12,18 @@ v9 使用同一 Chromium 149.0.7827.53、2 GiB `pkg-installed.img`、AArch64 纯
 COLLECTOR_EVENTS_VALID 14 first_seq=44909970512 last_seq=148300089072
 ```
 
+本轮新增的可复用工具
+[`extract_lifecycle_probe_events.py`](../scripts/t490/extract_lifecycle_probe_events.py)
+也直接对 v9 `console.log` 执行通过：
+
+```text
+LIFECYCLE_VALID run=preload-exec149-v9 events=14
+```
+
+它会去除串口 ANSI 控制码，校验 run/clock/seq/event ID，并以不可覆盖方式生成
+JSONL 和 extraction summary；默认拒绝导出序号缺口，诊断场景可显式使用
+`--allow-export-gaps`。
+
 验证覆盖：
 
 - schema 为 `xkernel.browser.lifecycle.v1`；
