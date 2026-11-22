@@ -1,0 +1,46 @@
+ninja: Entering directory `out/instrumented'
+[1/1988] ACTION //third_party/devtools-frontend/src/front_end/third_party/intl-messageformat:devtools_entrypoint-bundle-bundle(//build/toolchain/linux/unbundle:default)
+FAILED: [code=1] gen/third_party/devtools-frontend/src/front_end/third_party/intl-messageformat/intl-messageformat.js 
+python3 ../../third_party/node/node.py ../../third_party/devtools-frontend/src/scripts/build/esbuild.js gen/third_party/devtools-frontend/src/front_end/third_party/intl-messageformat/intl-messageformat.prebundle.js gen/third_party/devtools-frontend/src/front_end/third_party/intl-messageformat/intl-messageformat.js --configSourcemaps
+Traceback (most recent call last):
+  File "/home/mo/chromium-src/out/instrumented/../../third_party/node/node.py", line 43, in <module>
+    RunNode(sys.argv[1:])
+    ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/mo/chromium-src/out/instrumented/../../third_party/node/node.py", line 38, in RunNode
+    raise RuntimeError('Command \'%s\' failed\n%s' % (' '.join(cmd), err))
+RuntimeError: Command '/home/mo/chromium-src/out/instrumented/../../third_party/node/linux/node-linux-x64/bin/node ../../third_party/devtools-frontend/src/scripts/build/esbuild.js gen/third_party/devtools-frontend/src/front_end/third_party/intl-messageformat/intl-messageformat.prebundle.js gen/third_party/devtools-frontend/src/front_end/third_party/intl-messageformat/intl-messageformat.js --configSourcemaps' failed
+env: 'node': No such file or directory
+env: use -[v]S to pass options in shebang lines
+Failed to run esbuild: Error: The service was stopped: write EPIPE
+    at /home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:969:34
+    at responseCallbacks.<computed> (/home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:623:9)
+    at afterClose (/home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:614:28)
+    at /home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:1990:18
+    at onwriteError (node:internal/streams/writable:605:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:92:21)
+
+If error includes `Host version "X" does not match binary version "Y", you need to run `gclient sync`
+
+[2/1988] ACTION //third_party/devtools-frontend/src/front_end/core/platform:devtools_entrypoint-bundle-bundle(//build/toolchain/linux/unbundle:default)
+FAILED: [code=1] gen/third_party/devtools-frontend/src/front_end/core/platform/platform.js 
+python3 ../../third_party/node/node.py ../../third_party/devtools-frontend/src/scripts/build/esbuild.js gen/third_party/devtools-frontend/src/front_end/core/platform/platform.prebundle.js gen/third_party/devtools-frontend/src/front_end/core/platform/platform.js --configSourcemaps
+Traceback (most recent call last):
+  File "/home/mo/chromium-src/out/instrumented/../../third_party/node/node.py", line 43, in <module>
+    RunNode(sys.argv[1:])
+    ~~~~~~~^^^^^^^^^^^^^^
+  File "/home/mo/chromium-src/out/instrumented/../../third_party/node/node.py", line 38, in RunNode
+    raise RuntimeError('Command \'%s\' failed\n%s' % (' '.join(cmd), err))
+RuntimeError: Command '/home/mo/chromium-src/out/instrumented/../../third_party/node/linux/node-linux-x64/bin/node ../../third_party/devtools-frontend/src/scripts/build/esbuild.js gen/third_party/devtools-frontend/src/front_end/core/platform/platform.prebundle.js gen/third_party/devtools-frontend/src/front_end/core/platform/platform.js --configSourcemaps' failed
+env: 'node': No such file or directory
+env: use -[v]S to pass options in shebang lines
+Failed to run esbuild: Error: The service was stopped: write EPIPE
+    at /home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:969:34
+    at responseCallbacks.<computed> (/home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:623:9)
+    at afterClose (/home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:614:28)
+    at /home/mo/chromium-src/third_party/devtools-frontend/src/node_modules/esbuild/lib/main.js:1990:18
+    at onwriteError (node:internal/streams/writable:605:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:92:21)
+
+If error includes `Host version "X" does not match binary version "Y", you need to run `gclient sync`
+
+ninja: build stopped: subcommand failed.

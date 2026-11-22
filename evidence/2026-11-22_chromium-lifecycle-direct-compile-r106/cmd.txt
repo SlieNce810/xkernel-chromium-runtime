@@ -1,0 +1,18 @@
+R106 Chromium lifecycle hook compile round (T490)
+
+Remote target: mo@10.249.11.192
+Source: /home/mo/chromium-src
+Source revision: 4b8153ab58d3c3f4c9f7e4baad9616ecf80db5fa
+
+1. Independent GN output generation:
+   rm -rf out/lifecycle-arm64; mkdir out/lifecycle-arm64; copy args.gn; append pkg_config=/tmp/fake-pkg-config and host_pkg_config=/tmp/fake-pkg-config; /home/mo/bin-gn gen out/lifecycle-arm64
+2. Generated missing Mojo/Proto dependencies in out/instrumented with the exact Ninja generator recipes (quota, file_system_access.proto, google_apis buildflags, font service, memory_usage_monitor_linux).
+3. Host-toolchain direct compile:
+   /home/mo/ninja-src/ninja -C out/instrumented -t commands obj/content/browser/browser/render_process_host_impl.o | tail -1
+   execute the emitted clang++ command; result PASS, elapsed 45.21 s.
+4. Host-toolchain direct compile:
+   /home/mo/ninja-src/ninja -C out/instrumented -t commands obj/content/zygote/zygote/zygote_main_linux.o | tail -1
+   execute the emitted clang++ command; result PASS, elapsed 1.76 s.
+5. AArch64 direct compile attempt:
+   use out/lifecycle-arm64 command with musl sysroot and libc++ headers; result FAIL because musl lacks strtoll_l/strtoull_l expected by the host libc++ configuration and generated partition_alloc/buildflags.h is absent. No AArch64 object or binary was produced.
+6. Full Ninja target attempt was stopped by existing host-only prerequisites: bundled node was unavailable for DevTools esbuild. No full link was attempted.
