@@ -1,0 +1,17 @@
+diff --git a/scripts/t490/lifecycle_event_preload.c b/scripts/t490/lifecycle_event_preload.c
+index 0000000..0000000 100644
+--- a/scripts/t490/lifecycle_event_preload.c
++++ b/scripts/t490/lifecycle_event_preload.c
+@@ -210,8 +210,9 @@ static void append_probe_event(const char *event, uint64_t t_ns, pid_t pid,
+         line, sizeof(line),
+         "{\"schema\":\"xkernel.browser.lifecycle.v1\","
+         "\"run_id\":\"%s\",\"clock_id\":\"LINUX_CLOCK_MONOTONIC\","
++        "\"seq\":%llu,"
+         "\"t_ns\":%llu,\"event_id\":\"%s:%d:%llu:%llu\","
+@@ -220,7 +221,7 @@ static void append_probe_event(const char *event, uint64_t t_ns, pid_t pid,
+         "\"renderer_id\":\"%s\",\"child_pid\":%d,"
+         "\"source\":\"%s\",\"url\":\"%s\"}\n",
+-        run_id, (unsigned long long)t_ns, run_id, pid,
++        run_id, (unsigned long long)local_number, (unsigned long long)t_ns, run_id, pid,
+         (unsigned long long)t_ns, (unsigned long long)local_number, event,
+         pid, ppid, process_instance ? process_instance : "",

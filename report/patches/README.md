@@ -41,6 +41,7 @@
 | `0026-chromium-musl-crash-report-constant.patch` | 将 `render_frame_host_impl.cc` 使用的旧 Mojo crash-report 常量改为生成头提供的 `kMaxCrashReportStorageSize` | R114 `[291/24139]` 编译错误已最小复现；修复后构建待继续 |
 | `0027-chromium-musl-service-worker-value-or.patch` | 将 ServiceWorker optional set iterator 的 `value_or({})` 改为显式 `request_timeouts_.end()` | R115 `[103/23842]` 编译错误已最小复现；修复后构建待继续 |
 | `0028-chromium-musl-explicit-value-or-types.patch` | 为 Chromium 生产代码的 `vector<uint8_t>` 和 `std::string` optional 默认值补显式类型 | R116 静态复核已完成；重新编译验证待继续 |
+| `0029-lifecycle-event-seq-field.patch` | 为 preload lifecycle JSONL 增加采集器要求的显式 `seq` 字段 | v7 已发现旧格式不能直接进入 `collect_metrics.py`；下一轮使用修复后的 preload 验证 |
 
 ---
 

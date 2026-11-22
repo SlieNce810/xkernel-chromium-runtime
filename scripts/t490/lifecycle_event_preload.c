@@ -211,13 +211,14 @@ static void append_probe_event(const char *event, uint64_t t_ns, pid_t pid,
         line, sizeof(line),
         "{\"schema\":\"xkernel.browser.lifecycle.v1\","
         "\"run_id\":\"%s\",\"clock_id\":\"LINUX_CLOCK_MONOTONIC\","
+        "\"seq\":%llu,"
         "\"t_ns\":%llu,\"event_id\":\"%s:%d:%llu:%llu\","
         "\"event\":\"%s\",\"pid\":%d,\"ppid\":%d,"
         "\"process_instance\":\"%s\",\"role\":\"%s\","
         "\"navigation_id\":\"%s\",\"request_id\":\"%s\","
         "\"renderer_id\":\"%s\",\"child_pid\":%d,"
         "\"source\":\"%s\",\"url\":\"%s\"}\n",
-        run_id, (unsigned long long)t_ns, run_id, pid,
+        run_id, (unsigned long long)local_number, (unsigned long long)t_ns, run_id, pid,
         (unsigned long long)t_ns, (unsigned long long)local_number, event,
         pid, ppid, process_instance ? process_instance : "",
         role ? role : "", nav_id ? nav_id : "", request_id ? request_id : "",
