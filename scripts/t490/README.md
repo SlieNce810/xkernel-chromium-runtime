@@ -370,3 +370,5 @@ bash scripts/final-acceptance.sh stability
 ```
 
 该入口的 help、`bash -n`、all-stage dry-run、stability dry-run、expected-hash 负向校验均通过；dry-run 不启动 QEMU。记录见 [final-acceptance wiring preflight](../../evidence/2026-11-22_t490-final-acceptance-wiring-preflight/README.md)。
+
+2026-11-23 的 `preload-exec-probe` 在 T490 完成约303.7秒、10/10截图判据通过并正常收尾；但运行期仍为 `MP_RENDERER_COUNT=0`，没有 `renderer_ready`/`renderer_exec`，所以只归档为 preload 诊断，不能进入三次冷启动、30分钟稳定性或四项性能统计。原始材料在 [report 479](../../report/479-T490-preload-exec-probe-20261123.md) 和 [evidence/2026-11-23_t490-preload-exec-probe](../../evidence/2026-11-23_t490-preload-exec-probe/)。

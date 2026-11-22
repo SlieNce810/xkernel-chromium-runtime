@@ -203,3 +203,5 @@ docs/         赛题原文、操作卡（OBS 录屏、VNC 演示）
 主流程保持 615 秒，官方 index 严格判据通过；JS/CSS 验收、八条兼容性缺口及五次性能观测见精简方案。硬件输入链、renderer 多进程和性能改善档位均不超额宣称。上游 [PR !831](https://gitee.com/openkylin/x-kernel/pulls/831) 已合并，见技术方案。
 
 `report/`、未选入的 `evidence/` 与历史脚本为研究归档。Windows/WSL2 仅用于开发测试，相关脚本、证据和验证说明不进入初赛提交物。该约束记录在 `AGENTS.md` 和项目记忆。报名表按用户要求跳过。
+
+2026-11-23 T490 `preload-exec-probe` 运行约303.7秒，10/10截图判据和会话收尾通过；观测器仍报告 `MP_RENDERER_COUNT=0`，没有真实 Chromium `renderer_ready`/`renderer_exec`，因此该轮只作为诊断证据，不改变三次冷启动、30分钟稳定性或四项性能完成度。详见 [report/479](report/479-T490-preload-exec-probe-20261123.md) 与 [evidence/2026-11-23_t490-preload-exec-probe](evidence/2026-11-23_t490-preload-exec-probe/)。

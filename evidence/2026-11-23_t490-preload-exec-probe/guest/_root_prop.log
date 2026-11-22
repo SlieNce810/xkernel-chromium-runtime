@@ -1,0 +1,37 @@
+==== drmpropprobe: KMS 属性面 uapi 编号对照 ====
+ioctl 编码自证（十六进制，应分别等于 libdrm 编译期常量）：
+  VERSION            = 0xc0406400
+  GETRESOURCES       = 0xc04064a0
+  GETCONNECTOR       = 0xc05064a7
+  OBJ_GETPROPERTIES  = 0xc02064b9
+  GETPROPERTY mainln = 0xc04064a8   (nr=0xA8 size=64)
+  GETPROPBLOB mainln = 0xc01064aa   (nr=0xAA size=16)
+  GETPROPERTY xk-old = 0xc04064aa   (nr=0xAA size=64)
+  GETPROPBLOB xk-old = 0xc01064ac   (nr=0xAC size=16)
+sizeof: version=64 card_res=64 get_connector=80 obj_get_props=32 get_property=64 get_blob=16
+
+open(/dev/dri/card0, O_RDWR) -> 3 errno=0 (No error information)
+[SELF] VERSION -> rc=0 errno=0 (No error information)  driver='simpledrm' 1.0.0
+
+---- A 组：mainline 编号（修复后应 HIT）----
+[PROP] A1  GETPROPERTY@0xA8/64B               (mainline 语义)              rc=-1 errno=2 (No such file or directory) HIT(errno!=95)
+[PROP] A2  GETPROPBLOB@0xAA/16B               (mainline 语义)              rc=-1 errno=2 (No such file or directory) HIT(errno!=95)
+
+---- B 组：x-kernel 现用编号（证明处理器存在与否）----
+[PROP] B1  GETPROPERTY@0xAA/64B               (xk 现用编号)              rc=-1 errno=95 (Not supported) NOT-DISPATCHED(errno=95)
+[PROP] B2  GETPROPBLOB@0xAC/16B               (xk 现用编号)              rc=-1 errno=95 (Not supported) NOT-DISPATCHED(errno=95)
+
+---- 链式：GETRESOURCES → GETCONNECTOR → OBJ_GETPROPERTIES → GETPROPERTY ----
+[CHAIN] step=1 GETRESOURCES(count)      rc=0 errno=0 (No error information)
+[CHAIN]      fbs=0 crtcs=1 conns=1 encs=1
+[CHAIN] step=2 GETRESOURCES(ids)        rc=0 errno=0 (No error information)
+[CHAIN]      connector_id=48 crtc_id=16
+[CHAIN] step=3 GETCONNECTOR             rc=0 errno=0 (No error information)
+[CHAIN]      connection=1 encoder_id=32 count_props=0 count_modes=1
+[CHAIN] step=4 OBJ_GETPROPERTIES        rc=0 errno=0 (No error information)
+[CHAIN]      count_props=1 prop_ids[0..3]=768,0,0,0
+[CHAIN] step=5 GETPROPERTY@0xA8(prop_id=768) rc=0 errno=0 (No error information) name='CRTC_ID' flags=0x80000040[OBJECT|ATOMIC] count_values=0 count_enum_blobs=0
+[CHAIN] step=5b GETPROPERTY@0xAA(prop_id=768) rc=-1 errno=95 (Not supported) [对照：xk 旧编号]
+
+[PROPSUM] mainline_property=HIT mainline_blob=HIT xkernel_property=NOT-DISPATCHED xkernel_blob=NOT-DISPATCHED chain_max_step=5 verdict=FIXED
+==== drmpropprobe done ====
