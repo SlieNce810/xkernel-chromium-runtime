@@ -9,6 +9,17 @@ Weston（DRM/pixman）图形会话 + 默认 Browser → Zygote → Renderer 多�
 同步完成内核 Linux 兼容性修复（8 项缺口、17 个补丁候选、上游 MR !831 已合并）、
 稳定性与性能采集工具，以及 400+ 轮归档证据。
 
+## 2026-11-23 最新统一复核
+
+T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生命周期诊断：
+`preload`、Browser main loop、Zygote fork 和导航事件均可用 guest 单调时钟严格提取。
+新增的进程树观察器还把真实 Renderer PID/PPID 与 Zygote request 关联，见 [report 489](report/489-T490-chromium149-observer-renderer-ready-v3-20261123.md)。
+该观察事件明确标记为诊断来源，不能替代 Chromium 内部连接确认或页面首帧；本轮首帧严格判据未通过，进程树 RSS/PSS/USS 也没有有效导出。
+
+采样器已加入 `/proc/<browser>/xk_memory_snapshot` 优先路径，并保留旧 procfs 回退；当前冻结运行内核不提供该端点，v5 证据记录了端点缺失、严格提取拒绝重复事件以及无有效内存样本，见 [report 490](report/490-T490-proc-tree-endpoint-sampler-v5-20261123.md)。生命周期导出器随后加入 event ID 幂等保护，原始重复行仍保留并计入诊断日志。
+
+当前正式高阶性能状态仍为 `0/4`，before/after 为 `0/0`，30 分钟/十次加载的新统一轮尚未通过；这些诊断轮不改变正式 gate。Chromium 149 AArch64/musl 源码构建在 T490 单一 Ninja 进程中继续进行，完成前不把预编译二进制的诊断结果写成源码构建结果。统一复现说明与最新状态见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
+
 ## 2026-11-22 当前复核状态
 
 冻结候选为 c80 no-direct-PTE、LOG_LEVEL_ERROR 内核，实际 Browser-run 二进制 SHA-256 为 `a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f`；源码基线 `b73e5814087c9d33c5f0a35b66cc56be689d3dee`，配置 SHA-256 `1d0ff69e…`。正式条件固定为 T490、AArch64 QEMU 纯 TCG、2 GiB、Weston 原生 Wayland、Chromium 149 默认 Browser → Zygote → Renderer 和真实 virtio 输入链路。
