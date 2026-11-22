@@ -1126,6 +1126,25 @@ tick=0
 # （2026-11-04 的 mp-r2：跑到 600 s 仍在扫描循环里，日志一句没出来）。
 # 这里在 tick≥6 时导一次，只导一次，代价 120 行串口输出。
 CHROME_LOG_DUMPED=0
+LIFECYCLE_PROBE_EXPORTED=0
+export_lifecycle_probe() {
+    [ "$LIFECYCLE_PROBE_EXPORTED" = "1" ] && return 0
+    [ -n "$LIFECYCLE_PRELOAD" ] || return 0
+    [ -s /root/lifecycle-probe-events.jsonl ] || return 0
+    probe_bytes=$(wc -c < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
+    probe_lines=$(wc -l < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
+    probe_sha=$(sha256sum /root/lifecycle-probe-events.jsonl 2>/dev/null | awk '{print $1}')
+    log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines sha256=$probe_sha"
+    probe_seq=0
+    while IFS= read -r probe_line || [ -n "$probe_line" ]; do
+        printf '[mpdiag] MP_LIFECYCLE_PROBE_EVENT run_id=%s seq=%s %s\n' \
+            "$PERF_TRACE_RUN_ID" "$probe_seq" "$probe_line" > /dev/console 2>/dev/null || true
+        echo "MP_LIFECYCLE_PROBE_EVENT run_id=$PERF_TRACE_RUN_ID seq=$probe_seq $probe_line" >> "$LOG"
+        probe_seq=$((probe_seq + 1))
+    done < /root/lifecycle-probe-events.jsonl
+    log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
+    LIFECYCLE_PROBE_EXPORTED=1
+}
 [ "$SAMPLE_SECONDS" -ge 1 ] 2>/dev/null || SAMPLE_SECONDS=5
 while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
     [ -d "/proc/$BROWSER_PID" ] || [ -d "/proc/$LAUNCHER_PID" ] || break
@@ -1229,6 +1248,7 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
     else
         renderer_streak=0
     fi
+    export_lifecycle_probe
     # 等启动日志真正产生后再导出。renderer 候选刚出现时 Chrome 日志文件经常
     # 仍是 0 字节；过早导出会把最有价值的 FileURLLoader/DocumentLoader 证据丢掉。
     if [ "${CHROME_LOG_DUMPED:-0}" = "0" ] && [ "$tick" -ge 25 ]; then
@@ -1284,26 +1304,10 @@ else
     mark LOOP_EXIT other
 fi
 
-# Export the lifecycle file before terminating the Browser.  In pure-TCG runs
-# the shutdown/receipt path can take longer than the host session budget; doing
-# this immediately after the bounded observer loop keeps the event source
-# recoverable even when QEMU is stopped while Chromium is still unwinding.
-if [ -n "$LIFECYCLE_PRELOAD" ] && [ -s /root/lifecycle-probe-events.jsonl ]; then
-    probe_bytes=$(wc -c < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
-    probe_lines=$(wc -l < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
-    probe_sha=$(sha256sum /root/lifecycle-probe-events.jsonl 2>/dev/null | awk '{print $1}')
-    log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines sha256=$probe_sha"
-    probe_seq=0
-    while IFS= read -r probe_line || [ -n "$probe_line" ]; do
-        printf '[mpdiag] MP_LIFECYCLE_PROBE_EVENT run_id=%s seq=%s %s\n' \
-            "$PERF_TRACE_RUN_ID" "$probe_seq" "$probe_line" > /dev/console 2>/dev/null || true
-        echo "MP_LIFECYCLE_PROBE_EVENT run_id=$PERF_TRACE_RUN_ID seq=$probe_seq $probe_line" >> "$LOG"
-        probe_seq=$((probe_seq + 1))
-    done < /root/lifecycle-probe-events.jsonl
-    log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
-else
+export_lifecycle_probe
+[ "$LIFECYCLE_PROBE_EXPORTED" = "1" ] || {
     [ -z "$LIFECYCLE_PRELOAD" ] || log "LIFECYCLE_PROBE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
-fi
+}
 
 if [ -d "/proc/$BROWSER_PID" ]; then
     kill -TERM "$BROWSER_PID" 2>/dev/null || true
