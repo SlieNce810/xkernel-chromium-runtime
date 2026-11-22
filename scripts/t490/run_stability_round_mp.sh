@@ -30,6 +30,7 @@ FAMILY_WATCHDOG_INTERVAL="${MP_FAMILY_WATCHDOG_INTERVAL:-4}"
 QMP_SOCKET="${QMP_SOCKET:-/tmp/xk6-qmp-stability-${TAG}.sock}"
 BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/pkg-installed.img}"
 PKG_TARBALL="${PKG_TARBALL-}"
+CHROMIUM_BIN_VALUE="${CHROMIUM_BIN_VALUE:-/usr/lib/chromium/chromium}"
 KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
 export KERNEL_DIR
 KERNEL_BIN="$KERNEL_DIR/target/xkmake/kplat-aarch64/release/kernel.bin"
@@ -195,6 +196,8 @@ capture_guest_clock_sync=$CAPTURE_GUEST_CLOCK_SYNC
 memory_sampler_enabled=$MEMORY_SAMPLER_ENABLED
 memory_sample_seconds=$MEMORY_SAMPLE_SECONDS
 lifecycle_preload_enabled=$LIFECYCLE_PRELOAD_ENABLED
+chromium_bin=$CHROMIUM_BIN_VALUE
+pkg_tarball=${PKG_TARBALL:-UNSET}
 process_sample_seconds=$PROCESS_SAMPLE_SECONDS
 memory=2g
 architecture=aarch64
@@ -286,6 +289,7 @@ done
     printf 'reload_settle_seconds=%s\n' "$RELOAD_SETTLE_SECONDS"
     printf 'capture_guest_clock_sync=%s\n' "$CAPTURE_GUEST_CLOCK_SYNC"
     printf 'lifecycle_preload_enabled=%s\n' "$LIFECYCLE_PRELOAD_ENABLED"
+    printf 'chromium_bin=%s\npkg_tarball=%s\n' "$CHROMIUM_BIN_VALUE" "${PKG_TARBALL:-UNSET}"
     printf 'initial_page_poll_seconds=30\nreload_poll_seconds=5\n'
     printf 'memory=2g\narchitecture=aarch64\naccelerator=tcg\n'
     printf 'command=KERNEL_DIR=%s%s STABILITY_DIAGNOSTIC_ONLY=%s STABILITY_RELOAD_WINDOW=%s STABILITY_RELOAD_SETTLE_SECONDS=%s STABILITY_CAPTURE_GUEST_CLOCK_SYNC=%s STABILITY_MEMORY_SAMPLER=%s STABILITY_MEMORY_SAMPLE_SECONDS=%s STABILITY_LIFECYCLE_PRELOAD=%s STABILITY_PROCESS_SAMPLE_SECONDS=%s MP_FAMILY_DIAGNOSTICS=%s MP_FAMILY_WATCHDOG_INTERVAL=%s bash scripts/t490/run_stability_round_mp.sh %s %s %s %s %s %s\n' \
