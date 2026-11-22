@@ -1,0 +1,187 @@
+{
+  "created_at": "2026-10-14T02:23:38.877599+00:00",
+  "measurement_method": "common PI-neutralizing user-space preload; same page, image, overlay, QEMU platform, autorun, observer and 15-second first-frame screenshots",
+  "before_tag": "v0.1-first-runnable = f8b92247922fb1127138bbd8830bec504913908f",
+  "after_commit": "2a1b101ccf97ed255821b85628f366700089cda3",
+  "before_csv_sha256": "49a2a73f66d4031dec9adcaf709b61f5032e442a4e472656f2aca6f952383e8a",
+  "after_csv_sha256": "1edafb253a92749f3b8f63534dcf54b46eb9274cd9451dc794d891235b595ad3",
+  "functional_gates": {
+    "before": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "after": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "strict_page_assertions": {
+    "before": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "after": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "metrics": {
+    "single_first_navigation": {
+      "unit": "s",
+      "definition": "15-second guest log polling; not page completion",
+      "before": {
+        "n": 5,
+        "raw": [
+          75.0,
+          75.0,
+          75.0,
+          90.0,
+          75.0
+        ],
+        "median": 75.0,
+        "min": 75.0,
+        "max": 90.0,
+        "range": 15.0
+      },
+      "after": {
+        "n": 5,
+        "raw": [
+          90.0,
+          90.0,
+          90.0,
+          90.0,
+          90.0
+        ],
+        "median": 90.0,
+        "min": 90.0,
+        "max": 90.0,
+        "range": 0.0
+      },
+      "improvement_percent": -20.0
+    },
+    "first_passing_screendump": {
+      "unit": "s",
+      "definition": "first strict 1280x800 screenshot; screenshot interval 15 s",
+      "before": {
+        "n": 5,
+        "raw": [
+          151.3,
+          151.3,
+          166.5,
+          166.5,
+          166.5
+        ],
+        "median": 166.5,
+        "min": 151.3,
+        "max": 166.5,
+        "range": 15.199999999999989
+      },
+      "after": {
+        "n": 5,
+        "raw": [
+          166.5,
+          181.8,
+          181.8,
+          166.5,
+          197.0
+        ],
+        "median": 181.8,
+        "min": 166.5,
+        "max": 197.0,
+        "range": 30.5
+      },
+      "improvement_percent": -9.189189189189197,
+      "sampling_interval_seconds": 15.0,
+      "conservative_improvement_percent_after_sampling_bounds": 0.0
+    },
+    "peak_qemu_rss_kb": {
+      "unit": "kB",
+      "definition": "host-side QEMU RSS; not guest Chromium RSS",
+      "before": {
+        "n": 5,
+        "raw": [
+          1647272.0,
+          1698788.0,
+          1682756.0,
+          1663628.0,
+          1674620.0
+        ],
+        "median": 1674620.0,
+        "min": 1647272.0,
+        "max": 1698788.0,
+        "range": 51516.0
+      },
+      "after": {
+        "n": 5,
+        "raw": [
+          1681088.0,
+          1652860.0,
+          1671232.0,
+          1662108.0,
+          1673920.0
+        ],
+        "median": 1671232.0,
+        "min": 1652860.0,
+        "max": 1681088.0,
+        "range": 28228.0
+      },
+      "improvement_percent": 0.20231455494380815
+    },
+    "qemu_cpu_percent_one_core": {
+      "unit": "%",
+      "definition": "host-side QEMU CPU, one-core scale",
+      "before": {
+        "n": 5,
+        "raw": [
+          180.334,
+          185.514,
+          185.662,
+          189.946,
+          192.125
+        ],
+        "median": 185.662,
+        "min": 180.334,
+        "max": 192.125,
+        "range": 11.790999999999997
+      },
+      "after": {
+        "n": 5,
+        "raw": [
+          191.387,
+          188.633,
+          193.429,
+          191.209,
+          197.697
+        ],
+        "median": 191.387,
+        "min": 188.633,
+        "max": 197.697,
+        "range": 9.063999999999993
+      },
+      "improvement_percent": -3.0835604485570522
+    }
+  },
+  "metric_improvement_points": {
+    "single_first_navigation": 0,
+    "first_passing_screendump": 0,
+    "peak_qemu_rss_kb": 0,
+    "qemu_cpu_percent_one_core": 0
+  },
+  "limitations": [
+    "preload disables PI mutex protocol for BOTH versions; it is a compatibility adapter, not part of the normal unadapted runtime",
+    "first-frame time is bracketed by screenshots 15 seconds apart; percentages near this resolution are reported conservatively",
+    "renderer process creation is not applicable to the single-process configuration"
+  ]
+}

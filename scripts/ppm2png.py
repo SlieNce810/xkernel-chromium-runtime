@@ -7,7 +7,7 @@ ppm2png.py — 把 QEMU screendump 产出的 PPM 转成 PNG（零第三方依赖
 ----------
 QEMU monitor 的 `screendump` 默认输出 **PPM(P6)** 格式。PPM 不能被普通看图软件
 直接打开，也不方便塞进报告和答辩 PPT，因此统一转成 PNG 归档。
-本脚本只用 Python 标准库（zlib + struct）手写 PNG 编码器，Windows / Linux 都能跑，
+本脚本只用 Python 标准库（zlib + struct）手写 PNG 编码器，在 T490 Linux 上运行，
 不需要 Pillow / ImageMagick。
 
 用法

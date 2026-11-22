@@ -45,7 +45,8 @@ def first_passing_screenshot(evidence: Path, profile: str) -> float | None:
                 rows.append((elapsed, image))
     for elapsed, image in sorted(rows):
         result = subprocess.run(
-            [sys.executable, str(assert_script), str(image), "--profile", profile, "--strict", "--quiet"],
+            [sys.executable, str(assert_script), str(image), "--profile", profile,
+             "--expect-size", "1280x800", "--strict", "--quiet"],
             capture_output=True,
             text=True,
             check=False,

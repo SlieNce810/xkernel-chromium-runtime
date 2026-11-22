@@ -7,20 +7,27 @@ set -o pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
+export XK6_ROOT="${XK6_ROOT:-$ROOT}"
+export KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
+# Preserve the archived performance stack even when started in a desktop terminal.
+export QEMU_DISPLAY="${QEMU_DISPLAY:-none}"
 RUNS="${MEASURE_RUNS:-5}"
 DURATION="${MEASURE_DURATION:-300}"
 INTERVAL="${MEASURE_INTERVAL:-60}"
+FIRST_SHOT="${MEASURE_FIRST_SHOT:-180}"
+ROUND_STRICT="${MEASURE_STRICT_GATE:-1}"
 TAG_PREFIX="${MEASURE_TAG_PREFIX:-single-perf}"
+AUTORUN="${MEASURE_AUTORUN:-autorun_single_initial.sh}"
 OUT_ROOT="${MEASURE_OUT_ROOT:-$ROOT/evidence/$(date +%Y-%m-%d)_measure-$TAG_PREFIX}"
 RAW_CSV="$OUT_ROOT/raw.csv"
 SUMMARY_JSON="$OUT_ROOT/summary.json"
-BASE_IMG="${BASE_IMG:-$HOME/x-kernel/images/agentos-weston.img}"
+BASE_IMG="${BASE_IMG:-$KERNEL_REPO/images/agentos-weston.img}"
 PKG_TARBALL="${PKG_TARBALL:-}"
 if [ -z "$PKG_TARBALL" ]; then
     if [ -f "$ROOT/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz" ]; then
         PKG_TARBALL="$ROOT/guest-overlays/eudev-seatprobe-libinput-swiftshader-p31.tar.gz"
     else
-        PKG_TARBALL="$HOME/xk6/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz"
+        PKG_TARBALL="$ROOT/tmp/eudev-seatprobe-libinput-swiftshader-p31.tar.gz"
     fi
 fi
 
@@ -30,13 +37,19 @@ die() { echo "ERROR: $*" >&2; exit 2; }
 case "$(uname -s 2>/dev/null || true)" in Linux) ;; *) die "只在 Linux/T490 主机运行" ;; esac
 case "$RUNS" in ''|*[!0-9]*) die "MEASURE_RUNS 必须为正整数" ;; esac
 [ "$RUNS" -ge 5 ] || die "初赛测量至少 5 次"
+case "$FIRST_SHOT" in ''|*[!0-9]*) die "MEASURE_FIRST_SHOT must be an integer" ;; esac
+case "$ROUND_STRICT" in 0|1) ;; *) die "MEASURE_STRICT_GATE must be 0 or 1" ;; esac
 [ -x "$HERE/t490_round.sh" ] || die "缺少 t490_round.sh"
+case "$AUTORUN" in autorun_single_initial.sh) ;; *) die "Unsupported MEASURE_AUTORUN in the minimal delivery" ;; esac
+[ -f "$HERE/$AUTORUN" ] || die "Missing autorun: $AUTORUN"
 [ -f "$ROOT/scripts/collect_single_metrics.py" ] || die "缺少 collect_single_metrics.py"
 [ ! -e "$RAW_CSV" ] || die "拒绝覆盖已有 raw.csv: $RAW_CSV"
 mkdir -p "$OUT_ROOT"
 
 {
     echo "MEASURE_START=$(date -Is)"
+    echo "QEMU_DISPLAY=$QEMU_DISPLAY DISPLAY_SIZE=1280x800"
+    echo "AUTORUN=$AUTORUN DURATION=$DURATION INTERVAL=$INTERVAL FIRST_SHOT=$FIRST_SHOT STRICT_GATE=$ROUND_STRICT HOLD=120"
     echo "HOST=$(hostname)"
     uname -a
     lscpu | grep -E 'Model name|CPU\(s\)|Architecture' || true
@@ -72,15 +85,15 @@ for n in $(seq 1 "$RUNS"); do
     ) &
     OBS_BG_PID=$!
     set +e
-    ASSERT_PROFILE=official-index FIRST_SHOT=180 SINGLE_HOLD_VALUE=120 SINGLE_SAMPLE_VALUE=15 \
-        MP_TRACE_VALUE=0 STRICT_GATE=1 BASE_IMG="$BASE_IMG" PKG_TARBALL="$PKG_TARBALL" \
-        bash "$HERE/t490_round.sh" "$tag" "$DURATION" "$INTERVAL" autorun_single_initial.sh \
+    ASSERT_PROFILE=official-index FIRST_SHOT="$FIRST_SHOT" SINGLE_HOLD_VALUE=120 SINGLE_SAMPLE_VALUE=15 \
+        MP_TRACE_VALUE=0 STRICT_GATE="$ROUND_STRICT" BASE_IMG="$BASE_IMG" PKG_TARBALL="$PKG_TARBALL" \
+        bash "$HERE/t490_round.sh" "$tag" "$DURATION" "$INTERVAL" "$AUTORUN" \
         2>&1 | tee "$round_log"
     round_rc=${PIPESTATUS[0]}
     set -e
     evidence=$(sed -n 's/^EVIDENCE=//p' "$round_log" | tail -1)
     if [ -z "$evidence" ] || [ ! -d "$evidence" ]; then
-        evidence=$(find "$HOME/xk6/evidence" -maxdepth 1 -type d -name "*_t490-$tag" -print -quit)
+        evidence=$(find "$XK6_ROOT/evidence" -maxdepth 1 -type d -name "*_t490-$tag" -print -quit)
     fi
     [ -n "$evidence" ] && [ -d "$evidence" ] || die "无法定位 evidence: $round_log"
     printf '%s\n' "$evidence" > "$OUT_ROOT/evidence-${run_id}.txt"

@@ -1,0 +1,108 @@
+{
+  "host": "T490 native Linux",
+  "purpose": "Display geometry only; not a complete browser acceptance run",
+  "expected_framebuffer": [
+    1280,
+    800
+  ],
+  "checks": {
+    "gtk_initial_150s": {
+      "source": "/home/mo/xk6/tmp/window-fix-20261014/evidence/2026-10-14_t490-window-size-gtk-1513",
+      "frames": [
+        {
+          "file": "shot-01-at0090s.ppm",
+          "dimensions": "1280 800",
+          "sha256": "d9097643379a0641df0c12479f9e35490bb6248d2257b1dceb064a7c6d16779c"
+        },
+        {
+          "file": "shot-02-at0120s.ppm",
+          "dimensions": "1280 800",
+          "sha256": "c002e9d5752639821f693d3a6f0b127a103945fde20e6e46446ef15a160fa807"
+        },
+        {
+          "file": "shot-03-final.ppm",
+          "dimensions": "1280 800",
+          "sha256": "f4598d66de1ee839b0f0dd37af1e1123b4ba7c2afc3f23f44dbd9bbafa614693"
+        }
+      ],
+      "result": "PASS"
+    },
+    "gtk_final_75s": {
+      "source": "/home/mo/xk6/tmp/window-fix-20261014/evidence/2026-10-14_t490-window-size-gtk-final-1518",
+      "frames": [
+        {
+          "file": "shot-01-at0050s.ppm",
+          "dimensions": "1280 800",
+          "sha256": "d4e96a65fd4f8e97bc1d762fc90cf2593bc2efb53a3125a72502fdae0f09395c"
+        },
+        {
+          "file": "shot-02-final.ppm",
+          "dimensions": "1280 800",
+          "sha256": "3a9d98a7e143cea1ce59620623bb1eea4c96bcefdfb5c5974ea73a2b2c1c0a66"
+        }
+      ],
+      "result": "PASS"
+    },
+    "headless_ready_90s": {
+      "source": "/home/mo/xk6/tmp/window-fix-20261014/evidence/2026-10-14_t490-window-size-none-ready-1520",
+      "frames": [
+        {
+          "file": "shot-01-at0070s.ppm",
+          "dimensions": "1280 800",
+          "sha256": "50fccd1c6d1c8b41ebed94b999cdca472749c078caeead0a44a9a9589585b13b"
+        },
+        {
+          "file": "shot-02-final.ppm",
+          "dimensions": "1280 800",
+          "sha256": "b8104b92adf456bc866273f898eb962f89033808255017ccb2306fc33137f746"
+        }
+      ],
+      "result": "PASS"
+    },
+    "headless_early_frame_rejected": {
+      "source": "/home/mo/xk6/tmp/window-fix-20261014/evidence/2026-10-14_t490-window-size-none-1516",
+      "frames": [
+        {
+          "file": "shot-01-at0030s.ppm",
+          "dimensions": "640 480",
+          "sha256": "11b8d01bb05554039a8f9d5b5911f5250d5fc5e686fa447cd43370c4c3c37757"
+        },
+        {
+          "file": "shot-02-final.ppm",
+          "dimensions": "1280 800",
+          "sha256": "d4e96a65fd4f8e97bc1d762fc90cf2593bc2efb53a3125a72502fdae0f09395c"
+        }
+      ],
+      "result": "REJECTED_AS_EXPECTED"
+    }
+  },
+  "final_script_sha256": {
+    "scripts/run-session.py": "cf47c1f8de9a47b1186b764d13f17b2cd44c7be6ad3d94a66841b9400757822b",
+    "scripts/qemu_window.py": "1a923d458201c59098fafa2b1af61e46397d4f8f98180b7212491bd741ea62ec",
+    "scripts/t490/platform.env": "c643a20ef09c78d9883a9409c9e0579452629546679d7ed016ec3c982b8812e3",
+    "scripts/t490/run_session_t490.sh": "578612ba143526f18ddaf5f1309480dc0f484fc154902e0ee9130b1889a7208c",
+    "scripts/t490/reproduce_submission.sh": "546b789ba99b954fde62f210996dfa04b32c39e9311ff8c4021aae3f21e2ab42",
+    "scripts/t490/measure-single-initial.sh": "599d9082b6f5624bbf047242c0126854baddf8545f242c4bd5f747b85fd5e462"
+  },
+  "argument_guards": {
+    "invalid_size": "REJECTED_AS_EXPECTED",
+    "conflicting_fullscreen": "REJECTED_AS_EXPECTED",
+    "missing_desktop": "REJECTED_AS_EXPECTED"
+  },
+  "deployment": {
+    "root": "/home/mo/xk6",
+    "backup": "/home/mo/xk6/tmp/display-script-backup-20261014-1521",
+    "files_checked": 6
+  },
+  "gtk_geometry": {
+    "mode": "gtk-x11",
+    "window": "0xa00009",
+    "client": {
+      "width": 1280,
+      "height": 800
+    },
+    "menubar": false,
+    "fixed_size": true,
+    "guest_started_after_sizing": true
+  }
+}

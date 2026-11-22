@@ -493,7 +493,7 @@ int main(int argc, char **argv)
 			chk("madvise(misaligned) expect EINVAL", rc, errno,
 			    rc == -1 && errno == EINVAL);
 
-			/* T490 Linux 7.0 and WSL2 Linux 5.15 both return ENOMEM for a range with a hole. */
+			/* T490 Linux 7.0 and WSL2 Linux 5.15 both map the portions but report ENOMEM for the hole. */
 			if (munmap(m + P, P) == 0) {
 				errno = 0; rc = madvise(m, P * 3, MADV_DONTNEED);
 				printf("[CP] %-38s rc=%d errno=%d (%s)\n",
@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 			munmap(m, P * 4);
 		}
 
-		/* 其他 advice：Linux 对未知/MADV_NORMAL 等一律接受并返回 0 */
+		/* Exercise recognized advisory operations; unknown advice is not accepted. */
 		char *q = mmap(NULL, P, PROT_READ | PROT_WRITE,
 		               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (q != MAP_FAILED) {
@@ -533,6 +533,7 @@ int main(int argc, char **argv)
 	{
 		int sv[2];
 		if (socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sv) == 0) {
+			/* Linux only delivers credentials to a receiver with SO_PASSCRED. */
 			int passcred = 1;
 			errno = 0; rc = setsockopt(sv[1], SOL_SOCKET, SO_PASSCRED,
 			                             &passcred, sizeof(passcred));
@@ -595,7 +596,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	errno = 0; rc = prctl(PR_SET_PDEATHSIG, SIGKILL);
+	errno = 0; rc = prctl(PR_SET_PDEATHSIG, (long)SIGKILL, 0L, 0L, 0L);
 	chk("prctl(PR_SET_PDEATHSIG,SIGKILL)", rc, errno, rc == 0);
 
 	/* ---------- 5. 受继承性检查：fork+exec 后 fd 是否仍可用 ---------- */

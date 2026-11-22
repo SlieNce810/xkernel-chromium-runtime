@@ -5,7 +5,7 @@
 #
 # 为什么必须有这个文件
 #   t490_round.sh 的编排契约是「<autorun文件名> 注入为 /root/autorun.sh
-#   （guest 的 99-autostart 会调它）」。旧 WSL 镜像确实由人工注入过这个钩子，
+#   （guest 的 99-autostart 会调它）」。历史工作镜像确实由人工注入过这个钩子，
 #   但 agentos 官方 kiosk 镜像里 /etc/profile.d/ 只有：
 #       20locale.sh / README / color_prompt.sh.disabled
 #   没有任何东西会去执行 /root/autorun.sh —— 于是整轮会「什么都不发生」：

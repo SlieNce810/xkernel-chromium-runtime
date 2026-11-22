@@ -3,32 +3,37 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 
-#define PATHNAME "/run/xk-seqpacket-probe.sock"
+static const char *probe_path = "/run/xk-seqpacket-probe.sock";
 
 static int fail(const char *step)
 {
     printf("[SEQPACKET] %s FAILED errno=%d (%s)\n", step, errno, strerror(errno));
-    unlink(PATHNAME);
+    unlink(probe_path);
     return 1;
 }
 
 int main(void)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
-    unlink(PATHNAME);
+    const char *configured_path = getenv("SEQPACKET_PROBE_PATH");
+    if (configured_path && configured_path[0]) probe_path = configured_path;
+    unlink(probe_path);
 
     int server = socket(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0);
     if (server < 0) return fail("socket(server)");
     struct sockaddr_un address;
     memset(&address, 0, sizeof(address));
     address.sun_family = AF_UNIX;
-    memcpy(address.sun_path, PATHNAME, sizeof(PATHNAME));
-    socklen_t address_len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + sizeof(PATHNAME));
+    size_t path_size = strlen(probe_path) + 1;
+    if (path_size > sizeof(address.sun_path)) return fail("pathname too long");
+    memcpy(address.sun_path, probe_path, path_size);
+    socklen_t address_len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + path_size);
 
     if (bind(server, (struct sockaddr *)&address, address_len) != 0) return fail("bind");
     if (listen(server, 1) != 0) return fail("listen");
@@ -59,7 +64,7 @@ int main(void)
     close(accepted);
     close(client);
     close(server);
-    unlink(PATHNAME);
+    unlink(probe_path);
     printf("[SEQPACKET_EXIT] 0 verdict=PATH_SOCKET_OK\n");
     return 0;
 }

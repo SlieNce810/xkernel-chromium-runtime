@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+
+# Standalone T490 delivery workspace; defaults preserve the native Linux layout.
+XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+KERNEL_REPO="${KERNEL_REPO:-${KERNEL_DIR:-$HOME/x-kernel}}"
+# 两套命名并存：KERNEL_DIR 是决赛线 13 个脚本沿用的旧名，KERNEL_REPO 是初赛提交包口径。
+# 外部传任一个都映射到同一目录，避免"传了 KERNEL_DIR 却静默回退到 ~/x-kernel"跑错内核。
+KERNEL_DIR="$KERNEL_REPO"
+export XK6_ROOT KERNEL_REPO KERNEL_DIR
+mkdir -p "$XK6_ROOT/tmp"
 # round_assert.sh —— 单轮结束后的取证收尾（尺寸校验 → 收 guest 日志 → 像素判据 → 汇总）
 #
 # 用法：
@@ -19,6 +28,8 @@
 #   <EV>/guest/*.log                从 disk.img 回收的 guest 持久日志
 #
 # 退出码：仅当 --strict 且严格集未全通过时为 1；其余情况一律 0（判据是取证，不是门禁）。
+# FINAL_FRAME_DIAGNOSTIC_ONLY=1 时，*-final.ppm 仍完整运行并保留判据 JSON，
+# 但作为 QEMU 收尾诊断帧单列，不参与会话期间的页面 gate。默认值 0 保持历史行为。
 
 set -u
 
@@ -26,6 +37,8 @@ TAG="${1:?usage: round_assert.sh <tag> [--strict] [--force-e2fsck]}"
 shift || true
 STRICT=""
 FORCE_E2=""
+FINAL_FRAME_DIAGNOSTIC_ONLY="${FINAL_FRAME_DIAGNOSTIC_ONLY:-0}"
+case "$FINAL_FRAME_DIAGNOSTIC_ONLY" in 0|1) ;; *) echo "!! FINAL_FRAME_DIAGNOSTIC_ONLY 只接受 0 或 1"; exit 2 ;; esac
 for a in "$@"; do
     case "$a" in
         --strict)       STRICT="--strict" ;;
@@ -38,8 +51,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ASSERT="$HERE/ppm_assert.py"
 ASSERT_PROFILE="${ASSERT_PROFILE:-legacy}"
 PULL="$HERE/pull_guest_logs.sh"
-KERNEL_DIR="${KERNEL_DIR:-$HOME/x-kernel}"
-IMAGE="$KERNEL_DIR/disk.img"
+IMAGE="${KERNEL_REPO}/disk.img"
 PY=python3
 command -v "$PY" >/dev/null 2>&1 || PY=python
 
@@ -54,7 +66,7 @@ image_qemu_running() {
     return 1
 }
 
-EV="$(ls -d "$HOME"/xk6/evidence/*"_t490-$TAG" 2>/dev/null | tail -1)"
+EV="$(ls -d "$XK6_ROOT"/evidence/*"_t490-$TAG" 2>/dev/null | tail -1)"
 if [ -z "$EV" ] || [ ! -d "$EV" ]; then
     echo "!! 找不到本轮证据目录: ~/xk6/evidence/*_t490-$TAG（tag=$TAG）"
     exit 1
@@ -256,6 +268,7 @@ say ""
 say "--- ④ 逐张像素判据（ppm_assert.py） ---"
 N_ASSERT=0
 N_ASSERT_FAIL=0
+N_FINAL_DIAGNOSTIC_FAIL=0
 N_SIZE_MISMATCH=0
 N_WARMUP=0
 N_POST_PASS_FAIL=0
@@ -278,7 +291,15 @@ for f in $PPM_LIST; do
     # 所以必须从 JSON 里的 strict_fail_count 判严格集，否则尺寸不符会被误记成"渲染不正确"。
     sfc=$(grep -o '"strict_fail_count": [0-9]*' "$out" 2>/dev/null | head -1 | grep -o '[0-9]*$')
     [ -n "$sfc" ] || sfc=1
-    if [ "$rc" -ne 0 ] && [ "$sfc" -eq 0 ]; then
+    IS_FINAL_FRAME=0
+    case "$base" in *-final) IS_FINAL_FRAME=1 ;; esac
+    FINAL_DIAGNOSTIC=0
+    if [ "$sfc" -gt 0 ] && [ "$FINAL_FRAME_DIAGNOSTIC_ONLY" = "1" ] && [ "$IS_FINAL_FRAME" = "1" ]; then
+        # 收尾诊断帧：main 侧的口径——严格集不过仍保留 JSON，但不计入页面 gate。
+        FINAL_DIAGNOSTIC=1
+        N_FINAL_DIAGNOSTIC_FAIL=$((N_FINAL_DIAGNOSTIC_FAIL + 1))
+        say "  $base: 收尾诊断帧严格集未通过；JSON 原样保留，不计入会话期间页面 gate"
+    elif [ "$rc" -ne 0 ] && [ "$sfc" -eq 0 ]; then
         N_SIZE_MISMATCH=$((N_SIZE_MISMATCH + 1))
         say "  $base: 尺寸校验未通过（严格集本身全过；本图与首图尺寸不同）"
     fi
@@ -292,13 +313,16 @@ for f in $PPM_LIST; do
         fi
     else
         LAST_FRAME_STRICT_PASS=0
-        N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
-        if [ -z "$FIRST_PASS" ]; then
-            N_WARMUP=$((N_WARMUP + 1))
-            say "  $base: WARMUP（首个正确页面帧之前）$(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
-        else
-            N_POST_PASS_FAIL=$((N_POST_PASS_FAIL + 1))
-            say "  $base: PASS 后严格集失败 $(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
+        # 收尾诊断帧已单独计入 N_FINAL_DIAGNOSTIC_FAIL，不得再算进页面 gate。
+        if [ "$FINAL_DIAGNOSTIC" -ne 1 ]; then
+            N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
+            if [ -z "$FIRST_PASS" ]; then
+                N_WARMUP=$((N_WARMUP + 1))
+                say "  $base: WARMUP（首个正确页面帧之前）$(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
+            else
+                N_POST_PASS_FAIL=$((N_POST_PASS_FAIL + 1))
+                say "  $base: PASS 后严格集失败 $(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
+            fi
         fi
     fi
 done
@@ -401,12 +425,13 @@ fi
 
 say ""
 say "=================================================================="
-say "SUMMARY_END tag=$TAG  ppm=$N_PPM  严格集未通过=$N_ASSERT_FAIL  尺寸不符=$N_SIZE_MISMATCH  心跳=$N_DIFF_OK/$N_DIFF  探针必验失败=$N_PROBE_FAIL"
+say "SUMMARY_END tag=$TAG  ppm=$N_PPM  严格集未通过=$N_ASSERT_FAIL  收尾诊断帧失败=$N_FINAL_DIAGNOSTIC_FAIL  尺寸不符=$N_SIZE_MISMATCH  心跳=$N_DIFF_OK/$N_DIFF  探针必验失败=$N_PROBE_FAIL"
 say "=================================================================="
 
 # 门禁（--strict 才生效）：像素严格集失败 **或** 探针必验项失败 ⇒ 本轮不通过。
 # 固定输出 GATE 行，便于机器读取与跨轮比较。
-say "GATE  page_fail=$PAGE_GATE_FAIL  strict_fail=$N_ASSERT_FAIL  warmup=$N_WARMUP  post_pass_fail=$N_POST_PASS_FAIL  probe_fail=$N_PROBE_FAIL  size_fail=$SIZE_FAIL  ppm_size_mismatch=$N_SIZE_MISMATCH  pixel_policy_fail=$PIXEL_POLICY_FAIL  last_frame=$LAST_BASE last_frame_strict_pass=$LAST_FRAME_STRICT_PASS any_strict_pass=$ANY_STRICT_PASS last_pass=$LAST_PASS"
+# 字段取分支侧 page-gate 全量口径，并补上 main 侧的 final_frame_diagnostic_fail。
+say "GATE  page_fail=$PAGE_GATE_FAIL  strict_fail=$N_ASSERT_FAIL  final_frame_diagnostic_fail=$N_FINAL_DIAGNOSTIC_FAIL  warmup=$N_WARMUP  post_pass_fail=$N_POST_PASS_FAIL  probe_fail=$N_PROBE_FAIL  size_fail=$SIZE_FAIL  ppm_size_mismatch=$N_SIZE_MISMATCH  pixel_policy_fail=$PIXEL_POLICY_FAIL  last_frame=$LAST_BASE last_frame_strict_pass=$LAST_FRAME_STRICT_PASS any_strict_pass=$ANY_STRICT_PASS last_pass=$LAST_PASS"
 if [ -n "$STRICT" ]; then
     if [ "$PAGE_GATE_FAIL" -gt 0 ] || [ "$N_PROBE_FAIL" -gt 0 ] || \
        [ "$SIZE_FAIL" -gt 0 ] || [ "$N_SIZE_MISMATCH" -gt 0 ] || \

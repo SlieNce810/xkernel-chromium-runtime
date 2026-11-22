@@ -37,7 +37,8 @@ set -u
 set -o pipefail
 
 IMG="${1:?用法: t490_inject_pages.sh <disk.img> [page_dir] [entry]}"
-PAGE_DIR="${2:-$HOME/xk6/scripts/testpage}"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PAGE_DIR="${2:-$HERE/../testpage}"
 ENTRY="${3:-index.html}"
 PAGE_FILES="${PAGE_FILES:-index.html interaction.html layout.html}"
 DEST_DIR="/usr/share/html-test"

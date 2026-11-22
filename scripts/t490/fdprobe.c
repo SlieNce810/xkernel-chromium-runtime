@@ -44,7 +44,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define TARGET_PATH "/tmp/fdprobe-target"
+#define DEFAULT_TARGET_PATH "/tmp/fdprobe-target"
 #define MAGIC_ORIGINAL "MAGIC-ORIGINAL-0123456789"
 #define MAGIC_CHILD "CHILD-WROTE-9876543210"
 
@@ -54,7 +54,19 @@ static int g_fail = 0;
  * 这是整份探针最关键的一个数字：0 表示跨进程 fd 完全没送到。 */
 static int g_t1_fd_count = -1;
 
-#define T1_COUNT_PATH "/tmp/fdprobe-t1.count"
+#define DEFAULT_T1_COUNT_PATH "/tmp/fdprobe-t1.count"
+
+static const char *target_path(void)
+{
+    const char *path = getenv("FDPROBE_TARGET_PATH");
+    return path && path[0] ? path : DEFAULT_TARGET_PATH;
+}
+
+static const char *count_path(void)
+{
+    const char *path = getenv("FDPROBE_COUNT_PATH");
+    return path && path[0] ? path : DEFAULT_T1_COUNT_PATH;
+}
 
 /* 子进程把观测到的 fd 个数落盘，供父进程汇总（父进程看不到子进程的 stdout 变量） */
 static void write_count_file(const char *path, int count) {
@@ -87,9 +99,9 @@ static void verdict(const char *tag, const char *what, int ok) {
 
 /* 创建/重置目标文件，返回 fd（调用方负责 close） */
 static int make_target(void) {
-    int fd = open(TARGET_PATH, O_CREAT | O_TRUNC | O_RDWR, 0644);
+    int fd = open(target_path(), O_CREAT | O_TRUNC | O_RDWR, 0644);
     if (fd < 0) {
-        printf("[SETUP] open(%s) failed errno=%d (%s)\n", TARGET_PATH, errno, strerror(errno));
+        printf("[SETUP] open(%s) failed errno=%d (%s)\n", target_path(), errno, strerror(errno));
         return -1;
     }
     if (write(fd, MAGIC_ORIGINAL, strlen(MAGIC_ORIGINAL)) != (ssize_t)strlen(MAGIC_ORIGINAL)) {
@@ -215,7 +227,7 @@ static int verify_fd(int fd, const char *tag) {
         printf("[%s] write(fd=%d) failed errno=%d\n", tag, fd, errno);
         return 0;
     }
-    int fresh = open(TARGET_PATH, O_RDONLY);
+    int fresh = open(target_path(), O_RDONLY);
     if (fresh < 0) {
         printf("[%s] fresh open failed errno=%d\n", tag, errno);
         return 0;
@@ -249,7 +261,7 @@ static int test_stream_single_fd(void) {
         char buf[64];
         int fds[4];
         int cnt = recv_msg(sv[1], buf, sizeof(buf), fds, 4, tag);
-        write_count_file(T1_COUNT_PATH, cnt);
+        write_count_file(count_path(), cnt);
         int ok = 0;
         if (cnt == 1 && verify_fd(fds[0], tag)) {
             ok = 1;
@@ -267,7 +279,7 @@ static int test_stream_single_fd(void) {
     }
     int st = 0;
     waitpid(pid, &st, 0);
-    g_t1_fd_count = read_count_file(T1_COUNT_PATH);
+    g_t1_fd_count = read_count_file(count_path());
     printf("[%s] T1_fd_count=%d (0 = 跨进程 fd 完全没送到, 1 = 送到)\n", tag, g_t1_fd_count);
     int ok = (WIFEXITED(st) && WEXITSTATUS(st) == 0);
     verdict(tag, "STREAM 跨进程传 1 个 fd 且收到的 fd 可读写", ok);
