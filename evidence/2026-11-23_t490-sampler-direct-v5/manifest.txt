@@ -1,0 +1,58 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-11-23T04:40:49.787
+hostname         : mo-ThinkPad-T490
+os               : Linux-7.0.0-43-generic-x86_64-with-glibc2.43
+guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+git_cwd          : /home/mo/x-kernel
+os_pretty        : Ubuntu 26.04.1 LTS
+machine          : x86_64
+host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+cpu_logical      : 8
+mem_total        : 14.7 GiB
+qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+git_describe     : basic-baseline-20260922-11-gb73e581-dirty
+git_commit       : b73e5814087c9d33c5f0a35b66cc56be689d3dee
+disk_free        : 25.6 GiB (/home/mo/x-kernel)
+
+--- 本次会话 ---
+out_dir          : /home/mo/xk6/evidence/2026-11-23_t490-sampler-direct-v5
+cwd              : /home/mo/x-kernel
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1 -qmp unix:/tmp/xk6-qmp-stability-sampler-direct-v5.sock,server=on,wait=off'
+duration_sec     : 420.0
+interval_sec     : 30.0
+actual_sec       : 217.6
+screendumps      : 0 / 0 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt (含字面 qemu-system-aarch64 命令行)
+
+--- 赛题第七节 平台合规 ---
+platform_check   : PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+detail_file      : platform-compliance.txt
+guest_arch       : aarch64 (七(一)1)
+accel            : 无 -accel（纯 TCG，七(一)2）
+device_combo     : virtio-gpu-pci + virtio-input(keyboard/mouse) + virtio-blk + virtio-net (七(一)3)
+evidence_shots   : QEMU monitor screendump（七(一)3 唯一认可的截图方式）
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+ 0, 0, 1, 0, 116, 111, 105, 110, 100, 101, 0, 0, 0, 0, 112, 95, 115, 105, 0, 0, 0, 0, 0, 0, 0, 0, 95, 115, 105, 116, 101, 115, 5, 102, 1, 7, 23, 21, 21, 1, 129, 47, 116, 97, 98, 108, 101, 109, 101, 116, 97, 109, 101, 116, 97, 2, 67, 82, 1, 65, 84, 69, 32, 84, 65, 66, 136, 22, 100, 14, 0, 0, 0, 0, 1, 0, 121, 32, 76, 79, 78, 71, 0, 0, 0, 0, 72, 65, 82, 32, 0, 0, 0, 0, 0, 0, 0, 0, 32, 85, 78, 73, 81, 85, 69, 32, 80, 82, 73, 77, 65, 82, 89, 32, 75, 69, 89, 44, 32, 118, 97, 108, 117, 101, 32, 76, 79, 78, 71, 86, 0, 0, 67, 72, 1, 82, 41, 39, 2, 6, 23, 59, 0, 0, 0, 105, 2, 0, 0, 0, 115, 113, 108, 105, 136, 22, 100, 14, 0, 0, 0, 0, 1, 0, 101, 120, 95, 109, 101, 116, 0, 0, 0, 0, 101, 116, 97, 3, 0, 0, 0, 0, 0, 0, 0, 0][m
+[m[37m[216.242493 0:572 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/544/task/572/comm" flags=0o2000000[m
+[m[37m[216.224107 1:427 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=futex err=KErrorKind::TimedOut[m
+[m[37m[216.243116 2:518 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/503/task/518/comm" flags=0o2000000[m
+[m[37m[216.293928 1:82 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[216.297850 1:82 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[216.302026 2:377 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/378/task/438/status" flags=0o2400000[m
+[m[37m[216.335904 0:665 ksyscall::io_mpx::epoll:61] [33mCHROMIUM_EPOLL_WAIT seq=1271 pid=503 epfd=25 ready=1 rows=[(1, 292059692936), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)][m
+[m[37m[216.348865 0:665 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/503/task/503/comm" flags=0o2000000[m
+[m[37m[216.378899 1:82 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(696)[m
+[m[37m[216.389730 0:665 posix_fs::open:48] [33mSANDBOX_OPEN path="/proc/503/cmdline" flags=0o2000000[m
+[m

@@ -53,6 +53,216 @@ static uint64_t tree_snapshot_rollup_ns;
 static uint64_t tree_snapshot_format_ns;
 static uint64_t tree_snapshot_process_count;
 static uint64_t tree_snapshot_resident_pages;
+static uint64_t tree_endpoint_read_ns;
+
+static uint64_t monotonic_ns(void);
+static int process_index(const Process *processes, size_t count, pid_t pid);
+static bool read_stat(pid_t pid, pid_t *ppid, uint64_t *start_ticks);
+
+static bool parse_u64_field(const char *line, const char *name, uint64_t *value) {
+    const char *start = strstr(line, name);
+    if (!start)
+        return false;
+    start += strlen(name);
+    char *end = NULL;
+    errno = 0;
+    unsigned long long parsed = strtoull(start, &end, 10);
+    if (errno || end == start)
+        return false;
+    *value = (uint64_t)parsed;
+    return true;
+}
+
+/*
+ * Prefer the xkernel procfs bulk snapshot.  The endpoint performs one
+ * consistent resident/PSS/USS walk inside the kernel and returns the complete
+ * descendant tree, so the sampler does not first walk every /proc entry and
+ * then issue one potentially blocking smaps read per process.  A return value
+ * of 0 means the endpoint is not present and asks the caller to use the
+ * historical Linux-compatible fallback; -1 means the endpoint was present but
+ * the snapshot was incomplete or malformed and must remain an invalid sample.
+ */
+static int read_tree_endpoint(Process *processes, size_t *count, pid_t root_pid) {
+    char path[96];
+    snprintf(path, sizeof(path), "/proc/%d/xk_memory_snapshot", root_pid);
+    FILE *file = fopen(path, "r");
+    bool xk_snapshot = true;
+    if (!file && errno == ENOENT) {
+        snprintf(path, sizeof(path), "/proc/%d/tree_smaps_rollup", root_pid);
+        file = fopen(path, "r");
+        xk_snapshot = false;
+    }
+    if (!file)
+        return errno == ENOENT ? 0 : -1;
+
+    uint64_t read_started_ns = monotonic_ns();
+    tree_snapshot_timing_present = false;
+    tree_snapshot_total_ns = 0;
+    tree_snapshot_resident_walk_ns = 0;
+    tree_snapshot_mapcount_ns = 0;
+    tree_snapshot_rollup_ns = 0;
+    tree_snapshot_format_ns = 0;
+    tree_snapshot_process_count = 0;
+    tree_snapshot_resident_pages = 0;
+    char line[MAX_LINE];
+    bool header_seen = false;
+    bool complete = false;
+    uint64_t expected_rows = 0;
+    size_t rows = 0;
+    while (fgets(line, sizeof(line), file)) {
+        if (xk_snapshot && strncmp(line, "snapshot version=1 ", 19) == 0) {
+            header_seen = true;
+            if (strstr(line, "complete=1") == NULL) {
+                fclose(file);
+                return -1;
+            }
+            complete = true;
+            uint64_t ignored = 0;
+            if (!parse_u64_field(line, "total_ns=", &tree_snapshot_total_ns) ||
+                !parse_u64_field(line, "resident_walk_ns=", &tree_snapshot_resident_walk_ns) ||
+                !parse_u64_field(line, "mapcount_ns=", &tree_snapshot_mapcount_ns) ||
+                !parse_u64_field(line, "rollup_ns=", &tree_snapshot_rollup_ns) ||
+                !parse_u64_field(line, "format_ns=", &tree_snapshot_format_ns) ||
+                !parse_u64_field(line, "process_count=", &tree_snapshot_process_count) ||
+                !parse_u64_field(line, "resident_pages=", &tree_snapshot_resident_pages)) {
+                /* Timing fields were added after the first MVP. Keep the
+                 * snapshot usable while marking timing unavailable. */
+                tree_snapshot_timing_present = false;
+            } else {
+                tree_snapshot_timing_present = true;
+            }
+            (void)parse_u64_field(line, "t_ns=", &ignored);
+            continue;
+        }
+        if (!xk_snapshot && strncmp(line, "META ", 5) == 0) {
+            header_seen = true;
+            complete = parse_u64_field(line, "total_ns=", &tree_snapshot_total_ns) &&
+                       parse_u64_field(line, "resident_walk_ns=", &tree_snapshot_resident_walk_ns) &&
+                       parse_u64_field(line, "mapcount_ns=", &tree_snapshot_mapcount_ns) &&
+                       parse_u64_field(line, "rollup_ns=", &tree_snapshot_rollup_ns) &&
+                       parse_u64_field(line, "format_ns=", &tree_snapshot_format_ns) &&
+                       parse_u64_field(line, "process_count=", &tree_snapshot_process_count) &&
+                       parse_u64_field(line, "resident_pages=", &tree_snapshot_resident_pages);
+            tree_snapshot_timing_present = complete;
+            continue;
+        }
+        if (!xk_snapshot && strncmp(line, "PID ", 4) == 0)
+            continue;
+        if (xk_snapshot && strncmp(line, "process ", 8) == 0) {
+            if (!header_seen || rows >= MAX_PROCESSES)
+                continue;
+            Process *process = &processes[rows];
+            int pid = 0;
+            int ppid = 0;
+            unsigned long long start = 0;
+            unsigned long long rss_pages = 0;
+            unsigned long long pss_pages = 0;
+            unsigned long long uss_pages = 0;
+            unsigned long long shared_pages = 0;
+            char role[sizeof(process->role)] = "child";
+            if (sscanf(line,
+                       "process pid=%d ppid=%d start=%llu role=%31s rss_pages=%llu "
+                       "pss_pages=%llu uss_pages=%llu shared_pages=%llu",
+                       &pid, &ppid, &start, role, &rss_pages, &pss_pages,
+                       &uss_pages, &shared_pages) != 8 || pid <= 0 || ppid < 0)
+                continue;
+            memset(process, 0, sizeof(*process));
+            process->pid = (pid_t)pid;
+            process->ppid = (pid_t)ppid;
+            process->start_ticks = (uint64_t)start;
+            process->in_tree = true;
+            process->depth = 0;
+            snprintf(process->instance, sizeof(process->instance), "%d-%" PRIu64,
+                     process->pid, process->start_ticks);
+            snprintf(process->role, sizeof(process->role), "%s",
+                     pid == root_pid ? "browser" :
+                     (strcmp(role, "renderer") == 0 || strcmp(role, "zygote") == 0 ||
+                      strcmp(role, "utility") == 0 || strcmp(role, "gpu") == 0)
+                         ? role : "child");
+            if (rss_pages > UINT64_MAX / 4 || pss_pages > UINT64_MAX / 4 ||
+                uss_pages > UINT64_MAX / 4 || shared_pages > UINT64_MAX / 4)
+                continue;
+            process->rss_kb = (uint64_t)rss_pages * 4;
+            process->pss_kb = (uint64_t)pss_pages * 4;
+            process->uss_kb = (uint64_t)uss_pages * 4;
+            process->memory_present = true;
+            rows++;
+            continue;
+        }
+        if (!xk_snapshot && header_seen && line[0] >= '0' && line[0] <= '9') {
+            if (rows >= MAX_PROCESSES)
+                continue;
+            Process *process = &processes[rows];
+            int pid = 0;
+            int ppid = 0;
+            unsigned long long rss = 0;
+            unsigned long long pss = 0;
+            unsigned long long uss = 0;
+            if (sscanf(line, "%d %d %llu %llu %llu", &pid, &ppid, &rss, &pss, &uss) != 5 ||
+                pid <= 0 || ppid < 0)
+                continue;
+            memset(process, 0, sizeof(*process));
+            process->pid = (pid_t)pid;
+            process->ppid = (pid_t)ppid;
+            process->start_ticks = 0;
+            pid_t ignored_ppid = 0;
+            (void)read_stat(process->pid, &ignored_ppid, &process->start_ticks);
+            process->in_tree = true;
+            process->depth = 0;
+            snprintf(process->instance, sizeof(process->instance), "%d-%" PRIu64,
+                     process->pid, process->start_ticks);
+            snprintf(process->role, sizeof(process->role), "%s",
+                     pid == root_pid ? "browser" : "child");
+            process->rss_kb = rss;
+            process->pss_kb = pss;
+            process->uss_kb = uss;
+            process->memory_present = true;
+            rows++;
+            continue;
+        }
+        if (xk_snapshot && strncmp(line, "snapshot-end ", 14) == 0) {
+            if (!parse_u64_field(line, "rows=", &expected_rows)) {
+                fclose(file);
+                return -1;
+            }
+        }
+    }
+    fclose(file);
+    tree_endpoint_read_ns = monotonic_ns() - read_started_ns;
+    if (!xk_snapshot)
+        expected_rows = rows;
+    if (!header_seen || !complete || rows == 0 || expected_rows != rows)
+        return -1;
+
+    int root_index = process_index(processes, rows, root_pid);
+    if (root_index < 0)
+        return -1;
+    processes[root_index].depth = 0;
+    for (size_t i = 0; i < rows; ++i) {
+        if ((int)i == root_index)
+            continue;
+        int current = (int)i;
+        int depth = 0;
+        bool reaches_root = false;
+        for (size_t hops = 0; hops <= rows; ++hops) {
+            if (processes[current].pid == root_pid) {
+                reaches_root = true;
+                break;
+            }
+            int parent = process_index(processes, rows, processes[current].ppid);
+            if (parent < 0 || parent == current)
+                break;
+            current = parent;
+            depth++;
+        }
+        if (!reaches_root)
+            return -1;
+        processes[i].depth = depth;
+    }
+    memory_source = "procfs-xk-memory-snapshot";
+    *count = rows;
+    return 1;
+}
 static uint64_t monotonic_ns(void) {
     struct timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
@@ -433,8 +643,16 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
     Process *processes = calloc(MAX_PROCESSES, sizeof(*processes));
     if (!processes)
         return -1;
-    size_t count = scan_processes(processes);
-    if (!count || !build_process_tree(processes, count, root_pid)) {
+    size_t count = 0;
+    int endpoint = read_tree_endpoint(processes, &count, root_pid);
+    bool direct_snapshot = endpoint == 1;
+    if (endpoint == 0) {
+        count = scan_processes(processes);
+        if (!count || !build_process_tree(processes, count, root_pid)) {
+            free(processes);
+            return -2;
+        }
+    } else if (endpoint < 0) {
         free(processes);
         return -2;
     }
@@ -458,6 +676,14 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
         SeenProcess *known = seen_instance(seen, *seen_count, process->instance);
         if (!known)
             continue;
+        if (direct_snapshot) {
+            known->role_checked_t_ns = sample_t_ns;
+            if (strcmp(known->role, process->role) != 0) {
+                emit_event(events, run_id, sample_t_ns, "process_role_changed", process, NULL);
+                snprintf(known->role, sizeof(known->role), "%s", process->role);
+            }
+            continue;
+        }
         if (sample_t_ns >= known->role_checked_t_ns &&
             sample_t_ns - known->role_checked_t_ns < ROLE_RECHECK_INTERVAL_NS)
             continue;
@@ -478,7 +704,8 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
                 continue;
             int parent_index = process->depth == 0 ? -1 : process_index(processes, count, process->ppid);
             const char *parent_instance = parent_index >= 0 ? processes[parent_index].instance : NULL;
-            classify_process_role(process, false);
+            if (!direct_snapshot)
+                classify_process_role(process, false);
             emit_event(events, run_id, sample_t_ns, "process_started", process, parent_instance);
             if (!add_seen(seen, seen_count, process)) {
                 free(processes);
@@ -489,8 +716,10 @@ static int sample_tree(FILE *events, FILE *memory, FILE *errors,
 
     uint64_t sample_id = sample_number + 1;
     uint64_t tree_read_started_ns = monotonic_ns();
-    int bulk = read_tree_snapshot(processes, count, root_pid);
-    uint64_t tree_smaps_rollup_read_ns = monotonic_ns() - tree_read_started_ns;
+    int bulk = direct_snapshot ? 1 : read_tree_snapshot(processes, count, root_pid);
+    uint64_t tree_smaps_rollup_read_ns = direct_snapshot
+                                             ? tree_endpoint_read_ns
+                                             : monotonic_ns() - tree_read_started_ns;
     bool complete = bulk >= 0;
     for (size_t i = 0; complete && i < count; ++i) {
         Process *process = &processes[i];
