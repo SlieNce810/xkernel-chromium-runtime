@@ -1,0 +1,18 @@
+command=gcc -Wall -Wextra -O2 scripts/t490/memfd_seals_probe.c
+2026-11-19T16:44:46+08:00
+Linux mo-ThinkPad-T490 7.0.0-43-generic #43-Ubuntu SMP PREEMPT_DYNAMIC Fri Oct 23 13:25:25 UTC 2026 x86_64 GNU/Linux
+memfd_noexec=0
+[MF] memfd_create allow sealing             rc=3 errno=0 (-) PASS
+[MF] initial ftruncate                      rc=0 errno=0 (-) PASS
+[MF] initial write                          rc=1 errno=0 (-) PASS
+[MF] F_ADD_SEALS all required               rc=0 errno=0 (-) PASS
+[MF] F_GET_SEALS contains all               rc=15 errno=0 (-) PASS
+[MF] sealed pwrite returns EPERM            rc=-1 errno=1 (Operation not permitted) PASS
+[MF] sealed grow returns EPERM              rc=-1 errno=1 (Operation not permitted) PASS
+[MF] sealed shrink returns EPERM            rc=-1 errno=1 (Operation not permitted) PASS
+[MF] sealed writable shared mmap denied     rc=-1 errno=1 (Operation not permitted) PASS
+[MF] seal without ALLOW_SEALING denied      rc=-1 errno=1 (Operation not permitted) PASS
+[MF] all-ones flags return EINVAL           rc=-1 errno=22 (Invalid argument) PASS
+[MF] MFD_NOEXEC_SEAL sets F_SEAL_EXEC       rc=32 errno=0 (-) PASS
+[MFSUM] pass=12 fail=0
+[MFRESULT] PASS

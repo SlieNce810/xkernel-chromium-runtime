@@ -1,0 +1,42 @@
+usage: stability_driver.py [-h] --socket SOCKET --run-id RUN_ID --out-dir
+                           OUT_DIR --events EVENTS --console-log CONSOLE_LOG
+                           [--duration-seconds DURATION_SECONDS]
+                           [--reload-count RELOAD_COUNT]
+                           [--reload-interval-seconds RELOAD_INTERVAL_SECONDS]
+                           [--reload-window-seconds RELOAD_WINDOW_SECONDS]
+                           [--ready-timeout-seconds READY_TIMEOUT_SECONDS]
+                           [--bootstrap-poll-seconds BOOTSTRAP_POLL_SECONDS]
+                           [--poll-seconds POLL_SECONDS]
+                           [--heartbeat-seconds HEARTBEAT_SECONDS]
+                           [--profile PROFILE]
+                           [--schedule-tolerance-seconds SCHEDULE_TOLERANCE_SECONDS]
+                           [--connect-timeout-seconds CONNECT_TIMEOUT_SECONDS]
+
+Run a 30-minute QMP-driven page reload stability sequence. The measured clock
+starts only after the initial official page passes its strict PPM profile. Ten
+real Ctrl+R key chords are scheduled two minutes apart; each reload must
+produce a new strictly passing QEMU screendump. QEMU status is sampled every
+30 seconds for the full hold. Guest process liveness is recorded separately by
+autorun_mp_diag.sh and checked by stability_gate.py.
+
+options:
+  -h, --help            show this help message and exit
+  --socket SOCKET
+  --run-id RUN_ID
+  --out-dir OUT_DIR
+  --events EVENTS
+  --console-log CONSOLE_LOG
+                        live QEMU serial log written by t490_round.sh
+  --duration-seconds DURATION_SECONDS
+  --reload-count RELOAD_COUNT
+  --reload-interval-seconds RELOAD_INTERVAL_SECONDS
+  --reload-window-seconds RELOAD_WINDOW_SECONDS
+  --ready-timeout-seconds READY_TIMEOUT_SECONDS
+  --bootstrap-poll-seconds BOOTSTRAP_POLL_SECONDS
+                        initial strict-page screendump interval; reloads use
+                        --poll-seconds
+  --poll-seconds POLL_SECONDS
+  --heartbeat-seconds HEARTBEAT_SECONDS
+  --profile PROFILE
+  --schedule-tolerance-seconds SCHEDULE_TOLERANCE_SECONDS
+  --connect-timeout-seconds CONNECT_TIMEOUT_SECONDS

@@ -1,0 +1,38 @@
+{
+  "schema": "xkernel.interaction-score-gate.v2",
+  "mode": "default-multiprocess",
+  "sandbox_mode": "diagnostic-no-sandbox",
+  "input_transport": "QMP send-key + HMP virtio-mouse",
+  "ready_rc": 0,
+  "driver_rc": 0,
+  "round_rc": 0,
+  "javascript_pass": false,
+  "keyboard_pass": false,
+  "mouse_pass": false,
+  "checks": {
+    "javascript_selftest": {
+      "pass": false,
+      "reason": "/usr/bin/python3: can't open file '/home/mo/xk6/tmp/scripts/t490/ppm_assert.py': [Errno 2] No such file or directory"
+    },
+    "keyboard_echo_diff": {
+      "pass": false,
+      "reason": "/usr/bin/python3: can't open file '/home/mo/xk6/tmp/scripts/t490/ppm_assert.py': [Errno 2] No such file or directory"
+    },
+    "mouse_counter_diff": {
+      "pass": false,
+      "reason": "/usr/bin/python3: can't open file '/home/mo/xk6/tmp/scripts/t490/ppm_assert.py': [Errno 2] No such file or directory"
+    },
+    "mouse_navigation": {
+      "pass": false,
+      "reason": "layout strict assertion unavailable: [Errno 2] No such file or directory: '/home/mo/xk6/tmp/input-r72-c80-tablet-input01/interaction-shots/after-mouse-navigation.ppm.layout-strict-validation.json'"
+    },
+    "real_input_actions": {
+      "pass": false,
+      "reason": "insufficient real key/HMP pointer actions",
+      "real_key_actions": 23,
+      "hmp_pointer_clicks": 0,
+      "hmp_pointer_moves": 0
+    }
+  },
+  "pass": false
+}

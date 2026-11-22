@@ -2,8 +2,11 @@
 
 # Standalone T490 delivery workspace; defaults preserve the native Linux layout.
 XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
-export XK6_ROOT KERNEL_REPO
+KERNEL_REPO="${KERNEL_REPO:-${KERNEL_DIR:-$HOME/x-kernel}}"
+# 两套命名并存：KERNEL_DIR 是决赛线 13 个脚本沿用的旧名，KERNEL_REPO 是初赛提交包口径。
+# 外部传任一个都映射到同一目录，避免"传了 KERNEL_DIR 却静默回退到 ~/x-kernel"跑错内核。
+KERNEL_DIR="$KERNEL_REPO"
+export XK6_ROOT KERNEL_REPO KERNEL_DIR
 mkdir -p "$XK6_ROOT/tmp"
 # ============================================================================
 # T490 会话编排：平台合规预检 + run-session.py + QEMU(用户级解包) + 长时长取证
@@ -17,6 +20,7 @@ mkdir -p "$XK6_ROOT/tmp"
 # 环境变量：
 #   PLAT_ALLOW_NONCOMPLIANT=1   即使平台预检 FAIL 也继续（默认会告警但仍继续；
 #                               因为 run-session.py 内部已做命令行级硬断言）
+#   KERNEL_REPO                 内核源码树或隔离 worktree（默认 ~/x-kernel）
 # ============================================================================
 exec > "${XK6_ROOT}/tmp/run_session_t490.log" 2>&1
 set -x
@@ -29,11 +33,26 @@ export PATH="$HOME/qemu-root/usr/bin:$HOME/.cargo/bin:$HOME/musl/aarch64-linux-m
 TAG="${1:-run1}"
 DUR="${2:-2400}"
 IVL="${3:-120}"
+[ -d "$KERNEL_REPO" ] || { echo "!! 内核工作树不存在: $KERNEL_REPO"; exit 1; }
 
-# Optional QMP endpoint and extras for the interaction round.
-# Display options belong to QEMU_DISPLAY/platform.env, not QMP_EXTRA_ARGS.
-QMP_ARGS=()
-QMP_VALUE="${QMP_EXTRA_ARGS:-}"
+# QEMU 追加参数走单一字符串口径（QEMU_ARGS_VALUE）：platform.env 的 PLAT_QEMU_ARGS
+# 先入串，再按需追加 QMP 端点与 EXTRA_QEMU_ARGS。不用 main 侧的 QMP_ARGS 数组口径，
+# 因为 run-session.py 的 --qemu-args 是单值参数，两次传入会互相覆盖，且会丢掉
+# PLAT_QEMU_ARGS（input 设备）。input 设备的去重由 run-session.py 内部负责。
+QEMU_ARGS_VALUE="$PLAT_QEMU_ARGS"
+# Optional, explicitly scoped QEMU additions for an input A/B.  The formal
+# interaction runner uses this only for virtio-tablet-pci so QMP can send
+# deterministic absolute coordinates; ordinary rounds keep platform.env
+# unchanged.
+EXTRA_QEMU_ARGS_VALUE="${EXTRA_QEMU_ARGS:-}"
+case "$EXTRA_QEMU_ARGS_VALUE" in
+    ''|'-device virtio-tablet-pci') ;;
+    *)
+        echo "!! 非法 EXTRA_QEMU_ARGS=$EXTRA_QEMU_ARGS_VALUE（只允许空或 -device virtio-tablet-pci）"
+        exit 1
+        ;;
+esac
+[ -z "$EXTRA_QEMU_ARGS_VALUE" ] || QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $EXTRA_QEMU_ARGS_VALUE"
 if [ -n "${QMP_SOCKET:-}" ]; then
     case "$QMP_SOCKET" in
         *[!A-Za-z0-9_./-]*)
@@ -43,19 +62,35 @@ if [ -n "${QMP_SOCKET:-}" ]; then
     esac
     rm -f "$QMP_SOCKET"
     QMP_VALUE="-qmp unix:${QMP_SOCKET},server=on,wait=off ${QMP_EXTRA_ARGS:-}"
+    case "$QMP_VALUE" in
+        *[\'\"\;\|\&\`\$]*)
+            echo "!! 非法 QMP_EXTRA_ARGS"
+            exit 1
+            ;;
+    esac
+    QEMU_ARGS_VALUE="$QEMU_ARGS_VALUE $QMP_VALUE"
 fi
-case "$QMP_VALUE" in
-    *[\'\"\;\|\&\`\$]*)
-        echo "!! 非法 QMP_EXTRA_ARGS"
-        exit 1
-        ;;
-esac
-if [ -n "$QMP_VALUE" ]; then
-    QMP_ARGS=(--qemu-args "$QMP_VALUE")
-fi
+QEMU_ARGS=(--qemu-args "$QEMU_ARGS_VALUE")
 
 mkdir -p "${XK6_ROOT}/tmp"
 OUT="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG"
+mkdir -p "$OUT"
+
+# Keep enough host swap available for Chromium builds and pure-TCG rounds.
+# The helper is idempotent: an already active /swap.img + swap-extra.img pair
+# is simply recorded. Set ENSURE_SWAP=0 only for a deliberately constrained
+# diagnostic; formal runs keep the default enabled.
+# ⚠ ensure_swap.sh 未入库（HEAD 与 origin/main 都没有该文件）。缺失时写明原因，
+#   不让会话因缺少 helper 而静默拿到 127；swap 只影响宿主内存压力，不进得分口径。
+if [ "${ENSURE_SWAP:-1}" != "1" ]; then
+    printf 'SWAP_SKIPPED ENSURE_SWAP=0\n' | tee "$OUT/swap-status.txt"
+elif [ ! -f "$HERE/ensure_swap.sh" ]; then
+    printf 'SWAP_SKIPPED ENSURE_SWAP=1 helper_missing=%s\n' "$HERE/ensure_swap.sh" | tee "$OUT/swap-status.txt"
+else
+    SWAP_TOTAL_GIB="${SWAP_TOTAL_GIB:-12}" \
+    SWAP_STATUS_OUT="$OUT/swap-status.txt" \
+        bash "$HERE/ensure_swap.sh" "$OUT/swap-status.txt"
+fi
 
 # ① 交叉核验指纹：QEMU 版本（赛题第七节(一)2 要求 >= 8.0）
 "$PLAT_QEMU_BIN_NAME" --version | head -1
@@ -84,7 +119,7 @@ python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/run-session.py" \
   --display-mode "$PLAT_DISPLAY_MODE" --display-size "$PLAT_DISPLAY_SIZE" \
   --require-platform-compliance \
   --duration "$DUR" --interval "$IVL" --first-shot "$FIRST_SHOT" \
-  "${QMP_ARGS[@]}" \
+  "${QEMU_ARGS[@]}" \
   --out "$OUT"
 SESSION_RC=$?
 echo "SESSION_RC=$SESSION_RC"

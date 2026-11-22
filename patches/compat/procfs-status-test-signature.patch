@@ -1,0 +1,23 @@
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+index 4167c7d..97b7358 100644
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -1196,7 +1196,17 @@ mod tests {
+ 
+     #[def_test]
+     fn test_task_status_includes_process_name() {
+-        let status = format_task_status("test-bin", 12, 34, 'S', 1, None);
++        let status = format_task_status(
++            "test-bin",
++            12,
++            34,
++            'S',
++            1,
++            (0, 0, 0, 0),
++            (0, 0, 0, 0),
++            "",
++            None,
++        );
+ 
+         assert!(status.contains("Name:\ttest-bin\n"));
+         assert!(status.contains("Tgid:\t12\n"));

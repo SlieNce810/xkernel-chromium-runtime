@@ -1,0 +1,18 @@
+run_id=r22-lifecycle-events
+kernel_source_commit=b73e5814087c9d33c5f0a35b66cc56be689d3dee
+kernel_source_worktree=dirty; pre-existing changes were preserved
+kernel_sha256=da0c3802afed33a60faba5e1cbdfee6cd888e191c45e958c58cc01f0350de07f
+guest_image_sha256=bab5c9f5dbf1e4a910bab569635bb9e44fe38c3b8cea94ae8eae4ce3f7a9fdb1
+preload_source_sha256=3c2f63ca24339c9083fca14ad049be7418ddc5dbb4a5175cd5a4cdc0114b9904
+preload_shared_object_sha256=93864e7743a7b885fcf425b92349f12a160b003d1cda3e27ea19b0b36e26915f
+sampler_source_sha256=d947024b2dae2a0c9c7494b6d396f7976bf2a2c974e4a19c0b68acccb6795ded
+sampler_binary_sha256=a8e2a22907b992abf60b183412ecc810ddee7ef0ef6537d2627cc1bade2f32c7
+preload_mode=opt-in LD_PRELOAD=/lifecycle_event_preload.so; trace mode off
+browser_main_loop_ready_hook=first main-thread epoll_wait; no event observed
+navigation_requested_hook=successful Browser open of /usr/share/html-test/index.html; event observed
+renderer_create_hook=zygote fork boundary; five events observed, child process roles not yet verified
+renderer_ready_hook=first renderer main-thread epoll_wait; no event observed
+first_valid_frame_hook=not instrumented in R22
+native_preload_smoke=LIFECYCLE_PRELOAD_NATIVE_SMOKE=PASS on T490 host; this is not guest/browser evidence
+native_preload_smoke_command=bash scripts/t490/test_lifecycle_preload_native.sh
+native_preload_smoke_platform=x86_64 T490 host userspace; gcc shared object + epoll/file-open fixture

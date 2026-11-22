@@ -1,0 +1,62 @@
+diff --git a/net/knet/src/unix/stream.rs b/net/knet/src/unix/stream.rs
+index 578cad3..2edc064 100644
+--- a/net/knet/src/unix/stream.rs
++++ b/net/knet/src/unix/stream.rs
+@@ -29,7 +29,9 @@ fn trace_chromium_stream_frame(bytes: &[u8]) {
+     if bytes.is_empty() || bytes.len() > 4096 {
+         return;
+     }
+-    let process = kprocess::current_user_process();
++    let Some(process) = kprocess::try_current_user_process() else {
++        return;
++    };
+     let Ok(argv) = process.cmdline() else {
+         return;
+     };
+@@ -443,17 +445,21 @@ impl UnixTransportOps for StreamTransport {
+                         };
+                         let mut remaining = count;
+                         while remaining > 0 {
+-                            let Some(front) = boundaries.front_mut() else { break };
+-                            let consumed = front.bytes_remaining.min(remaining);
+-                            front.bytes_remaining -= consumed;
++                            let (consumed, boundary_complete, mut batch_data) = {
++                                let Some(front) = boundaries.front_mut() else { break };
++                                let consumed = front.bytes_remaining.min(remaining);
++                                front.bytes_remaining -= consumed;
++                                let boundary_complete = front.bytes_remaining == 0;
++                                (consumed, boundary_complete, core::mem::take(&mut front.data))
++                            };
+                             remaining -= consumed;
+-                            if front.bytes_remaining != 0 {
+-                                break;
+-                            }
+-                            let mut batch = boundaries.pop_front().expect("front exists");
+-                            if !batch.data.is_empty() {
++                            // Linux attaches SCM_RIGHTS to the first recvmsg that
++                            // consumes any byte from its sendmsg. Preserve the
++                            // boundary byte count, but deliver its control data
++                            // once, on this first successful read.
++                            if !batch_data.is_empty() {
+                                 if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
+-                                    batch.data.retain(|item| {
++                                    batch_data.retain(|item| {
+                                         !matches!(
+                                             item.as_ref().downcast_ref::<KernelAncillaryData>(),
+                                             Some(KernelAncillaryData::Credentials(_)),
+@@ -461,9 +467,14 @@ impl UnixTransportOps for StreamTransport {
+                                     });
+                                 }
+                                 if let Some(out) = ancillary_out.as_mut() {
+-                                    out.append(&mut batch.data);
++                                    out.append(&mut batch_data);
+                                 }
+                             }
++                            if boundary_complete {
++                                boundaries.pop_front();
++                            } else {
++                                break;
++                            }
+                         }
+                         let occupied_after = occupied_before - count;
+                         if !channel::is_stream_writable(occupied_before)

@@ -1,0 +1,854 @@
+### [2026-11-22 00:31:04] SESSION START
+### cwd: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci -qmp unix:/tmp/xk6-qmp-stability-r66-r64-compat-cold03.sock,server=on,wait=off'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target --disk-image /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci -qmp 'unix:/tmp/xk6-qmp-stability-r66-r64-compat-cold03.sock,server=on,wait=off'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ksyscall` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.47s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/r64-targeted-scm-no-direct/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/r64-targeted-scm-no-direct/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci \
+  -qmp 'unix:/tmp/xk6-qmp-stability-r66-r64-compat-cold03.sock,server=on,wait=off'
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000815a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000815a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-21 16:31:05.006304912 UTC
+
+arch = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-21T16:02:01.006230683Z
+log_level = error
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 1cb298dfeaaa235a21f29d15499783df63e2575ca10b7dc1008189bce003232e
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 12e8cf625ee21ec2b6344cf3cc631eaaa701190ebefc451c37c939519c7dd154
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+SHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+
+Use [1m[3mapt[0m to install packages.
+
+[autostart] hook fired (Sat Nov 21 16:31:06 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+kylin-x:~# [6n[mpdiag] MP_AUTORUN_START_EPOCH_MS=1795278666
+[mpdiag] MP_AUTORUN_START_MONO_MS=1931
+[mpdiag] PAGE_URL=file:///usr/share/html-test/index.html
+[mpdiag] TRACE_MODE=0
+[mpdiag] GL_MODE=angle
+[mpdiag] NET_MODE=normal
+[mpdiag] LEDGER_MODE=0
+[mpdiag] FAMILY_WATCHDOG_INTERVAL=15
+[mpdiag] WESTON_CONTINUE_WITHOUT_INPUT=0
+[mpdiag] MP_FAMILY_DIAGNOSTICS=0
+[mpdiag] MAX_SECONDS=3000 SAMPLE_SECONDS=5 HOLD_SECONDS=40
+[mpdiag] kernel=Linux 10.0.0 aarch64
+[mpdiag] PROC_VERSION=
+[mpdiag] LD_PRELOAD=<unset>
+[mpdiag] LIFECYCLE_PRELOAD=
+[mpdiag] CHROMIUM_SHA256=d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641
+[mpdiag] OVERLAY_SHA256=a1d9481890e344dcdde157390a2df796ee8c8beb71b54c6bb5b40b0309f16aee
+[mpdiag] PKG_OVERLAY_SKIP=1 (set MP_EXTRACT_OVERLAY_VALUE=1 only for an explicit overlay experiment)
+[mpdiag] STRACE_FILE=/usr/bin/strace
+[mpdiag] STRACE_SELF_TEST=FAIL
+[mpdiag] DRM_NODES=total 0
+crw-rw-rw-    1 root     root      226,   0 Jan  1  1970 card0
+crw-rw-rw-    1 root     root      226, 128 Jan  1  1970 renderD128
+[mpdiag] INPUT_NODES=total 0
+crw-rw-rw-    1 root     root       13,  64 Jan  1  1970 event0
+crw-rw-rw-    1 root     root       13,  65 Jan  1  1970 event1
+[mpdiag] DRM_SYSFS=/sys/class/drm/card0/dev
+/sys/class/drm/card0/device
+/sys/class/drm/card0/subsystem
+/sys/class/drm/card0/uevent
+/sys/class/drm/renderD128/dev
+/sys/class/drm/renderD128/device
+/sys/class/drm/renderD128/subsystem
+/sys/class/drm/renderD128/uevent
+[mpdiag] INPUT_SEAT dev=/dev/input/event0 major=13 minor=64 name=QEMU Virtio Keyboard data=/run/udev/data/c13:64
+[mpdiag] INPUT_SEAT dev=/dev/input/event1 major=13 minor=65 name=QEMU Virtio Mouse data=/run/udev/data/c13:65
+[mpdiag] WESTON_ARGS=--backend=drm-backend.so --renderer=pixman --drm-device=card0 --seat=seat0  --idle-time=0
+[mpdiag] MP_WESTON_SOCKET=wayland-1
+[mpdiag] weston_pid=45 alive=yes
+[mpdiag] WESTON_INPUT_LINES=15
+[mpdiag] CHROME_ARGS=--ozone-platform=wayland --js-flags=--jitless  --use-gl=angle --use-angle=swiftshader --in-process-gpu --no-sandbox --disable-dev-shm-usage --disable-crash-reporter --disable-breakpad --no-first-run --no-default-browser-check --disable-sync --disable-component-update --disable-background-networking --disable-extensions --ipc-connection-timeout=600 --window-size=1280,800 --start-fullscreen --kiosk --disable-features=Vulkan,AudioServiceOutOfProcess,AudioServiceSandbox,SegmentationPlatform,OptimizationGuideModelDownloading,OptimizationHints,WebAppProvider,InterestFeedContentSuggestions --enable-logging=stderr --v=1 --vmodule=*file_url_loader_factory*=3,*document_loader*=3,*render_frame_impl*=3,*compositor_frame*=3,*frame_sink*=3,*wayland*=2,*ozone*=2,*navigation*=3,*render_process*=2,*zygote*=2,*mojo*=2 --user-data-dir=/root/mp-chromium-profile 
+[mpdiag] MP_BROWSER_START_EPOCH_MS=1795278706
+[mpdiag] MP_BROWSER_START_MONO_MS=41804
+[mpdiag] MP_BROWSER_START_MONO_NS=41804000000
+[mpdiag] MP_BROWSER_PID=70
+[mpdiag] browser_pid=70 launcher_pid=70
+MP_EVENT {"timestamp_monotonic":42.161000,"process_role":"browser","pid":70,"ppid":5,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"browser-start","status":"observed","error":"","observation_source":"guest-launcher"}
+[mpdiag] MP_PROCESS_OBSERVED role=browser event=browser-start pid=70 ppid=5
+[mpdiag] WATCHDOG_PID=79（独立心跳：它停 = 整机冻死）
+[mpdiag] MP_LEDGER_FORMAT=MP_LEDGER/MP_PROC_EVENT/MP_BLOCK/MP_FAMILY/MP_WATCHDOG
+[mpdiag] MP_BLOCK_READS=disabled:wchan,syscall 会挂住读方（2026-11-02 实测两轮）
+[mpdiag] MP_LEDGER_LIMIT=阻塞读：跨进程读 Chromium 子进程 procfs 会挂住读方；账本在其后停住（待内核侧修复）
+[mpdiag] MP_PHASE p=loop_begin tick=1
+[mpdiag] MP_WATCHDOG uptime_s=43 weston=yes chrome=yes memfree_kb=1157892
+[mpdiag] MP_WATCHDOG uptime_s=45 weston=yes chrome=yes memfree_kb=1147292
+[mpdiag] MP_FAMILY label=45878 n=1 70:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=0
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=9
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=1
+[mpdiag] MP_PHASE p=loop_begin tick=2
+[mpdiag] MP_PHASE p=loop_body_done tick=2
+[mpdiag] MP_WATCHDOG uptime_s=48 weston=yes chrome=yes memfree_kb=1137092
+[mpdiag] MP_PHASE p=loop_begin tick=3
+[mpdiag] MP_PHASE p=loop_body_done tick=3
+[mpdiag] MP_WATCHDOG uptime_s=50 weston=yes chrome=yes memfree_kb=1123592
+[mpdiag] MP_PHASE p=loop_begin tick=4
+[mpdiag] MP_PHASE p=loop_body_done tick=4
+[mpdiag] MP_WATCHDOG uptime_s=52 weston=yes chrome=yes memfree_kb=1112520
+[mpdiag] MP_PHASE p=loop_begin tick=5
+[mpdiag] MP_PHASE p=loop_body_done tick=5
+[mpdiag] MP_PHASE p=loop_begin tick=6
+[mpdiag] MP_WATCHDOG uptime_s=55 weston=yes chrome=yes memfree_kb=1108004
+[mpdiag] MP_FAMILY label=56607 n=1 70:browser/R/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=5
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=0
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=6
+[mpdiag] MP_WATCHDOG uptime_s=57 weston=yes chrome=yes memfree_kb=1102520
+[mpdiag] MP_PHASE p=loop_begin tick=7
+[mpdiag] MP_PHASE p=loop_body_done tick=7
+[mpdiag] MP_WATCHDOG uptime_s=59 weston=yes chrome=yes memfree_kb=1094148
+[mpdiag] MP_FAMILY_WATCHDOG label=59623 n=0
+[mpdiag] MP_PHASE p=loop_begin tick=8
+[mpdiag] MP_PHASE p=loop_body_done tick=8
+[mpdiag] MP_PHASE p=loop_begin tick=9
+[mpdiag] MP_WATCHDOG uptime_s=62 weston=yes chrome=yes memfree_kb=1086568
+[mpdiag] MP_PHASE p=loop_body_done tick=9
+[mpdiag] MP_PHASE p=loop_begin tick=10
+[mpdiag] MP_WATCHDOG uptime_s=64 weston=yes chrome=yes memfree_kb=1083972
+[mpdiag] MP_PHASE p=loop_body_done tick=10
+[mpdiag] MP_PHASE p=loop_begin tick=11
+[mpdiag] MP_WATCHDOG uptime_s=67 weston=yes chrome=yes memfree_kb=1059076
+[mpdiag] MP_WATCHDOG uptime_s=70 weston=yes chrome=yes memfree_kb=1039032
+[mpdiag] MP_FAMILY label=70262 n=1 70:browser/S/2
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=10
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=0
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=11
+[mpdiag] MP_PHASE p=loop_begin tick=12
+[mpdiag] MP_WATCHDOG uptime_s=72 weston=yes chrome=yes memfree_kb=1035324
+[mpdiag] MP_PHASE p=loop_body_done tick=12
+[mpdiag] MP_PHASE p=loop_begin tick=13
+[mpdiag] MP_WATCHDOG uptime_s=75 weston=yes chrome=yes memfree_kb=1029624
+[mpdiag] MP_PHASE p=loop_body_done tick=13
+[mpdiag] MP_PHASE p=loop_begin tick=14
+[mpdiag] MP_WATCHDOG uptime_s=77 weston=yes chrome=yes memfree_kb=1027672
+[mpdiag] MP_PHASE p=loop_body_done tick=14
+[mpdiag] MP_PHASE p=loop_begin tick=15
+[mpdiag] MP_WATCHDOG uptime_s=79 weston=yes chrome=yes memfree_kb=1023468
+[mpdiag] MP_FAMILY_WATCHDOG label=79758 n=0
+[mpdiag] MP_WATCHDOG uptime_s=82 weston=yes chrome=yes memfree_kb=1016660
+[mpdiag] MP_PHASE p=loop_body_done tick=15
+[mpdiag] MP_PHASE p=loop_begin tick=16
+[mpdiag] MP_WATCHDOG uptime_s=85 weston=yes chrome=yes memfree_kb=1001488
+[mpdiag] MP_WATCHDOG uptime_s=87 weston=yes chrome=yes memfree_kb=727820
+[mpdiag] MP_WATCHDOG uptime_s=90 weston=yes chrome=yes memfree_kb=724788
+[mpdiag] MP_WATCHDOG uptime_s=92 weston=yes chrome=yes memfree_kb=722764
+MP_EVENT {"timestamp_monotonic":92.071001,"process_role":"zygote","pid":176,"ppid":70,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=176 ppid=70
+MP_EVENT {"timestamp_monotonic":93.340002,"process_role":"zygote","pid":177,"ppid":70,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=177 ppid=70
+[mpdiag] MP_WATCHDOG uptime_s=94 weston=yes chrome=yes memfree_kb=717504
+MP_EVENT {"timestamp_monotonic":94.465003,"process_role":"zygote","pid":286,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=286 ppid=177
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=286 ppid=177 browser_pid=70
+MP_EVENT {"timestamp_monotonic":95.554004,"process_role":"renderer","pid":286,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=286 ppid=177
+[mpdiag] MP_FAMILY label=96345 n=4 70:browser/R/37 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=15
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=14
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=16
+[mpdiag] MP_WATCHDOG uptime_s=97 weston=yes chrome=yes memfree_kb=712300
+[mpdiag] MP_PHASE p=loop_begin tick=17
+[mpdiag] MP_WATCHDOG uptime_s=100 weston=yes chrome=yes memfree_kb=707712
+[mpdiag] MP_FAMILY_WATCHDOG label=99835 n=3 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7
+[mpdiag] MP_WATCHDOG uptime_s=104 weston=yes chrome=yes memfree_kb=703004
+[mpdiag] MP_RENDERER_FIRST_STREAK_EPOCH_MS=1795278770
+[mpdiag] MP_PHASE p=loop_body_done tick=17
+[mpdiag] MP_PHASE p=loop_begin tick=18
+[mpdiag] MP_WATCHDOG uptime_s=108 weston=yes chrome=yes memfree_kb=697516
+[mpdiag] MP_WATCHDOG uptime_s=111 weston=yes chrome=yes memfree_kb=698404
+[mpdiag] MP_PHASE p=loop_body_done tick=18
+[mpdiag] MP_WATCHDOG uptime_s=114 weston=yes chrome=yes memfree_kb=697804
+[mpdiag] MP_PHASE p=loop_begin tick=19
+[mpdiag] MP_WATCHDOG uptime_s=116 weston=yes chrome=yes memfree_kb=697572
+[mpdiag] MP_WATCHDOG uptime_s=119 weston=yes chrome=yes memfree_kb=694764
+[mpdiag] MP_WATCHDOG uptime_s=122 weston=yes chrome=yes memfree_kb=694540
+[mpdiag] MP_WATCHDOG uptime_s=126 weston=yes chrome=yes memfree_kb=692984
+[mpdiag] MP_PHASE p=loop_body_done tick=19
+[mpdiag] MP_FAMILY_WATCHDOG label=126849 n=3 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7
+[mpdiag] MP_PHASE p=loop_begin tick=20
+[mpdiag] MP_WATCHDOG uptime_s=134 weston=yes chrome=yes memfree_kb=668864
+[mpdiag] MP_WATCHDOG uptime_s=138 weston=yes chrome=yes memfree_kb=665384
+[mpdiag] MP_WATCHDOG uptime_s=141 weston=yes chrome=yes memfree_kb=664292
+[mpdiag] MP_PHASE p=loop_body_done tick=20
+[mpdiag] MP_PHASE p=loop_begin tick=21
+[mpdiag] MP_WATCHDOG uptime_s=144 weston=yes chrome=yes memfree_kb=660252
+[mpdiag] MP_WATCHDOG uptime_s=147 weston=yes chrome=yes memfree_kb=654548
+[mpdiag] MP_WATCHDOG uptime_s=150 weston=yes chrome=yes memfree_kb=648072
+[mpdiag] MP_WATCHDOG uptime_s=153 weston=yes chrome=yes memfree_kb=643184
+[mpdiag] MP_WATCHDOG uptime_s=155 weston=yes chrome=yes memfree_kb=638952
+[mpdiag] MP_FAMILY_WATCHDOG label=155752 n=3 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7
+[mpdiag] MP_WATCHDOG uptime_s=160 weston=yes chrome=yes memfree_kb=629672
+[mpdiag] MP_WATCHDOG uptime_s=162 weston=yes chrome=yes memfree_kb=624128
+MP_EVENT {"timestamp_monotonic":164.039005,"process_role":"zygote","pid":373,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=373 ppid=177
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=373 ppid=177 browser_pid=70
+[mpdiag] MP_WATCHDOG uptime_s=166 weston=yes chrome=yes memfree_kb=616812
+MP_EVENT {"timestamp_monotonic":165.753006,"process_role":"zygote","pid":407,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=407 ppid=177
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=407 ppid=177 browser_pid=70
+MP_EVENT {"timestamp_monotonic":167.420007,"process_role":"zygote","pid":412,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"zygote-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=zygote event=zygote-observed pid=412 ppid=177
+[mpdiag] MP_ZYGOTE_PARENT_NOT_BROWSER zygote_pid=412 ppid=177 browser_pid=70
+[mpdiag] MP_WATCHDOG uptime_s=168 weston=yes chrome=yes memfree_kb=615228
+[mpdiag] MP_WATCHDOG uptime_s=171 weston=yes chrome=yes memfree_kb=616380
+MP_EVENT {"timestamp_monotonic":170.156008,"process_role":"renderer","pid":373,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=373 ppid=177
+[mpdiag] MP_WATCHDOG uptime_s=174 weston=yes chrome=yes memfree_kb=619084
+MP_EVENT {"timestamp_monotonic":172.841009,"process_role":"renderer","pid":407,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=407 ppid=177
+MP_EVENT {"timestamp_monotonic":174.703010,"process_role":"renderer","pid":412,"ppid":177,"navigation_id":0,"frame_tree_node_id":0,"document_id":"","mojo_endpoint_or_pipe_id":"","shared_object_id_or_file_object_id":"","event":"renderer-observed","status":"observed","error":"","observation_source":"guest-ps-snapshot"}
+[mpdiag] MP_PROCESS_OBSERVED role=renderer event=renderer-observed pid=412 ppid=177
+[mpdiag] MP_FAMILY label=175638 n=6 70:browser/R/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/R/9 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=20
+[mpdiag] MP_RENDERER_COUNT=1
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=21
+[mpdiag] MP_WATCHDOG uptime_s=176 weston=yes chrome=yes memfree_kb=616236
+[mpdiag] MP_PHASE p=loop_begin tick=22
+[mpdiag] MP_WATCHDOG uptime_s=179 weston=yes chrome=yes memfree_kb=610332
+[mpdiag] MP_FAMILY_WATCHDOG label=179655 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_PHASE p=loop_body_done tick=22
+[mpdiag] MP_PHASE p=loop_begin tick=23
+[mpdiag] MP_WATCHDOG uptime_s=186 weston=yes chrome=yes memfree_kb=599836
+[mpdiag] MP_WATCHDOG uptime_s=189 weston=yes chrome=yes memfree_kb=595044
+[mpdiag] MP_PHASE p=loop_body_done tick=23
+[mpdiag] MP_PHASE p=loop_begin tick=24
+[mpdiag] MP_WATCHDOG uptime_s=193 weston=yes chrome=yes memfree_kb=589252
+[mpdiag] MP_PHASE p=loop_body_done tick=24
+[mpdiag] MP_WATCHDOG uptime_s=196 weston=yes chrome=yes memfree_kb=583472
+[mpdiag] MP_PHASE p=loop_begin tick=25
+[mpdiag] MP_WATCHDOG uptime_s=199 weston=yes chrome=yes memfree_kb=584296
+CHROMIUM_EARLY_LOG_BEGIN tick=25 bytes=31196
+[70:70:1121/163242.069327:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/163242.754743:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kRevertAll
+[70:70:1121/163242.862197:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/163243.728322:VERBOSE1:chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc:65] Closing omnibox popup with reason: kBrowserWidgetMoved
+[70:70:1121/163244.846650:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:212:1121/163244.852409:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:70:1121/163244.855125:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+[70:70:1121/163244.859803:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163244.860726:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.freedesktop.ScreenSaver D-Bus service does not exist
+[70:212:1121/163244.863765:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:70:1121/163244.886961:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163246.038493:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[257:302:1121/163246.628174:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: http://clients2.google.com/time/1/current?cup2key=10:j647ppk7-klj8W9sUDDGfYGhDbXuhe3ONvwQsYHrejc&cup2hreq=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+[257:408:1121/163247.793389:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[257:408:1121/163247.806766:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Shared Dictionary/cache/index-dir/the-real-index": No such file or directory (2)
+[70:70:1121/163247.846161:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/163248.031831:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163248.035977:WARNING:ui/ozone/platform/wayland/host/org_gnome_mutter_idle_monitor.cc:87] org.gnome.Mutter.IdleMonitor D-Bus service does not exist
+[70:211:1121/163249.993990:VERBOSE1:content/browser/loader/file_url_loader_factory.cc:474] FileURLLoader::Start: file:///usr/share/html-test/index.html
+[257:302:1121/163252.214419:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://www.google.com/async/folae?async=_fmt:pb&udm=50&client_locale=en-US
+[70:212:1121/163252.224228:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[70:212:1121/163252.289064:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[70:70:1121/163252.366904:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163252.495526:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163252.496058:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.cinnamon.ScreenSaver D-Bus service does not exist
+[70:212:1121/163252.503674:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[257:301:1121/163255.665740:VERBOSE1:net/disk_cache/simple/simple_index_file.cc:625] Simple Cache Index is being restored from disk.
+[257:301:1121/163255.671018:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/index-dir/the-real-index": No such file or directory (2)
+[257:301:1121/163255.700786:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/No_Vary_Search/snapshot-new.baf": No such file or directory (2)
+[257:301:1121/163255.742773:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/No_Vary_Search/journal.baj": No such file or directory (2)
+[70:239:1121/163256.866150:VERBOSE1:components/signin/public/webdata/token_service_table.cc:259] Loaded tokens: result = 3 ; number of tokens loaded = 0
+[70:70:1121/163301.058734:WARNING:dbus/property.cc:94] Failed to connect to PropertiesChangedsignal.
+[70:70:1121/163301.063055:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[70:70:1121/163301.066584:WARNING:dbus/property.cc:174] GetAll request failed for: org.freedesktop.UPower.Device
+[70:70:1121/163301.207144:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:443] MutablePO2TS::RefreshTokenIsAvailable
+[70:70:1121/163301.762260:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163301.762898:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.gnome.ScreenSaver D-Bus service does not exist
+[70:212:1121/163301.774770:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:210:1121/163301.925664:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Web Applications/Logs": No such file or directory (2)
+[70:70:1121/163301.936176:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[70:70:1121/163301.941294:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[70:211:1121/163302.009804:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/DeferredBrowserMetrics": No such file or directory (2)
+[70:211:1121/163302.023078:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/CrashpadMetrics.pma": No such file or directory (2)
+[70:210:1121/163302.096765:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/webrtc_event_logs": No such file or directory (2)
+[70:211:1121/163302.098918:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Breadcrumbs": No such file or directory (2)
+[70:210:1121/163302.101934:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Media Cache": No such file or directory (2)
+[70:211:1121/163302.136583:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/databases": No such file or directory (2)
+[70:70:1121/163303.809401:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:599] MutablePO2TS::OnWebDataServiceRequestDone. Result type: 5
+[70:70:1121/163303.837732:VERBOSE1:components/signin/internal/identity_manager/mutable_profile_oauth2_token_service_delegate.cc:661] MutablePO2TS::LoadAllCredentialsIntoMemory; 0 credential(s).
+[70:70:1121/163303.906417:VERBOSE1:components/signin/core/browser/account_reconcilor.cc:339] AccountReconcilor::OnEndBatchOfRefreshTokenStateChanges. Reconcilor state: 1
+[70:70:1121/163305.008133:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163305.015767:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.mate.ScreenSaver D-Bus service does not exist
+[70:212:1121/163305.053361:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[70:70:1121/163305.167926:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by Start@chrome/browser/web_applications/generated_icon_fix_manager.cc:61
+[70:70:1121/163306.801834:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[70:70:1121/163306.802640:VERBOSE1:ui/base/idle/idle_linux.cc:130] org.xfce.ScreenSaver D-Bus service does not exist
+[70:70:1121/163306.803002:WARNING:ui/base/idle/idle_linux.cc:111] None of the known D-Bus ScreenSaver services could be used.
+[257:302:1121/163306.817858:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/checkin
+[70:70:1121/163309.778141:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[70:70:1121/163309.803507:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[70:70:1121/163310.115688:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[70:70:1121/163311.404182:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1408] AddKeepAlive(Default, kExtensionUpdater). keep_alives=[kBrowserWindow (1), kExtensionUpdater (1)]
+[70:70:1121/163311.657594:VERBOSE1:chrome/browser/profiles/profile_manager.cc:1469] RemoveKeepAlive(Default, kExtensionUpdater). keep_alives=[kBrowserWindow (1)]
+[70:213:1121/163311.683245:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/extensions_crx_cache/metadata.json": No such file or directory (2)
+[70:70:1121/163312.012219:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:262] Acquiring <PartitionedLockId>{id: 0x31, partition: 0} for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[70:70:1121/163312.019686:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:243] All locks acquired for SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[70:70:1121/163312.083044:VERBOSE1:chrome/browser/web_applications/locks/partitioned_lock_manager.cc:286] Releasing <PartitionedLockId>{id: 0x31, partition: 0} requested by SynchronizeInstalledApps@chrome/browser/web_applications/externally_managed_app_manager.cc:186
+[257:301:1121/163318.719603:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_0": No such file or directory (2)
+[257:301:1121/163318.725456:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_1": No such file or directory (2)
+[257:301:1121/163318.810229:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/a02f1efe02bd9ec9_s": No such file or directory (2)
+[257:302:1121/163321.477753:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[257:302:1121/163322.086347:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[257:302:1121/163322.849719:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[373:373:1121/163323.691648:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  0x3402030d48
+  URL:                    
+  context_type:           WEB_PAGE
+  effective extension id: (none)
+  effective context type: WEB_PAGE
+[373:373:1121/163323.775987:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  (nil)
+  URL:                    
+  context_type:           UNSPECIFIED
+  effective extension id: (none)
+  effective context type: UNSPECIFIED
+[373:373:1121/163323.819596:VERBOSE1:extensions/renderer/dispatcher.cc:493] Num tracked contexts: 1
+[257:303:1121/163324.602752:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_0": No such file or directory (2)
+[257:303:1121/163324.649189:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_1": No such file or directory (2)
+[257:303:1121/163324.660646:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_s": No such file or directory (2)
+[70:215:1121/163326.631710:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[257:301:1121/163326.803361:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_0": No such file or directory (2)
+[257:301:1121/163326.813564:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_1": No such file or directory (2)
+[257:301:1121/163326.820044:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_s": No such file or directory (2)
+[70:215:1121/163326.641164:VERBOSE1:google_apis/gcm/engine/registration_request.cc:256] Delaying GCM registration of app: com.google.android.gms, for 24499 milliseconds.
+[70:70:1121/163331.006611:VERBOSE1:chrome/browser/policy/cloud/fm_registration_token_uploader.cc:193] Client is missing for kUser scope
+[70:70:1121/163331.016243:VERBOSE1:chrome/browser/policy/cloud/fm_registration_token_uploader.cc:193] Client is missing for kUser scope
+[412:412:1121/163331.225955:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           nkeimhogjdpnpccoofpliimaahmaaome
+  frame:                  0x3402030d48
+  URL:                    
+  context_type:           BLESSED_EXTENSION
+  effective extension id: nkeimhogjdpnpccoofpliimaahmaaome
+  effective context type: BLESSED_EXTENSION
+[412:412:1121/163331.260251:VERBOSE1:extensions/renderer/script_context.cc:150] Created context:
+  extension id:           (none)
+  frame:                  (nil)
+  URL:                    
+  context_type:           UNSPECIFIED
+  effective extension id: (none)
+  effective context type: UNSPECIFIED
+[412:412:1121/163331.306624:VERBOSE1:extensions/renderer/dispatcher.cc:493] Num tracked contexts: 1
+[257:302:1121/163351.382578:VERBOSE1:net/base/network_delegate.cc:38] NetworkDelegate::NotifyBeforeURLRequest: https://android.clients.google.com/c2dm/register3
+[257:301:1121/163351.545222:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_0": No such file or directory (2)
+[257:301:1121/163351.553804:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_1": No such file or directory (2)
+[257:301:1121/163351.557484:VERBOSE1:base/files/file_util_posix.cc:309] Cannot stat "/root/mp-chromium-profile/Default/Cache/Cache_Data/dd8cd7ce6312e569_s": No such file or directory (2)
+[70:215:1121/163351.595600:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[70:215:1121/163351.599159:VERBOSE1:google_apis/gcm/engine/registration_request.cc:256] Delaying GCM registration of app: com.google.android.gms, for 55092 milliseconds.
+[257:302:1121/163421.064207:ERROR:net/socket/ssl_client_socket_impl.cc:944] handshake failed; returned -1, SSL error code 1, net_error -101
+CHROMIUM_EARLY_LOG_END
+[mpdiag] MP_PHASE p=loop_body_done tick=25
+[mpdiag] MP_WATCHDOG uptime_s=201 weston=yes chrome=yes memfree_kb=583908
+[mpdiag] MP_PHASE p=loop_begin tick=26
+[mpdiag] MP_WATCHDOG uptime_s=204 weston=yes chrome=yes memfree_kb=581940
+[mpdiag] MP_WATCHDOG uptime_s=207 weston=yes chrome=yes memfree_kb=575352
+[mpdiag] MP_FAMILY_WATCHDOG label=206957 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=212 weston=yes chrome=yes memfree_kb=561620
+[mpdiag] MP_WATCHDOG uptime_s=215 weston=yes chrome=yes memfree_kb=553724
+[mpdiag] MP_WATCHDOG uptime_s=217 weston=yes chrome=yes memfree_kb=550484
+[mpdiag] MP_FAMILY label=218089 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=25
+[mpdiag] MP_RENDERER_COUNT=4
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,412,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_PHASE p=loop_body_done tick=26
+[mpdiag] MP_PHASE p=loop_begin tick=27
+[mpdiag] MP_WATCHDOG uptime_s=220 weston=yes chrome=yes memfree_kb=548524
+[mpdiag] MP_PHASE p=loop_body_done tick=27
+[mpdiag] MP_WATCHDOG uptime_s=223 weston=yes chrome=yes memfree_kb=545640
+[mpdiag] MP_PHASE p=loop_begin tick=28
+[mpdiag] MP_WATCHDOG uptime_s=225 weston=yes chrome=yes memfree_kb=545440
+[mpdiag] MP_PHASE p=loop_body_done tick=28
+[mpdiag] MP_PHASE p=loop_begin tick=29
+[mpdiag] MP_WATCHDOG uptime_s=227 weston=yes chrome=yes memfree_kb=543772
+[mpdiag] MP_PHASE p=loop_body_done tick=29
+[mpdiag] MP_WATCHDOG uptime_s=230 weston=yes chrome=yes memfree_kb=543036
+[mpdiag] MP_PHASE p=loop_begin tick=30
+[mpdiag] MP_FAMILY_WATCHDOG label=230174 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_PHASE p=loop_body_done tick=30
+[mpdiag] MP_WATCHDOG uptime_s=235 weston=yes chrome=yes memfree_kb=542160
+[mpdiag] MP_WATCHDOG uptime_s=237 weston=yes chrome=yes memfree_kb=541156
+
+### [2026-11-22 00:35:04] MONITOR: screendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01-at0240s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) [mpdiag] MP_WATCHDOG uptime_s=240 weston=yes chrome=yes memfree_kb=541256
+s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-com[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-comp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-col[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-01-at0[K
+
+
+
+
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+
+[mpdiag] MP_WATCHDOG uptime_s=242 weston=yes chrome=yes memfree_kb=540020
+### [2026-11-22 00:35:07] screendump OK (3072016 bytes)
+[mpdiag] MP_WATCHDOG uptime_s=245 weston=yes chrome=yes memfree_kb=538248
+[mpdiag] MP_WATCHDOG uptime_s=247 weston=yes chrome=yes memfree_kb=537692
+[mpdiag] MP_WATCHDOG uptime_s=249 weston=yes chrome=yes memfree_kb=533492
+[mpdiag] MP_WATCHDOG uptime_s=252 weston=yes chrome=yes memfree_kb=532976
+[mpdiag] MP_FAMILY_WATCHDOG label=252150 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=256 weston=yes chrome=yes memfree_kb=533860
+[mpdiag] MP_WATCHDOG uptime_s=259 weston=yes chrome=yes memfree_kb=533704
+[mpdiag] MP_WATCHDOG uptime_s=261 weston=yes chrome=yes memfree_kb=533860
+[mpdiag] MP_WATCHDOG uptime_s=264 weston=yes chrome=yes memfree_kb=533864
+[mpdiag] MP_FAMILY label=265380 n=6 70:browser/R/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=35
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=266 weston=yes chrome=yes memfree_kb=533736
+[mpdiag] MP_WATCHDOG uptime_s=268 weston=yes chrome=yes memfree_kb=533764
+[mpdiag] MP_WATCHDOG uptime_s=271 weston=yes chrome=yes memfree_kb=533920
+[mpdiag] MP_WATCHDOG uptime_s=273 weston=yes chrome=yes memfree_kb=533920
+[mpdiag] MP_FAMILY_WATCHDOG label=273123 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=277 weston=yes chrome=yes memfree_kb=533836
+[mpdiag] MP_WATCHDOG uptime_s=279 weston=yes chrome=yes memfree_kb=534044
+[mpdiag] MP_WATCHDOG uptime_s=281 weston=yes chrome=yes memfree_kb=533868
+[mpdiag] MP_WATCHDOG uptime_s=284 weston=yes chrome=yes memfree_kb=534012
+[mpdiag] MP_FAMILY label=285051 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=40
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=286 weston=yes chrome=yes memfree_kb=533924
+[mpdiag] MP_WATCHDOG uptime_s=289 weston=yes chrome=yes memfree_kb=533984
+[mpdiag] MP_WATCHDOG uptime_s=291 weston=yes chrome=yes memfree_kb=533984
+[mpdiag] MP_WATCHDOG uptime_s=293 weston=yes chrome=yes memfree_kb=533984
+[mpdiag] MP_FAMILY_WATCHDOG label=293262 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=297 weston=yes chrome=yes memfree_kb=533996
+[mpdiag] MP_WATCHDOG uptime_s=299 weston=yes chrome=yes memfree_kb=533968
+[mpdiag] MP_WATCHDOG uptime_s=301 weston=yes chrome=yes memfree_kb=533944
+[mpdiag] MP_WATCHDOG uptime_s=304 weston=yes chrome=yes memfree_kb=533956
+[mpdiag] MP_FAMILY label=304359 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=45
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=306 weston=yes chrome=yes memfree_kb=534200
+[mpdiag] MP_WATCHDOG uptime_s=309 weston=yes chrome=yes memfree_kb=534100
+[mpdiag] MP_WATCHDOG uptime_s=311 weston=yes chrome=yes memfree_kb=534224
+[mpdiag] MP_WATCHDOG uptime_s=313 weston=yes chrome=yes memfree_kb=534156
+[mpdiag] MP_FAMILY_WATCHDOG label=313512 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/9 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=317 weston=yes chrome=yes memfree_kb=534120
+[mpdiag] MP_WATCHDOG uptime_s=320 weston=yes chrome=yes memfree_kb=534272
+[mpdiag] MP_WATCHDOG uptime_s=322 weston=yes chrome=yes memfree_kb=533868
+[mpdiag] MP_WATCHDOG uptime_s=325 weston=yes chrome=yes memfree_kb=534024
+[mpdiag] MP_FAMILY label=327109 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=50
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=327 weston=yes chrome=yes memfree_kb=533900
+[mpdiag] MP_WATCHDOG uptime_s=330 weston=yes chrome=yes memfree_kb=534052
+[mpdiag] MP_WATCHDOG uptime_s=332 weston=yes chrome=yes memfree_kb=533884
+[mpdiag] MP_WATCHDOG uptime_s=335 weston=yes chrome=yes memfree_kb=533928
+[mpdiag] MP_FAMILY_WATCHDOG label=334846 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=339 weston=yes chrome=yes memfree_kb=533884
+[mpdiag] MP_WATCHDOG uptime_s=341 weston=yes chrome=yes memfree_kb=533916
+[mpdiag] MP_WATCHDOG uptime_s=343 weston=yes chrome=yes memfree_kb=533800
+[mpdiag] MP_WATCHDOG uptime_s=346 weston=yes chrome=yes memfree_kb=533688
+[mpdiag] MP_FAMILY label=348209 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=55
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=348 weston=yes chrome=yes memfree_kb=533928
+[mpdiag] MP_WATCHDOG uptime_s=351 weston=yes chrome=yes memfree_kb=534120
+[mpdiag] MP_WATCHDOG uptime_s=353 weston=yes chrome=yes memfree_kb=534120
+[mpdiag] MP_WATCHDOG uptime_s=355 weston=yes chrome=yes memfree_kb=534016
+[mpdiag] MP_FAMILY_WATCHDOG label=355592 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=359 weston=yes chrome=yes memfree_kb=534184
+[mpdiag] MP_WATCHDOG uptime_s=362 weston=yes chrome=yes memfree_kb=534212
+[mpdiag] MP_WATCHDOG uptime_s=364 weston=yes chrome=yes memfree_kb=534032
+[mpdiag] MP_WATCHDOG uptime_s=366 weston=yes chrome=yes memfree_kb=534192
+[mpdiag] MP_FAMILY label=367883 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=60
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=369 weston=yes chrome=yes memfree_kb=533996
+[mpdiag] MP_WATCHDOG uptime_s=371 weston=yes chrome=yes memfree_kb=534064
+[mpdiag] MP_WATCHDOG uptime_s=373 weston=yes chrome=yes memfree_kb=534076
+[mpdiag] MP_WATCHDOG uptime_s=376 weston=yes chrome=yes memfree_kb=534160
+[mpdiag] MP_FAMILY_WATCHDOG label=375890 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=379 weston=yes chrome=yes memfree_kb=534044
+[mpdiag] MP_WATCHDOG uptime_s=382 weston=yes chrome=yes memfree_kb=534164
+[mpdiag] MP_WATCHDOG uptime_s=384 weston=yes chrome=yes memfree_kb=534044
+[mpdiag] MP_WATCHDOG uptime_s=386 weston=yes chrome=yes memfree_kb=534084
+[mpdiag] MP_FAMILY label=388009 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=65
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=389 weston=yes chrome=yes memfree_kb=534032
+[mpdiag] MP_WATCHDOG uptime_s=391 weston=yes chrome=yes memfree_kb=534040
+[mpdiag] MP_WATCHDOG uptime_s=393 weston=yes chrome=yes memfree_kb=534040
+[mpdiag] MP_WATCHDOG uptime_s=396 weston=yes chrome=yes memfree_kb=534232
+[mpdiag] MP_FAMILY_WATCHDOG label=395959 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/10 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=400 weston=yes chrome=yes memfree_kb=533072
+[mpdiag] MP_WATCHDOG uptime_s=403 weston=yes chrome=yes memfree_kb=529960
+[mpdiag] MP_WATCHDOG uptime_s=405 weston=yes chrome=yes memfree_kb=529388
+[mpdiag] MP_WATCHDOG uptime_s=408 weston=yes chrome=yes memfree_kb=529552
+[mpdiag] MP_WATCHDOG uptime_s=410 weston=yes chrome=yes memfree_kb=529464
+[mpdiag] MP_WATCHDOG uptime_s=413 weston=yes chrome=yes memfree_kb=529448
+[mpdiag] MP_FAMILY label=414235 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=70
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=415 weston=yes chrome=yes memfree_kb=529388
+[mpdiag] MP_WATCHDOG uptime_s=418 weston=yes chrome=yes memfree_kb=529456
+[mpdiag] MP_FAMILY_WATCHDOG label=417903 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=422 weston=yes chrome=yes memfree_kb=529504
+[mpdiag] MP_WATCHDOG uptime_s=424 weston=yes chrome=yes memfree_kb=529468
+[mpdiag] MP_WATCHDOG uptime_s=426 weston=yes chrome=yes memfree_kb=529544
+[mpdiag] MP_WATCHDOG uptime_s=429 weston=yes chrome=yes memfree_kb=530100
+[mpdiag] MP_WATCHDOG uptime_s=431 weston=yes chrome=yes memfree_kb=530044
+[mpdiag] MP_FAMILY label=433239 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=75
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=434 weston=yes chrome=yes memfree_kb=530032
+[mpdiag] MP_WATCHDOG uptime_s=436 weston=yes chrome=yes memfree_kb=530004
+[mpdiag] MP_WATCHDOG uptime_s=438 weston=yes chrome=yes memfree_kb=530200
+[mpdiag] MP_FAMILY_WATCHDOG label=438663 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=443 weston=yes chrome=yes memfree_kb=530096
+[mpdiag] MP_WATCHDOG uptime_s=446 weston=yes chrome=yes memfree_kb=530396
+[mpdiag] MP_WATCHDOG uptime_s=448 weston=yes chrome=yes memfree_kb=530400
+[mpdiag] MP_WATCHDOG uptime_s=451 weston=yes chrome=yes memfree_kb=530080
+[mpdiag] MP_WATCHDOG uptime_s=453 weston=yes chrome=yes memfree_kb=530216
+[mpdiag] MP_WATCHDOG uptime_s=456 weston=yes chrome=yes memfree_kb=530348
+[mpdiag] MP_FAMILY label=456158 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=80
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=458 weston=yes chrome=yes memfree_kb=530384
+[mpdiag] MP_WATCHDOG uptime_s=460 weston=yes chrome=yes memfree_kb=530244
+[mpdiag] MP_FAMILY_WATCHDOG label=460597 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=465 weston=yes chrome=yes memfree_kb=530444
+[mpdiag] MP_WATCHDOG uptime_s=467 weston=yes chrome=yes memfree_kb=530160
+[mpdiag] MP_WATCHDOG uptime_s=469 weston=yes chrome=yes memfree_kb=530340
+[mpdiag] MP_WATCHDOG uptime_s=472 weston=yes chrome=yes memfree_kb=530340
+[mpdiag] MP_WATCHDOG uptime_s=474 weston=yes chrome=yes memfree_kb=530356
+[mpdiag] MP_FAMILY label=475817 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=85
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=476 weston=yes chrome=yes memfree_kb=530268
+[mpdiag] MP_WATCHDOG uptime_s=479 weston=yes chrome=yes memfree_kb=530372
+[mpdiag] MP_WATCHDOG uptime_s=481 weston=yes chrome=yes memfree_kb=530344
+[mpdiag] MP_FAMILY_WATCHDOG label=481359 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=485 weston=yes chrome=yes memfree_kb=530504
+[mpdiag] MP_WATCHDOG uptime_s=487 weston=yes chrome=yes memfree_kb=530504
+[mpdiag] MP_WATCHDOG uptime_s=490 weston=yes chrome=yes memfree_kb=530392
+[mpdiag] MP_WATCHDOG uptime_s=492 weston=yes chrome=yes memfree_kb=530504
+[mpdiag] MP_FAMILY label=493755 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=90
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=495 weston=yes chrome=yes memfree_kb=530436
+[mpdiag] MP_WATCHDOG uptime_s=497 weston=yes chrome=yes memfree_kb=530448
+[mpdiag] MP_WATCHDOG uptime_s=499 weston=yes chrome=yes memfree_kb=530448
+[mpdiag] MP_WATCHDOG uptime_s=502 weston=yes chrome=yes memfree_kb=530608
+[mpdiag] MP_FAMILY_WATCHDOG label=501893 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=506 weston=yes chrome=yes memfree_kb=530492
+[mpdiag] MP_WATCHDOG uptime_s=508 weston=yes chrome=yes memfree_kb=530440
+[mpdiag] MP_WATCHDOG uptime_s=510 weston=yes chrome=yes memfree_kb=530584
+[mpdiag] MP_FAMILY label=512699 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=95
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=513 weston=yes chrome=yes memfree_kb=530536
+[mpdiag] MP_WATCHDOG uptime_s=515 weston=yes chrome=yes memfree_kb=530664
+[mpdiag] MP_WATCHDOG uptime_s=518 weston=yes chrome=yes memfree_kb=530668
+[mpdiag] MP_WATCHDOG uptime_s=520 weston=yes chrome=yes memfree_kb=530604
+[mpdiag] MP_WATCHDOG uptime_s=522 weston=yes chrome=yes memfree_kb=530500
+[mpdiag] MP_FAMILY_WATCHDOG label=522702 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=527 weston=yes chrome=yes memfree_kb=530632
+[mpdiag] MP_WATCHDOG uptime_s=529 weston=yes chrome=yes memfree_kb=530508
+[mpdiag] MP_WATCHDOG uptime_s=531 weston=yes chrome=yes memfree_kb=530664
+[mpdiag] MP_FAMILY label=532911 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=100
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=534 weston=yes chrome=yes memfree_kb=530524
+[mpdiag] MP_WATCHDOG uptime_s=536 weston=yes chrome=yes memfree_kb=530524
+[mpdiag] MP_WATCHDOG uptime_s=538 weston=yes chrome=yes memfree_kb=530524
+
+### [2026-11-22 00:40:04] MONITOR: screendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02-at0540s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-com[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-comp[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compa[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-c[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-co[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-col[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-22_t490-r66-r64-compat-cold03/screenshots/shot-02-at0[K
+
+
+### [2026-11-22 00:40:07] screendump OK (3072016 bytes)
+[mpdiag] MP_WATCHDOG uptime_s=543 weston=yes chrome=yes memfree_kb=530632
+[mpdiag] MP_FAMILY_WATCHDOG label=543283 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=547 weston=yes chrome=yes memfree_kb=530372
+[mpdiag] MP_WATCHDOG uptime_s=549 weston=yes chrome=yes memfree_kb=530652
+[mpdiag] MP_FAMILY label=551184 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=105
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=552 weston=yes chrome=yes memfree_kb=530476
+[mpdiag] MP_WATCHDOG uptime_s=554 weston=yes chrome=yes memfree_kb=530448
+[mpdiag] MP_WATCHDOG uptime_s=556 weston=yes chrome=yes memfree_kb=530648
+[mpdiag] MP_WATCHDOG uptime_s=559 weston=yes chrome=yes memfree_kb=530656
+[mpdiag] MP_WATCHDOG uptime_s=561 weston=yes chrome=yes memfree_kb=530504
+[mpdiag] MP_WATCHDOG uptime_s=563 weston=yes chrome=yes memfree_kb=530508
+[mpdiag] MP_FAMILY_WATCHDOG label=563795 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=568 weston=yes chrome=yes memfree_kb=530432
+[mpdiag] MP_WATCHDOG uptime_s=570 weston=yes chrome=yes memfree_kb=530344
+[mpdiag] MP_WATCHDOG uptime_s=573 weston=yes chrome=yes memfree_kb=530432
+[mpdiag] MP_FAMILY label=574043 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=110
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=575 weston=yes chrome=yes memfree_kb=530456
+[mpdiag] MP_WATCHDOG uptime_s=578 weston=yes chrome=yes memfree_kb=530480
+[mpdiag] MP_WATCHDOG uptime_s=580 weston=yes chrome=yes memfree_kb=530476
+[mpdiag] MP_WATCHDOG uptime_s=582 weston=yes chrome=yes memfree_kb=530472
+[mpdiag] MP_WATCHDOG uptime_s=585 weston=yes chrome=yes memfree_kb=530592
+[mpdiag] MP_FAMILY_WATCHDOG label=584843 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=589 weston=yes chrome=yes memfree_kb=530428
+[mpdiag] MP_WATCHDOG uptime_s=591 weston=yes chrome=yes memfree_kb=530600
+[mpdiag] MP_WATCHDOG uptime_s=594 weston=yes chrome=yes memfree_kb=530524
+[mpdiag] MP_FAMILY label=594070 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=115
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=596 weston=yes chrome=yes memfree_kb=530648
+[mpdiag] MP_WATCHDOG uptime_s=598 weston=yes chrome=yes memfree_kb=530528
+[mpdiag] MP_WATCHDOG uptime_s=601 weston=yes chrome=yes memfree_kb=530512
+[mpdiag] MP_WATCHDOG uptime_s=603 weston=yes chrome=yes memfree_kb=530644
+[mpdiag] MP_WATCHDOG uptime_s=606 weston=yes chrome=yes memfree_kb=530652
+[mpdiag] MP_FAMILY_WATCHDOG label=605915 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=610 weston=yes chrome=yes memfree_kb=530588
+[mpdiag] MP_WATCHDOG uptime_s=612 weston=yes chrome=yes memfree_kb=530388
+[mpdiag] MP_FAMILY label=613179 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=120
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=615 weston=yes chrome=yes memfree_kb=530512
+[mpdiag] MP_WATCHDOG uptime_s=617 weston=yes chrome=yes memfree_kb=530644
+[mpdiag] MP_WATCHDOG uptime_s=619 weston=yes chrome=yes memfree_kb=530556
+[mpdiag] MP_WATCHDOG uptime_s=622 weston=yes chrome=yes memfree_kb=530636
+[mpdiag] MP_WATCHDOG uptime_s=624 weston=yes chrome=yes memfree_kb=530708
+[mpdiag] MP_WATCHDOG uptime_s=627 weston=yes chrome=yes memfree_kb=530524
+[mpdiag] MP_FAMILY_WATCHDOG label=626886 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=631 weston=yes chrome=yes memfree_kb=530284
+[mpdiag] MP_FAMILY label=633088 n=3 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=125
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=633 weston=yes chrome=yes memfree_kb=530536
+[mpdiag] MP_WATCHDOG uptime_s=636 weston=yes chrome=yes memfree_kb=530620
+[mpdiag] MP_WATCHDOG uptime_s=638 weston=yes chrome=yes memfree_kb=530696
+[mpdiag] MP_WATCHDOG uptime_s=640 weston=yes chrome=yes memfree_kb=530540
+[mpdiag] MP_WATCHDOG uptime_s=643 weston=yes chrome=yes memfree_kb=530500
+[mpdiag] MP_WATCHDOG uptime_s=645 weston=yes chrome=yes memfree_kb=530600
+[mpdiag] MP_WATCHDOG uptime_s=647 weston=yes chrome=yes memfree_kb=530460
+[mpdiag] MP_FAMILY_WATCHDOG label=647685 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=652 weston=yes chrome=yes memfree_kb=530644
+[mpdiag] MP_FAMILY label=653118 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=130
+[mpdiag] MP_RENDERER_COUNT=0
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=654 weston=yes chrome=yes memfree_kb=530496
+[mpdiag] MP_WATCHDOG uptime_s=656 weston=yes chrome=yes memfree_kb=530500
+[mpdiag] MP_WATCHDOG uptime_s=659 weston=yes chrome=yes memfree_kb=530512
+[mpdiag] MP_WATCHDOG uptime_s=661 weston=yes chrome=yes memfree_kb=530600
+[mpdiag] MP_WATCHDOG uptime_s=663 weston=yes chrome=yes memfree_kb=530640
+[mpdiag] MP_WATCHDOG uptime_s=666 weston=yes chrome=yes memfree_kb=530480
+[mpdiag] MP_WATCHDOG uptime_s=668 weston=yes chrome=yes memfree_kb=530364
+[mpdiag] MP_FAMILY_WATCHDOG label=668333 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=672 weston=yes chrome=yes memfree_kb=530364
+[mpdiag] MP_FAMILY label=673527 n=6 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=135
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=17
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=675 weston=yes chrome=yes memfree_kb=530484
+[mpdiag] MP_WATCHDOG uptime_s=677 weston=yes chrome=yes memfree_kb=530532
+[mpdiag] MP_WATCHDOG uptime_s=680 weston=yes chrome=yes memfree_kb=530652
+[mpdiag] MP_WATCHDOG uptime_s=682 weston=yes chrome=yes memfree_kb=530652
+[mpdiag] MP_WATCHDOG uptime_s=685 weston=yes chrome=yes memfree_kb=530516
+[mpdiag] MP_WATCHDOG uptime_s=687 weston=yes chrome=yes memfree_kb=530496
+[mpdiag] MP_WATCHDOG uptime_s=689 weston=yes chrome=yes memfree_kb=530664
+[mpdiag] MP_FAMILY_WATCHDOG label=689776 n=5 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7 373:zygote_child/S/11 407:zygote_child/S/9
+[mpdiag] MP_WATCHDOG uptime_s=694 weston=yes chrome=yes memfree_kb=530512
+[mpdiag] MP_FAMILY label=696442 n=4 70:browser/S/38 176:browser_child/S/1 177:browser_child/S/1 286:zygote_child/S/7
+[mpdiag] MP_SAMPLE_ELAPSED_SEC=140
+[mpdiag] MP_RENDERER_COUNT=3
+[mpdiag] MP_FAMILY_COUNT=18
+[mpdiag] MP_RENDERER_PIDS=286,373,407,
+[mpdiag] MP_RSS_KB=0
+[mpdiag] MP_WATCHDOG uptime_s=696 weston=yes chrome=yes memfree_kb=530568
+
+### [2026-11-22 00:42:42] 子进程已退出（elapsed=698.1s）
+
+### [2026-11-22 00:42:42] stopping session...
+^Ax### [2026-11-22 00:42:42] SESSION END (exit=0)

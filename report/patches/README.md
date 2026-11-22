@@ -31,6 +31,12 @@
 | 0017 | AF_UNIX 对端凭据与更多 socket 选项 | 12 | `aff4f00` |
 | 0018 | `ppoll_time64`、`PR_SET_PDEATHSIG` 与驱动杂项修复 | 8 | `2a1b101` |
 
+### 运行时观测候选
+
+| 文件 | 主题 | 状态 |
+|---|---|---|
+| `0020-procfs-xk-memory-snapshot-mvp.patch` | `/proc/<pid>/xk_memory_snapshot` 一致性快照（RSS/PSS/USS/共享页）及 RSS-only 对照端点 | T490 R89/R91/R93 已读取；R94 RSS-only 候选因开销退回，未并入正式 before/after 性能批次 |
+
 ---
 
 ## 覆盖关系（重要，避免重复应用）

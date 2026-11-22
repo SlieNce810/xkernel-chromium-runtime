@@ -1,0 +1,3 @@
+R10 run-control note
+
+R10 used the 2 GiB default AArch64 pure-TCG platform. The R9 precheck was reused because the T490 kernel tree and QEMU configuration did not change; this round's own platform check passed 15/15. EVDEV_PROBE=1 opened event0 as QEMU Virtio Keyboard and event1 as QEMU Virtio Mouse, with no EVDEV event records. The strict official-interaction page timed out after 2,000 seconds, so the input driver did not start. The new timeout handler issued QMP quit successfully (QMP_TIMEOUT_QUIT_RC=0), and the T490 launcher returned 2 for the readiness failure.

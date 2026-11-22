@@ -1,0 +1,15 @@
+Repository HEAD at run time: 02d96b075ca1a561642b08ad0c3eb0f16bf8ae54
+Kernel base revision: b73e5814087c9d33c5f0a35b66cc56be689d3dee
+Kernel build tree: /home/mo/xk6/worktrees/r62-no-direct-error-compat
+Compatibility source worktree: /home/mo/xk6/worktrees/xk-compat-fix-r1
+No-direct ERROR config copied from: /home/mo/xk6/worktrees/r53-no-direct-error-log/.config
+Kernel .config SHA-256: 1d0ff69ea0a36e151f63e2191229225f62a05aee027c99cdc0ea39f04c110419
+Merged tracked source diff SHA-256: 4b53090a860899aa7864ed895cf0e165480147d50738c2abb64a726549dcdaec
+Compatibility worktree diff input SHA-256: a209a4856acfd28d1fcdaf3ed4725fa0ffcc515ff87165c16f95d412c448a4a9
+Build toolchain: Rust 1.95.0; build command: make build GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n
+Kernel binary SHA-256: 12c0e795591d980503381dc9a487f3c24e5b227e569e9114c94983e3715b2ac0
+
+Direct-PTE API references were removed from mm/page_table/src/table64.rs and
+mm/memspace/src/aspace.rs. The R53 resident-page walker remains in aspace.rs;
+the compatibility tree's madvise, inotify, SCM_RIGHTS, memfd and PSS/COW fixes
+were merged for this candidate.

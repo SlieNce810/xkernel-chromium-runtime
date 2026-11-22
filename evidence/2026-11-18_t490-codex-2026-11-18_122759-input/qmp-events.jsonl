@@ -1,0 +1,45 @@
+{"kind": "rx", "ts": 1794976593.2818546, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1794976593.2820091, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-codex-2026-11-18_122759-input.sock"}}
+{"kind": "tx", "ts": 1794976593.282129, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1794976593.2824752, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1794976593.2825885, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1794976593.2835162, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1794976593.2836242, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1794976593.2837214, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1794976593.2861433, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1794976593.2862659, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1794976593.2863665, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1794976593.287363, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1794976593.2874706, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1794976593.2875643, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1794976593.29065, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1794976593.2907362, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1794976593.290805, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1794976593.291706, "value": {"error": {"class": "GenericError", "desc": "Property 'qemu-fixed-text-console.device' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1794976593.29178, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'qemu-fixed-text-console.device' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1794976593.291842, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1794976593.2927704, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "mouse-query", "ts": 1794976593.292843, "value": {"id": 7, "return": [{"absolute": false, "current": true, "index": 2, "name": "QEMU Virtio Mouse"}]}}
+{"kind": "tx", "ts": 1794976593.2929084, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1794976593.2936804, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "mouse-inventory", "ts": 1794976593.2937794, "value": {"id": 8, "return": "* Mouse #2: QEMU Virtio Mouse\r\n"}}
+{"kind": "tx", "ts": 1794976593.2938883, "value": {"arguments": {"command-line": "mouse_set 2"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1794976593.2968814, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1794976593.2969859, "value": {"index": 2}}
+{"kind": "sleep", "ts": 1794976593.2970479, "value": {"reason": "wait for Weston and Chromium", "seconds": 0.0}}
+{"kind": "tx", "ts": 1794976593.297237, "value": {"arguments": {"device": "virtio-gpu-pci", "events": [{"data": {"axis": "x", "value": 6937}, "type": "abs"}, {"data": {"axis": "y", "value": 7946}, "type": "abs"}]}, "execute": "input-send-event", "id": 10}}
+{"kind": "rx", "ts": 1794976593.2991467, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'virtio-gpu-pci' not found"}, "id": 10}}
+{"kind": "input-target-error", "ts": 1794976593.2992353, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'virtio-gpu-pci' not found\"}", "target": "virtio-gpu-pci"}}
+{"kind": "tx", "ts": 1794976593.2993045, "value": {"arguments": {"device": "virtio-gpu", "events": [{"data": {"axis": "x", "value": 6937}, "type": "abs"}, {"data": {"axis": "y", "value": 7946}, "type": "abs"}]}, "execute": "input-send-event", "id": 11}}
+{"kind": "rx", "ts": 1794976593.3013847, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'virtio-gpu' not found"}, "id": 11}}
+{"kind": "input-target-error", "ts": 1794976593.301479, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'virtio-gpu' not found\"}", "target": "virtio-gpu"}}
+{"kind": "tx", "ts": 1794976593.3015537, "value": {"arguments": {"device": "display0", "events": [{"data": {"axis": "x", "value": 6937}, "type": "abs"}, {"data": {"axis": "y", "value": 7946}, "type": "abs"}]}, "execute": "input-send-event", "id": 12}}
+{"kind": "rx", "ts": 1794976593.305803, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'display0' not found"}, "id": 12}}
+{"kind": "input-target-error", "ts": 1794976593.305929, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'display0' not found\"}", "target": "display0"}}
+{"kind": "tx", "ts": 1794976593.3060315, "value": {"arguments": {"device": "video0", "events": [{"data": {"axis": "x", "value": 6937}, "type": "abs"}, {"data": {"axis": "y", "value": 7946}, "type": "abs"}]}, "execute": "input-send-event", "id": 13}}
+{"kind": "rx", "ts": 1794976593.3077552, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'video0' not found"}, "id": 13}}
+{"kind": "input-target-error", "ts": 1794976593.3078465, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'video0' not found\"}", "target": "video0"}}
+{"kind": "tx", "ts": 1794976593.3079193, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 6937}, "type": "abs"}, {"data": {"axis": "y", "value": 7946}, "type": "abs"}]}, "execute": "input-send-event", "id": 14}}
+{"kind": "rx", "ts": 1794976593.3088632, "value": {"error": {"class": "GenericError", "desc": "Input handler not found for event type abs"}, "id": 14}}
+{"kind": "input-target-error", "ts": 1794976593.3089578, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Input handler not found for event type abs\"}", "target": ""}}
+{"kind": "result", "ts": 1794976593.3090222, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Input handler not found for event type abs\"}", "ok": false}}

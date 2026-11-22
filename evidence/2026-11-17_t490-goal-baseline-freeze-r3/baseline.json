@@ -1,0 +1,153 @@
+{
+  "schema": "xkernel.t490-baseline.v1",
+  "captured_at_utc": "2026-11-17T13:55:56.181166+00:00",
+  "captured_at_local": "2026-11-17T21:55:56+08:00",
+  "host": {
+    "hostname": "mo-ThinkPad-T490",
+    "os": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+    "os_release": "Ubuntu 26.04.1 LTS",
+    "cpu_model": "Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz",
+    "memory_bytes": 15833022464
+  },
+  "qemu": {
+    "binary": "/usr/bin/qemu-system-aarch64",
+    "version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)",
+    "accelerator": "pure TCG (platform.env ACCEL=n)"
+  },
+  "platform": {
+    "PLAT_ARCH": "aarch64",
+    "PLAT_MEM": "2g",
+    "PLAT_SMP": "4",
+    "PLAT_ACCEL": "n",
+    "PLAT_CPU_TCG": "cortex-a76",
+    "PLAT_MAKE_ARGS": "GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n"
+  },
+  "kernel": {
+    "root": "/home/mo/x-kernel",
+    "branch": "codex/chromium-sandbox-abi",
+    "commit": "b73e5814087c9d33c5f0a35b66cc56be689d3dee",
+    "describe": "basic-baseline-20260922-11-gb73e581-dirty",
+    "dirty": true,
+    "tracked_diff_sha256": "b3a4d5edd9aee8901ea17281f715c6832b6b323cf9711c56c16742caa7c0dea7",
+    "status_sha256": "43760fc4fdc40dd285b35d596cfe36b91880818a9f3b4950ac83e2f65552d01c",
+    "untracked_files": {
+      "core/ksyscall/src/task/namespace.rs": {
+        "path": "/home/mo/x-kernel/core/ksyscall/src/task/namespace.rs",
+        "exists": true,
+        "bytes": 2168,
+        "sha256": "a8dbda84323e48aa8255faa433dbedd4886d0e3f9b41a82a9f4e9116ca251308",
+        "evidence_copy": "kernel-untracked/core/ksyscall/src/task/namespace.rs"
+      },
+      "core/ksyscall/src/task/seccomp.rs": {
+        "path": "/home/mo/x-kernel/core/ksyscall/src/task/seccomp.rs",
+        "exists": true,
+        "bytes": 6843,
+        "sha256": "19235db4234d1f9ac5dc1eec261dd692f2d6bc0cdfe070deaedd9fefceccbdca",
+        "evidence_copy": "kernel-untracked/core/ksyscall/src/task/seccomp.rs"
+      },
+      "process/kprocess/src/seccomp_cbpf.rs": {
+        "path": "/home/mo/x-kernel/process/kprocess/src/seccomp_cbpf.rs",
+        "exists": true,
+        "bytes": 12775,
+        "sha256": "c65e9d38eea3bb763b229070a41945a2b77ea380023f8763ee3a452d472ccd79",
+        "evidence_copy": "kernel-untracked/process/kprocess/src/seccomp_cbpf.rs"
+      }
+    },
+    "config": {
+      "path": "/home/mo/x-kernel/.config",
+      "exists": true,
+      "bytes": 3006,
+      "sha256": "42e8d16450352712d78813b5f78b7ca221dfb88fadc796f57ecf317d7e33f669"
+    },
+    "kernel_binary": {
+      "path": "/home/mo/x-kernel/target/xkmake/kplat-aarch64/release/kernel.bin",
+      "exists": true,
+      "bytes": 8480000,
+      "sha256": "51c4028594e4aff9fc5b9964c4294a2904621c93e84093ac711858c454aed284"
+    }
+  },
+  "rootfs": {
+    "path": "/home/mo/x-kernel/images/pkg-installed.img",
+    "exists": true,
+    "bytes": 4294967296,
+    "sha256": "bab5c9f5dbf1e4a910bab569635bb9e44fe38c3b8cea94ae8eae4ce3f7a9fdb1"
+  },
+  "chromium": {
+    "version": "Chrome/149.0.7827.53",
+    "sha256_in_image": "d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641",
+    "verify": "rc=0\nCHROMIUM_IMAGE=/home/mo/x-kernel/images/pkg-installed.img\nCHROMIUM_IMAGE_SHA256=d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641\nCHROMIUM_IMAGE_VERSION=Chrome/149.0.7827.53\nCHROMIUM_IMAGE_VERIFY=PASS"
+  },
+  "overlay": {
+    "path": "none",
+    "exists": true,
+    "sha256": "none"
+  },
+  "inputs": {
+    "scripts/t490/platform.env": {
+      "path": "/home/mo/xk6/scripts/t490/platform.env",
+      "exists": true,
+      "bytes": 5831,
+      "sha256": "f476441c998582daebaffda18fc3938e3d9e4f24c75c9dca8f21e213ef5debc6"
+    },
+    "scripts/t490/run_score_page_mp.sh": {
+      "path": "/home/mo/xk6/scripts/t490/run_score_page_mp.sh",
+      "exists": true,
+      "bytes": 4102,
+      "sha256": "253203fd5aac602f83e032b43c8352d651a94d97cf8e1460e7c94cdcb69c5a88"
+    },
+    "scripts/t490/autorun_mp_diag.sh": {
+      "path": "/home/mo/xk6/scripts/t490/autorun_mp_diag.sh",
+      "exists": true,
+      "bytes": 41087,
+      "sha256": "7a711f8f55748aa6e9428411d4967645f9252988adf1cef64b922207bed3f70c"
+    },
+    "scripts/t490/t490_round.sh": {
+      "path": "/home/mo/xk6/scripts/t490/t490_round.sh",
+      "exists": true,
+      "bytes": 40547,
+      "sha256": "070e7a18c4ed7d8a79a1b5d54ab30adfcb26fcb2e93776af39448680355cf1b6"
+    },
+    "scripts/t490/run_session_t490.sh": {
+      "path": "/home/mo/xk6/scripts/t490/run_session_t490.sh",
+      "exists": true,
+      "bytes": 6200,
+      "sha256": "c2a768c30977ab5d6138c865a253410941f3b9cbd36a97a76a8050d8d9801f74"
+    },
+    "scripts/t490/ppm_assert.py": {
+      "path": "/home/mo/xk6/scripts/t490/ppm_assert.py",
+      "exists": true,
+      "bytes": 68961,
+      "sha256": "c191edda038bca92bd5d3b7e85ab73cdbfc4610ea62f8c9290973770a21a6c0b"
+    },
+    "scripts/collect_metrics.py": {
+      "path": "/home/mo/xk6/scripts/collect_metrics.py",
+      "exists": true,
+      "bytes": 6105,
+      "sha256": "88e2f373770a13be4bbb92073c5dc9568cf54ba1ef355ed4cf13b2d800a07c7c"
+    },
+    "scripts/testpage/index.html": {
+      "path": "/home/mo/xk6/scripts/testpage/index.html",
+      "exists": true,
+      "bytes": 6856,
+      "sha256": "3ce8d7c3f5a3cd3661e7f4ce0da3c5352856a4a951e119f80c9e8d14a6bdd5a5"
+    },
+    "scripts/testpage/interaction.html": {
+      "path": "/home/mo/xk6/scripts/testpage/interaction.html",
+      "exists": true,
+      "bytes": 12215,
+      "sha256": "01c34f7250b157eb0f49dd0d8272b9be0ae09502818dfcce01803d777542d86e"
+    },
+    "scripts/testpage/layout.html": {
+      "path": "/home/mo/xk6/scripts/testpage/layout.html",
+      "exists": true,
+      "bytes": 11779,
+      "sha256": "f10ad1c0743109bd2a577c3d18d27204af5d673a730c5bcabb1e85406bf812a2"
+    }
+  },
+  "planned_runner": {
+    "runner": "run_score_page_mp.sh",
+    "autorun": "autorun_mp_diag.sh",
+    "browser_extra_flags": "--js-flags=--jitless",
+    "actual_qemu_command_source": "the session cmd.txt generated by t490_round.sh"
+  }
+}

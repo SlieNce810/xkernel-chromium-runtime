@@ -1,0 +1,43 @@
+{
+  "candidate_kernel_sha256": "b5a51f5b49fbe9faeaae1f761442e18e098294cd5290ed18f04507158bdec6ca",
+  "diagnostic_only": true,
+  "direct_pte_patch_applied": true,
+  "driver_rc": 1,
+  "end_liveness": {
+    "chrome": "yes",
+    "memfree_kb": 308808,
+    "uptime_s": 1810,
+    "weston": "yes"
+  },
+  "formal_performance_sample": false,
+  "formal_stability_pass": false,
+  "gate_rc": 78,
+  "initial_page_ready": false,
+  "normalizer": {
+    "input_events": 592,
+    "output_events": 592,
+    "repaired_liveness": 0,
+    "result": "PASS"
+  },
+  "normalizer_rc": 0,
+  "notes": [
+    "Direct-PTE-on observer-off page timeout repeats R50 with the same source patch set.",
+    "R51 direct-PTE-off observer-off passed initial page/reload/420-second hold but freshness normalization failed.",
+    "This pair suggests a direct-PTE page regression; no-direct stabilization and functional regression are still required.",
+    "No memory sampler ran, so no RSS/PSS/USS peak data exists."
+  ],
+  "observer_options": {
+    "family_watchdog_seconds": 25,
+    "guest_clock_sync": false,
+    "lifecycle_preload": false,
+    "memory_sampler": false,
+    "process_scan_seconds": 30
+  },
+  "page_poll_count": 59,
+  "page_poll_strict_passes": 0,
+  "periodic_screenshots": 53,
+  "periodic_strict_passes": 0,
+  "round_rc": 0,
+  "run_id": "r52-direct-pte-repeat-control",
+  "schema": "xkernel.goal-run-summary.v1"
+}

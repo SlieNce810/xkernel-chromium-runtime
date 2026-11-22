@@ -1,0 +1,194 @@
+{
+  "schema": "xkernel.proc-tree-sampler-role-recheck-comparison.v1",
+  "recheck_interval_before_ns": 1000000000,
+  "recheck_interval_after_ns": 5000000000,
+  "before": {
+    "run_id": "r27-resident-walk-fastpath",
+    "valid_memory_sample": false,
+    "sample_ids": 225,
+    "memory_rows": 1373,
+    "missed": 210,
+    "memory_errors": 277,
+    "error_types": {
+      "bulk_unavailable": 67,
+      "incomplete": 67,
+      "process_tree_unavailable": 29,
+      "overrun": 114
+    },
+    "overrun_ms": {
+      "count": 114,
+      "min": 1502,
+      "median": 2045.5,
+      "p95": 15873,
+      "max": 59825
+    },
+    "timing": {
+      "tree_snapshot_resident_walk_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 22293200,
+        "median": 185688416,
+        "p95": 1399517760,
+        "max": 9681943584
+      },
+      "tree_snapshot_total_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 31322592,
+        "median": 208268592,
+        "p95": 1471915632,
+        "max": 9727393072
+      },
+      "tree_snapshot_mapcount_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 5576544,
+        "median": 11619984,
+        "p95": 29556256,
+        "max": 105799392
+      },
+      "sample_work_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 193253360,
+        "median": 1356863200,
+        "p95": 8977206528,
+        "max": 21590295168
+      }
+    }
+  },
+  "after": {
+    "run_id": "r29-role-recheck-export",
+    "valid_memory_sample": false,
+    "sample_ids": 225,
+    "memory_rows": 1420,
+    "missed": 205,
+    "memory_errors": 268,
+    "error_types": {
+      "process_tree_unavailable": 35,
+      "bulk_unavailable": 63,
+      "incomplete": 63,
+      "overrun": 107
+    },
+    "overrun_ms": {
+      "count": 107,
+      "min": 1509,
+      "median": 2281,
+      "p95": 14751,
+      "max": 45444
+    },
+    "timing": {
+      "tree_snapshot_resident_walk_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 20072224,
+        "median": 186020512,
+        "p95": 1092314496,
+        "max": 34388033072
+      },
+      "tree_snapshot_total_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 25613216,
+        "median": 204029968,
+        "p95": 1173918704,
+        "max": 34414456832
+      },
+      "tree_snapshot_mapcount_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 5123392,
+        "median": 11119952,
+        "p95": 34386080,
+        "max": 104056736
+      },
+      "sample_work_ns": {
+        "unit": "ns",
+        "samples": 225,
+        "unavailable_samples": 0,
+        "min": 163591488,
+        "median": 1292112304,
+        "p95": 6956146304,
+        "max": 45442334320
+      }
+    }
+  },
+  "comparisons": {
+    "tree_snapshot_resident_walk_ns": {
+      "median": {
+        "before_ns": 185688416,
+        "after_ns": 186020512,
+        "delta_percent": 0.18
+      },
+      "p95": {
+        "before_ns": 1399517760,
+        "after_ns": 1092314496,
+        "delta_percent": -21.95
+      },
+      "max": {
+        "before_ns": 9681943584,
+        "after_ns": 34388033072,
+        "delta_percent": 255.18
+      }
+    },
+    "tree_snapshot_total_ns": {
+      "median": {
+        "before_ns": 208268592,
+        "after_ns": 204029968,
+        "delta_percent": -2.04
+      },
+      "p95": {
+        "before_ns": 1471915632,
+        "after_ns": 1173918704,
+        "delta_percent": -20.25
+      },
+      "max": {
+        "before_ns": 9727393072,
+        "after_ns": 34414456832,
+        "delta_percent": 253.79
+      }
+    },
+    "tree_snapshot_mapcount_ns": {
+      "median": {
+        "before_ns": 11619984,
+        "after_ns": 11119952,
+        "delta_percent": -4.3
+      },
+      "p95": {
+        "before_ns": 29556256,
+        "after_ns": 34386080,
+        "delta_percent": 16.34
+      },
+      "max": {
+        "before_ns": 105799392,
+        "after_ns": 104056736,
+        "delta_percent": -1.65
+      }
+    },
+    "sample_work_ns": {
+      "median": {
+        "before_ns": 1356863200,
+        "after_ns": 1292112304,
+        "delta_percent": -4.77
+      },
+      "p95": {
+        "before_ns": 8977206528,
+        "after_ns": 6956146304,
+        "delta_percent": -22.51
+      },
+      "max": {
+        "before_ns": 21590295168,
+        "after_ns": 45442334320,
+        "delta_percent": 110.48
+      }
+    }
+  },
+  "conclusion": "single-run diagnostic only; both samplers FAIL and no formal peak/RSS/PSS/USS metrics are accepted"
+}

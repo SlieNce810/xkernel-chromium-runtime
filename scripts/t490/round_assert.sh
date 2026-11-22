@@ -2,8 +2,11 @@
 
 # Standalone T490 delivery workspace; defaults preserve the native Linux layout.
 XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
-export XK6_ROOT KERNEL_REPO
+KERNEL_REPO="${KERNEL_REPO:-${KERNEL_DIR:-$HOME/x-kernel}}"
+# 两套命名并存：KERNEL_DIR 是决赛线 13 个脚本沿用的旧名，KERNEL_REPO 是初赛提交包口径。
+# 外部传任一个都映射到同一目录，避免"传了 KERNEL_DIR 却静默回退到 ~/x-kernel"跑错内核。
+KERNEL_DIR="$KERNEL_REPO"
+export XK6_ROOT KERNEL_REPO KERNEL_DIR
 mkdir -p "$XK6_ROOT/tmp"
 # round_assert.sh —— 单轮结束后的取证收尾（尺寸校验 → 收 guest 日志 → 像素判据 → 汇总）
 #
@@ -52,6 +55,17 @@ IMAGE="${KERNEL_REPO}/disk.img"
 PY=python3
 command -v "$PY" >/dev/null 2>&1 || PY=python
 
+image_qemu_running() {
+    for proc in /proc/[0-9]*; do
+        [ -r "$proc/cmdline" ] || continue
+        exe=$(readlink -f "$proc/exe" 2>/dev/null || true)
+        case "${exe##*/}" in qemu-system-*) ;; *) continue ;; esac
+        cmdline=$(tr '\0' ' ' < "$proc/cmdline" 2>/dev/null || true)
+        case "$cmdline" in *"$IMAGE"*) return 0 ;; esac
+    done
+    return 1
+}
+
 EV="$(ls -d "$XK6_ROOT"/evidence/*"_t490-$TAG" 2>/dev/null | tail -1)"
 if [ -z "$EV" ] || [ ! -d "$EV" ]; then
     echo "!! 找不到本轮证据目录: ~/xk6/evidence/*_t490-$TAG（tag=$TAG）"
@@ -91,6 +105,10 @@ if [ "$N_PPM" -eq 0 ]; then
     say "!!      出现这种情况通常是有人手工转 PNG 后删了 PPM（历史上 nnp / inotifycpu 两轮如此）。"
     say "!!      后果：该轮不算合规证据包，无法参与跨轮像素比较。"
     printf 'RESULT: NO_PPM\n' >> "$SUMMARY"
+    if [ -n "$STRICT" ]; then
+        printf 'GATE: FAIL (strict requires at least one PPM)\n' >> "$SUMMARY"
+        exit 1
+    fi
     exit 0
 fi
 
@@ -121,20 +139,34 @@ case "$(printf '%s' "$UNIQ_SIZES" | wc -w)" in
 esac
 for b in $UNIQ_BYTES; do
     case "$b" in
-        921615|3072016) ;;
-        *) SIZE_OK=0; say "!! 出现非预期字节数 $b（合法值只有 921615=640x480 与 3072016=1280x800）" ;;
+        3072016) ;;
+        *) SIZE_OK=0; say "!! 出现非验收字节数 $b（决赛唯一允许 1280x800，PPM 应为 3072016 字节）" ;;
     esac
 done
-# 判据用**众数尺寸**而不是首图尺寸：实测 weston 在会话中途才把模式设成 1280×800，
-# 于是同一轮里首张仍是 640×480、之后全是 1280×800（2026-09-22 C0 轮实测）。
-# 拿首图尺寸去要求整轮，会把正确的 1280×800 截图误判成"尺寸不符"。
-DOM_SZ=$(printf '%s\n' "$SIZES" | awk '{print $1}' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')
-say "众数尺寸     : $DOM_SZ（用于逐张判据的 --expect-size）"
+# 决赛不接受启动阶段的占位 framebuffer；所有截图必须在固定模式稳定后采集。
+DOM_SZ="1280x800"
+say "验收尺寸     : $DOM_SZ（用于逐张判据的 --expect-size）"
+SIZE_FAIL=0
 if [ "$SIZE_OK" -eq 1 ]; then
     say "→ 尺寸一致性通过（集合单元素 $DOM_SZ）"
 else
-    say "→ 尺寸不一致（有异于众数的帧，通常是 weston 设模式之前的首帧）；"
-    say "   仍按众数 $DOM_SZ 逐张判定，非众数帧只记'尺寸不符'、不计入渲染失败"
+    SIZE_FAIL=1
+    say "→ 尺寸门禁失败；本轮不得作为决赛 PASS 证据"
+fi
+
+# Size equality alone is not enough: a 640x480 frame can have a self-consistent
+# header and byte count.  Enforce the fixed decision framebuffer explicitly.
+PIXEL_POLICY_RC=0
+PIXEL_POLICY_FAIL=0
+if [ -f "$HERE/../verify_pixel_policy.py" ]; then
+    $RUNTO $PY "$HERE/../verify_pixel_policy.py" "$EV/screenshots" \
+        >> "$SUMMARY" 2>&1
+    PIXEL_POLICY_RC=$?
+    [ "$PIXEL_POLICY_RC" -eq 0 ] || PIXEL_POLICY_FAIL=1
+    say "像素策略     : $([ "$PIXEL_POLICY_FAIL" -eq 0 ] && echo PASS || echo FAIL)（要求 P6 1280x800 3072016 字节）"
+else
+    say "!! 缺 verify_pixel_policy.py，无法执行固定画幅硬门禁"
+    PIXEL_POLICY_FAIL=1
 fi
 
 # ---------------------------------------------------------------- ② 收尾是否干净 → 决定要不要 fsck
@@ -156,7 +188,7 @@ fi
 
 if [ "$CLEAN" -eq 0 ] || [ -n "$FORCE_E2" ]; then
     if [ -f "$IMAGE" ]; then
-        if pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1; then
+        if image_qemu_running; then
             say "!! QEMU 仍在运行 → 跳过 e2fsck 与 guest 日志回收（debugfs 不能在挂载态读）"
         else
             say "→ 先 e2fsck -f -y（避免 debugfs dump 到陈旧/残缺内容）"
@@ -191,6 +223,12 @@ if [ -f "$PULL" ]; then
         /root/single-initial.log /root/single-initial.csv /root/single-chromium.log \
         /root/single-weston.log /root/single-weston-stdout.log /root/single-seatd.log \
         /root/single-udevd.log /root/single-udev-trigger.log /root/single-udev-settle.log \
+        /root/mp-diag.log /root/mp-weston.log /root/mp-weston-stdout.log /root/mp-seatd.log \
+        /root/mp-udevd.log /root/mp-udev-trigger.log /root/mp-udev-settle.log /root/mp-chromium.log \
+        /root/mp-perf-trace.json \
+        /root/headless-sandbox.log /root/headless-sandbox.err /root/headless-sandbox.html \
+        /root/headless-sandbox.maps \
+        /tmp/headless-sandbox-child.identity /tmp/sandbox.strace \
         >> "$SUMMARY" 2>&1
 else
     say "!! pull_guest_logs.sh 缺失，跳过"
@@ -232,10 +270,20 @@ N_ASSERT=0
 N_ASSERT_FAIL=0
 N_FINAL_DIAGNOSTIC_FAIL=0
 N_SIZE_MISMATCH=0
+N_WARMUP=0
+N_POST_PASS_FAIL=0
+FIRST_PASS=""
+LAST_BASE=""
+# `last_pass` is a legacy alias consumed by goal_audit.py; it means that at
+# least one frame passed strict checks, not that the final frame passed.
+LAST_PASS=0
+ANY_STRICT_PASS=0
+LAST_FRAME_STRICT_PASS=0
 for f in $PPM_LIST; do
     base="$(basename "$f" .ppm)"
     out="$EV/ppm-assert-$base.json"
     N_ASSERT=$((N_ASSERT + 1))
+    LAST_BASE="$base"
     $RUNTO $PY "$ASSERT" "$f" --profile "$ASSERT_PROFILE" --expect-size "$DOM_SZ" --strict --quiet \
         --json "$out" >> "$SUMMARY" 2>&1
     rc=$?
@@ -245,20 +293,59 @@ for f in $PPM_LIST; do
     [ -n "$sfc" ] || sfc=1
     IS_FINAL_FRAME=0
     case "$base" in *-final) IS_FINAL_FRAME=1 ;; esac
+    FINAL_DIAGNOSTIC=0
     if [ "$sfc" -gt 0 ] && [ "$FINAL_FRAME_DIAGNOSTIC_ONLY" = "1" ] && [ "$IS_FINAL_FRAME" = "1" ]; then
+        # 收尾诊断帧：main 侧的口径——严格集不过仍保留 JSON，但不计入页面 gate。
+        FINAL_DIAGNOSTIC=1
         N_FINAL_DIAGNOSTIC_FAIL=$((N_FINAL_DIAGNOSTIC_FAIL + 1))
         say "  $base: 收尾诊断帧严格集未通过；JSON 原样保留，不计入会话期间页面 gate"
-    elif [ "$sfc" -gt 0 ]; then
-        N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
-        say "  $base: 严格集未通过 $(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
-    elif [ "$rc" -ne 0 ]; then
+    elif [ "$rc" -ne 0 ] && [ "$sfc" -eq 0 ]; then
         N_SIZE_MISMATCH=$((N_SIZE_MISMATCH + 1))
         say "  $base: 尺寸校验未通过（严格集本身全过；本图与首图尺寸不同）"
     fi
+    if [ "$sfc" -eq 0 ]; then
+        LAST_PASS=1
+        ANY_STRICT_PASS=1
+        LAST_FRAME_STRICT_PASS=1
+        if [ -z "$FIRST_PASS" ]; then
+            FIRST_PASS="$base"
+            say "  $base: 首个严格集全通过帧（此前帧标为 WARMUP）"
+        fi
+    else
+        LAST_FRAME_STRICT_PASS=0
+        # 收尾诊断帧已单独计入 N_FINAL_DIAGNOSTIC_FAIL，不得再算进页面 gate。
+        if [ "$FINAL_DIAGNOSTIC" -ne 1 ]; then
+            N_ASSERT_FAIL=$((N_ASSERT_FAIL + 1))
+            if [ -z "$FIRST_PASS" ]; then
+                N_WARMUP=$((N_WARMUP + 1))
+                say "  $base: WARMUP（首个正确页面帧之前）$(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
+            else
+                N_POST_PASS_FAIL=$((N_POST_PASS_FAIL + 1))
+                say "  $base: PASS 后严格集失败 $(grep -o '"strict_fail_names": \[[^]]*\]' "$out" 2>/dev/null | head -1)"
+            fi
+        fi
+    fi
 done
 say "判定张数     : $N_ASSERT"
-say "严格集未通过 : $N_ASSERT_FAIL"
+say "首个通过帧   : ${FIRST_PASS:-NONE}"
+say "WARMUP 帧数  : $N_WARMUP（首帧前，不计 PASS 但全部保留）"
+say "严格集未通过 : $N_ASSERT_FAIL（其中首帧后 $N_POST_PASS_FAIL）"
 say "尺寸不符张数 : $N_SIZE_MISMATCH"
+
+# A round passes the page gate only when a correct page was reached and every
+# frame from that point on remains correct.  Frames before the first correct
+# page are WARMUP diagnostics; they are never counted as PASS, and a round that
+# never reaches a page still fails.
+PAGE_GATE_FAIL=0
+if [ -z "$FIRST_PASS" ]; then
+    PAGE_GATE_FAIL=1
+fi
+if [ "$N_POST_PASS_FAIL" -gt 0 ]; then
+    PAGE_GATE_FAIL=1
+fi
+if [ "$ANY_STRICT_PASS" -ne 1 ]; then
+    PAGE_GATE_FAIL=1
+fi
 
 # ---------------------------------------------------------------- ⑤ 相邻帧心跳判据
 say ""
@@ -343,9 +430,12 @@ say "=================================================================="
 
 # 门禁（--strict 才生效）：像素严格集失败 **或** 探针必验项失败 ⇒ 本轮不通过。
 # 固定输出 GATE 行，便于机器读取与跨轮比较。
-say "GATE  strict_fail=$N_ASSERT_FAIL final_frame_diagnostic_fail=$N_FINAL_DIAGNOSTIC_FAIL probe_fail=$N_PROBE_FAIL"
+# 字段取分支侧 page-gate 全量口径，并补上 main 侧的 final_frame_diagnostic_fail。
+say "GATE  page_fail=$PAGE_GATE_FAIL  strict_fail=$N_ASSERT_FAIL  final_frame_diagnostic_fail=$N_FINAL_DIAGNOSTIC_FAIL  warmup=$N_WARMUP  post_pass_fail=$N_POST_PASS_FAIL  probe_fail=$N_PROBE_FAIL  size_fail=$SIZE_FAIL  ppm_size_mismatch=$N_SIZE_MISMATCH  pixel_policy_fail=$PIXEL_POLICY_FAIL  last_frame=$LAST_BASE last_frame_strict_pass=$LAST_FRAME_STRICT_PASS any_strict_pass=$ANY_STRICT_PASS last_pass=$LAST_PASS"
 if [ -n "$STRICT" ]; then
-    if [ "$N_ASSERT_FAIL" -gt 0 ] || [ "$N_PROBE_FAIL" -gt 0 ]; then
+    if [ "$PAGE_GATE_FAIL" -gt 0 ] || [ "$N_PROBE_FAIL" -gt 0 ] || \
+       [ "$SIZE_FAIL" -gt 0 ] || [ "$N_SIZE_MISMATCH" -gt 0 ] || \
+       [ "$PIXEL_POLICY_FAIL" -gt 0 ]; then
         say "GATE: FAIL"
         exit 1
     fi

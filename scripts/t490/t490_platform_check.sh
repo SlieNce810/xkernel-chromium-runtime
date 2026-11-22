@@ -2,8 +2,10 @@
 
 # Standalone T490 delivery workspace; defaults preserve the native Linux layout.
 XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
-export XK6_ROOT KERNEL_REPO
+KERNEL_REPO="${KERNEL_REPO:-${KERNEL_DIR:-$HOME/x-kernel}}"
+# 兼容决赛线的 KERNEL_DIR 旧名，避免单独调用本脚本时静默检查 ~/x-kernel。
+KERNEL_DIR="$KERNEL_REPO"
+export XK6_ROOT KERNEL_REPO KERNEL_DIR
 mkdir -p "$XK6_ROOT/tmp"
 # ============================================================================
 # scripts/t490/t490_platform_check.sh

@@ -1,0 +1,7 @@
+R11 post-run mouse counter analysis
+
+As-run mouse ROI: 180,610,1100,755. Comparing after-mouse-click.ppm with after-scroll.ppm in this wide ROI returned a local pixel difference, but the counter still read 0 and the pointer had moved near the lower page edge.
+
+Counter-only comparison: ROI 220,625,600,655. The same screenshots returned no changed pixels. The gate now uses this counter-only ROI; the updated result is interaction-score-gate-corrected.json. The unit test verifies the gate uses the counter ROI rather than the pointer/button region.
+
+Observed pointer positions in the review screenshot suggest relative step4 acceleration drift. The next candidate requests are (247,607) for the counter button and (292,638) for the CSS link; they require an independent validation run.

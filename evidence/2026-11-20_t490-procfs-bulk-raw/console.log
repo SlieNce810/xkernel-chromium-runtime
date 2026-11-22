@@ -1,0 +1,623 @@
+### [2026-11-20 18:41:26] SESSION START
+### cwd: /home/mo/xk6/worktrees/xk-compat-fix-r1
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-device virtio-keyboard-pci -device virtio-mouse-pci'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -device virtio-keyboard-pci -device virtio-mouse-pci`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ksyscall` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.57s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800000815a20
+[boot] kruntime primary start cpu=0 boot_info=0xffff800000815a20
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-20 10:41:27.010022288 UTC
+
+[37m[  0.951812 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-20T10:20:06.391285997Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 128e17a1045d6b541ebf71c0f031f4a1d879f0622e3334ea343df486dded6a83
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 08f4d9f5438aba06a6fc90162d0b6d1218b3f748cff60db22857c397af1bbe09
+smp = 4
+Welcome to [96m[1mKylin X[0m!
+[37m[  1.152816 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.156451 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.158006 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.166919 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.167655 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.180635 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(2)[m
+[m[37m[  1.199347 1:2 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/env argc_ptr=0x1620[m
+[mSHLVL=1
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/
+[37m[  1.244855 1:2 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=2 code=0 group=1[m
+[m[37m[  1.255098 1:2 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=2 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.263113 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m
+Use [1m[3mapt[0m to install packages.
+
+[37m[  1.283848 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.284407 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.284864 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.285464 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.285900 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.286358 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.290006 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.290380 3:1 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sh argc_ptr=0x1370[m
+[m[37m[  1.359137 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.359372 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.363014 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(3)[m
+[m[37m[  1.377702 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.378588 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.379052 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.379651 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.380123 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.382842 1:3 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/date argc_ptr=0x1740[m
+[m[37m[  1.412846 1:3 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/etc/localtime" flags=0o2404000 mode=0o37777777716 err=KErrorKind::NotFound[m
+[m[37m[  1.413355 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  1.419700 1:3 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.421714 1:3 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=3 code=0 group=1[m
+[m[37m[  1.424419 1:3 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=3 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.427733 3:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[autostart] hook fired (Fri Nov 20 10:41:28 UTC 2026)
+[autostart] launching /root/autorun.sh in background
+[37m[  1.433581 3:1 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.434119 3:1 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.438269 3:1 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(4)[m
+[m[37m[  1.450776 1:4 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.451138 1:4 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.455547 1:4 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="busybox" result=Ok(5)[m
+[m[37m[  1.461588 1:4 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=4 code=0 group=1[m
+[m[37m[  1.466651 1:4 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=4 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.473504 0:1 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/root/.profile" flags=0o2400000 mode=0o0 err=KErrorKind::NotFound[m
+[m[37m[  1.474006 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[m[37m[  1.474617 3:5 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/root/autorun.sh argc_ptr=0x63c0[m
+[m[37m[  1.478953 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.484311 0:1 posix_fs::open:75] [33mSANDBOX_OPEN_RESULT dirfd=-100 path="/root/.ash_history" flags=0o400000 mode=0o666 err=KErrorKind::NotFound[m
+[m[37m[  1.484954 0:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=openat err=KErrorKind::NotFound[m
+[mkylin-x:~# [6n[37m[  1.517256 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.518080 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.518568 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.519110 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.519532 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.521811 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.522027 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.524945 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(6)[m
+[m[37m[  1.532416 0:6 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/mkdir argc_ptr=0x1160[m
+[m[37m[  1.556433 0:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=mkdirat err=KErrorKind::AlreadyExists[m
+[m[37m[  1.557252 0:6 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=mkdirat err=KErrorKind::AlreadyExists[m
+[m[37m[  1.559546 0:6 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=6 code=0 group=1[m
+[m[37m[  1.561222 0:6 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=6 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.562571 3:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  1.564657 3:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.565016 3:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.568046 3:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(7)[m
+[m[37m[  1.580971 1:7 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.581877 1:7 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.582447 1:7 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.584345 1:7 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.584660 1:7 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.587849 1:7 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(8)[m
+[m[37m[  1.595352 3:8 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/awk argc_ptr=0x13c8[m
+[m[37m[  1.629505 3:8 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/uptime" flags=0o400000[m
+[m[37m[  1.645410 3:8 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.647276 3:8 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=8 code=0 group=1[m
+[m[37m[  1.649445 3:8 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=8 parent=7 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.650616 1:7 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  1.652854 1:7 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=7 code=0 group=1[m
+[m[37m[  1.655025 1:7 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=7 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.656199 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  1.660913 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.661123 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.663849 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(9)[m
+[m[37m[  1.677589 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.678489 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.678951 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.679525 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.679948 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  1.680786 3:9 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.681004 3:9 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.684043 3:9 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(10)[m
+[m[37m[  1.691130 1:10 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x1350[m
+[m[37m[  1.716740 1:10 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  1.727312 1:10 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=10 code=0 group=1[m
+[m[37m[  1.729016 1:10 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=10 parent=9 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.730152 3:9 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  1.731789 3:9 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=9 code=0 group=1[m
+[m[37m[  1.734669 3:9 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=9 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  1.735887 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  1.736688 0:5 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-root-stat.txt" flags=0o401101[m
+[m[37m[  1.753821 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[mPROC_TREE_SMOKE_BEGIN root_pid=5 root_stat=5 (autorun.sh) S 1 4 1 0 0 0 0 0 0 0 8 0 0 0 20 0 1 0 145 2162688 134 0 0 0 0 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 launch_ns=1633000000
+[37m[  1.761924 0:5 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/sampler.log" flags=0o401101[m
+[m[37m[  1.763045 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  1.763423 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  1.766806 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(11)[m
+[m[37m[  1.774365 3:11 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/proc_tree_sampler argc_ptr=0x5f18[m
+[m[37m[  1.792329 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o401301[m
+[m[37m[  1.796263 3:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.796621 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-samples.csv" flags=0o401301[m
+[m[37m[  1.797505 3:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.797724 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-sampling-errors.log" flags=0o401301[m
+[m[37m[  1.798567 3:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  1.801293 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  1.810959 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  1.815527 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  1.817985 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  1.821620 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  2.801146 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  2.807678 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  2.809869 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  2.812262 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  2.814484 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  3.800902 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  3.807446 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  3.809675 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  3.812143 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  3.814250 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  4.800804 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  4.807344 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  4.809422 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  4.811355 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  4.813882 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  5.800842 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  5.807357 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  5.809412 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  5.811365 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  5.814604 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  6.801132 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  6.807421 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  6.809527 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  6.811813 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  6.814543 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  7.801063 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  7.806923 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  7.809624 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  7.812092 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  7.814086 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  8.800896 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc" flags=0o2440000[m
+[m[37m[  8.807064 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/1/stat" flags=0o400000[m
+[m[37m[  8.809313 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/stat" flags=0o400000[m
+[m[37m[  8.811418 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/11/stat" flags=0o400000[m
+[m[37m[  8.813638 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/tree_smaps_rollup" flags=0o400000[m
+[m[37m[  8.818100 3:11 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/proc-tree-sampler.status" flags=0o401301[m
+[m[37m[  8.819395 3:11 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  8.821088 3:11 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=11 code=0 group=1[m
+[m[37m[  8.822623 3:11 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=11 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  8.824016 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  8.825615 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  8.825818 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  8.829546 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(12)[m
+[m[37m[  8.841958 3:12 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-samples.csv" flags=0o400000[m
+[m[37m[  8.843512 3:12 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.844402 3:12 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.845021 3:12 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.846146 3:12 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  8.846386 3:12 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  8.849253 3:12 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(13)[m
+[m[37m[  8.856702 2:13 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/wc argc_ptr=0x13f0[m
+[m[37m[  8.885958 2:13 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  8.887007 2:13 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=13 code=0 group=1[m
+[m[37m[  8.888878 2:13 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=13 parent=12 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  8.889972 3:12 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  8.891856 3:12 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=12 code=0 group=1[m
+[m[37m[  8.894338 3:12 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=12 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  8.895917 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  8.896892 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  8.897113 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  8.900583 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(14)[m
+[m[37m[  8.912776 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.913681 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.914224 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.915039 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.915760 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  8.917592 3:14 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  8.917912 3:14 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  8.921563 3:14 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(15)[m
+[m[37m[  8.929695 2:15 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/grep argc_ptr=0x16c0[m
+[m[37m[  8.955471 2:15 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o400000[m
+[m[37m[  8.972673 1:15 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  8.974387 1:15 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=15 code=0 group=1[m
+[m[37m[  8.976298 1:15 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=15 parent=14 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  8.977416 3:14 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  8.979312 3:14 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=14 code=0 group=1[m
+[m[37m[  8.981897 3:14 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=14 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  8.983388 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  8.984457 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  8.984771 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  8.987775 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(16)[m
+[m[37m[  9.000896 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.001611 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.002042 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.002505 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.002905 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.003528 3:16 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.003826 3:16 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.007011 3:16 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(17)[m
+[m[37m[  9.014533 2:17 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/grep argc_ptr=0x13b0[m
+[m[37m[  9.039992 2:17 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-sampling-errors.log" flags=0o400000[m
+[m[37m[  9.043933 2:17 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.044960 2:17 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=17 code=1 group=1[m
+[m[37m[  9.046521 2:17 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=17 parent=16 exit_code=256 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.047784 3:16 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.049915 3:16 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=16 code=0 group=1[m
+[m[37m[  9.052203 3:16 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=16 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.053392 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.054431 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.054678 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.057711 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(18)[m
+[m[37m[  9.070500 3:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.071216 3:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.071723 3:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.072351 3:18 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/awk argc_ptr=0x1690[m
+[m[37m[  9.098892 3:18 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-samples.csv" flags=0o400000[m
+[m[37m[  9.104696 3:18 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.105376 3:18 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=18 code=0 group=1[m
+[m[37m[  9.107848 3:18 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=18 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.109265 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.110222 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.110473 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.113446 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(19)[m
+[m[37m[  9.123602 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.124506 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.124958 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.125376 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.125988 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.127791 3:19 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.128292 3:19 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.131439 3:19 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(20)[m
+[m[37m[  9.133679 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.136316 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.138669 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.140668 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.142205 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.146790 2:20 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/grep argc_ptr=0x16f0[m
+[m[37m[  9.147883 3:19 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.148549 3:19 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.154364 3:19 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(21)[m
+[m[37m[  9.182349 1:21 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/sed argc_ptr=0x16f0[m
+[m[37m[  9.182751 2:20 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o400000[m
+[m[37m[  9.192084 2:20 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.195855 2:20 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=20 code=0 group=1[m
+[m[37m[  9.200784 2:20 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=20 parent=19 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.234164 1:21 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.237336 1:21 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=21 code=0 group=1[m
+[m[37m[  9.240036 1:21 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=21 parent=19 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.241084 3:19 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.243241 3:19 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=19 code=0 group=1[m
+[m[37m[  9.245829 3:19 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=19 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.247801 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.248802 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.249044 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.252452 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(22)[m
+[m[37m[  9.263292 3:22 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.263686 3:22 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.266868 3:22 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(23)[m
+[m[37m[  9.270278 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.272725 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.274635 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.275922 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.277540 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.279906 3:22 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.280880 3:22 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.289354 3:22 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(24)[m
+[m[37m[  9.291257 1:23 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=23 code=0 group=1[m
+[m[37m[  9.303204 1:23 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=23 parent=22 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.303763 2:24 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/grep argc_ptr=0x13b8[m
+[m[37m[  9.340179 2:24 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.340719 2:24 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=24 code=0 group=1[m
+[m[37m[  9.342896 2:24 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=24 parent=22 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.344141 3:22 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.346384 3:22 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=22 code=0 group=1[m
+[m[37m[  9.348759 3:22 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=22 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.350007 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.351238 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.351516 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.354636 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(25)[m
+[m[37m[  9.364901 3:25 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.365450 3:25 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.368996 3:25 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(26)[m
+[m[37m[  9.372348 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.374102 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.375557 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.377212 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.378482 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.380452 3:25 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.381326 3:25 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.389499 3:25 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(27)[m
+[m[37m[  9.395754 2:26 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=26 code=0 group=1[m
+[m[37m[  9.404100 2:26 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=26 parent=25 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.408549 1:27 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/grep argc_ptr=0x16a8[m
+[m[37m[  9.440536 1:27 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ioctl err=KErrorKind::NotATty[m
+[m[37m[  9.440984 1:27 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=27 code=1 group=1[m
+[m[37m[  9.443238 1:27 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=27 parent=25 exit_code=256 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.444346 3:25 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.447711 3:25 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=25 code=0 group=1[m
+[m[37m[  9.449707 3:25 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=25 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.450659 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=read err=KErrorKind::Interrupted[m
+[m[37m[  9.452262 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.453750 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.454442 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.454945 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.455518 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.455981 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.456943 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.457202 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.460275 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(28)[m
+[m[37m[  9.468377 3:28 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cp argc_ptr=0x1198[m
+[m[37m[  9.491579 3:28 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.493964 3:28 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.494620 3:28 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o400000[m
+[m[37m[  9.495330 3:28 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-lifecycle-events.jsonl" flags=0o400301[m
+[m[37m[  9.499199 3:28 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=28 code=0 group=1[m
+[m[37m[  9.500768 3:28 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=28 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.502128 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.503563 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.503851 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.506845 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(29)[m
+[m[37m[  9.514603 3:29 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cp argc_ptr=0x1190[m
+[m[37m[  9.537501 3:29 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.538964 3:29 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.539488 3:29 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-samples.csv" flags=0o400000[m
+[m[37m[  9.540127 3:29 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-memory-samples.csv" flags=0o400301[m
+[m[37m[  9.544122 3:29 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=29 code=0 group=1[m
+[m[37m[  9.546032 3:29 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=29 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.547374 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.549059 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.549376 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.552243 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(30)[m
+[m[37m[  9.559703 3:30 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cp argc_ptr=0x11a0[m
+[m[37m[  9.584257 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.585447 3:30 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.586012 3:30 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-sampling-errors.log" flags=0o400000[m
+[m[37m[  9.586947 3:30 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-memory-sampling-errors.log" flags=0o400301[m
+[m[37m[  9.592129 3:30 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=30 code=0 group=1[m
+[m[37m[  9.593676 3:30 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=30 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.594637 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.596115 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.596420 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.599847 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(31)[m
+[m[37m[  9.607953 3:31 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cp argc_ptr=0x1198[m
+[m[37m[  9.632576 3:31 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.633702 3:31 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.634152 3:31 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/proc-tree-sampler.status" flags=0o400000[m
+[m[37m[  9.634632 3:31 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-proc-tree-sampler.status" flags=0o400301[m
+[m[37m[  9.638467 3:31 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=31 code=0 group=1[m
+[m[37m[  9.640576 3:31 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=31 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.641741 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.642952 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.643156 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.646372 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(32)[m
+[m[37m[  9.654154 3:32 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cp argc_ptr=0x1180[m
+[m[37m[  9.679862 3:32 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.681195 3:32 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.681664 3:32 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/sampler.log" flags=0o400000[m
+[m[37m[  9.682251 3:32 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-sampler.log" flags=0o400301[m
+[m[37m[  9.686295 3:32 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=32 code=0 group=1[m
+[m[37m[  9.687900 3:32 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=32 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.688977 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.690587 0:5 posix_fs::open:49] [33mSANDBOX_OPEN path="/root/proc-tree-smoke-summary.txt" flags=0o401101[m
+[m[37m[  9.694263 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.694729 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.695166 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.695640 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.696046 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.696645 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.696970 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.700699 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(33)[m
+[m[37m[  9.711304 3:33 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11c0[m
+[m[37m[  9.736361 3:33 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/sampler.log" flags=0o400000[m
+[mPROC_TREE_SAMPLER_RESULT run_id=proc-tree-smoke-01 samples=8 processes=2 missed=0 source=procfs-tree-smaps_rollup duration_ms=7017
+[37m[  9.739238 3:33 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=33 code=0 group=1[m
+[m[37m[  9.741290 3:33 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=33 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.742604 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.744394 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.744631 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.747895 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(34)[m
+[m[37m[  9.758426 3:34 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11d8[m
+[m[37m[  9.783889 3:34 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/proc-tree-sampler.status" flags=0o400000[m
+[mrun_id=proc-tree-smoke-01
+result=PASS
+samples=8
+process_instances=2
+missed=0
+memory_source=procfs-tree-smaps_rollup
+finished_t_ns=8817558064
+[37m[  9.786883 3:34 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=34 code=0 group=1[m
+[m[37m[  9.788464 3:34 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=34 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.789771 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[mPROC_TREE_SMOKE run_id=proc-tree-smoke-01 sample_rows=16 processes_started=2 memory_errors=0 bad_values=0 start_time_count=2 bad_start_times=0
+PROC_TREE_SMOKE_MEMORY_CSV_BEGIN
+[37m[  9.792627 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.792937 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.796454 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(35)[m
+[m[37m[  9.805440 3:35 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11d0[m
+[m[37m[  9.830724 3:35 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/memory-samples.csv" flags=0o400000[m
+[mrun_id,clock_id,sample_id,t_ns,pid,ppid,process_instance,rss_kb,pss_kb,uss_kb
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,1,1800870304,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,1,1800870304,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,2,2800639808,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,2,2800639808,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,3,3800356720,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,3,3800356720,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,4,4800379872,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,4,4800379872,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,5,5800334272,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,5,5800334272,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,6,6800754336,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,6,6800754336,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,7,7800073712,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,7,7800073712,11,5,11-176,164,164,164
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,8,8800379008,5,1,5-145,588,372,156
+proc-tree-smoke-01,LINUX_CLOCK_MONOTONIC,8,8800379008,11,5,11-176,164,164,164
+[37m[  9.835976 3:35 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=35 code=0 group=1[m
+[m[37m[  9.838080 3:35 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=35 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.839191 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[mPROC_TREE_SMOKE_EVENTS_BEGIN
+[37m[  9.841759 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.842115 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.845863 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(36)[m
+[m[37m[  9.856487 3:36 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11d8[m
+[m[37m[  9.881067 3:36 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o400000[m
+[m{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":1,"event_id":"proc-tree-smoke-01:1","t_ns":1633000000,"event":"browser_launch_requested"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":2,"event_id":"proc-tree-smoke-01:2","t_ns":1800870304,"event":"process_started","pid":5,"ppid":1,"process_instance":"5-145","role":"browser"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":3,"event_id":"proc-tree-smoke-01:3","t_ns":1800870304,"event":"process_started","pid":11,"ppid":5,"process_instance":"11-176","role":"browser_child","parent_process_instance":"5-145"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":4,"event_id":"proc-tree-smoke-01:4","t_ns":8817558064,"event":"memory_sampling_finished"}
+[37m[  9.885339 3:36 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=36 code=0 group=1[m
+[m[37m[  9.886994 3:36 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=36 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.888659 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[mPROC_TREE_SMOKE_ROOT_SMAPS_BEGIN pid=5
+[37m[  9.890990 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.891196 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.894350 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(37)[m
+[m[37m[  9.904012 3:37 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/bin/cat argc_ptr=0x11b8[m
+[m[37m[  9.928779 3:37 posix_fs::open:49] [33mSANDBOX_OPEN path="/proc/5/smaps_rollup" flags=0o400000[m
+[mRss:	588 kB
+Pss:	334 kB
+USS:	152 kB
+Shared:	436 kB
+[37m[  9.935569 3:37 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=37 code=0 group=1[m
+[m[37m[  9.937333 3:37 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=37 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.938337 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[m[37m[  9.940364 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.941220 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.941663 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=fstatat err=KErrorKind::NotFound[m
+[m[37m[  9.943009 0:5 ksyscall::dispatch:625] [33mSANDBOX_SYSCALL clone flags=0x11 stack=0x0 ptid=0x0 ctid=0x40c2000 tls=0x40c2030[m
+[m[37m[  9.943224 0:5 ksyscall::task::clone:355] [33mSANDBOX_VALIDATE clone_flags=0x0[m
+[m[37m[  9.946332 0:5 ksyscall::task::clone:459] [33mSANDBOX_CLONE_RESULT raw_flags=0x11 clone_flags=0x0 caller="autorun.sh" result=Ok(38)[m
+[m[37m[  9.953929 3:38 ksyscall::task::execve:44] [33mSANDBOX_EXEC path=/usr/bin/tail argc_ptr=0x1300[m
+[m[37m[  9.977122 3:38 posix_fs::open:49] [33mSANDBOX_OPEN path="/tmp/proc-tree-smoke/lifecycle-events.jsonl" flags=0o400000[m
+[m{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":1,"event_id":"proc-tree-smoke-01:1","t_ns":1633000000,"event":"browser_launch_requested"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":2,"event_id":"proc-tree-smoke-01:2","t_ns":1800870304,"event":"process_started","pid":5,"ppid":1,"process_instance":"5-145","role":"browser"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":3,"event_id":"proc-tree-smoke-01:3","t_ns":1800870304,"event":"process_started","pid":11,"ppid":5,"process_instance":"11-176","role":"browser_child","parent_process_instance":"5-145"}
+{"schema":"xkernel.browser.lifecycle.v1","run_id":"proc-tree-smoke-01","clock_id":"LINUX_CLOCK_MONOTONIC","seq":4,"event_id":"proc-tree-smoke-01:4","t_ns":8817558064,"event":"memory_sampling_finished"}
+[37m[  9.981793 3:38 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=38 code=0 group=1[m
+[m[37m[  9.984586 3:38 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=38 parent=5 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.985599 0:5 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=wait4 err=LinuxError::ECHILD[m
+[mPROC_TREE_SMOKE_PASS
+[37m[  9.990066 0:5 ksyscall::task::exit:24] [33mSANDBOX_SYS_EXIT pid=5 code=0 group=1[m
+[m[37m[  9.992318 0:5 kprocess::process_exit:72] [33mSANDBOX_EXIT pid=5 parent=1 exit_code=0 signal=Some(SIGCHLD) autoreaped=false[m
+[m[37m[  9.993469 1:1 ksyscall::dispatch:952] [33mSANDBOX_SYSCALL_ERROR sysno=ppoll err=KErrorKind::Interrupted[m
+[m
+### [2026-11-20 18:42:12] MONITOR: screendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-at0045s.ppm
+QEMU 10.2.1 monitor - type 'help' for more information
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pro[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-proc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-b[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bu[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bul[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-ra[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-at00[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-01-at004[K
+
+### [2026-11-20 18:42:15] screendump OK (921615 bytes)
+
+### [2026-11-20 18:43:12] MONITOR: screendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-at0105s.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pro[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-proc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-b[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bu[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bul[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-ra[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-a[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-at[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-at0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-at01[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-02-at010[K
+
+### [2026-11-20 18:43:15] screendump OK (921615 bytes)
+
+### [2026-11-20 18:43:26] MONITOR: screendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-final.ppm
+(qemu) s[K[Dsc[K[D[Dscr[K[D[D[Dscre[K[D[D[D[Dscree[K[D[D[D[D[Dscreen[K[D[D[D[D[D[Dscreend[K[D[D[D[D[D[D[Dscreendu[K[D[D[D[D[D[D[D[Dscreendum[K[D[D[D[D[D[D[D[D[Dscreendump[K[D[D[D[D[D[D[D[D[D[Dscreendump [K[D[D[D[D[D[D[D[D[D[D[Dscreendump /[K[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /h[K[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /ho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /hom[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/m[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/x[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/e[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/ev[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evid[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evide[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/eviden[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidenc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/202[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-2[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t4[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t49[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r1[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-p[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-pro[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-proc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procf[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-b[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bu[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bul[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-r[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-ra[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/sc[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scr[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scre[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/scree[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screen[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screens[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screensho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/s[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sh[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/sho[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-0[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-f[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-fi[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-fin[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-fina[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dscreendump /home/mo/xk6/evidence/2026-11-20_t490-r14-procfs-bulk-raw/screenshots/shot-03-final[K
+
+### [2026-11-20 18:43:30] screendump OK (921615 bytes)
+
+### [2026-11-20 18:43:30] stopping session...
+QEMU: Terminated
+### [2026-11-20 18:43:30] SESSION END (exit=0)

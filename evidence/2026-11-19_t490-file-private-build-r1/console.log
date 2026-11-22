@@ -1,0 +1,126 @@
+### [2026-11-19 13:24:43] SESSION START
+### cwd: /home/mo/xk6/worktrees/xk-compat-fix-r1
+### argv: make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1'
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+   Compiling memspace v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/memspace)
+   Compiling ksignal v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ksignal)
+   Compiling console-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/console)
+   Compiling rtc-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/rtc)
+   Compiling irq-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/irq)
+   Compiling pci v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/pci)
+   Compiling ktracing v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ktracing)
+   Compiling device-res-xkernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/adapters/xkernel/device-res)
+   Compiling kplat-aarch64 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat-aarch64)
+   Compiling virtio v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/devices/virtio)
+   Compiling kvfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/kvfs)
+   Compiling ktimer v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ktimer)
+   Compiling entropy v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/entropy)
+   Compiling kdriver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/integration/kdriver)
+   Compiling fs_context v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/fs_context)
+   Compiling anon_inodefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/anon_inodefs)
+   Compiling memfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/memfs)
+   Compiling pipefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/pipefs)
+   Compiling kfd v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd)
+   Compiling kns v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kns)
+   Compiling kresources v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kresources)
+   Compiling tee_task_iface v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_task_iface)
+   Compiling kprocess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kprocess)
+   Compiling filemap v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/filemap)
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0308]: mismatched types
+   --> mm/filemap/src/private.rs:187:26
+    |
+187 |                     Some(file_page_offset),
+    |                     ---- ^^^^^^^^^^^^^^^^ expected `u64`, found `Option<u64>`
+    |                     |
+    |                     arguments to this enum variant are incorrect
+    |
+    = note: expected type `u64`
+               found enum `Option<u64>`
+help: the type constructed contains `Option<u64>` due to the type of the argument passed
+   --> mm/filemap/src/private.rs:187:21
+    |
+187 |                     Some(file_page_offset),
+    |                     ^^^^^----------------^
+    |                          |
+    |                          this argument influences the type of `Some`
+note: tuple variant defined here
+   --> /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:608:5
+    |
+608 |     Some(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^^^
+help: consider using `Option::expect` to unwrap the `Option<u64>` value, panicking if the value is an `Option::None`
+    |
+187 |                     Some(file_page_offset.expect("REASON")),
+    |                                          +++++++++++++++++
+
+error[E0308]: mismatched types
+   --> mm/filemap/src/private.rs:188:26
+    |
+188 |                     Some(page_data_offset),
+    |                     ---- ^^^^^^^^^^^^^^^^ expected `usize`, found `Option<usize>`
+    |                     |
+    |                     arguments to this enum variant are incorrect
+    |
+    = note: expected type `usize`
+               found enum `Option<usize>`
+help: the type constructed contains `Option<usize>` due to the type of the argument passed
+   --> mm/filemap/src/private.rs:188:21
+    |
+188 |                     Some(page_data_offset),
+    |                     ^^^^^----------------^
+    |                          |
+    |                          this argument influences the type of `Some`
+note: tuple variant defined here
+   --> /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:608:5
+    |
+608 |     Some(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^^^
+help: consider using `Option::expect` to unwrap the `Option<usize>` value, panicking if the value is an `Option::None`
+    |
+188 |                     Some(page_data_offset.expect("REASON")),
+    |                                          +++++++++++++++++
+
+   Compiling drmdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/drmdevice)
+For more information about this error, try `rustc --explain E0308`.
+warning: `filemap` (lib) generated 1 warning
+error: could not compile `filemap` (lib) due to 2 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...
+error: cargo exited with status exit status: 101
+make: *** [Makefile:172：run] 错误 101
+
+### [2026-11-19 13:24:59] 子进程已退出（elapsed=15.9s）
+
+### [2026-11-19 13:24:59] stopping session...
+### [2026-11-19 13:24:59] SESSION END (exit=2)

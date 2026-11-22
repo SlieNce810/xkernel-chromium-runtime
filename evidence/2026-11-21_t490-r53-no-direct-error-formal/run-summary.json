@@ -1,0 +1,29 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r53-no-direct-error-formal",
+  "candidate_kernel_sha256": "c78ecd57fb47b8269ebecf0a4e99ee5d9f85648e01703726eee7af88ad017a67",
+  "direct_pte_patch_applied": false,
+  "log_level": "ERROR",
+  "diagnostic_only": false,
+  "driver_rc": 1,
+  "round_rc": 0,
+  "normalizer_rc": 0,
+  "gate_rc": 1,
+  "initial_page_ready": false,
+  "page_poll_count": 79,
+  "page_poll_strict_passes": 0,
+  "periodic_screenshots": 2,
+  "periodic_strict_passes": 0,
+  "normalizer": {"result": "PASS", "input_events": 871, "output_events": 871, "repaired_liveness": 0},
+  "end_liveness": {"uptime_s": 2416, "weston": "yes", "chrome": "yes", "memfree_kb": 307064},
+  "console_bytes": 167651,
+  "observer_options": {"memory_sampler": false, "lifecycle_preload": false, "guest_clock_sync": false, "process_scan_seconds": 30, "family_watchdog_seconds": 15},
+  "formal_stability_pass": false,
+  "formal_performance_sample": false,
+  "notes": [
+    "Formal initial-page readiness timed out at 2400 seconds; no navigation or 1805-second hold phase ran.",
+    "The ERROR-only logger sharply reduced console volume but did not make the page strict-pass.",
+    "R51 with the no-direct-PTE source and WARN log-level passed one diagnostic page/reload run; R53 shows that candidate startup remains intermittent.",
+    "No memory sampler ran, so there are no four-metric values."
+  ]
+}

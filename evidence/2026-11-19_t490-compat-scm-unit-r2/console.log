@@ -1,0 +1,446 @@
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --unittest --unittest-crate knet --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+   Compiling procfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/procfs)
+   Compiling virtio v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/devices/virtio)
+   Compiling kfutex v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfutex)
+   Compiling posix-ipc v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/ipc)
+   Compiling cgroup2fs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/cgroup2fs)
+   Compiling num_enum_derive v0.7.6
+   Compiling portable-atomic v1.15.0
+   Compiling posix-net v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/net)
+   Compiling posix-mm v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/mm)
+   Compiling num_enum v0.7.6
+   Compiling fs_boot v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/boot)
+   Compiling kdriver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/integration/kdriver)
+   Compiling posix-process v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/process)
+   Compiling watchdog v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/watchdog)
+   Compiling ksyscall v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ksyscall)
+   Compiling kruntime v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/kruntime)
+   Compiling kext4 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/kext4)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling xcover v0.1.3 (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/xcover)
+   Compiling kernel-image-metadata v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/boot/kernel-image-metadata)
+   Compiling kfeat v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/api/kfeat)
+warning: `ksyscall` (lib) generated 1 warning
+   Compiling entry v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/entry)
+    Finished `release` profile [optimized] target(s) in 51.73s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -global 'virtio-gpu-pci.xres=1280' \
+  -global 'virtio-gpu-pci.yres=800' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci \
+  -display 'vnc=127.0.0.1:1'
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff800001494020
+[boot] kruntime primary start cpu=0 boot_info=0xffff800001494020
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-19 02:23:01.025011616 UTC
+
+[37m[  3.534726 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-19T02:22:58.084674815Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = a1032a3e2d5396f9228477ac4f4c9ef9b140366c192810e9f789ad0bd3f25646
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 7c7447854470ebba6c90aa3ae3c6ca5664c16343b1377cda8197e38e752c637b
+smp = 4
+[37m[  3.566511 0:18446462599842244624 entry:130] [33mCleaning up stale coverage data if exists...[m
+[mRunning unit tests with crate filter: knet
+================================
+Starting unit tests [unittest] (parallel)...
+  32 module(s), 240 test(s)
+================================
+  [knet::device::ethernet::tests] (5 tests)
+  [knet::device::loopback::tests] (2 tests)
+  [knet::device::net_rx::tests] (3 tests)
+  [knet::device::tests] (2 tests)
+  [knet::ip::tests] (2 tests)
+  [knet::link::buf::tests] (5 tests)
+  [knet::link::packet::tests] (24 tests)
+  [knet::link::wire::tests] (2 tests)
+  [knet::netlink::tests] (41 tests)
+  [knet::runtime::tx_queue::tests] (1 tests)
+  [knet::socket::file::socket_tests] (1 tests)
+  [knet::socket::general::tests] (3 tests)
+  [knet::socket::test_options] (9 tests)
+  [knet::socket::test_state] (12 tests)
+  [knet::stack::fragment::tests] (8 tests)
+  [knet::stack::ipv4::tests] (7 tests)
+  [knet::stack::listen_table::tests] (1 tests)
+  [knet::stack::router::tests] (12 tests)
+  [knet::stack::service::tests] (13 tests)
+  [knet::stack::service::timer_irq_tests] (1 tests)
+  [knet::stack::wrapper::tests] (2 tests)
+  [knet::transport::raw::tests] (4 tests)
+  [knet::transport::tcp::tests] (12 tests)
+  [knet::transport::udp::pcb::tests] (6 tests)
+  [knet::transport::udp::registry::tests] (11 tests)
+  [knet::transport::udp::socket::tests] (5 tests)
+  [knet::transport::udp::state::tests] (4 tests)
+  [knet::transport::udp::tests] (7 tests)
+  [knet::transport::udp::wait::tests] (2 tests)
+  [knet::transport::udp_err::tests] (7 tests)
+  [knet::unix::stream::tests] (24 tests)
+  [knet::unix::tests] (2 tests)
+  Running 106 serial test(s)...
+      START  knet::device::ethernet::tests::test_net_rx_softirq_wakes_only_pending_sources
+      RESULT knet::device::ethernet::tests::test_net_rx_softirq_wakes_only_pending_sources ... ok
+      START  knet::device::ethernet::tests::test_net_rx_softirq_round_robin_cursor_reaches_sources_after_batch
+      RESULT knet::device::ethernet::tests::test_net_rx_softirq_round_robin_cursor_reaches_sources_after_batch ... ok
+      START  knet::device::ethernet::tests::test_net_rx_softirq_full_batch_without_remaining_pending_does_not_defer
+      RESULT knet::device::ethernet::tests::test_net_rx_softirq_full_batch_without_remaining_pending_does_not_defer ... ok
+      START  knet::device::loopback::tests::loopback_rechecks_current_mtu_before_enqueue
+[37m[  3.621379 3:18446462599845136400 knet::device::loopback:153] [33mDropping packet exceeding loopback MTU 68[m
+[m      RESULT knet::device::loopback::tests::loopback_rechecks_current_mtu_before_enqueue ... ok
+      START  knet::device::net_rx::tests::stamped_udp_is_not_visible_to_the_task_poller
+      RESULT knet::device::net_rx::tests::stamped_udp_is_not_visible_to_the_task_poller ... ok
+      START  knet::device::net_rx::tests::unstamped_packets_are_visible_to_the_task_poller
+      RESULT knet::device::net_rx::tests::unstamped_packets_are_visible_to_the_task_poller ... ok
+      START  knet::device::net_rx::tests::overflow_returns_the_packet_and_discard_drops_it_after_unlock
+      RESULT knet::device::net_rx::tests::overflow_returns_the_packet_and_discard_drops_it_after_unlock ... ok
+      START  knet::link::packet::tests::test_send_ifindex_errors
+      RESULT knet::link::packet::tests::test_send_ifindex_errors ... ok
+      START  knet::link::packet::tests::test_peek_preserves_frame
+      RESULT knet::link::packet::tests::test_peek_preserves_frame ... ok
+      START  knet::link::packet::tests::test_queue_drop_statistics
+      RESULT knet::link::packet::tests::test_queue_drop_statistics ... ok
+      START  knet::link::packet::tests::test_datagram_frame_builder
+      RESULT knet::link::packet::tests::test_datagram_frame_builder ... ok
+      START  knet::link::packet::tests::test_custom_ethertype_matches
+      RESULT knet::link::packet::tests::test_custom_ethertype_matches ... ok
+      START  knet::link::packet::tests::test_send_link_state_validation
+      RESULT knet::link::packet::tests::test_send_link_state_validation ... ok
+      START  knet::link::packet::tests::test_unsupported_connection_ops
+      RESULT knet::link::packet::tests::test_unsupported_connection_ops ... ok
+      START  knet::link::packet::tests::test_outgoing_frame_is_published
+      RESULT knet::link::packet::tests::test_outgoing_frame_is_published ... ok
+      START  knet::link::packet::tests::test_recv_retries_partial_writes
+      RESULT knet::link::packet::tests::test_recv_retries_partial_writes ... ok
+      START  knet::link::packet::tests::test_recvmsg_writes_packet_address
+      RESULT knet::link::packet::tests::test_recvmsg_writes_packet_address ... ok
+      START  knet::link::packet::tests::test_protocol_and_ifindex_filtering
+      RESULT knet::link::packet::tests::test_protocol_and_ifindex_filtering ... ok
+      START  knet::link::packet::tests::test_packet_membership_is_unsupported
+      RESULT knet::link::packet::tests::test_packet_membership_is_unsupported ... ok
+      START  knet::link::packet::tests::test_zero_destination_mac_is_otherhost
+      RESULT knet::link::packet::tests::test_zero_destination_mac_is_otherhost ... ok
+      START  knet::link::packet::tests::test_recv_write_failure_preserves_packet
+      RESULT knet::link::packet::tests::test_recv_write_failure_preserves_packet ... ok
+      START  knet::link::packet::tests::test_truncate_returns_original_frame_len
+      RESULT knet::link::packet::tests::test_truncate_returns_original_frame_len ... ok
+      START  knet::link::packet::tests::test_datagram_recv_strips_ethernet_header
+      RESULT knet::link::packet::tests::test_datagram_recv_strips_ethernet_header ... ok
+      START  knet::link::packet::tests::test_peek_with_truncation_preserves_frame
+      RESULT knet::link::packet::tests::test_peek_with_truncation_preserves_frame ... ok
+      START  knet::link::packet::tests::test_zero_protocol_does_not_receive_until_bound
+      RESULT knet::link::packet::tests::test_zero_protocol_does_not_receive_until_bound ... ok
+      START  knet::link::packet::tests::test_datagram_empty_payload_frames_are_accounted
+      RESULT knet::link::packet::tests::test_datagram_empty_payload_frames_are_accounted ... ok
+      START  knet::link::packet::tests::test_eth_p_ip_filters_ipv6_and_unknown_protocols
+      RESULT knet::link::packet::tests::test_eth_p_ip_filters_ipv6_and_unknown_protocols ... ok
+      START  knet::link::packet::tests::test_recv_partial_write_failure_preserves_packet
+      RESULT knet::link::packet::tests::test_recv_partial_write_failure_preserves_packet ... ok
+      START  knet::link::packet::tests::test_eth_p_all_receives_ipv6_and_unknown_protocols
+      RESULT knet::link::packet::tests::test_eth_p_all_receives_ipv6_and_unknown_protocols ... ok
+      START  knet::link::packet::tests::test_otherhost_is_filtered_without_promisc_support
+      RESULT knet::link::packet::tests::test_otherhost_is_filtered_without_promisc_support ... ok
+      START  knet::link::packet::tests::test_small_buffer_without_truncate_returns_written_len
+      RESULT knet::link::packet::tests::test_small_buffer_without_truncate_returns_written_len ... ok
+      START  knet::netlink::tests::test_add_and_delete_route
+      RESULT knet::netlink::tests::test_add_and_delete_route ... ok
+      START  knet::netlink::tests::test_ack_response_for_newaddr
+      RESULT knet::netlink::tests::test_ack_response_for_newaddr ... ok
+      START  knet::netlink::tests::test_add_and_replace_neighbour
+      RESULT knet::netlink::tests::test_add_and_replace_neighbour ... ok
+      START  knet::netlink::tests::test_router_owns_configured_routes
+      RESULT knet::netlink::tests::test_router_owns_configured_routes ... ok
+      START  knet::netlink::tests::test_add_replace_and_delete_address
+      RESULT knet::netlink::tests::test_add_replace_and_delete_address ... ok
+      START  knet::netlink::tests::test_device_mtu_is_route_mtu_source
+      RESULT knet::netlink::tests::test_device_mtu_is_route_mtu_source ... ok
+      START  knet::netlink::tests::test_device_removal_refreshes_views
+      RESULT knet::netlink::tests::test_device_removal_refreshes_views ... ok
+      START  knet::netlink::tests::test_parse_link_update_name_and_mtu
+      RESULT knet::netlink::tests::test_parse_link_update_name_and_mtu ... ok
+      START  knet::netlink::tests::test_addr_dump_reads_router_addresses
+      RESULT knet::netlink::tests::test_addr_dump_reads_router_addresses ... ok
+      START  knet::netlink::tests::test_dump_routes_returns_done_message
+      RESULT knet::netlink::tests::test_dump_routes_returns_done_message ... ok
+      START  knet::netlink::tests::test_link_dump_reads_device_snapshots
+      RESULT knet::netlink::tests::test_link_dump_reads_device_snapshots ... ok
+      START  knet::netlink::tests::test_apply_link_update_rename_and_down
+      RESULT knet::netlink::tests::test_apply_link_update_rename_and_down ... ok
+      START  knet::netlink::tests::test_route_socket_processes_query_batch
+      RESULT knet::netlink::tests::test_route_socket_processes_query_batch ... ok
+      START  knet::netlink::tests::test_newroute_ignores_unknown_attributes
+      RESULT knet::netlink::tests::test_newroute_ignores_unknown_attributes ... ok
+      START  knet::netlink::tests::test_link_change_mask_ignores_volatile_flags
+      RESULT knet::netlink::tests::test_link_change_mask_ignores_volatile_flags ... ok
+      START  knet::netlink::tests::test_route_dump_ignores_nonzero_short_trailer
+      RESULT knet::netlink::tests::test_route_dump_ignores_nonzero_short_trailer ... ok
+      START  knet::netlink::tests::test_unchanged_mtu_does_not_rebuild_interface
+      RESULT knet::netlink::tests::test_unchanged_mtu_does_not_rebuild_interface ... ok
+      START  knet::netlink::tests::test_newaddr_accepts_legacy_ipv4_address_flags
+      RESULT knet::netlink::tests::test_newaddr_accepts_legacy_ipv4_address_flags ... ok
+      START  knet::netlink::tests::test_getlink_by_name_returns_only_matching_link
+      RESULT knet::netlink::tests::test_getlink_by_name_returns_only_matching_link ... ok
+      START  knet::netlink::tests::test_publish_kobject_uevent_to_group_subscriber
+[37m[  3.850935 3:18446462599845136400 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  3.853106 3:18446462599845136400 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=1[m
+[m[37m[  3.855268 3:18446462599845136400 knet::netlink::socket:36] [33muevent socket wrapper drop strong_count=1 local_addr=Some(NetlinkAddr { pid: 0, groups: 1 })[m
+[m      RESULT knet::netlink::tests::test_publish_kobject_uevent_to_group_subscriber ... ok
+      START  knet::netlink::tests::test_route_mutation_checks_each_send_credential
+      RESULT knet::netlink::tests::test_route_mutation_checks_each_send_credential ... ok
+      START  knet::netlink::tests::test_recv_reports_datagram_length_and_truncation
+      RESULT knet::netlink::tests::test_recv_reports_datagram_length_and_truncation ... ok
+      START  knet::netlink::tests::test_route_dump_stops_at_invalid_trailing_header
+      RESULT knet::netlink::tests::test_route_dump_stops_at_invalid_trailing_header ... ok
+      START  knet::netlink::tests::test_route_socket_rejects_non_kernel_destination
+      RESULT knet::netlink::tests::test_route_socket_rejects_non_kernel_destination ... ok
+      START  knet::netlink::tests::test_getlink_by_name_with_ack_appends_success_ack
+      RESULT knet::netlink::tests::test_getlink_by_name_with_ack_appends_success_ack ... ok
+      START  knet::netlink::tests::test_down_device_keeps_route_mtu_for_output_checks
+      RESULT knet::netlink::tests::test_down_device_keeps_route_mtu_for_output_checks ... ok
+      START  knet::netlink::tests::test_publish_kobject_uevent_appends_monotonic_seqnum
+[37m[  3.877244 3:18446462599845136400 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  3.878116 3:18446462599845136400 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=2[m
+[m[37m[  3.878887 3:18446462599845136400 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=3[m
+[m[37m[  3.880441 3:18446462599845136400 knet::netlink::socket:36] [33muevent socket wrapper drop strong_count=1 local_addr=Some(NetlinkAddr { pid: 0, groups: 1 })[m
+[m      RESULT knet::netlink::tests::test_publish_kobject_uevent_appends_monotonic_seqnum ... ok
+      START  knet::netlink::tests::test_route_socket_processes_same_class_mutation_batch
+      RESULT knet::netlink::tests::test_route_socket_processes_same_class_mutation_batch ... ok
+      START  knet::netlink::tests::test_malformed_nlmsg_len_does_not_mutate_network_state
+      RESULT knet::netlink::tests::test_malformed_nlmsg_len_does_not_mutate_network_state ... ok
+      START  knet::netlink::tests::test_interface_ipv4_addr_survives_middle_device_removal
+      RESULT knet::netlink::tests::test_interface_ipv4_addr_survives_middle_device_removal ... ok
+      START  knet::netlink::tests::test_non_effective_mtu_change_does_not_rebuild_interface
+      RESULT knet::netlink::tests::test_non_effective_mtu_change_does_not_rebuild_interface ... ok
+      START  knet::netlink::tests::test_route_socket_rejects_mixed_query_and_mutation_batch
+      RESULT knet::netlink::tests::test_route_socket_rejects_mixed_query_and_mutation_batch ... ok
+      START  knet::netlink::tests::test_addr_dump_observes_ioctl_address_on_requested_interface
+      RESULT knet::netlink::tests::test_addr_dump_observes_ioctl_address_on_requested_interface ... ok
+      START  knet::netlink::tests::test_reject_invalid_link_name_and_mtu_without_partial_update
+      RESULT knet::netlink::tests::test_reject_invalid_link_name_and_mtu_without_partial_update ... ok
+      START  knet::netlink::tests::test_publish_kobject_uevent_drops_when_rx_queue_limit_exceeded
+[37m[  3.905550 3:18446462599845136400 knet::netlink::socket:188] [33muevent subscriber bind pid=0 groups=1 strong_count=1[m
+[m[37m[  3.912811 3:18446462599845136400 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=1 seqnum=4[m
+[m[37m[  3.913704 3:18446462599845136400 knet::netlink::socket:240] [33muevent publish group=1 live=1 dead=0 unbound=0 group_mismatch=0 matching_subscribers=1 notified=0 seqnum=5[m
+[m[37m[  3.918210 3:18446462599845136400 knet::netlink::socket:36] [33muevent socket wrapper drop strong_count=1 local_addr=Some(NetlinkAddr { pid: 0, groups: 1 })[m
+[m      RESULT knet::netlink::tests::test_publish_kobject_uevent_drops_when_rx_queue_limit_exceeded ... ok
+      START  knet::netlink::tests::test_mutation_queue_reservation_failure_preserves_network_state
+      RESULT knet::netlink::tests::test_mutation_queue_reservation_failure_preserves_network_state ... ok
+      START  knet::netlink::tests::test_deleting_last_address_owner_removes_configured_prefsrc_route
+      RESULT knet::netlink::tests::test_deleting_last_address_owner_removes_configured_prefsrc_route ... ok
+      START  knet::stack::router::tests::zero_rx_budget_reports_ready_device
+      RESULT knet::stack::router::tests::zero_rx_budget_reports_ready_device ... ok
+      START  knet::stack::router::tests::exact_rx_budget_does_not_report_empty_device
+      RESULT knet::stack::router::tests::exact_rx_budget_does_not_report_empty_device ... ok
+      START  knet::stack::service::tests::tx_dispatch_exposes_loopback_rx_in_the_same_round
+      RESULT knet::stack::service::tests::tx_dispatch_exposes_loopback_rx_in_the_same_round ... ok
+      START  knet::stack::service::tests::tx_capacity_wakes_after_router_unlock_before_deferred_return
+      RESULT knet::stack::service::tests::tx_capacity_wakes_after_router_unlock_before_deferred_return ... ok
+      START  knet::stack::service::tests::poll_round_dispatches_tx_when_due_ipv4_expiration_lock_is_contended
+      RESULT knet::stack::service::tests::poll_round_dispatches_tx_when_due_ipv4_expiration_lock_is_contended ... ok
+      START  knet::stack::service::timer_irq_tests::network_sampling_repeats_from_real_timer_irq
+      RESULT knet::stack::service::timer_irq_tests::network_sampling_repeats_from_real_timer_irq ... ok
+      START  knet::transport::raw::tests::raw_socket_parses_ipv4_and_ipv6_packets
+      RESULT knet::transport::raw::tests::raw_socket_parses_ipv4_and_ipv6_packets ... ok
+      START  knet::transport::raw::tests::raw_socket_ip_version_checks_and_defaults
+      RESULT knet::transport::raw::tests::raw_socket_ip_version_checks_and_defaults ... ok
+      START  knet::transport::raw::tests::raw_socket_ttl_remote_and_local_shortcuts
+      RESULT knet::transport::raw::tests::raw_socket_ttl_remote_and_local_shortcuts ... ok
+      START  knet::transport::raw::tests::raw_socket_bind_and_shutdown_gate_fast_paths
+      RESULT knet::transport::raw::tests::raw_socket_bind_and_shutdown_gate_fast_paths ... ok
+      START  knet::transport::tcp::tests::test_tcp_port_available_respects_specific_and_wildcard_conflicts
+      RESULT knet::transport::tcp::tests::test_tcp_port_available_respects_specific_and_wildcard_conflicts ... ok
+      START  knet::transport::tcp::tests::test_get_ephemeral_port_skips_conflicting_candidate_and_stays_in_range
+      RESULT knet::transport::tcp::tests::test_get_ephemeral_port_skips_conflicting_candidate_and_stays_in_range ... ok
+      START  knet::transport::tcp::tests::test_register_tcp_bound_rejects_conflicts_but_keeps_distinct_specific_addrs
+      RESULT knet::transport::tcp::tests::test_register_tcp_bound_rejects_conflicts_but_keeps_distinct_specific_addrs ... ok
+      START  knet::transport::tcp::tests::test_unregister_tcp_bound_removes_only_matching_address_and_cleans_empty_port
+      RESULT knet::transport::tcp::tests::test_unregister_tcp_bound_removes_only_matching_address_and_cleans_empty_port ... ok
+      START  knet::transport::udp::registry::tests::connected_pcb_takes_lookup_precedence
+      RESULT knet::transport::udp::registry::tests::connected_pcb_takes_lookup_precedence ... ok
+      START  knet::transport::udp::registry::tests::bind_registry_rejects_wildcard_conflict
+      RESULT knet::transport::udp::registry::tests::bind_registry_rejects_wildcard_conflict ... ok
+      START  knet::transport::udp::registry::tests::reuse_bind_rejects_reuse_after_nonreuse
+      RESULT knet::transport::udp::registry::tests::reuse_bind_rejects_reuse_after_nonreuse ... ok
+      START  knet::transport::udp::registry::tests::lookup_skips_pcb_bound_to_another_device
+      RESULT knet::transport::udp::registry::tests::lookup_skips_pcb_bound_to_another_device ... ok
+      START  knet::transport::udp::registry::tests::unregister_removes_pcb_and_releases_port
+      RESULT knet::transport::udp::registry::tests::unregister_removes_pcb_and_releases_port ... ok
+      START  knet::transport::udp::registry::tests::lookup_scores_specific_and_wildcard_addrs
+      RESULT knet::transport::udp::registry::tests::lookup_scores_specific_and_wildcard_addrs ... ok
+      START  knet::transport::udp::registry::tests::lookup_scans_only_matching_local_port_bucket
+      RESULT knet::transport::udp::registry::tests::lookup_scans_only_matching_local_port_bucket ... ok
+      START  knet::transport::udp::registry::tests::ephemeral_bind_assigns_distinct_registered_ports
+      RESULT knet::transport::udp::registry::tests::ephemeral_bind_assigns_distinct_registered_ports ... ok
+      START  knet::transport::udp::registry::tests::reuse_bind_is_recorded_for_later_nonreuse_conflict
+      RESULT knet::transport::udp::registry::tests::reuse_bind_is_recorded_for_later_nonreuse_conflict ... ok
+      START  knet::transport::udp::socket::tests::receive_waiter_isolated_from_other_sockets_and_device_binding_changes
+      RESULT knet::transport::udp::socket::tests::receive_waiter_isolated_from_other_sockets_and_device_binding_changes ... ok
+      START  knet::transport::udp::tests::loopback_net_rx_delivers_udp_without_poller
+      RESULT knet::transport::udp::tests::loopback_net_rx_delivers_udp_without_poller ... ok
+      START  knet::transport::udp::tests::af_unspec_disconnect_preserves_explicit_udp_bind
+      RESULT knet::transport::udp::tests::af_unspec_disconnect_preserves_explicit_udp_bind ... ok
+      START  knet::transport::udp::tests::unmatched_loopback_udp_stays_queued_for_the_poller
+      RESULT knet::transport::udp::tests::unmatched_loopback_udp_stays_queued_for_the_poller ... ok
+      START  knet::transport::udp::tests::af_unspec_disconnect_releases_auto_bound_udp_socket
+      RESULT knet::transport::udp::tests::af_unspec_disconnect_releases_auto_bound_udp_socket ... ok
+      START  knet::transport::udp_err::tests::test_udp_error_respects_bound_device
+      RESULT knet::transport::udp_err::tests::test_udp_error_respects_bound_device ... ok
+      START  knet::transport::udp_err::tests::test_connected_udp_error_state_takes_precedence
+      RESULT knet::transport::udp_err::tests::test_connected_udp_error_state_takes_precedence ... ok
+      START  knet::transport::udp_err::tests::test_icmpv4_error_accepts_truncated_original_datagram
+      RESULT knet::transport::udp_err::tests::test_icmpv4_error_accepts_truncated_original_datagram ... ok
+      START  knet::transport::udp_err::tests::test_connected_udp_error_sets_socket_error_without_recverr
+      RESULT knet::transport::udp_err::tests::test_connected_udp_error_sets_socket_error_without_recverr ... ok
+      START  knet::unix::stream::tests::unix_stream_accept_releases_blocked_connector
+      RESULT knet::unix::stream::tests::unix_stream_accept_releases_blocked_connector ... ok
+      START  knet::unix::stream::tests::unix_stream_shutdown_write_preserves_partial_send
+panicked at process/kprocess/src/thread/task_ext.rs:21:30:
+kernel task
+Backtrace:
+0: 0xffff8000001b480f
+1: 0xffff8000012fa47f
+2: 0xffff8000012fa2bf
+3: 0xffff8000005c9a47
+4: 0xffff80000040a8c3
+5: 0xffff8000003651a7
+6: 0xffff800000359f9b
+7: 0xffff800000351347
+8: 0xffff80000037650f
+9: 0xffff800001172457
+
+
+[xkmake] 10 backtrace frame(s) detected in QEMU output; resolved against /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.debug.elf:
+  0: 0xffff8000001b480f
+    __rustc::rust_begin_unwind
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/core/kruntime/src/lang_items.rs:11
+  1: 0xffff8000012fa47f
+    core::panicking::panic_fmt
+    /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panicking.rs:80
+  2: 0xffff8000012fa2bf
+    core::panicking::panic_display::<&str>
+    /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/core/src/panicking.rs:259
+  3: 0xffff8000005c9a47
+    <core::option::Option<&kprocess::thread::core::Thread>>::expect
+    /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:971
+  4: 0xffff80000040a8c3
+    knet::unix::stream::trace_chromium_stream_frame
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/net/knet/src/unix/stream.rs:32
+  5: 0xffff8000003651a7
+    <knet::unix::stream::StreamTransport as knet::unix::UnixTransportOps>::send::<&[u8]>::{closure#1}
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/net/knet/src/unix/stream.rs:331
+  6: 0xffff800000359f9b
+    ktask::future::poll::poll_io::<knet::unix::stream::StreamTransport, <knet::unix::stream::StreamTransport as knet::unix::UnixTransportOps>::send<&[u8]>::{closure#1}, usize>::{closure#0}::{closure#0}
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/task/ktask/src/future/poll.rs:30
+  7: 0xffff800000351347
+    ktask::future::time::timeout_at::<ktask::future::poll::poll_io<knet::unix::stream::StreamTransport, <knet::unix::stream::StreamTransport as knet::unix::UnixTransportOps>::send<&[u8]>::{closure#1}, usize>::{closure#0}>::{closure#0}
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/task/ktask/src/future/time.rs:303
+  8: 0xffff80000037650f
+    knet::unix::stream::tests::unix_stream_shutdown_write_preserves_partial_send::{closure#0}
+    /home/mo/xk6/worktrees/xk-compat-fix-r1/net/knet/src/unix/stream.rs:1076
+  9: 0xffff800001172457
+    <alloc::boxed::Box<dyn core::ops::function::FnOnce<(), Output = ()>> as core::ops::function::FnOnce<()>>::call_once
+    /home/mo/.rustup/toolchains/1.95.0-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/boxed.rs:2240
+error: guest unit tests did not pass
+make: *** [Makefile:172：run] 错误 1

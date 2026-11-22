@@ -1,0 +1,3 @@
+R11 run-control note
+
+R11 used the same 2 GiB default AArch64 pure-TCG platform and no evdev observer. The R9 precheck was reused because the kernel source tree and QEMU platform settings did not change; R11's own platform check passed 15/15. The 10-second keyboard echo poll passed on its first screenshot. QMP quit was normal (rc=0), but the complete input score gate failed: the original wide mouse ROI passed only because the cursor moved; the corrected counter-only ROI fails and the displayed count remains 0. Navigation remained on interaction.html. The posthoc corrected gate and the original run gate are both preserved in the main evidence directory.

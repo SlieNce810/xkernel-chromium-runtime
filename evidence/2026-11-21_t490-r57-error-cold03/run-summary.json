@@ -1,0 +1,30 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r57-error-cold03",
+  "diagnostic_only": true,
+  "qemu_started": true,
+  "intended_kernel_dir": "/home/mo/xk6/worktrees/r53-no-direct-error-log",
+  "intended_kernel_sha256": "c78ecd57fb47b8269ebecf0a4e99ee5d9f85648e01703726eee7af88ad017a67",
+  "actual_kernel_dir": "/home/mo/x-kernel",
+  "actual_kernel_sha256": "51c4028594e4aff9fc5b9964c4294a2904621c93e84093ac711858c454aed284",
+  "candidate_result_valid": false,
+  "session_max_seconds": 3200,
+  "ready_timeout_seconds": 2400,
+  "observed_session_elapsed_seconds": 190.3,
+  "initial_page_strict_pass": false,
+  "real_reload_strict_passes": 0,
+  "diagnostic_hold_seconds": 0,
+  "memory_sampler": false,
+  "lifecycle_preload": false,
+  "guest_clock_sync": false,
+  "driver_rc": 1,
+  "round_rc": 0,
+  "normalizer_rc": 0,
+  "gate_rc": 78,
+  "driver_error": "Broken pipe after stopping QEMU when the actual kernel path failed the intended-candidate check",
+  "notes": [
+    "QEMU loaded the frozen /home/mo/x-kernel kernel, not the requested no-direct-PTE ERROR candidate.",
+    "This run is retained as configuration-error evidence and is excluded from all candidate success and performance counts.",
+    "The stability runner was updated to resolve/export KERNEL_DIR and optionally enforce STABILITY_EXPECTED_KERNEL_SHA256 before QEMU starts."
+  ]
+}

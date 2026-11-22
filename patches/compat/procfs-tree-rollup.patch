@@ -1,0 +1,172 @@
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -113,50 +113,107 @@
+ /// for each live process one address space at a time, then divides each target
+ /// mapping by the number of live user mappings of the same frame. A failed
+ /// walk makes the whole result unavailable instead of undercounting PSS.
+-fn task_smaps_rollup_usage(task: &KtaskRef) -> Option<SmapsRollupUsage> {
+-    let target_pid = task.try_as_thread()?.process().pid();
++#[derive(Clone, Copy)]
++struct ProcessSmapsRollupRow {
++    pid: u32,
++    ppid: u32,
++    usage: SmapsRollupUsage,
++}
++
++/// Builds one all-process mapcount snapshot. The per-PID smaps_rollup path
++/// needs one target row; the Chromium benchmark uses the process-tree file to
++/// avoid rescanning every address space once for each PID in the same sample.
++fn process_smaps_rollup_snapshot() -> Option<Vec<ProcessSmapsRollupRow>> {
+     let mut map_counts = BTreeMap::<usize, usize>::new();
+-    let mut target_frames = None;
+-
++    let mut process_frames = Vec::<(u32, u32, Vec<usize>)>::new();
+     for process in kprocess::scheduler::processes() {
+         let Ok(aspace) = process.address_space() else {
+             continue;
+         };
+         let frames = aspace.lock().resident_page_frames()?;
+-        if process.pid() == target_pid {
+-            target_frames = Some(frames.clone());
+-        }
+-        for frame in frames {
+-            let count = map_counts.entry(frame).or_default();
++        let ppid = process.parent().map_or(0, |parent| parent.pid());
++        for frame in &frames {
++            let count = map_counts.entry(*frame).or_default();
+             *count = count.checked_add(1)?;
+         }
+-    }
+-
+-    let frames = target_frames?;
+-    let mut pss_scaled_kb = 0u128;
+-    let mut unique_pages = 0u64;
+-    let mut shared_pages = 0u64;
+-    for frame in &frames {
+-        let map_count = *map_counts.get(frame)?;
+-        if map_count == 0 {
+-            return None;
+-        }
+-        pss_scaled_kb += 4096u128 / map_count as u128;
+-        if map_count == 1 {
+-            unique_pages += 1;
+-        } else {
+-            shared_pages += 1;
+-        }
+-    }
+-
+-    Some(SmapsRollupUsage {
+-        rss_kb: (frames.len() as u64) * 4,
+-        pss_kb: ((pss_scaled_kb + 512) / 1024) as u64,
+-        uss_kb: unique_pages * 4,
+-        shared_kb: shared_pages * 4,
+-    })
+-}
+-
++        process_frames.push((process.pid(), ppid, frames));
++    }
++
++    let mut snapshot = Vec::with_capacity(process_frames.len());
++    for (pid, ppid, frames) in process_frames {
++        let mut pss_scaled_kb = 0u128;
++        let mut unique_pages = 0u64;
++        let mut shared_pages = 0u64;
++        for frame in &frames {
++            let map_count = *map_counts.get(frame)?;
++            if map_count == 0 {
++                return None;
++            }
++            pss_scaled_kb += 4096u128 / map_count as u128;
++            if map_count == 1 {
++                unique_pages += 1;
++            } else {
++                shared_pages += 1;
++            }
++        }
++        snapshot.push(ProcessSmapsRollupRow {
++            pid,
++            ppid,
++            usage: SmapsRollupUsage {
++                rss_kb: (frames.len() as u64) * 4,
++                pss_kb: ((pss_scaled_kb + 512) / 1024) as u64,
++                uss_kb: unique_pages * 4,
++                shared_kb: shared_pages * 4,
++            },
++        });
++    }
++    Some(snapshot)
++}
++
++fn task_smaps_rollup_usage(task: &KtaskRef) -> Option<SmapsRollupUsage> {
++    let target_pid = task.try_as_thread()?.process().pid();
++    process_smaps_rollup_snapshot()?
++        .into_iter()
++        .find(|row| row.pid == target_pid)
++        .map(|row| row.usage)
++}
++
++fn process_descends_from(pid: u32, root_pid: u32, snapshot: &[ProcessSmapsRollupRow]) -> bool {
++    let mut current = pid;
++    for _ in 0..=snapshot.len() {
++        if current == root_pid {
++            return true;
++        }
++        let Some(row) = snapshot.iter().find(|row| row.pid == current) else {
++            return false;
++        };
++        if row.ppid == 0 || row.ppid == current {
++            return false;
++        }
++        current = row.ppid;
++    }
++    false
++}
++
++fn format_tree_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
++    let Some(target_pid) = task.try_as_thread().map(|thread| thread.process().pid()) else {
++        return b"UNAVAILABLE\n".to_vec();
++    };
++    let Some(snapshot) = process_smaps_rollup_snapshot() else {
++        return b"UNAVAILABLE\n".to_vec();
++    };
++    if !snapshot.iter().any(|row| row.pid == target_pid) {
++        return b"UNAVAILABLE\n".to_vec();
++    }
++    let mut output = String::from("PID PPID RSS_KB PSS_KB USS_KB\n");
++    for row in snapshot.iter().filter(|row| process_descends_from(row.pid, target_pid, &snapshot)) {
++        output.push_str(&format!(
++            "{} {} {} {} {}\n",
++            row.pid, row.ppid, row.usage.rss_kb, row.usage.pss_kb, row.usage.uss_kb
++        ));
++    }
++    output.into_bytes()
++}
+ fn format_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
+     let Some(usage) = task_smaps_rollup_usage(task) else {
+         return b"Rss: UNAVAILABLE\nPss: UNAVAILABLE\nUSS: UNAVAILABLE\nShared: UNAVAILABLE\n"
+@@ -909,6 +966,7 @@
+                 "statm",
+                 "status",
+                 "smaps_rollup",
++                "tree_smaps_rollup",
+                 "uid_map",
+                 "gid_map",
+                 "setgroups",
+@@ -962,6 +1020,16 @@
+                     move || {
+                         let task = upgrade_task(&task_weak)?;
+                         Ok(format_smaps_rollup(&task))
++                    }
++                }),
++            ),
++            "tree_smaps_rollup" => lookup.file(
++                name,
++                SimpleFile::new_regular(fs.clone(), {
++                    let task_weak = task_weak.clone();
++                    move || {
++                        let task = upgrade_task(&task_weak)?;
++                        Ok(format_tree_smaps_rollup(&task))
+                     }
+                 }),
+             ),

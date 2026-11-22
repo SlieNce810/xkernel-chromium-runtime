@@ -2,8 +2,11 @@
 
 # Standalone T490 delivery workspace; defaults preserve the native Linux layout.
 XK6_ROOT="${XK6_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-KERNEL_REPO="${KERNEL_REPO:-$HOME/x-kernel}"
-export XK6_ROOT KERNEL_REPO
+KERNEL_REPO="${KERNEL_REPO:-${KERNEL_DIR:-$HOME/x-kernel}}"
+# 两套命名并存：KERNEL_DIR 是决赛线 13 个脚本沿用的旧名，KERNEL_REPO 是初赛提交包口径。
+# 外部传任一个都映射到同一目录，避免"传了 KERNEL_DIR 却静默回退到 ~/x-kernel"跑错内核。
+KERNEL_DIR="$KERNEL_REPO"
+export XK6_ROOT KERNEL_REPO KERNEL_DIR
 mkdir -p "$XK6_ROOT/tmp"
 # pull_guest_logs.sh —— 从 disk.img 回收 guest 内持久日志（QEMU 停机后执行）
 #
@@ -23,11 +26,22 @@ IMG="${KERNEL_REPO}/disk.img"
 OUT="${XK6_ROOT}/evidence/$(date +%Y-%m-%d)_t490-$TAG/guest"
 mkdir -p "$OUT"
 
-for _ in $(seq 1 20); do
-    pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1 || break
+image_qemu_running() {
+    for proc in /proc/[0-9]*; do
+        [ -r "$proc/cmdline" ] || continue
+        exe=$(readlink -f "$proc/exe" 2>/dev/null || true)
+        case "${exe##*/}" in qemu-system-*) ;; *) continue ;; esac
+        cmdline=$(tr '\0' ' ' < "$proc/cmdline" 2>/dev/null || true)
+        case "$cmdline" in *"$IMG"*) return 0 ;; esac
+    done
+    return 1
+}
+
+for _ in $(seq 1 60); do
+    image_qemu_running || break
     sleep 1
 done
-if pgrep -f "qemu-system-aarch6[4]" >/dev/null 2>&1; then
+if image_qemu_running; then
     echo "!! QEMU 仍在运行 —— debugfs 不能在挂载中改/读镜像，请先停"
     exit 1
 fi

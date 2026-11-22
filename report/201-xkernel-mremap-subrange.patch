@@ -1,0 +1,35 @@
+diff --git a/posix/mm/src/mmap.rs b/posix/mm/src/mmap.rs
+--- a/posix/mm/src/mmap.rs
++++ b/posix/mm/src/mmap.rs
+@@ -670,6 +670,31 @@ pub fn sys_mremap(
+     let process = current_user_process();
+     let aspace_ref = process.address_space()?;
+     aspace_ref.with_mapping_owner(|mut mapping| {
++        // Linux permits growing a subrange whose end is the VMA end. Chromium
++        // uses this form for a stack guard page: the request starts inside a
++        // larger VMA, so requiring addr == vma.start() rejects a valid
++        // MREMAP_MAYMOVE=0 in-place extension before the normal snapshot path.
++        if !mremap_flags.is_fixed()
++            && !mremap_flags.keeps_source_mapping()
++            && new_size > old_size
++        {
++            let can_handle_subrange = mapping
++                .aspace_mut()
++                .find_vma(addr)
++                .map(|vma| {
++                    let new_end = addr.as_usize().checked_add(new_size);
++                    let within_vma = new_end.is_some_and(|end| end <= vma.end().as_usize());
++                    let not_start = addr != vma.start();
++                    within_vma && not_start
++                })
++                .unwrap_or(false);
++            if can_handle_subrange {
++                // The requested subrange is already covered by the same VMA;
++                // no metadata or page-table change is needed for this grow.
++                return Ok(addr.as_usize() as _);
++            }
++        }
++
+         let source = mapping.aspace_mut().resolve_mremap_source(addr, old_size)?;
+         let vma_end = source.end();
+         let mapping_flags = source.flags();

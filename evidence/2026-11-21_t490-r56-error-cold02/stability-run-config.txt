@@ -1,0 +1,24 @@
+run_id=r56-error-cold02
+session_max_seconds=1600
+screendump_interval_seconds=300
+family_watchdog_target_guest_seconds=15
+family_diagnostics=0
+process_sample_seconds=30
+ready_timeout_seconds=1200
+ready_timeout_source=environment
+trace_mode=0
+guest_max_seconds=1400
+reload_count=1
+reload_interval_seconds=120
+hold_seconds=420
+diagnostic_only=1
+reload_window_seconds=90
+reload_settle_seconds=30
+capture_guest_clock_sync=0
+lifecycle_preload_enabled=0
+initial_page_poll_seconds=30
+reload_poll_seconds=5
+memory=2g
+architecture=aarch64
+accelerator=tcg
+command=STABILITY_DIAGNOSTIC_ONLY=1 STABILITY_RELOAD_WINDOW=90 STABILITY_RELOAD_SETTLE_SECONDS=30 STABILITY_CAPTURE_GUEST_CLOCK_SYNC=0 STABILITY_MEMORY_SAMPLER=0 STABILITY_MEMORY_SAMPLE_SECONDS=900 STABILITY_LIFECYCLE_PRELOAD=0 STABILITY_PROCESS_SAMPLE_SECONDS=30 MP_FAMILY_DIAGNOSTICS=0 MP_FAMILY_WATCHDOG_INTERVAL=15 bash scripts/t490/run_stability_round_mp.sh r56-error-cold02 1600 300 1 120 420

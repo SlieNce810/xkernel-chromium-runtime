@@ -1,0 +1,16 @@
+run=t490 script hash comparison (SHA-256)
+
+The smoke command executed the T490-resident runner/source files. The remote script hashes differ from this repository's current versions, so the T490 guest emitted only a summary/pass marker and omitted the full CSV and lifecycle section markers required by the current strict extractor.
+
+T490 autorun_proc_tree_sampler_smoke.sh: 3788876d02bf572b9065f001a8f5650a93aa955840ff3e79e64a6ad5788ea328
+repo autorun_proc_tree_sampler_smoke.sh: 687980a8b390c745bf2f69fde719098a32c267a3099cd5132f5d471b1002762a
+T490 proc_tree_sampler.c: 9b03d53f3da61aba76760a52bc8a20bae298001d294bf50edaefba3396e5b70e
+repo proc_tree_sampler.c: f1d7b676fb6b96c295f131176f843cdc1be09c1aeb7adfd9a3512ed5d9f2df
+T490 t490_round.sh: fa1f693f25b8fd3f82adaed6fc5317530e392790dbf8af5e1ff48b846d550913
+repo t490_round.sh: d536491443655435ff2f2791a1912058ccd6ce7dfdf1ca55d4864c866b29bccf
+
+Extraction command:
+python scripts/t490/extract_proc_tree_smoke.py evidence/2026-11-21_t490-r46-procfs-tree-smoke/console.log --run-id proc-tree-smoke-01 --out-dir evidence/2026-11-21_t490-r46-procfs-tree-smoke/memory-export/records-r46
+
+Result: exit 2, PROC_TREE_SMOKE_EXTRACT_FAIL: malformed smoke summary line.
+The guest summary lacks start_time_count and bad_start_times. The more important complete CSV/events section markers are absent as well. Extraction remains rejected; no memory-samples.csv is presented as raw evidence.

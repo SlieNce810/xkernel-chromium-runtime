@@ -1,0 +1,128 @@
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -120,10 +120,20 @@
+     usage: SmapsRollupUsage,
+ }
+ 
++struct ProcessSmapsRollupSnapshot {
++    rows: Vec<ProcessSmapsRollupRow>,
++    resident_walk_ns: u64,
++    mapcount_ns: u64,
++    rollup_ns: u64,
++    process_count: u64,
++    resident_pages: u64,
++}
++
+ /// Builds one all-process mapcount snapshot. The per-PID smaps_rollup path
+ /// needs one target row; the Chromium benchmark uses the process-tree file to
+ /// avoid rescanning every address space once for each PID in the same sample.
+-fn process_smaps_rollup_snapshot() -> Option<Vec<ProcessSmapsRollupRow>> {
++fn process_smaps_rollup_snapshot() -> Option<ProcessSmapsRollupSnapshot> {
++    let resident_walk_start_ns = khal::time::monotonic_time_nanos();
+     let mut process_frames = Vec::<(u32, u32, Vec<usize>)>::new();
+     for process in kprocess::scheduler::processes() {
+         let Ok(aspace) = process.address_space() else {
+@@ -133,11 +143,18 @@
+         let ppid = process.parent().map_or(0, |parent| parent.pid());
+         process_frames.push((process.pid(), ppid, frames));
+     }
++    let resident_walk_ns = khal::time::monotonic_time_nanos() - resident_walk_start_ns;
++    let process_count = process_frames.len() as u64;
++    let mut resident_pages = 0u64;
++    for (_, _, frames) in &process_frames {
++        resident_pages = resident_pages.checked_add(frames.len() as u64)?;
++    }
+ 
+     // On the 2 GiB competition guest, PFNs fit in a compact dense index. Avoid
+     // allocating a BTreeMap node and doing tree searches for every resident
+     // mapping on the 1 Hz sampler hot path. Keep the sparse fallback for large
+     // physical address spaces so the procfs endpoint remains bounded.
++    let mapcount_start_ns = khal::time::monotonic_time_nanos();
+     const MAX_DENSE_PFN_SLOTS: usize = 4 * 1024 * 1024;
+     let max_frame = process_frames
+         .iter()
+@@ -166,8 +183,10 @@
+             }
+         }
+     }
+-
+-    let mut snapshot = Vec::with_capacity(process_frames.len());
++    let mapcount_ns = khal::time::monotonic_time_nanos() - mapcount_start_ns;
++
++    let rollup_start_ns = khal::time::monotonic_time_nanos();
++    let mut rows = Vec::with_capacity(process_frames.len());
+     for (pid, ppid, frames) in process_frames {
+         let mut pss_scaled_kb = 0u128;
+         let mut unique_pages = 0u64;
+@@ -188,7 +207,7 @@
+                 shared_pages += 1;
+             }
+         }
+-        snapshot.push(ProcessSmapsRollupRow {
++        rows.push(ProcessSmapsRollupRow {
+             pid,
+             ppid,
+             usage: SmapsRollupUsage {
+@@ -199,12 +218,21 @@
+             },
+         });
+     }
+-    Some(snapshot)
++    let rollup_ns = khal::time::monotonic_time_nanos() - rollup_start_ns;
++    Some(ProcessSmapsRollupSnapshot {
++        rows,
++        resident_walk_ns,
++        mapcount_ns,
++        rollup_ns,
++        process_count,
++        resident_pages,
++    })
+ }
+ 
+ fn task_smaps_rollup_usage(task: &KtaskRef) -> Option<SmapsRollupUsage> {
+     let target_pid = task.try_as_thread()?.process().pid();
+     process_smaps_rollup_snapshot()?
++        .rows
+         .into_iter()
+         .find(|row| row.pid == target_pid)
+         .map(|row| row.usage)
+@@ -228,24 +256,35 @@
+ }
+ 
+ fn format_tree_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
++    let total_start_ns = khal::time::monotonic_time_nanos();
+     let Some(target_pid) = task.try_as_thread().map(|thread| thread.process().pid()) else {
+         return b"UNAVAILABLE\n".to_vec();
+     };
+     let Some(snapshot) = process_smaps_rollup_snapshot() else {
+         return b"UNAVAILABLE\n".to_vec();
+     };
+-    if !snapshot.iter().any(|row| row.pid == target_pid) {
++    if !snapshot.rows.iter().any(|row| row.pid == target_pid) {
+         return b"UNAVAILABLE\n".to_vec();
+     }
+-    let mut output = String::from("PID PPID RSS_KB PSS_KB USS_KB\n");
+-    for row in snapshot.iter().filter(|row| process_descends_from(row.pid, target_pid, &snapshot)) {
+-        output.push_str(&format!(
++    let format_start_ns = khal::time::monotonic_time_nanos();
++    let mut rows = String::from("PID PPID RSS_KB PSS_KB USS_KB\n");
++    for row in snapshot.rows.iter().filter(|row| process_descends_from(row.pid, target_pid, &snapshot.rows)) {
++        rows.push_str(&format!(
+             "{} {} {} {} {}\n",
+             row.pid, row.ppid, row.usage.rss_kb, row.usage.pss_kb, row.usage.uss_kb
+         ));
+     }
++    let format_ns = khal::time::monotonic_time_nanos() - format_start_ns;
++    let total_ns = khal::time::monotonic_time_nanos() - total_start_ns;
++    let mut output = alloc::format!(
++        "META total_ns={} resident_walk_ns={} mapcount_ns={} rollup_ns={} format_ns={} process_count={} resident_pages={}\n",
++        total_ns, snapshot.resident_walk_ns, snapshot.mapcount_ns, snapshot.rollup_ns,
++        format_ns, snapshot.process_count, snapshot.resident_pages
++    );
++    output.push_str(&rows);
+     output.into_bytes()
+ }
++
+ fn format_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
+     let Some(usage) = task_smaps_rollup_usage(task) else {
+         return b"Rss: UNAVAILABLE\nPss: UNAVAILABLE\nUSS: UNAVAILABLE\nShared: UNAVAILABLE\n"

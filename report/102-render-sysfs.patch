@@ -1,0 +1,50 @@
+diff --git a/fs/boot/src/lib.rs b/fs/boot/src/lib.rs
+index 8fb65c0..c6bf80e 100644
+--- a/fs/boot/src/lib.rs
++++ b/fs/boot/src/lib.rs
+@@ -390,7 +390,44 @@ impl BootVfs {
+         )?;
+         // card0/subsystem -> /sys/class/drm.
+         self.create_sys_symlink("/sys/class/drm/card0/subsystem", "/sys/class/drm")?;
+-        info!("sysfs: projected /sys/class/drm/card0 ({major}:{minor}) for libudev/libdrm");
++        // The virtio/simpledrm device also exposes a render node. Chromium's
++        // Ozone Wayland path discovers it by walking /sys/class/drm/renderD*
++        // before opening /dev/dri/renderD128; the devfs node alone is not
++        // sufficient. Keep the render minor tied to the same simpledrm device
++        // model as card0 so libudev/libdrm see one coherent DRM device.
++        let render_minor = 128;
++        self.ensure_directory_path("/sys/class/drm/renderD128")?;
++        self.create_sys_file(
++            "/sys/class/drm/renderD128/dev",
++            &format!("{major}:{render_minor}\n"),
++            0o444,
++        )?;
++        self.create_sys_file(
++            "/sys/class/drm/renderD128/uevent",
++            &format!(
++                "MAJOR={major}\nMINOR={render_minor}\nDEVNAME=dri/renderD128\nDEVTYPE=drm_minor\n"
++            ),
++            0o444,
++        )?;
++        self.create_sys_symlink(
++            &format!("/sys/dev/char/{major}:{render_minor}"),
++            "/sys/class/drm/renderD128",
++        )?;
++        self.create_sys_symlink(
++            "/sys/class/drm/renderD128/device",
++            "/sys/devices/simpledrm",
++        )?;
++        self.create_sys_symlink(
++            "/sys/devices/simpledrm/drm/renderD128",
++            "/sys/class/drm/renderD128",
++        )?;
++        self.create_sys_symlink(
++            "/sys/class/drm/renderD128/subsystem",
++            "/sys/class/drm",
++        )?;
++        info!(
++            "sysfs: projected /sys/class/drm/card0 ({major}:{minor}) and renderD128 ({major}:{render_minor})"
++        );
+         Ok(())
+     }
+ 

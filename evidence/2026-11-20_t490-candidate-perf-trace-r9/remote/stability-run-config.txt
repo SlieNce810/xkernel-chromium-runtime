@@ -1,0 +1,20 @@
+run_id=codex-2026-11-20-perf-trace-r9
+session_max_seconds=1800
+screendump_interval_seconds=1200
+family_watchdog_target_guest_seconds=14
+family_diagnostics=1
+ready_timeout_seconds=700
+ready_timeout_source=environment
+trace_mode=0
+guest_max_seconds=1400
+reload_count=1
+reload_interval_seconds=30
+hold_seconds=650
+diagnostic_only=1
+reload_window_seconds=90
+initial_page_poll_seconds=30
+reload_poll_seconds=5
+memory=2g
+architecture=aarch64
+accelerator=tcg
+command=STABILITY_DIAGNOSTIC_ONLY=1 STABILITY_RELOAD_WINDOW=90 MP_FAMILY_DIAGNOSTICS=1 MP_FAMILY_WATCHDOG_INTERVAL=14 bash scripts/t490/run_stability_round_mp.sh codex-2026-11-20-perf-trace-r9 1800 1200 1 30 650

@@ -1,0 +1,182 @@
+diff --git a/mm/memspace/src/aspace.rs b/mm/memspace/src/aspace.rs
+index 197b118..fdd29c6 100644
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -821,6 +821,63 @@ impl MmSpace {
+         usage
+     }
+ 
++    /// Returns the physical frame number for each resident user-page mapping.
++    ///
++    /// Duplicate frame numbers are retained when a frame is aliased in one
++    /// address space. Procfs uses this cold-path snapshot to divide shared
++    /// resident pages across all live process mappings for PSS and USS.
++    /// Linear/device mappings are excluded, matching `memory_usage()`.
++    pub fn resident_page_frames(&self) -> Option<Vec<usize>> {
++        let mut frames = Vec::new();
++        let mut query_failed = false;
++        for vma in self.vmas.iter() {
++            let flags = vma.flags();
++            if !flags.contains(MappingFlags::USER)
++                || matches!(vma.backing().kind(), VmBackingKind::Linear)
++            {
++                continue;
++            }
++            let range = vma.range();
++            let vma_start: usize = range.start.into();
++            let vma_end: usize = range.end.into();
++            let walked = self.pgtbl.visit_present_in_range(
++                range.start,
++                range.end,
++                |leaf_base, leaf_size, leaf_flags| {
++                    if !leaf_flags.contains(MappingFlags::USER) {
++                        return;
++                    }
++                    let leaf_start: usize = leaf_base.into();
++                    let leaf_end = leaf_start.saturating_add(usize::from(leaf_size));
++                    let clip_start = leaf_start.max(vma_start);
++                    let clip_end = leaf_end.min(vma_end);
++                    if clip_end <= clip_start {
++                        return;
++                    }
++                    let Ok((physical_base, _, _)) = self.pgtbl.query(leaf_base) else {
++                        query_failed = true;
++                        return;
++                    };
++                    let physical_base: usize = physical_base.into();
++                    let mut virtual_page = clip_start;
++                    while virtual_page < clip_end {
++                        let physical_page = physical_base + (virtual_page - leaf_start);
++                        frames.push(physical_page / PAGE_SIZE_4K);
++                        virtual_page += PAGE_SIZE_4K;
++                    }
++                },
++            );
++            if walked.is_err() || query_failed {
++                return None;
++            }
++        }
++        if query_failed {
++            None
++        } else {
++            Some(frames)
++        }
++    }
++
+     #[cfg(target_arch = "aarch64")]
+     pub fn user_asid_context(&self) -> Option<&Arc<Aarch64UserAsidContext>> {
+         self.user_asid_context.as_ref()
+diff --git a/fs/filesystems/procfs/src/task_nodes/root.rs b/fs/filesystems/procfs/src/task_nodes/root.rs
+index 97b7358..cf821a2 100644
+--- a/fs/filesystems/procfs/src/task_nodes/root.rs
++++ b/fs/filesystems/procfs/src/task_nodes/root.rs
+@@ -5,6 +5,7 @@
+ use alloc::{
+     borrow::Cow,
+     boxed::Box,
++    collections::BTreeMap,
+     format,
+     string::{String, ToString},
+     sync::{Arc, Weak},
+@@ -98,6 +99,76 @@ fn task_memory_usage(task: &KtaskRef) -> Option<MmMemoryUsage> {
+     Some(usage)
+ }
+ 
++#[derive(Clone, Copy)]
++struct SmapsRollupUsage {
++    rss_kb: u64,
++    pss_kb: u64,
++    uss_kb: u64,
++    shared_kb: u64,
++}
++
++/// Computes mapping-based RSS, proportional set size, and unique set size.
++///
++/// This is intentionally a cold-path procfs read. It snapshots the PFN list
++/// for each live process one address space at a time, then divides each target
++/// mapping by the number of live user mappings of the same frame. A failed
++/// walk makes the whole result unavailable instead of undercounting PSS.
++fn task_smaps_rollup_usage(task: &KtaskRef) -> Option<SmapsRollupUsage> {
++    let target_pid = task.try_as_thread()?.process().pid();
++    let mut map_counts = BTreeMap::<usize, usize>::new();
++    let mut target_frames = None;
++
++    for process in kprocess::scheduler::processes() {
++        let Ok(aspace) = process.address_space() else {
++            continue;
++        };
++        let frames = aspace.lock().resident_page_frames()?;
++        if process.pid() == target_pid {
++            target_frames = Some(frames.clone());
++        }
++        for frame in frames {
++            let count = map_counts.entry(frame).or_default();
++            *count = count.checked_add(1)?;
++        }
++    }
++
++    let frames = target_frames?;
++    let mut pss_scaled_kb = 0u128;
++    let mut unique_pages = 0u64;
++    let mut shared_pages = 0u64;
++    for frame in &frames {
++        let map_count = *map_counts.get(frame)?;
++        if map_count == 0 {
++            return None;
++        }
++        pss_scaled_kb += 4096u128 / map_count as u128;
++        if map_count == 1 {
++            unique_pages += 1;
++        } else {
++            shared_pages += 1;
++        }
++    }
++
++    Some(SmapsRollupUsage {
++        rss_kb: (frames.len() as u64) * 4,
++        pss_kb: ((pss_scaled_kb + 512) / 1024) as u64,
++        uss_kb: unique_pages * 4,
++        shared_kb: shared_pages * 4,
++    })
++}
++
++fn format_smaps_rollup(task: &KtaskRef) -> Vec<u8> {
++    let Some(usage) = task_smaps_rollup_usage(task) else {
++        return b"Rss: UNAVAILABLE\nPss: UNAVAILABLE\nUSS: UNAVAILABLE\nShared: UNAVAILABLE\n"
++            .to_vec();
++    };
++    format!(
++        "Rss:\t{} kB\nPss:\t{} kB\nUSS:\t{} kB\nShared:\t{} kB\n",
++        usage.rss_kb, usage.pss_kb, usage.uss_kb, usage.shared_kb
++    )
++    .into_bytes()
++}
++
+ /// `/proc/<pid>/statm`：七个基础页字段，顺序与 Linux 完全一致。
+ ///
+ /// `size resident shared text lib data dt`
+@@ -837,6 +908,7 @@ impl SimpleDirOps for ThreadDir {
+                 "stat",
+                 "statm",
+                 "status",
++                "smaps_rollup",
+                 "uid_map",
+                 "gid_map",
+                 "setgroups",
+@@ -883,6 +955,16 @@ impl SimpleDirOps for ThreadDir {
+                     }
+                 }),
+             ),
++            "smaps_rollup" => lookup.file(
++                name,
++                SimpleFile::new_regular(fs.clone(), {
++                    let task_weak = task_weak.clone();
++                    move || {
++                        let task = upgrade_task(&task_weak)?;
++                        Ok(format_smaps_rollup(&task))
++                    }
++                }),
++            ),
+             "uid_map" => lookup.file(
+                 name,
+                 user_map_file(fs.clone(), task_weak.clone(), false),

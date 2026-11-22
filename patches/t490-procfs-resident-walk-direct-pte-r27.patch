@@ -1,0 +1,143 @@
+--- a/mm/page_table/src/table64.rs
++++ b/mm/page_table/src/table64.rs
+@@ -286,6 +286,19 @@
+         end: M::VirtAddr,
+         mut visit: impl FnMut(M::VirtAddr, PageSize, PagingFlags),
+     ) -> PtResult<()> {
++        self.visit_present_mappings_in_range(start, end, |vaddr, _paddr, page_size, flags| {
++            visit(vaddr, page_size, flags)
++        })
++    }
++
++    /// Visits present leaf mappings and supplies the physical base directly
++    /// from the PTE, avoiding a second page-table query for each present leaf.
++    pub fn visit_present_mappings_in_range(
++        &self,
++        start: M::VirtAddr,
++        end: M::VirtAddr,
++        mut visit: impl FnMut(M::VirtAddr, PhysAddr, PageSize, PagingFlags),
++    ) -> PtResult<()> {
+         let start: usize = start.into();
+         let end: usize = end.into();
+         if start >= end {
+@@ -327,7 +340,7 @@
+         table_base: usize,
+         range_start: usize,
+         range_end: usize,
+-        visit: &mut impl FnMut(M::VirtAddr, PageSize, PagingFlags),
++        visit: &mut impl FnMut(M::VirtAddr, PhysAddr, PageSize, PagingFlags),
+     ) -> PtResult<()> {
+         let entry_bits = 12usize + 9usize * (level - 1);
+         let entry_size = 1usize
+@@ -360,7 +373,7 @@
+                     3 => PageSize::Size1G,
+                     _ => return Err(PtError::MappedToHugePage),
+                 };
+-                visit(M::VirtAddr::from(entry_base), page_size, entry.flags());
++                visit(M::VirtAddr::from(entry_base), entry.paddr(), page_size, entry.flags());
+             } else {
+                 self.visit_present_table(
+                     entry.paddr(),
+@@ -1263,6 +1276,50 @@
+     }
+ 
+     #[def_test]
++    fn visit_present_mappings_returns_physical_leaf_base() {
++        let mut table = TestPageTable::try_new().expect("test page table");
++        let small_page = paddr(0x20_0000);
++        let huge_page = paddr(0x40_0000);
++        let flags = PagingFlags::READ | PagingFlags::WRITE;
++        table
++            .modify()
++            .map(vaddr(0x4000), small_page, PageSize::Size4K, flags)
++            .expect("map 4 KiB page");
++        table
++            .modify()
++            .map(vaddr(0x20_0000), huge_page, PageSize::Size2M, flags)
++            .expect("map 2 MiB page");
++
++        let mut saw_small = false;
++        let mut saw_huge = false;
++        table
++            .visit_present_mappings_in_range(
++                vaddr(0x4000),
++                vaddr(0x40_0000),
++                |virtual_base, physical_base, page_size, entry_flags| {
++                    if virtual_base.as_usize() == 0x4000
++                        && physical_base.as_usize() == small_page.as_usize()
++                        && page_size == PageSize::Size4K
++                        && entry_flags == flags
++                    {
++                        saw_small = true;
++                    }
++                    if virtual_base.as_usize() == 0x20_0000
++                        && physical_base.as_usize() == huge_page.as_usize()
++                        && page_size == PageSize::Size2M
++                        && entry_flags == flags
++                    {
++                        saw_huge = true;
++                    }
++                },
++            )
++            .expect("visit present mappings");
++
++        assert!(saw_small);
++        assert!(saw_huge);
++    }
++
++    #[def_test]
+     fn replace_if_same_commits_only_matching_snapshot() {
+         let mut table = TestPageTable::try_new().expect("test page table");
+         let old_page = paddr(0x30_0000);
+--- a/mm/memspace/src/aspace.rs
++++ b/mm/memspace/src/aspace.rs
+@@ -853,7 +853,6 @@
+     /// Linear/device mappings are excluded, matching `memory_usage()`.
+     pub fn resident_page_frames(&self) -> Option<Vec<usize>> {
+         let mut frames = Vec::new();
+-        let mut query_failed = false;
+         for vma in self.vmas.iter() {
+             let flags = vma.flags();
+             if !flags.contains(MappingFlags::USER)
+@@ -864,10 +863,10 @@
+             let range = vma.range();
+             let vma_start: usize = range.start.into();
+             let vma_end: usize = range.end.into();
+-            let walked = self.pgtbl.visit_present_in_range(
++            let walked = self.pgtbl.visit_present_mappings_in_range(
+                 range.start,
+                 range.end,
+-                |leaf_base, leaf_size, leaf_flags| {
++                |leaf_base, physical_base, leaf_size, leaf_flags| {
+                     if !leaf_flags.contains(MappingFlags::USER) {
+                         return;
+                     }
+@@ -878,10 +877,6 @@
+                     if clip_end <= clip_start {
+                         return;
+                     }
+-                    let Ok((physical_base, _, _)) = self.pgtbl.query(leaf_base) else {
+-                        query_failed = true;
+-                        return;
+-                    };
+                     let physical_base: usize = physical_base.into();
+                     let mut virtual_page = clip_start;
+                     while virtual_page < clip_end {
+@@ -891,15 +886,11 @@
+                     }
+                 },
+             );
+-            if walked.is_err() || query_failed {
++            if walked.is_err() {
+                 return None;
+             }
+         }
+-        if query_failed {
+-            None
+-        } else {
+-            Some(frames)
+-        }
++        Some(frames)
+     }
+ 
+     #[cfg(target_arch = "aarch64")]

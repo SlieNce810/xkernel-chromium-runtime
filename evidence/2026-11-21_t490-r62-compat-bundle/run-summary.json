@@ -1,0 +1,35 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r62-compat-bundle",
+  "kernel_sha256": "12c0e795591d980503381dc9a487f3c24e5b227e569e9114c94983e3715b2ac0",
+  "kernel_dir": "/home/mo/xk6/worktrees/r62-no-direct-error-compat",
+  "log_level": "ERROR",
+  "direct_pte_patch_applied": false,
+  "memory": "2g",
+  "architecture": "aarch64",
+  "accelerator": "pure-tcg",
+  "platform_gate": "PASS 15/15",
+  "compatibility_bundle": {
+    "result": "PASS",
+    "compatprobe": "38/38",
+    "scm_rights_shortread": "6/6",
+    "memfd_sealing": "12/12",
+    "procfs_memory_probe_rc": 0
+  },
+  "procfs_memory": {
+    "file_shared_touched": {"rss_kb": 512, "pss_kb": 384, "uss_kb": 256, "shared_kb": 256},
+    "fork_cow_observed": true,
+    "unmap_rss_returned_to_baseline": true
+  },
+  "round_rc": 0,
+  "browser_started": false,
+  "strict_page_pass": false,
+  "formal_stability_sample": false,
+  "formal_performance_sample": false,
+  "candidate_accepted_as_final": false,
+  "notes": [
+    "This is a focused compatibility and standalone procfs memory run, not a Chromium/Weston run.",
+    "The two 640x480 black screenshots fail the required 1280x800 page evidence format.",
+    "R63 on the same candidate later failed Chromium startup with a fatal Wayland connection reset."
+  ]
+}

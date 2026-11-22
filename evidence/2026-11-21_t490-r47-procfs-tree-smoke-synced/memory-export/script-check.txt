@@ -1,0 +1,5 @@
+R47 runner inputs were staged under /home/mo/xk6/tmp/r47-source-2026-11-21a/t490; targeted bash -n checks passed for t490_round.sh, run_session_t490.sh, t490_inject_pages.sh, guest-autostart.sh, and round_assert.sh. ppm_assert.py passed python3 -m py_compile. The AArch64 sampler compiled with -std=c11 -O2 -static -Wall -Wextra -Werror.
+
+A broader wildcard bash -n over every T490 .sh also encountered an unrelated existing syntax error in autorun_mp_diag_nogpu_detail.sh at line 333 (unexpected end of file). That script is not invoked by this procfs smoke.
+
+The actual autorun and sampler source hashes matched the repository. Guest startup identity then failed because the applied frozen snapshot did not include proc-stat-starttime.patch; this mismatch was preserved as a failed gate.

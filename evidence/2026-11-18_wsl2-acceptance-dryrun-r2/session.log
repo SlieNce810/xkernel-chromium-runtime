@@ -1,0 +1,33 @@
+[2026-11-18T01:07:30+08:00] BEGIN baseline
+DRY_RUN command: python3 /mnt/e/02_competition/中电杯/scripts/baseline_inventory.py --root /mnt/e/02_competition/中电杯 --out evidence/2026-11-18_wsl2-acceptance-dryrun-r2/baseline.json
+[2026-11-18T01:07:30+08:00] END baseline rc=0
+[2026-11-18T01:07:31+08:00] BEGIN precheck
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ bash\ scripts/t490/run_acceptance_precheck.sh\ 2026-11-18_010730\'
+[2026-11-18T01:07:31+08:00] END precheck rc=0
+[2026-11-18T01:07:31+08:00] BEGIN html
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ SCORE_AUTORUN=autorun_mp_score_observe6.sh\ PROCESS_STRUCTURE_GATE=1\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ bash\ scripts/t490/run_score_page_mp.sh\ html\ codex-2026-11-18_010730-html\ 1800\ 60\'
+[2026-11-18T01:07:31+08:00] END html rc=0
+[2026-11-18T01:07:31+08:00] BEGIN tabs
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ TABS_READY_WAIT=1800\ TABS_SWITCH_TIMEOUT=1200\ MP_MAX_SECONDS=2200\ bash\ scripts/t490/run_tabs_round_mp.sh\ codex-2026-11-18_010730-tabs\ 2400\ 60\'
+[2026-11-18T01:07:31+08:00] END tabs rc=0
+[2026-11-18T01:07:31+08:00] BEGIN input
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ MULTIPROCESS=1\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ READY_TIMEOUT=2000\ bash\ scripts/t490/run_input_final.sh\ codex-2026-11-18_010730-input\ 2400\ 60\'
+[2026-11-18T01:07:31+08:00] END input rc=0
+[2026-11-18T01:07:31+08:00] BEGIN javascript
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ READY_TIMEOUT=2000\ bash\ scripts/t490/run_javascript_round_mp.sh\ codex-2026-11-18_010730-javascript\ 2400\ 60\'
+[2026-11-18T01:07:31+08:00] END javascript rc=0
+[2026-11-18T01:07:31+08:00] BEGIN css
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ bash\ scripts/t490/run_score_page_mp.sh\ css\ codex-2026-11-18_010730-css\ 1800\ 60\'
+[2026-11-18T01:07:31+08:00] END css rc=0
+[2026-11-18T01:07:31+08:00] BEGIN stability
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ env\ -u\ PLAT_MEM_OVERRIDE\ EXTRA_FLAGS_VALUE=--js-flags=--jitless\ bash\ scripts/t490/run_stability_round_mp.sh\ codex-2026-11-18_010730-stability\ 4200\ 30\'
+[2026-11-18T01:07:31+08:00] END stability rc=0
+[2026-11-18T01:07:31+08:00] BEGIN perf
+DRY_RUN command: bash /mnt/e/02_competition/中电杯/scripts/t490/remote.sh ssh bash\ -lc\ \'cd\ /home/mo/xk6\ \&\&\ python3\ scripts/run_perf_plan.py\ /home/mo/xk6/evidence/perf-plan.json\ --out\ /home/mo/xk6/evidence/2026-11-18_t490-codex-2026-11-18_010730-perf-comparison\'
+[2026-11-18T01:07:31+08:00] END perf rc=0
+[2026-11-18T01:07:31+08:00] BEGIN report
+DRY_RUN command: python3 /mnt/e/02_competition/中电杯/scripts/goal_audit.py --root /mnt/e/02_competition/中电杯 --summary evidence/2026-11-18_wsl2-acceptance-dryrun-r2/goal-audit.json
+[2026-11-18T01:07:31+08:00] END report rc=0
+ACCEPTANCE_OUT=evidence/2026-11-18_wsl2-acceptance-dryrun-r2
+BROWSER_SCORE=NOT_RUN/20
+ACCEPTANCE_RC=0

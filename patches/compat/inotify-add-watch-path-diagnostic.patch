@@ -1,0 +1,23 @@
+diff --git a/posix/fs/src/inotify.rs b/posix/fs/src/inotify.rs
+index 06e1d42..98b14ee 100644
+--- a/posix/fs/src/inotify.rs
++++ b/posix/fs/src/inotify.rs
+@@ -47,7 +47,17 @@ pub fn sys_inotify_add_watch(fd: i32, pathname: UserConstPtr<c_char>, mask: u32)
+     } else {
+         0
+     };
+-    let path = resolve_at(AT_FDCWD, Some(&pathname), path_flags)?.into_path()?;
++    let path = match resolve_at(AT_FDCWD, Some(&pathname), path_flags)
++        .and_then(|resolved| resolved.into_path())
++    {
++        Ok(path) => path,
++        Err(err) => {
++            klogger::warn!(
++                "INOTIFY_ADD_WATCH_PATH_ERROR path={pathname:?} mask={mask:#x} error={err:?}"
++            );
++            return Err(err);
++        }
++    };
+     let inode = path.inode();
+     if mask & IN_ONLYDIR != 0 && inode.node_type() != NodeType::Directory {
+         return Err(KError::NotADirectory);

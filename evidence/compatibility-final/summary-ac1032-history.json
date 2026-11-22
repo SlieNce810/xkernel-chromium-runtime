@@ -1,0 +1,31 @@
+{
+  "schema": "xkernel.compatibility-final.v1",
+  "result": "PASS",
+  "kernel_sha256": "ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+  "completed": [
+    "full compatprobe ABI matrix: 38/38 on final Browser-run kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2; T490 Linux 7.0 and WSL2 5.15 controls pass after correcting the MADV_DONTNEED hole expectation",
+    "SCM_RIGHTS short-read C guest probe: 6/6 on the same final kernel; first-byte delivery and payload preservation pass",
+    "memfd sealing C guest probe: 12/12 on the same final kernel, including MFD_ALLOW_SEALING alone and MFD_NOEXEC_SEAL/F_SEAL_EXEC",
+    "procfs RSS/PSS/USS standalone allocation, file sharing, fork/COW, and unmap probe emits Linux-consistent numeric values on the same final kernel",
+    "memspace madvise hole unit test passes 14/14 in its targeted crate",
+    "Chromium 149 official index HTML strict screenshot gate passes on the final Browser run kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+    "Browser to Zygote to Renderer process structure gate passes 4/4 after preserving the serial browser-start event on kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+    "Chromium console records SCM_RIGHTS transfers and inotify use without ENOSYS/ENOTSUP during the passing page run",
+    "Seven Chromium inotify NotFound attempts map to optional policy/time-zone path components; Chromium FilePathWatcher documents best-effort handling and the page remains strict PASS"
+  ],
+  "pending": [],
+  "evidence": [
+    "report/339-Chromium149候选内核首页与进程链复核-20261119.md",
+    "report/340-T490同一候选内核兼容性与PSS-USS复测-20261119.md",
+    "report/341-Chromium149-inotify可选路径NotFound分类-20261119.md",
+    "report/342-T490同一候选内核memfd与madvise兼容性修复-20261119.md",
+    "report/343-Chromium149最终候选SHA首页与进程链复验-20261119.md",
+    "evidence/2026-11-19_t490-codex-2026-11-19-fileprivate-compat-html-r1/",
+    "evidence/2026-11-19_t490-codex-2026-11-19-madvise-memfd-fixed-r1/",
+    "evidence/2026-11-19_t490-codex-2026-11-19-memfd-madvise-final-html-r1/",
+    "evidence/2026-11-19_t490-codex-2026-11-19-final-ac1032-compat-r1/",
+    "evidence/2026-11-19_t490-madvise-unit-r2/",
+    "evidence/2026-11-19_t490-process-gate-recheck-r2/",
+    "evidence/2026-11-19_t490-codex-2026-11-19-inotify-watch-path-diagnostic-r1/"
+  ]
+}

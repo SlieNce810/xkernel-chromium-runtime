@@ -1,0 +1,5 @@
+R15 mouse and navigation screenshot analysis
+
+After the step3 counter target (281,674), the after-mouse-click screenshot showed the pointer near the CSS link at about (350,710), while the counter still displayed 0. This is consistent with a lower-right relative-pointer offset of approximately 69x36 pixels.
+
+The subsequent step3 navigation action produced an after-mouse-navigation screenshot showing CSS layout content (including C3-C6). The strict layout gate failed because the viewport remained scrolled and the banner/C1/C2/C3 geometry was not all in frame. R16 compensates the counter target to (212,638), preserves the successful link target (350,710), then sends Home after navigation to capture the layout page at the top.

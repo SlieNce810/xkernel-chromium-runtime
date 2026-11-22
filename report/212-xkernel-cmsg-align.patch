@@ -1,0 +1,84 @@
+diff --git a/posix/net/src/cmsg.rs b/posix/net/src/cmsg.rs
+index 014919c..3998026 100644
+--- a/posix/net/src/cmsg.rs
++++ b/posix/net/src/cmsg.rs
+@@ -138,6 +138,16 @@ pub(crate) enum CMsg {
+     /// SCM_CREDENTIALS: the sender's credentials, attached to one message
+     Credentials { cred: UnixCredentials },
+ }
++
++/// Return the Linux CMSG_SPACE size for a cmsg_len value.
++pub(crate) fn cmsg_space_len(cmsg_len: usize) -> KResult<usize> {
++    let align = core::mem::align_of::<cmsghdr>();
++    let mask = align.saturating_sub(1);
++    cmsg_len
++        .checked_add(mask)
++        .map(|value| value & !mask)
++        .ok_or(KError::InvalidInput)
++}
+ impl CMsg {
+     /// Parse a control message header and extract its data
+     pub(crate) fn parse(
+@@ -239,6 +249,10 @@ impl<'a> CMsgBuilder<'a> {
+         let body_len = body(&mut data)?;
+ 
+         let cmsg_len = size_of::<cmsghdr>() + body_len;
++        let cmsg_space = cmsg_space_len(cmsg_len)?;
++        if cmsg_space > remaining {
++            return Ok(false);
++        }
+         UserPtr::<u8>::from(self.hdr.as_ptr() as usize + size_of::<cmsghdr>())
+             .write_vm_slice(&data[..body_len])?;
+ 
+@@ -249,8 +263,13 @@ impl<'a> CMsgBuilder<'a> {
+         };
+         write_vm_mem(self.hdr.as_ptr().cast_mut(), core::slice::from_ref(&hdr))?;
+ 
+-        self.hdr = UserPtr::from(self.hdr.as_ptr() as usize + cmsg_len);
+-        *self.len += cmsg_len;
++        let padding = cmsg_space - cmsg_len;
++        if padding != 0 {
++            UserPtr::<u8>::from(self.hdr.as_ptr() as usize + cmsg_len)
++                .write_vm_slice(&vec![0; padding])?;
++        }
++        self.hdr = UserPtr::from(self.hdr.as_ptr() as usize + cmsg_space);
++        *self.len += cmsg_space;
+         Ok(true)
+     }
+ }
+diff --git a/posix/net/src/io.rs b/posix/net/src/io.rs
+index ffa2c1a..4476233 100644
+--- a/posix/net/src/io.rs
++++ b/posix/net/src/io.rs
+@@ -35,7 +35,7 @@ use posix_types::{IoVec, IoVectorBuf, TimeSpanLike, UserConstPtr, UserPtr};
+ 
+ use crate::{
+     addr::SocketAddrExt,
+-    cmsg::{CMsg, CMsgBuilder, push_ip_recverr_cmsg},
++    cmsg::{CMsg, CMsgBuilder, cmsg_space_len, push_ip_recverr_cmsg},
+ };
+ 
+ // Linux ABI for sendmmsg/recvmmsg limits vlen to UIO_MAXIOV (1024).
+@@ -76,12 +76,20 @@ fn parse_send_cmsgs(
+ 
+         let hdr_ptr = UserConstPtr::<cmsghdr>::from(ptr);
+         let hdr = hdr_ptr.read_vm()?;
+-        if hdr.cmsg_len < size_of::<cmsghdr>() || ptr_end - ptr < hdr.cmsg_len {
++        let cmsg_len = hdr.cmsg_len as usize;
++        if cmsg_len < size_of::<cmsghdr>() || ptr_end - ptr < cmsg_len {
+             return Err(KError::InvalidInput);
+         }
+ 
+         ancillary.push(Box::new(CMsg::parse(resources, hdr_ptr, hdr)?) as AncillaryData);
+-        ptr += hdr.cmsg_len;
++        // The final cmsg may omit trailing padding, but a following header
++        // must begin at CMSG_ALIGN just like Linux's CMSG_NXTHDR.
++        let aligned_len = cmsg_space_len(cmsg_len)?;
++        ptr += if aligned_len <= ptr_end - ptr {
++            aligned_len
++        } else {
++            cmsg_len
++        };
+     }
+ 
+     Ok(ancillary)

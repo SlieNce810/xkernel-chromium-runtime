@@ -1,0 +1,12 @@
+PASS [INFO] non_white_ratio: 非白像素 189356/1024000 = 0.1849；⚠️ 参考项，不参与卡关
+PASS [CORE] official_banner: #17456b banner {'valid': True, 'count': 74324, 'x0': 209, 'y0': 20, 'x1': 1056, 'y1': 110, 'w': 848, 'h': 91}；要求 宽≥768(=0.6·W，实测 0.95@640 / 0.66@1280) 且 高∈[40,140]（实测 84）
+PASS [CORE] verdict_fail_absent: 失败色：文字 #c93c37 0 px（上限 300，实测 0）、条底 #ffebe9 0 px（上限 2000，实测 37）；出现即说明页面自检判出了「未通过」
+PASS [CORE] interaction_no_blocks: banner 下方无实心色块（阈值 高≥40 且 宽≥64；实测页面最大蓝块 = 按钮 92x34）→ 检出 无。此项是跨页鉴别：若列出红/绿/黄/紫块，说明这一帧其实是 index 或 layout 页
+PASS [VIEW] interaction_checks_table: 自检表横线等间距签名：9 条 [222, 253, 284, 315, 346, 377, 408, 439, 470]，间距 [31, 31, 31, 31, 31, 31, 31, 31]（实测 640/1280 均为 9 条 ×29；index 只有 6 条 ×31，故本项同时承担跨页鉴别）；
+PASS [INPUT] interaction_selfcheck_pass: 结论条绿字 2357 px + 绿底 63171 px（点击「运行自检」后的实测值 1899 / 60056；未点击时 0 / 36）→ T1–T6 全通过。**本项依赖真实点击输入**
+FAIL [INFO] interaction_awaiting_input: 未点击时结论条应为灰（绿底 63171 px ≤ 5000，实测 36）→ 页面处于「待检测」初始态
+------------------------------------------------------------------------
+严格集 4/4 通过｜严格集 = ['official_banner', 'verdict_fail_absent', 'interaction_no_blocks', 'interaction_checks_table']
+参考项（不卡关）：['non_white_ratio', 'interaction_selfcheck_pass', 'interaction_awaiting_input']；其中未通过 ['interaction_awaiting_input']
+⚠️ 取景不够：['interaction_selfcheck_pass'] 需要更高的画幅才可能入镜（当前 H=800）——这不是渲染失败，但**必须**用更高的窗口/滚动后重截，否则该页的关键结论没有像素证据
+JSON 已写入 /home/mo/xk6/tmp/input-codex-2026-11-19_002400-step3-counter-y540/after-assert.json

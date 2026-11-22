@@ -1,0 +1,5 @@
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-18_211152-input-step1-effective-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-18_211152-input-step1-effective-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-18_211152-input-step1-effective-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-18_211152-input-step1-effective.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step1 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-18_211152-input-step1-effective 2400 60
+verified_runner_sha256=44a93c67bda82f78b7057bc75587237243ba7b5d3f5ddd3d5db12e41f64eb4a0

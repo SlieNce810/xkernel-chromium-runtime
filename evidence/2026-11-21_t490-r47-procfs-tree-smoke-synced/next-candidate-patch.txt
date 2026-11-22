@@ -1,0 +1,8 @@
+Apply this existing fix before rerunning the smoke:
+
+patch=patches/compat/proc-stat-starttime.patch
+sha256=7106c11f4920171bf03fa14646978dc46e4215d6e5417facc6e4b1d3ef454b60
+scope=task/ktask/src/task.rs and process/kprocess/src/stat.rs
+expected=nonzero Linux /proc/<pid>/stat field 22, USER_HZ=100
+
+The patch was not applied in R47. Its application and runtime regression remain outstanding.

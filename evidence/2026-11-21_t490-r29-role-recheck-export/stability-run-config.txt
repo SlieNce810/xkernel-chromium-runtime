@@ -1,0 +1,23 @@
+run_id=r29-role-recheck-export
+session_max_seconds=1900
+screendump_interval_seconds=1200
+family_watchdog_target_guest_seconds=14
+family_diagnostics=1
+ready_timeout_seconds=1550
+ready_timeout_source=environment
+trace_mode=0
+guest_max_seconds=1700
+reload_count=1
+reload_interval_seconds=30
+hold_seconds=420
+diagnostic_only=1
+reload_window_seconds=90
+reload_settle_seconds=30
+capture_guest_clock_sync=1
+lifecycle_preload_enabled=1
+initial_page_poll_seconds=30
+reload_poll_seconds=5
+memory=2g
+architecture=aarch64
+accelerator=tcg
+command=STABILITY_DIAGNOSTIC_ONLY=1 STABILITY_RELOAD_WINDOW=90 STABILITY_RELOAD_SETTLE_SECONDS=30 STABILITY_CAPTURE_GUEST_CLOCK_SYNC=1 STABILITY_MEMORY_SAMPLER=1 STABILITY_MEMORY_SAMPLE_SECONDS=850 STABILITY_LIFECYCLE_PRELOAD=1 MP_FAMILY_DIAGNOSTICS=1 MP_FAMILY_WATCHDOG_INTERVAL=14 bash scripts/t490/run_stability_round_mp.sh r29-role-recheck-export 1900 1200 1 30 420

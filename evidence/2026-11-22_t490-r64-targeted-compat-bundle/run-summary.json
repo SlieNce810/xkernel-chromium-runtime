@@ -1,0 +1,36 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r64-targeted-compat-bundle",
+  "kernel_sha256": "a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f",
+  "kernel_dir": "/home/mo/xk6/worktrees/r64-targeted-scm-no-direct",
+  "log_level": "ERROR",
+  "direct_pte_patch_applied": false,
+  "memory": "2g",
+  "architecture": "aarch64",
+  "accelerator": "pure-tcg",
+  "platform_gate": "PASS 15/15",
+  "compatibility_bundle": {
+    "result": "PASS",
+    "compatprobe": "38/38",
+    "scm_rights_shortread": "6/6",
+    "memfd_sealing": "12/12",
+    "procfs_memory_probe_rc": 0
+  },
+  "procfs_memory": {
+    "file_shared_touched": {"rss_kb": 512, "pss_kb": 384, "uss_kb": 256, "shared_kb": 256},
+    "fork_cow_observed": true,
+    "unmap_rss_returned_to_baseline": true
+  },
+  "round_rc": 0,
+  "browser_started": false,
+  "strict_page_pass": false,
+  "formal_stability_sample": false,
+  "formal_performance_sample": false,
+  "candidate_accepted_as_final": false,
+  "notes": [
+    "R64 applies the existing SCM_RIGHTS first-byte patch on the c78 stream source while retaining other R62 compatibility fixes.",
+    "The tracked source diff SHA matches R62; this run did not create an independent source diff from R62.",
+    "Two 640x480 black screenshots are invalid for the required 1280x800 visual page gate.",
+    "The focused probes passed but the run did not start Chromium and provides no Wayland/browser conclusion."
+  ]
+}

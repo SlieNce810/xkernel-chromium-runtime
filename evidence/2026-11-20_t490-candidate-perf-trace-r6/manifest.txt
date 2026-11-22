@@ -1,0 +1,60 @@
+赛题六 · 基础任务 · 会话清单 (manifest)
+============================================================
+timestamp        : 2026-11-20T11:15:20.781
+hostname         : mo-ThinkPad-T490
+os               : Linux-7.0.0-43-generic-x86_64-with-glibc2.43
+guest_arch       : aarch64  (赛题第七节(一)1 指定，不接受其他架构)
+git_cwd          : /home/mo/xk6/worktrees/xk-compat-fix-r1
+os_pretty        : Ubuntu 26.04.1 LTS
+machine          : x86_64
+host_vs_guest    : x86_64 != aarch64 （跨架构，硬件加速不可能生效（仍显式 ACCEL=n））
+cpu_model        : Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz
+cpu_logical      : 8
+mem_total        : 14.7 GiB
+qemu-system-aarch64 : QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)
+git_describe     : basic-baseline-20260922-11-gb73e581-dirty
+git_commit       : b73e5814087c9d33c5f0a35b66cc56be689d3dee
+disk_free        : 91.7 GiB (/home/mo/xk6/worktrees/xk-compat-fix-r1)
+
+--- 本次会话 ---
+out_dir          : /home/mo/xk6/evidence/2026-11-20_t490-codex-2026-11-20-perf-trace-r6
+cwd              : /home/mo/xk6/worktrees/xk-compat-fix-r1
+make_argv        : make run GRAPHIC=y ACCEL=n MEM=2g SMP=4 VSOCK=n 'QEMU_ARGS=-global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display vnc=127.0.0.1:1 -qmp unix:/tmp/xk6-qmp-stability-codex-2026-11-20-perf-trace-r6.sock,server=on,wait=off'
+duration_sec     : 1800.0
+interval_sec     : 1200.0
+actual_sec       : 1111.1
+screendumps      : 1 / 1 成功
+console_log      : console.log (带时间戳的串口+QEMU全量输出)
+env_fingerprint  : env.txt
+complete_command : cmd.txt (含字面 qemu-system-aarch64 命令行)
+
+--- 赛题第七节 平台合规 ---
+platform_check   : PASS=15 FAIL=0 -> PLATFORM_COMPLIANT
+detail_file      : platform-compliance.txt
+guest_arch       : aarch64 (七(一)1)
+accel            : 无 -accel（纯 TCG，七(一)2）
+device_combo     : virtio-gpu-pci + virtio-input(keyboard/mouse) + virtio-blk + virtio-net (七(一)3)
+evidence_shots   : QEMU monitor screendump（七(一)3 唯一认可的截图方式）
+
+--- 证据与评分项映射（请按实际内容改写 name）---
+01-weston-start.ppm    -> 图形环境启动与稳定性(20分): 图形会话启动 10分
+weston-watch.log       -> 图形环境启动与稳定性(20分): 稳定运行>=10min 10分
+       (来源: guest 内 /tmp/weston-watch.log，xk-weston-start 每30s写一次)
+chromium-window.ppm    -> 浏览器基础功能(20分): Chromium 创建窗口 10分
+html-rendered.ppm      -> 浏览器基础功能(20分): 渲染指定 HTML 10分
+
+--- 日志尾部(最后 2000 字符，供快速判断是否崩溃)---
+RACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21275 6pYQmjBTyIpq3+smXBPPrla9Y+eHprMWNV65mB6D0sUe0ZTx6HBRyKxpXyMKYpYlKMD0NSa2y8ec
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21276 UzNY9hKjjvj0p0+3vzEc/LC5+fg5/vT2zfUsABQZrjC2s6cAlbTG3Od4H7/27O31J17BZygFYaxK
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21277 tF3iUCJk5m24YlB7Mw50GPt2tJdxqN+MYeX5WEwI0pidGrmykjFjcRqKRyf+BS5LubFr0dMyaydm
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21278 DfmFySqzQ2A/dHmfVb9Hp900802dEa/hh8Pnv89fHXbgphO7vDra15fPs+lpo3oAMePGo/CY2rZg
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21279 wH5B62xXWGctAkAX0y+UzaAgEJWCTtA5IObFQhanlUs10qLuVziapzGzDP8t4V4pWOeKSiJ2VIKb
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21280 YY3bxiR7J5CkSDQPDQ6U4HFo1sDRKLkynbdUfJZ1EUnwYPyx06bRCGO7Y+Auj1k3jVoqcecxjb7R
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21281 YUyukCZ6e351dnFz/kfhW6bmTUuhsFdXz8+vvuM/XB4YlpLPMY2Vqh9odpOVWh4Yfvn7+bvNt0P3
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21282 Dj8Rz6+vPsaetmh2/3b5/v2SYKSXwqQ8LHDZFRh5fWaHRUKx7bA6P5y//Y2f4Fhu+PHHzebi9qeb
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21283 zYfzm82bIY5cG7GOZitVZeGxQam9dGxTqc+ekhTH5fH5DFN5fumObWmCOJMBfXd5UYYhXw1ly2xw
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21284 NuezQxMLCVzkpodsaAV5mfh8HPb1ZWyc/Mv51cVwxJ6/35zfPB/hw/vPP+/aKX+8vjjS7iS/H/y4
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21285 qWxsoVDNLGFdrKRamBmH0JP6xKGVSqudicBmb3A1w86S/fF+YF27JiHQDH8fQyKYkwFxoKZ9yaHH
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21286 tT4QabFVrUEK6rloMW22Q6i+nCSh1mt4ULQIS40OxRlzBesF//VgDb56pr7hD9GB7tTd7Czu9dW7
+[mpdiag] MP_PERF_TRACE_DATA run_id=codex-2026-11-20-perf-trace-r6 seq=21287 WJVUmchxlnclMVqRKMmskDb4f91Y+vWY3fo4vOhnv1/e8rs0TGw/jztWTBKDVmKnS97nMmvKvNig
+^Ax

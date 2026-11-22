@@ -1,0 +1,15 @@
+diff --git a/posix/mm/src/mmap.rs b/posix/mm/src/mmap.rs
+--- a/posix/mm/src/mmap.rs
++++ b/posix/mm/src/mmap.rs
+@@ -398,1 +398,8 @@
+-            MADV_NORMAL | MADV_RANDOM | MADV_SEQUENTIAL | MADV_WILLNEED | MADV_FREE => {
++            // Chromium 149 uses the Linux fork/dump advice family while
++            // protecting V8 and PartitionAlloc mappings. These are advisory
++            // hints; this kernel has no dump writer or fork-page wipe path, so
++            // accepting them as no-ops matches the useful Linux contract.
++            MADV_NORMAL | MADV_RANDOM | MADV_SEQUENTIAL | MADV_WILLNEED | MADV_FREE
++            | 10 /* MADV_DONTFORK */ | 11 /* MADV_DOFORK */
++            | 16 /* MADV_DONTDUMP */ | 17 /* MADV_DODUMP */
++            | 18 /* MADV_WIPEONFORK */ => {
+                 return Ok(None);
+             }

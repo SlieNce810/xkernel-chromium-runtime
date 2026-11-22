@@ -1,0 +1,316 @@
+diff --git a/process/kfd_objects/src/inotify.rs b/process/kfd_objects/src/inotify.rs
+index 88e7926..7957fb9 100644
+--- a/process/kfd_objects/src/inotify.rs
++++ b/process/kfd_objects/src/inotify.rs
+@@ -72,7 +72,7 @@ struct Watch {
+ /// One `inotify_init1` instance and its installed inode watches.
+ pub struct InotifyFd {
+     watches: Mutex<Vec<Watch>>,
+-    queue: Mutex<VecDeque<[u8; INOTIFY_EVENT_SIZE]>>,
++    queue: Mutex<VecDeque<Vec<u8>>>,
+     poll_rx: PollSet,
+     next_wd: AtomicI32,
+ }
+@@ -156,7 +156,12 @@ impl InotifyFd {
+         Ok(())
+     }
+ 
+-    fn notify_inode(&self, inode: &Arc<VfsInode>, event_mask: u32) {
++    fn notify_inode(
++        &self,
++        inode: &Arc<VfsInode>,
++        event_mask: u32,
++        child: Option<(&str, bool)>,
++    ) {
+         let mut matched = Vec::new();
+         {
+             let mut watches = self.watches.lock();
+@@ -166,10 +171,12 @@ impl InotifyFd {
+                 }
+                 let mask = watch.mask & event_mask;
+                 if mask != 0 {
+-                    let directory = inode.node_type() == kvfs::NodeType::Directory;
+-                    matched.push((watch.wd, mask | if directory { IN_ISDIR } else { 0 }));
++                    let is_dir = child
++                        .map(|(_, is_dir)| is_dir)
++                        .unwrap_or_else(|| inode.node_type() == kvfs::NodeType::Directory);
++                    matched.push((watch.wd, mask | if is_dir { IN_ISDIR } else { 0 }, child.map(|x| x.0)));
+                     if watch.oneshot {
+-                        matched.push((watch.wd, IN_IGNORED));
++                        matched.push((watch.wd, IN_IGNORED, None));
+                         return false;
+                     }
+                 }
+@@ -182,17 +189,17 @@ impl InotifyFd {
+ 
+         let mut queue = self.queue.lock();
+         let mut appended = false;
+-        for (wd, mask) in matched {
++        for (wd, mask, name) in matched {
+             if queue.len() >= INOTIFY_QUEUE_LIMIT {
+                 if !queue
+                     .iter()
+                     .any(|event| i32::from_ne_bytes(event[0..4].try_into().unwrap()) == -1)
+                 {
+-                    queue.push_back(inotify_event(-1, IN_Q_OVERFLOW));
++                    queue.push_back(inotify_event(-1, IN_Q_OVERFLOW, None));
+                 }
+                 break;
+             }
+-            queue.push_back(inotify_event(wd, mask));
++            queue.push_back(inotify_event(wd, mask, name));
+             appended = true;
+         }
+         drop(queue);
+@@ -204,7 +211,7 @@ impl InotifyFd {
+     fn push_event(&self, wd: i32, mask: u32) {
+         let mut queue = self.queue.lock();
+         if queue.len() < INOTIFY_QUEUE_LIMIT {
+-            queue.push_back(inotify_event(wd, mask));
++            queue.push_back(inotify_event(wd, mask, None));
+             drop(queue);
+             self.poll_rx.wake();
+         }
+@@ -220,11 +227,14 @@ impl InotifyFd {
+         }
+         let mut written = 0;
+         while let Some(event) = queue.front() {
+-            if written + INOTIFY_EVENT_SIZE > buf.len() {
++            if event.len() > buf.len() - written {
++                if written == 0 {
++                    return Err(KError::InvalidInput);
++                }
+                 break;
+             }
+-            buf[written..written + INOTIFY_EVENT_SIZE].copy_from_slice(event);
+-            written += INOTIFY_EVENT_SIZE;
++            buf[written..written + event.len()].copy_from_slice(event);
++            written += event.len();
+             queue.pop_front();
+         }
+         self.poll_rx.wake();
+@@ -234,21 +244,45 @@ impl InotifyFd {
+ 
+ /// Queues an event for inotify instances watching this inode.
+ pub fn notify_inode_event(inode: &Arc<VfsInode>, event_mask: u32) {
++    notify_inode_event_inner(inode, event_mask, None);
++}
++
++/// Queues a named event for instances watching the parent directory inode.
++pub fn notify_inode_child_event(
++    parent: &Arc<VfsInode>,
++    event_mask: u32,
++    child_name: &str,
++    child_is_dir: bool,
++) {
++    notify_inode_event_inner(parent, event_mask, Some((child_name, child_is_dir)));
++}
++
++fn notify_inode_event_inner(
++    inode: &Arc<VfsInode>,
++    event_mask: u32,
++    child: Option<(&str, bool)>,
++) {
+     let mut instances = INOTIFY_INSTANCES.lock();
+     instances.retain(|weak| {
+         let Some(instance) = weak.upgrade() else {
+             return false;
+         };
+-        instance.notify_inode(inode, event_mask);
++        instance.notify_inode(inode, event_mask, child);
+         true
+     });
+ }
+ 
+-fn inotify_event(wd: i32, mask: u32) -> [u8; INOTIFY_EVENT_SIZE] {
+-    let mut event = [0; INOTIFY_EVENT_SIZE];
++fn inotify_event(wd: i32, mask: u32, name: Option<&str>) -> Vec<u8> {
++    let name_storage_len = name.map_or(0, |name| (name.len() + 1 + 3) & !3);
++    let mut event = Vec::with_capacity(INOTIFY_EVENT_SIZE + name_storage_len);
++    event.resize(INOTIFY_EVENT_SIZE + name_storage_len, 0);
+     event[0..4].copy_from_slice(&wd.to_ne_bytes());
+     event[4..8].copy_from_slice(&mask.to_ne_bytes());
+-    // cookie = 0 and len = 0 because these inode events have no child name.
++    event[12..16].copy_from_slice(&(name_storage_len as u32).to_ne_bytes());
++    if let Some(name) = name {
++        event[INOTIFY_EVENT_SIZE..INOTIFY_EVENT_SIZE + name.len()]
++            .copy_from_slice(name.as_bytes());
++    }
+     event
+ }
+ 
+diff --git a/posix/fs/src/open.rs b/posix/fs/src/open.rs
+index 58e0d27..3ecab2f 100644
+--- a/posix/fs/src/open.rs
++++ b/posix/fs/src/open.rs
+@@ -8,8 +8,9 @@ use alloc::sync::Arc;
+ use core::ffi::{c_char, c_int};
+ 
+ use kerrno::KResult;
++use kfd_objects::inotify::{IN_CREATE, notify_inode_child_event};
+ use kprocess::current_user_process;
+-use kvfs::{Filename, NodePermission, Path, VfsFile};
++use kvfs::{FMode, Filename, NodePermission, Path, VfsFile};
+ use linux_raw_sys::general::*;
+ use posix_types::UserConstPtr;
+ 
+@@ -50,7 +51,7 @@ pub fn sys_openat(
+     let filename = Filename::new(path.as_str());
+ 
+     let result = with_fs_at(dirfd, &filename, |fs| {
+-        open_path(
++        let file = open_path(
+             fs.root(),
+             fs.pwd(),
+             &filename,
+@@ -58,7 +59,15 @@ pub fn sys_openat(
+             mode,
+             fs.node_umask(),
+             cred,
+-        )
++        )?;
++        if file.mode().contains(FMode::CREATED) {
++            let path = file.path();
++            if let Some(parent) = path.parent() {
++                let name = path.name();
++                notify_inode_child_event(&parent.inode(), IN_CREATE, &name, file.is_dir());
++            }
++        }
++        Ok(file)
+     })
+     .and_then(|it| add_to_fd(it, flags as _))
+     .map(|fd| fd as isize);
+diff --git a/posix/fs/src/io.rs b/posix/fs/src/io.rs
+index 581d653..34105b8 100644
+--- a/posix/fs/src/io.rs
++++ b/posix/fs/src/io.rs
+@@ -19,7 +19,7 @@ use core::{
+ 
+ use iov_iter::{IovSink, IovSource, iov_iter_dest, iov_iter_source};
+ use kerrno::{KError, KResult, LinuxError};
+-use kfd_objects::inotify::{IN_MODIFY, notify_inode_event};
++use kfd_objects::inotify::{IN_MODIFY, notify_inode_child_event, notify_inode_event};
+ use kio::prelude::*;
+ use kpoll::IoEvents;
+ use kvfs::{FMode, Filename, LookupFlags, LookupIntent, OpenFlags, VfsFile, pipe::PipeObject};
+@@ -74,6 +74,14 @@ fn trace_chromium_fd_io(op: &str, fd: i32, file: &VfsFile, result: &KResult<isiz
+     );
+ }
+ 
++fn notify_inode_write(file: &VfsFile) {
++    notify_inode_event(file.inode(), IN_MODIFY);
++    if let Some(parent) = file.path().parent() {
++        let name = file.path().name();
++        notify_inode_child_event(&parent.inode(), IN_MODIFY, &name, file.is_dir());
++    }
++}
++
+ trait RewindBytes {
+     fn rewind_bytes(&mut self, count: usize) -> KResult<()>;
+ }
+@@ -182,7 +190,7 @@ fn write_file_from_io_with_pos(
+     let mut iter = iov_iter_source(&mut src);
+     let written = file.write_iter_from(&mut iter, pos)?;
+     if written != 0 {
+-        notify_inode_event(file.inode(), IN_MODIFY);
++        notify_inode_write(file);
+     }
+     Ok(written)
+ }
+@@ -210,7 +218,7 @@ fn write_file_at_from_io(
+     let mut iter = iov_iter_source(&mut src);
+     let written = file.write_iter_from(&mut iter, &mut offset)?;
+     if written != 0 {
+-        notify_inode_event(file.inode(), IN_MODIFY);
++        notify_inode_write(file);
+     }
+     Ok(written)
+ }
+diff --git a/posix/fs/src/fd_ops.rs b/posix/fs/src/fd_ops.rs
+index 3286fc9..487c9ec 100644
+--- a/posix/fs/src/fd_ops.rs
++++ b/posix/fs/src/fd_ops.rs
+@@ -14,7 +14,7 @@ use core::{ffi::c_int, sync::atomic::{AtomicUsize, Ordering}};
+ 
+ use bitflags::bitflags;
+ use kerrno::{KError, KResult};
+-use kfd_objects::inotify::{IN_CLOSE_WRITE, notify_inode_event};
++use kfd_objects::inotify::{IN_CLOSE_WRITE, notify_inode_child_event, notify_inode_event};
+ use kvfs::{FMode, OpenFlags, pipe::PipeObject};
+ use linux_raw_sys::general::*;
+ use memfs::shmem;
+@@ -35,6 +35,10 @@ pub fn sys_close(fd: c_int) -> KResult<isize> {
+     let file = resources.get_file(fd)?;
+     if file.mode().contains(FMode::WRITE) && Arc::strong_count(&file) == 2 {
+         notify_inode_event(file.inode(), IN_CLOSE_WRITE);
++        if let Some(parent) = file.path().parent() {
++            let name = file.path().name();
++            notify_inode_child_event(&parent.inode(), IN_CLOSE_WRITE, &name, file.is_dir());
++        }
+     }
+     resources.close_file(fd)?;
+     Ok(0)
+diff --git a/posix/fs/src/dir.rs b/posix/fs/src/dir.rs
+index 236f77d..a7bc226 100644
+--- a/posix/fs/src/dir.rs
++++ b/posix/fs/src/dir.rs
+@@ -11,9 +11,10 @@ use core::{
+ };
+ 
+ use kerrno::{KError, KResult};
++use kfd_objects::inotify::{IN_CREATE, notify_inode_child_event};
+ use kvfs::{
+     DeviceId, DirContext, Filename, LookupFlags, LookupIntent, NodePermission, NodeType,
+-    Permission, Umode, may_mknod,
++    Path, Permission, Umode, may_mknod,
+ };
+ use linux_raw_sys::general::*;
+ use osvm::VirtPtr;
+@@ -21,6 +22,13 @@ use posix_types::{UserConstPtr, UserPtr};
+ 
+ use crate::path::{with_fs, with_fs_at};
+ 
++fn notify_created_child(path: &Path) {
++    if let Some(parent) = path.parent() {
++        let name = path.name();
++        notify_inode_child_event(&parent.inode(), IN_CREATE, &name, path.is_dir());
++    }
++}
++
+ /// Changes the current working directory.
+ pub fn sys_chdir(path: UserConstPtr<c_char>) -> KResult<isize> {
+     let path = path.load_string()?;
+@@ -105,9 +113,9 @@ pub fn sys_mkdirat(dirfd: i32, path: UserConstPtr<c_char>, mode: u32) -> KResult
+     let filename = Filename::new(path.as_str());
+ 
+     with_fs_at(dirfd, &filename, |fs| {
+-        filename
+-            .mkdir_at(fs.root(), fs.pwd(), mode, fs.node_umask(), &cred)
+-            .map(|_| 0)
++        let created = filename.mkdir_at(fs.root(), fs.pwd(), mode, fs.node_umask(), &cred)?;
++        notify_created_child(&created);
++        Ok(0)
+     })
+ }
+ 
+@@ -129,16 +137,16 @@ pub fn sys_mknodat(
+     );
+ 
+     with_fs_at(dirfd, &filename, |fs| {
+-        filename
+-            .mknod_at(
++        let created = filename.mknod_at(
+                 fs.root(),
+                 fs.pwd(),
+                 mode,
+                 DeviceId(device as u64),
+                 fs.node_umask(),
+                 &cred,
+-            )
+-            .map(|_| 0)
++            )?;
++        notify_created_child(&created);
++        Ok(0)
+     })
+ }
+ 

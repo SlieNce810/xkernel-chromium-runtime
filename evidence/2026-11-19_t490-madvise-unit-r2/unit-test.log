@@ -1,0 +1,216 @@
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --unittest --unittest-crate 'memspace::aspace' --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --no-accel --graphic --memory 2g --smp 4 -- -global virtio-gpu-pci.xres=1280 -global virtio-gpu-pci.yres=800 -device virtio-keyboard-pci -device virtio-mouse-pci -display 'vnc=127.0.0.1:1'`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+   Compiling memspace v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/memspace)
+   Compiling ksignal v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ksignal)
+   Compiling console-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/console)
+   Compiling rtc-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/rtc)
+   Compiling irq-driver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/irq)
+   Compiling ktracing v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ktracing)
+   Compiling pci v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/platform/pci)
+   Compiling device-res-xkernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/adapters/xkernel/device-res)
+   Compiling kplat-aarch64 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/platforms/kplat-aarch64)
+   Compiling virtio v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/devices/virtio)
+   Compiling kvfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/kvfs)
+   Compiling ktimer v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/ktimer)
+   Compiling entropy v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/entropy)
+   Compiling kdriver v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/drivers/integration/kdriver)
+   Compiling fs_context v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/fs_context)
+   Compiling anon_inodefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/anon_inodefs)
+   Compiling memfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/memfs)
+   Compiling drmdevice v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/drmdevice)
+   Compiling kfd v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd)
+   Compiling kns v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kns)
+   Compiling kresources v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kresources)
+   Compiling tee_task_iface v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_task_iface)
+   Compiling kprocess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kprocess)
+   Compiling filemap v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/mm/filemap)
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling pipefs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/pipefs)
+   Compiling kext4 v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/kext4)
+   Compiling tipc v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tipc)
+   Compiling kexec v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kexec)
+   Compiling unittest_support v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/util/unittest_support)
+   Compiling knet v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/net/knet)
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+   Compiling ktty v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/io/ktty)
+   Compiling kuaccess v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/kuaccess)
+   Compiling kfd_objects v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfd_objects)
+   Compiling posix-fs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/fs)
+   Compiling kfutex v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/process/kfutex)
+   Compiling tee_kernel v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/tee/tee_kernel)
+   Compiling devfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/devfs)
+   Compiling posix-ipc v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/ipc)
+   Compiling cgroup2fs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/cgroup2fs)
+   Compiling procfs v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/filesystems/procfs)
+   Compiling fs_boot v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/fs/boot)
+   Compiling posix-process v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/process)
+   Compiling posix-net v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/net)
+   Compiling posix-mm v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/posix/mm)
+   Compiling ksyscall v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/ksyscall)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling kruntime v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/core/kruntime)
+   Compiling kfeat v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/api/kfeat)
+warning: `ksyscall` (lib) generated 1 warning
+   Compiling entry v0.3.0-dev (/home/mo/xk6/worktrees/xk-compat-fix-r1/entry)
+    Finished `release` profile [optimized] target(s) in 1m 23s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -device virtio-gpu-pci \
+  -vga none \
+  -serial 'mon:stdio' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -global 'virtio-gpu-pci.xres=1280' \
+  -global 'virtio-gpu-pci.yres=800' \
+  -device virtio-keyboard-pci \
+  -device virtio-mouse-pci \
+  -display 'vnc=127.0.0.1:1'
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff80000149a020
+[boot] kruntime primary start cpu=0 boot_info=0xffff80000149a020
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-19 09:27:36.025902512 UTC
+
+[37m[  3.639877 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-19T09:27:32.496699713Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 8ee47be3c4c3a886b6c06d5eb85c5b2cc4365abc44904e6b396d3328333a64b1
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = efd62c2ce8c2eb95efbd85e96b35cf812e1f2aa7845932d40deb7f3fdfaf02b8
+smp = 4
+[37m[  3.669244 0:18446462599842244624 entry:130] [33mCleaning up stale coverage data if exists...[m
+[mRunning unit tests with crate filter: memspace::aspace
+================================
+Starting unit tests [unittest] (parallel)...
+  1 module(s), 14 test(s)
+================================
+  [memspace::aspace::tests] (14 tests)
+      START  memspace::aspace::tests::clear_tolerates_zapped_linear_mapping
+      START  memspace::aspace::tests::madvise_dontneed_rejects_unmapped_gaps
+      START  memspace::aspace::tests::fault_adapter_treats_retry_outcomes_as_handled
+      RESULT memspace::aspace::tests::fault_adapter_treats_retry_outcomes_as_handled ... ok
+      START  memspace::aspace::tests::invalidate_sink_removes_exact_enqueued_request
+      START  memspace::aspace::tests::futex_backing_uses_mm_identity_for_private_mappings
+      START  memspace::aspace::tests::futex_backing_rejects_unaligned_or_unmapped_addresses
+      START  memspace::aspace::tests::test_map_protect_and_access_checks_follow_permissions
+      START  memspace::aspace::tests::futex_backing_preserves_shared_object_offset_after_vma_trim
+      START  memspace::aspace::tests::test_mmap_resolve_addr_honors_fixed_and_no_replace_policies
+      START  memspace::aspace::tests::test_move_pages_preserves_contents_and_clears_source_mapping
+      RESULT memspace::aspace::tests::futex_backing_rejects_unaligned_or_unmapped_addresses ... ok
+      START  memspace::aspace::tests::mm_pin_does_not_keep_user_mappings_alive_after_last_user_release
+      RESULT memspace::aspace::tests::madvise_dontneed_rejects_unmapped_gaps ... ok
+      START  memspace::aspace::tests::map_with_max_flags_allows_protection_raise_within_may_permissions
+      RESULT memspace::aspace::tests::clear_tolerates_zapped_linear_mapping ... ok
+      RESULT memspace::aspace::tests::invalidate_sink_removes_exact_enqueued_request ... ok
+      RESULT memspace::aspace::tests::map_with_max_flags_allows_protection_raise_within_may_permissions ... ok
+      START  memspace::aspace::tests::test_extend_area_grows_existing_mapping_and_rejects_missing_start
+      START  memspace::aspace::tests::relocated_private_mapping_keeps_object_contents_after_source_metadata_drop
+[37m[ 23.229715 1:18446462599845492752 memspace::aspace:1168] [33m[KErrorKind::AlreadyExists] mapping overlaps existing area[m
+[m      RESULT memspace::aspace::tests::futex_backing_uses_mm_identity_for_private_mappings ... ok
+      RESULT memspace::aspace::tests::test_mmap_resolve_addr_honors_fixed_and_no_replace_policies ... ok
+      RESULT memspace::aspace::tests::relocated_private_mapping_keeps_object_contents_after_source_metadata_drop ... ok
+      RESULT memspace::aspace::tests::futex_backing_preserves_shared_object_offset_after_vma_trim ... ok
+      RESULT memspace::aspace::tests::test_move_pages_preserves_contents_and_clears_source_mapping ... ok
+      RESULT memspace::aspace::tests::test_extend_area_grows_existing_mapping_and_rejects_missing_start ... ok
+      RESULT memspace::aspace::tests::mm_pin_does_not_keep_user_mappings_alive_after_last_user_release ... ok
+      RESULT memspace::aspace::tests::test_map_protect_and_access_checks_follow_permissions ... ok
+
+  >>> Test results: 14 passed, 0 failed, 0 ignored, 14 total
+=== UNITTEST_STATUS: ALL_TESTS_PASSED ===
+=== UNITTEST_STATUS: COVERAGE_PERSISTED ===
+Generating unit-test coverage reports...
+debugfs 1.47.2 (1-Jan-2025)
+Extracted coverage profile to /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/default.profraw (7782632 bytes)
+Converted /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/coverage.info to /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/coverage.xml
+Coverage reports generated in /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release

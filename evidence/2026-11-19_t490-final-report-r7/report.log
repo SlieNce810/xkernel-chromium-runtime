@@ -1,0 +1,114 @@
+[2026-11-19T21:42:32+08:00] BEGIN report
+[2026-11-19T21:42:32+08:00] COMMAND=python3 /mnt/c/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117/scripts/goal_audit.py --root /mnt/c/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117 --summary /mnt/c/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117/evidence/2026-11-19_t490-final-report-r7/goal-audit.json --strict 
+{
+  "schema": "xkernel.final-goal-audit.v1",
+  "result": "INCOMPLETE",
+  "baseline_freeze": {
+    "status": "PASS",
+    "path": "evidence/2026-11-17_t490-goal-baseline-freeze-r3/baseline.json"
+  },
+  "three_cold_starts_2g": {
+    "status": "PASS",
+    "reports": [
+      "report/287-T490-2GiB默认多进程首页冷启动首轮-20261117.md",
+      "report/288-T490-2GiB默认多进程首页冷启动第二轮-20261117.md",
+      "report/289-T490-2GiB默认多进程首页冷启动第三轮-20261118.md"
+    ]
+  },
+  "browser_score_2g": {
+    "status": "INCOMPLETE",
+    "points": 16,
+    "max_points": 20,
+    "items": {
+      "html": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-17_t490-goal2g-index-cold01",
+          "evidence/2026-11-17_t490-goal2g-index-cold02",
+          "evidence/2026-11-18_t490-goal2g-index-cold03"
+        ],
+        "required_independent_cold_starts": 3
+      },
+      "process_structure": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-goal2g-index-cold03-review/process-structure/process-structure-summary.json",
+          "evidence/2026-11-19_t490-codex-2026-11-19-memfd-madvise-final-html-r1/process-structure-summary.json"
+        ]
+      },
+      "tabs": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_112626-tabs/tabs-gate.json"
+        ]
+      },
+      "input": {
+        "status": "INCOMPLETE",
+        "evidence": []
+      },
+      "javascript": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_133026-javascript/javascript-gate.json"
+        ]
+      },
+      "css": {
+        "status": "PASS",
+        "evidence": [
+          "evidence/2026-11-18_t490-codex-2026-11-18_135557-css/score-page-gate.json"
+        ]
+      }
+    }
+  },
+  "stability_2g": {
+    "status": "PASS",
+    "passing_gates": [
+      "evidence/2026-11-18_t490-goal2g-stability-r10/stability-gate.json"
+    ]
+  },
+  "candidate_stability_2g": {
+    "status": "FAIL",
+    "expected_kernel_sha256": "ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+    "runs": [
+      {
+        "evidence": "evidence/2026-11-19_t490-stability-ac1032-r1/remote/2026-11-19_t490-codex-2026-11-19_185145-stability",
+        "kernel_sha256": "ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+        "pass": false,
+        "driver_rc": "1",
+        "round_rc": "0",
+        "normalizer_rc": "0",
+        "gate_rc": "1",
+        "gate_detail": "STABILITY_GATE_FAIL: found 8 reload requests, expected 10"
+      }
+    ]
+  },
+  "compatibility": {
+    "status": "PASS",
+    "completed": [
+      "full compatprobe ABI matrix: 38/38 on final Browser-run kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2; T490 Linux 7.0 and WSL2 5.15 controls pass after correcting the MADV_DONTNEED hole expectation",
+      "SCM_RIGHTS short-read C guest probe: 6/6 on the same final kernel; first-byte delivery and payload preservation pass",
+      "memfd sealing C guest probe: 12/12 on the same final kernel, including MFD_ALLOW_SEALING alone and MFD_NOEXEC_SEAL/F_SEAL_EXEC",
+      "procfs RSS/PSS/USS standalone allocation, file sharing, fork/COW, and unmap probe emits Linux-consistent numeric values on the same final kernel",
+      "memspace madvise hole unit test passes 14/14 in its targeted crate",
+      "Chromium 149 official index HTML strict screenshot gate passes on the final Browser run kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+      "Browser to Zygote to Renderer process structure gate passes 4/4 after preserving the serial browser-start event on kernel ac1032fe98c382cc37646a12453b7141b789c9abfe1651ff5f8f1e0263767fa2",
+      "Chromium console records SCM_RIGHTS transfers and inotify use without ENOSYS/ENOTSUP during the passing page run",
+      "Seven Chromium inotify NotFound attempts map to optional policy/time-zone path components; Chromium FilePathWatcher documents best-effort handling and the page remains strict PASS"
+    ],
+    "pending": [],
+    "summary": "evidence/compatibility-final/summary.json"
+  },
+  "performance": {
+    "status": "INCOMPLETE",
+    "required_metrics": [
+      "browser_start",
+      "first_frame",
+      "peak_memory",
+      "renderer_create"
+    ],
+    "present_metrics": [],
+    "before_runs": 0,
+    "after_runs": 0
+  }
+}
+[2026-11-19T21:43:12+08:00] END report rc=1

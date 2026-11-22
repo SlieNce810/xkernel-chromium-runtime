@@ -1,0 +1,89 @@
++ export PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ PATH=/home/mo/qemu-root/usr/bin:/home/mo/.cargo/bin:/home/mo/musl/aarch64-linux-musl-cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ TAG=codex-2026-11-20-perf-trace-r9-guard-preflight
++ DUR=1800
++ IVL=1200
++ AUTORUN=autorun_mp_score_observe6.sh
++ shift 4
++ PROBES=
++++ dirname /home/mo/xk6/scripts/t490/t490_round.sh
+++ cd /home/mo/xk6/scripts/t490
+++ pwd
++ SRC_DIR=/home/mo/xk6/scripts/t490
++ KERNEL_DIR=/home/mo/xk6/worktrees/xk-compat-fix-r1
++ '[' -d /home/mo/xk6/worktrees/xk-compat-fix-r1 ']'
++ export KERNEL_DIR
++ BASE_IMG=/home/mo/x-kernel/images/agentos-weston.img
++ PKG_TARBALL=
+++ cd /home/mo/xk6/scripts/t490/../testpage
+++ pwd
++ PAGE_DIR=/home/mo/xk6/scripts/testpage
++ PAGE_FILES='index.html interaction.html layout.html'
++ PAGE_URL=file:///usr/share/html-test/index.html
++ '[' -z '' ']'
++ case "$PAGE_URL" in
++ ASSERT_PROFILE=official-index
++ export ASSERT_PROFILE
++ SECOND_URL=
++ PAGE_HTML=
++ OZ_PLATFORM=wayland
++ GL_VARIANT=none
++ GPU_MODEL=in-process
++ OBS_WINDOW=1700
++ '[' 1700 -ge 20 ']'
++ RUN_A0=0
++ HEADLESS_SANDBOX_TRACE_VALUE=1
++ HEADLESS_OVERLAY_VALUE=0
++ MP_TRACE_VALUE=0
++ MP_GL_VALUE=angle
++ MP_NET_VALUE=normal
++ MP_LEDGER_VALUE=1
++ MP_FAMILY_DIAGNOSTICS_VALUE=0
++ MP_FAMILY_WATCHDOG_INTERVAL_VALUE=4
++ MP_EXTRACT_OVERLAY_VALUE=0
++ MP_DATAPIPE_FIX_VALUE=0
++ MP_MOJO_LEGACY_VALUE=0
++ MP_FD_DUMP_VALUE=0
++ FRAME_MODE_VALUE=mp
++ PROFILE_MODE_VALUE=new
++ SEED_HOLD_VALUE=45
++ PROFILE_ID_VALUE=codex-2026-11-20-perf-trace-r9-guard-preflight
++ PROFILE_SEED_MODE_VALUE=single
++ TRACE_EXIT_AFTER_VALUE=150
++ TRACE_DURATION_VALUE=45
++ GPU_FLAG_VALUE=
++ EXTRA_FLAGS_VALUE='--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json'
++ CHROMIUM_BIN_VALUE=/usr/lib/chromium/chromium
++ RES_W_VALUE=1280
++ RES_H_VALUE=800
++ MP_WLDEBUG_VALUE=0
++ MP_VMODULE_EXTRA_VALUE=
++ MP_WESTON_CONTINUE=0
++ WESTON_SHELL_VALUE=none
++ MP_MAX_SECONDS=1650
++ '[' 1650 -ge 60 ']'
++ MP_HOLD_SECONDS=40
++ SINGLE_HOLD_VALUE=600
++ SINGLE_SAMPLE_VALUE=15
++ case "$OZ_PLATFORM" in
++ case "$GL_VARIANT" in
++ case "$GPU_MODEL" in
++ case "$CHROMIUM_BIN_VALUE" in
++ case "$CHROMIUM_BIN_VALUE" in
++ case "$OBS_WINDOW" in
++ case "$RUN_A0" in
++ case "$MP_TRACE_VALUE" in
++ TRACE_REQUESTED=0
++ case "$EXTRA_FLAGS_VALUE" in
++ TRACE_REQUESTED=1
++ '[' 0 = 0 ']'
++ '[' 1 = 1 ']'
++ EXPECTED_PERF_TRACE_FLAGS='--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json'
++ '[' 1 '!=' 1 ']'
++ '[' '--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json' '!=' '--trace-startup=startup,ipc,loading,blink,cc,viz,navigation --trace-startup-file=/root/mp-perf-trace.json --trace-startup-duration=500 --trace-startup-format=json' ']'
++ echo CHROMIUM_PERF_TRACE_ONLY=PASS
+CHROMIUM_PERF_TRACE_ONLY=PASS
++ '[' 1 = 1 ']'
++ echo T490_ROUND_TRACE_GUARD_ONLY=PASS
+T490_ROUND_TRACE_GUARD_ONLY=PASS
++ exit 0

@@ -1,0 +1,65 @@
+diff --git a/task/ktask/src/task.rs b/task/ktask/src/task.rs
+--- a/task/ktask/src/task.rs
++++ b/task/ktask/src/task.rs
+@@ -210,6 +210,8 @@
+     identity: TaskIdentity,
+     name: SpinNoIrq<String>,
+     is_init: bool,
++    /// Monotonic creation time used by Linux proc stat field 22.
++    start_time_ns: u64,
+ 
+     entry: Cell<Option<Box<dyn FnOnce()>>>,
+     state: AtomicU8,
+@@ -434,6 +436,11 @@
+             .unwrap_or_else(|| self as *const _ as usize as u64)
+     }
+ 
++    /// Returns the monotonic task creation time in nanoseconds.
++    pub fn start_time_ns(&self) -> u64 {
++        self.start_time_ns
++    }
++
+     /// Gets the name of the task.
+     pub fn name(&self) -> String {
+         self.name.lock().clone()
+@@ -674,11 +681,13 @@
+         for cpu_id in 0..crate::api::active_cpu_num() {
+             cpumask.set(cpu_id, true);
+         }
++        let start_time_ns = khal::time::monotonic_time_nanos();
+ 
+         Self {
+             identity,
+             name: SpinNoIrq::new(name),
+             is_init: false,
++            start_time_ns,
+             entry: Cell::new(None),
+             state: AtomicU8::new(TaskState::Ready as u8),
+             // By default, the task is allowed to run on all CPUs.
+diff --git a/process/kprocess/src/stat.rs b/process/kprocess/src/stat.rs
+--- a/process/kprocess/src/stat.rs
++++ b/process/kprocess/src/stat.rs
+@@ -159,6 +159,8 @@
+             ppid,
+             pgrp,
+             session,
++            // Linux proc stat starttime uses USER_HZ (100 Hz here).
++            starttime: task.start_time_ns() / 10_000_000,
+             priority: nice.proc_stat_priority(),
+             nice: nice.as_i32(),
+             num_threads: proc.thread_count() as u32,
+@@ -269,9 +271,12 @@
+             state: 'R',
+             priority: 10,
+             nice: -10,
++            starttime: 1234,
+             ..Default::default()
+         };
+         let text = alloc::format!("{stat}");
+         assert!(text.contains(" 10 -10 "));
+-    }
+-}
++        let fields = text.split(") ").nth(1).unwrap().split_whitespace().collect::<alloc::vec::Vec<_>>();
++        assert_eq!(fields[19], "1234");
++    }
++}

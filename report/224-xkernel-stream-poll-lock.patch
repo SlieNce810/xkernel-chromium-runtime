@@ -1,0 +1,182 @@
+diff --git a/net/knet/src/unix/stream.rs b/net/knet/src/unix/stream.rs
+index df69922..44e144e 100644
+--- a/net/knet/src/unix/stream.rs
++++ b/net/knet/src/unix/stream.rs
+@@ -23,7 +23,7 @@ use self::{
+     listener::{ConnRequest, ListenerQueue},
+ };
+ use crate::{
+-    ConnectOptions, KernelAncillaryData, RecvOptions, SendOptions, Shutdown,
++    ConnectOptions, KernelAncillaryData, RecvFlags, RecvOptions, SendOptions, Shutdown,
+     general::GeneralOptions,
+     options::{Configurable, GetSocketOption, OptionHandled, SetSocketOption, UnixCredentials},
+     unix::{UnixAddr, UnixTransport, UnixTransportOps},
+@@ -253,13 +253,21 @@ impl UnixTransportOps for StreamTransport {
+                 },
+             )));
+         }
+-        let mut ancillary_published = ancillary.is_empty();
++        // Every sendmsg contributes a stream boundary. Empty ancillary data is
++        // retained as a boundary too, so a later SCM_RIGHTS batch cannot be
++        // attached to bytes from an earlier write.
++        let mut boundary_published = false;
+         self.options
+             .send_poller_with_nonblocking(self, non_blocking, || {
+                 if self.endpoint.tx_closed.load(Ordering::Acquire) {
+                     return finish_send_on_error(total, KError::BrokenPipe);
+                 }
+-                let mut guard = self.channel.lock();
++                let Some(mut guard) = self.channel.try_lock() else {
++                    // The I/O poll closure must not park while a channel lock
++                    // is held by another task. Returning WouldBlock lets the
++                    // caller yield and retry without violating preemption.
++                    return Err(KError::WouldBlock);
++                };
+                 let Some(chan) = guard.as_mut() else {
+                     return Err(KError::NotConnected);
+                 };
+@@ -298,11 +306,19 @@ impl UnixTransportOps for StreamTransport {
+                     // Publish the control messages *before* the bytes they belong
+                     // to become visible, so a concurrent reader can never observe
+                     // this message's data without its ancillary data.
+-                    if count > 0 && !ancillary_published {
+-                        chan.outgoing_ancillary
+-                            .lock()
+-                            .push_back(core::mem::take(&mut ancillary));
+-                        ancillary_published = true;
++                    if count > 0 {
++                        let mut boundaries = chan.outgoing_ancillary.lock();
++                        if !boundary_published {
++                            boundaries.push_back(channel::AncillaryBatch {
++                                bytes_remaining: count,
++                                data: core::mem::take(&mut ancillary),
++                            });
++                            boundary_published = true;
++                        } else if let Some(last) = boundaries.back_mut() {
++                            // A blocking send may publish one logical message
++                            // over several ring-buffer writes.
++                            last.bytes_remaining = last.bytes_remaining.saturating_add(count);
++                        }
+                     }
+                     // SAFETY: `count` is the sum of bytes written into the vacant
+                     // slices above, so it never exceeds the producer capacity that
+@@ -324,10 +340,14 @@ impl UnixTransportOps for StreamTransport {
+ 
+     fn recv(&self, mut dst: impl Write + IoBufMut, options: RecvOptions) -> KResult<usize> {
+         let is_zero_length = dst.remaining_mut() == 0;
++        let peek = options.flags.contains(RecvFlags::PEEK);
+         let mut ancillary_out = options.ancillary;
+         self.options
+             .recv_poller_with_nonblocking(self, options.flags.nonblocking(), || {
+-                let mut guard = self.channel.lock();
++                let Some(mut guard) = self.channel.try_lock() else {
++                    // See send(): never park on a mutex from inside poll_io.
++                    return Err(KError::WouldBlock);
++                };
+                 let Some(chan) = guard.as_mut() else {
+                     return Err(KError::NotConnected);
+                 };
+@@ -336,41 +356,77 @@ impl UnixTransportOps for StreamTransport {
+                 if is_zero_length && occupied_before > 0 {
+                     return Ok(0);
+                 }
++                // A stream recvmsg may coalesce ordinary writes, but it must
++                // stop at the end of the first write carrying ancillary data.
++                // Sum boundaries through that first control-bearing write and
++                // cap this read accordingly.
++                let mut read_limit = dst.remaining_mut();
++                {
++                    let boundaries = chan.incoming_ancillary.lock();
++                    let mut boundary_bytes = 0usize;
++                    for boundary in boundaries.iter() {
++                        boundary_bytes = boundary_bytes
++                            .saturating_add(boundary.bytes_remaining);
++                        if !boundary.data.is_empty() {
++                            read_limit = read_limit.min(boundary_bytes);
++                            break;
++                        }
++                    }
++                }
+                 let count = {
+                     let (left, right) = chan.rx.as_slices();
+-                    let mut count = dst.write(left)?;
+-                    if count >= left.len() {
+-                        count += dst.write(right)?;
++                    let left_len = left.len().min(read_limit);
++                    let mut count = dst.write(&left[..left_len])?;
++                    if count >= left_len && count < read_limit {
++                        let right_len = right.len().min(read_limit - count);
++                        count += dst.write(&right[..right_len])?;
++                    }
++                    if !peek {
++                        // SAFETY: `count` is the sum of bytes copied out of the
++                        // occupied slices returned by `as_slices`, so advancing by this
++                        // amount stays within the consumer's readable region.
++                        unsafe { chan.rx.advance_read_index(count) };
+                     }
+-                    // SAFETY: `count` is the sum of bytes copied out of the
+-                    // occupied slices returned by `as_slices`, so advancing by this
+-                    // amount stays within the consumer's readable region.
+-                    unsafe { chan.rx.advance_read_index(count) };
+                     count
+                 };
+                 if count > 0 {
+-                    // Hand the peer's control messages to this read. Linux delivers
+-                    // a message's ancillary data with the first successful receive
+-                    // that consumes any of its bytes, so pop exactly one batch.
+-                    if let Some(mut received) = chan.incoming_ancillary.lock().pop_front() {
+-                        if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
+-                            received.retain(|item| {
+-                                !matches!(
+-                                    item.as_ref().downcast_ref::<KernelAncillaryData>(),
+-                                    Some(KernelAncillaryData::Credentials(_)),
+-                                )
+-                            });
++                    if !peek {
++                        // Consume exactly the stream boundaries covered by
++                        // this read. Deliver control data only when the boundary
++                        // carrying it is fully consumed; this matches Linux's
++                        // recvmsg behavior for coalesced writes.
++                        let mut boundaries = chan.incoming_ancillary.lock();
++                        let mut remaining = count;
++                        while remaining > 0 {
++                            let Some(front) = boundaries.front_mut() else { break };
++                            let consumed = front.bytes_remaining.min(remaining);
++                            front.bytes_remaining -= consumed;
++                            remaining -= consumed;
++                            if front.bytes_remaining != 0 {
++                                break;
++                            }
++                            let mut batch = boundaries.pop_front().expect("front exists");
++                            if !batch.data.is_empty() {
++                                if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
++                                    batch.data.retain(|item| {
++                                        !matches!(
++                                            item.as_ref().downcast_ref::<KernelAncillaryData>(),
++                                            Some(KernelAncillaryData::Credentials(_)),
++                                        )
++                                    });
++                                }
++                                if let Some(out) = ancillary_out.as_mut() {
++                                    out.append(&mut batch.data);
++                                }
++                            }
+                         }
+-                        if let Some(out) = ancillary_out.as_mut() {
+-                            out.append(&mut received);
++                        let occupied_after = occupied_before - count;
++                        if !channel::is_stream_writable(occupied_before)
++                            && channel::is_stream_writable(occupied_after)
++                        {
++                            chan.peer_endpoint.polls.writable.wake();
+                         }
+                     }
+-                    let occupied_after = occupied_before - count;
+-                    if !channel::is_stream_writable(occupied_before)
+-                        && channel::is_stream_writable(occupied_after)
+-                    {
+-                        chan.peer_endpoint.polls.writable.wake();
+-                    }
+                     return Ok(count);
+                 }
+                 {

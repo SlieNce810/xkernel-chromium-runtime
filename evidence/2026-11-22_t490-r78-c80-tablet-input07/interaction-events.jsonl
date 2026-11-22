@@ -1,0 +1,259 @@
+{"kind": "rx", "ts": 1795297882.67673, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1795297882.676843, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-r78-c80-tablet-input07.sock"}}
+{"kind": "tx", "ts": 1795297882.676925, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1795297882.6773913, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1795297882.6775043, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1795297882.678279, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1795297882.67835, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1795297882.678419, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1795297882.6792197, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1795297882.6792893, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1795297882.6793585, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1795297882.680187, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1795297882.680271, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1795297882.680338, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1795297882.681206, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1795297882.681289, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1795297882.6813579, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1795297882.682088, "value": {"error": {"class": "DeviceNotFound", "desc": "Device '/backend/console[1]' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1795297882.6821704, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device '/backend/console[1]' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1795297882.6822345, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1795297882.6826432, "value": {"id": 7, "return": [{"absolute": false, "current": false, "index": 2, "name": "QEMU Virtio Mouse"}, {"absolute": true, "current": true, "index": 3, "name": "QEMU Virtio Tablet"}]}}
+{"kind": "mouse-query", "ts": 1795297882.6827428, "value": {"id": 7, "return": [{"absolute": false, "current": false, "index": 2, "name": "QEMU Virtio Mouse"}, {"absolute": true, "current": true, "index": 3, "name": "QEMU Virtio Tablet"}]}}
+{"kind": "tx", "ts": 1795297882.6828446, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1795297882.683507, "value": {"id": 8, "return": "  Mouse #2: QEMU Virtio Mouse\r\n* Mouse #3: QEMU Virtio Tablet (absolute)\r\n"}}
+{"kind": "mouse-inventory", "ts": 1795297882.6836011, "value": {"id": 8, "return": "  Mouse #2: QEMU Virtio Mouse\r\n* Mouse #3: QEMU Virtio Tablet (absolute)\r\n"}}
+{"kind": "tx", "ts": 1795297882.6837118, "value": {"arguments": {"command-line": "mouse_set 3"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1795297882.6843643, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1795297882.6844363, "value": {"index": 3}}
+{"kind": "checkpoint", "ts": 1795297882.6844957, "value": {"name": "interaction-score-connected"}}
+{"kind": "checkpoint", "ts": 1795297897.6847494, "value": {"name": "interaction-ready-settle", "seconds": 15.0}}
+{"kind": "tx", "ts": 1795297897.6849031, "value": {"arguments": {"device": "virtio-gpu-pci", "events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 10}}
+{"kind": "rx", "ts": 1795297897.6858125, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'virtio-gpu-pci' not found"}, "id": 10}}
+{"kind": "input-target-error", "ts": 1795297897.6858897, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'virtio-gpu-pci' not found\"}", "target": "virtio-gpu-pci"}}
+{"kind": "tx", "ts": 1795297897.6859539, "value": {"arguments": {"device": "virtio-gpu", "events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 11}}
+{"kind": "rx", "ts": 1795297897.686729, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'virtio-gpu' not found"}, "id": 11}}
+{"kind": "input-target-error", "ts": 1795297897.6868095, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'virtio-gpu' not found\"}", "target": "virtio-gpu"}}
+{"kind": "tx", "ts": 1795297897.686869, "value": {"arguments": {"device": "display0", "events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 12}}
+{"kind": "rx", "ts": 1795297897.6878736, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'display0' not found"}, "id": 12}}
+{"kind": "input-target-error", "ts": 1795297897.6879497, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'display0' not found\"}", "target": "display0"}}
+{"kind": "tx", "ts": 1795297897.6880107, "value": {"arguments": {"device": "video0", "events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 13}}
+{"kind": "rx", "ts": 1795297897.688998, "value": {"error": {"class": "DeviceNotFound", "desc": "Device 'video0' not found"}, "id": 13}}
+{"kind": "input-target-error", "ts": 1795297897.689071, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device 'video0' not found\"}", "target": "video0"}}
+{"kind": "tx", "ts": 1795297897.6891298, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 14}}
+{"kind": "rx", "ts": 1795297897.6900573, "value": {"id": 14, "return": {}}}
+{"kind": "input-target-selected", "ts": 1795297897.690122, "value": {"target": ""}}
+{"kind": "action", "ts": 1795297897.6901712, "value": {"op": "absolute", "qemu_x": 6963, "qemu_y": 7987, "transport": "qmp", "x": 272, "y": 195}}
+{"kind": "tx", "ts": 1795297898.69041, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 15}}
+{"kind": "rx", "ts": 1795297898.6911805, "value": {"id": 15, "return": {}}}
+{"kind": "tx", "ts": 1795297898.69128, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 16}}
+{"kind": "rx", "ts": 1795297898.6920183, "value": {"id": 16, "return": {}}}
+{"kind": "action", "ts": 1795297898.6920884, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1795297898.6921508, "value": {"name": "activate-selftest-button", "x": 272, "y": 195}}
+{"kind": "tx", "ts": 1795297899.692417, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 6963}, "type": "abs"}, {"data": {"axis": "y", "value": 7987}, "type": "abs"}]}, "execute": "input-send-event", "id": 17}}
+{"kind": "rx", "ts": 1795297899.6968813, "value": {"id": 17, "return": {}}}
+{"kind": "action", "ts": 1795297899.6969814, "value": {"op": "absolute", "qemu_x": 6963, "qemu_y": 7987, "transport": "qmp", "x": 272, "y": 195}}
+{"kind": "tx", "ts": 1795297900.6972544, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 18}}
+{"kind": "rx", "ts": 1795297900.698229, "value": {"id": 18, "return": {}}}
+{"kind": "tx", "ts": 1795297900.6983602, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 19}}
+{"kind": "rx", "ts": 1795297900.6991916, "value": {"id": 19, "return": {}}}
+{"kind": "action", "ts": 1795297900.699293, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1795297900.6993754, "value": {"name": "run-selftest-button", "x": 272, "y": 195}}
+{"kind": "tx", "ts": 1795297912.699651, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-selftest.ppm"}, "execute": "screendump", "id": 20}}
+{"kind": "rx", "ts": 1795297912.7051892, "value": {"id": 20, "return": {}}}
+{"kind": "screendump", "ts": 1795297913.105617, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-selftest.ppm"}}
+{"kind": "tx", "ts": 1795297913.1057272, "value": {"arguments": {"keys": [{"data": "tab", "type": "qcode"}]}, "execute": "send-key", "id": 21}}
+{"kind": "rx", "ts": 1795297913.1063745, "value": {"id": 21, "return": {}}}
+{"kind": "action", "ts": 1795297913.1064456, "value": {"op": "key", "qcode": "tab", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297916.106774, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/focus-after-tab-1.ppm"}, "execute": "screendump", "id": 22}}
+{"kind": "rx", "ts": 1795297916.1160486, "value": {"id": 22, "return": {}}}
+{"kind": "screendump", "ts": 1795297916.5167215, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/focus-after-tab-1.ppm"}}
+{"kind": "checkpoint", "ts": 1795297916.5168555, "value": {"name": "focus-after-tab-1", "screenshot": "focus-after-tab-1.ppm", "settle_seconds": 3.0}}
+{"kind": "tx", "ts": 1795297916.5169675, "value": {"arguments": {"keys": [{"data": "tab", "type": "qcode"}]}, "execute": "send-key", "id": 23}}
+{"kind": "rx", "ts": 1795297916.518247, "value": {"id": 23, "return": {}}}
+{"kind": "action", "ts": 1795297916.518372, "value": {"op": "key", "qcode": "tab", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297919.518721, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/focus-after-tab-2.ppm"}, "execute": "screendump", "id": 24}}
+{"kind": "rx", "ts": 1795297919.5284328, "value": {"id": 24, "return": {}}}
+{"kind": "screendump", "ts": 1795297919.928789, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/focus-after-tab-2.ppm"}}
+{"kind": "checkpoint", "ts": 1795297919.928882, "value": {"name": "focus-after-tab-2", "screenshot": "focus-after-tab-2.ppm", "settle_seconds": 3.0}}
+{"kind": "tx", "ts": 1795297919.9290235, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/before-keyboard-echo.ppm"}, "execute": "screendump", "id": 25}}
+{"kind": "rx", "ts": 1795297919.9347842, "value": {"id": 25, "return": {}}}
+{"kind": "screendump", "ts": 1795297920.3351316, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/before-keyboard-echo.ppm"}}
+{"kind": "tx", "ts": 1795297920.3352392, "value": {"arguments": {"keys": [{"data": "h", "type": "qcode"}]}, "execute": "send-key", "id": 26}}
+{"kind": "rx", "ts": 1795297920.3358922, "value": {"id": 26, "return": {}}}
+{"kind": "action", "ts": 1795297920.3359723, "value": {"op": "key", "qcode": "h", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.416201, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 27}}
+{"kind": "rx", "ts": 1795297920.41692, "value": {"id": 27, "return": {}}}
+{"kind": "action", "ts": 1795297920.4170046, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.4972806, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 28}}
+{"kind": "rx", "ts": 1795297920.4981263, "value": {"id": 28, "return": {}}}
+{"kind": "action", "ts": 1795297920.498223, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.5784874, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 29}}
+{"kind": "rx", "ts": 1795297920.579266, "value": {"id": 29, "return": {}}}
+{"kind": "action", "ts": 1795297920.5793636, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.659657, "value": {"arguments": {"keys": [{"data": "o", "type": "qcode"}]}, "execute": "send-key", "id": 30}}
+{"kind": "rx", "ts": 1795297920.6609068, "value": {"id": 30, "return": {}}}
+{"kind": "action", "ts": 1795297920.6610353, "value": {"op": "key", "qcode": "o", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.741329, "value": {"arguments": {"keys": [{"data": "spc", "type": "qcode"}]}, "execute": "send-key", "id": 31}}
+{"kind": "rx", "ts": 1795297920.7421305, "value": {"id": 31, "return": {}}}
+{"kind": "action", "ts": 1795297920.7422602, "value": {"op": "key", "qcode": "spc", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.822496, "value": {"arguments": {"keys": [{"data": "x", "type": "qcode"}]}, "execute": "send-key", "id": 32}}
+{"kind": "rx", "ts": 1795297920.8232484, "value": {"id": 32, "return": {}}}
+{"kind": "action", "ts": 1795297920.8233318, "value": {"op": "key", "qcode": "x", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.9035926, "value": {"arguments": {"keys": [{"data": "minus", "type": "qcode"}]}, "execute": "send-key", "id": 33}}
+{"kind": "rx", "ts": 1795297920.9043937, "value": {"id": 33, "return": {}}}
+{"kind": "action", "ts": 1795297920.904497, "value": {"op": "key", "qcode": "minus", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297920.984764, "value": {"arguments": {"keys": [{"data": "k", "type": "qcode"}]}, "execute": "send-key", "id": 34}}
+{"kind": "rx", "ts": 1795297920.985647, "value": {"id": 34, "return": {}}}
+{"kind": "action", "ts": 1795297920.9857402, "value": {"op": "key", "qcode": "k", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297921.0667446, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 35}}
+{"kind": "rx", "ts": 1795297921.0676196, "value": {"id": 35, "return": {}}}
+{"kind": "action", "ts": 1795297921.067736, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297921.148002, "value": {"arguments": {"keys": [{"data": "r", "type": "qcode"}]}, "execute": "send-key", "id": 36}}
+{"kind": "rx", "ts": 1795297921.148706, "value": {"id": 36, "return": {}}}
+{"kind": "action", "ts": 1795297921.1488092, "value": {"op": "key", "qcode": "r", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297921.2290647, "value": {"arguments": {"keys": [{"data": "n", "type": "qcode"}]}, "execute": "send-key", "id": 37}}
+{"kind": "rx", "ts": 1795297921.2302237, "value": {"id": 37, "return": {}}}
+{"kind": "action", "ts": 1795297921.2303407, "value": {"op": "key", "qcode": "n", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297921.3106365, "value": {"arguments": {"keys": [{"data": "e", "type": "qcode"}]}, "execute": "send-key", "id": 38}}
+{"kind": "rx", "ts": 1795297921.3115602, "value": {"id": 38, "return": {}}}
+{"kind": "action", "ts": 1795297921.3116868, "value": {"op": "key", "qcode": "e", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297921.3920147, "value": {"arguments": {"keys": [{"data": "l", "type": "qcode"}]}, "execute": "send-key", "id": 39}}
+{"kind": "rx", "ts": 1795297921.3948064, "value": {"id": 39, "return": {}}}
+{"kind": "action", "ts": 1795297921.394956, "value": {"op": "key", "qcode": "l", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297931.475386, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/keyboard-echo-sample-01.ppm"}, "execute": "screendump", "id": 40}}
+{"kind": "rx", "ts": 1795297931.4816773, "value": {"id": 40, "return": {}}}
+{"kind": "screendump", "ts": 1795297931.8820584, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/keyboard-echo-sample-01.ppm"}}
+{"kind": "checkpoint", "ts": 1795297932.0059993, "value": {"attempt": 1, "detail": "→ 两帧有局部差异：renderer 存活且 JS 在执行", "name": "keyboard-echo-sample", "pass": true, "screenshot": "keyboard-echo-sample-01.ppm"}}
+{"kind": "tx", "ts": 1795297932.006256, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 41}}
+{"kind": "rx", "ts": 1795297932.009855, "value": {"id": 41, "return": {}}}
+{"kind": "action", "ts": 1795297932.009963, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297937.010312, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-pgdn-1.ppm"}, "execute": "screendump", "id": 42}}
+{"kind": "rx", "ts": 1795297937.021746, "value": {"id": 42, "return": {}}}
+{"kind": "screendump", "ts": 1795297937.4221904, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-pgdn-1.ppm"}}
+{"kind": "checkpoint", "ts": 1795297937.4223237, "value": {"name": "after-pgdn-1", "screenshot": "after-pgdn-1.ppm", "settle_seconds": 5.0}}
+{"kind": "tx", "ts": 1795297937.4224255, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 43}}
+{"kind": "rx", "ts": 1795297937.4236846, "value": {"id": 43, "return": {}}}
+{"kind": "action", "ts": 1795297937.423786, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795297942.424108, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-pgdn-2.ppm"}, "execute": "screendump", "id": 44}}
+{"kind": "rx", "ts": 1795297942.4336782, "value": {"id": 44, "return": {}}}
+{"kind": "screendump", "ts": 1795297942.8341072, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-pgdn-2.ppm"}}
+{"kind": "checkpoint", "ts": 1795297942.8342266, "value": {"name": "after-pgdn-2", "screenshot": "after-pgdn-2.ppm", "settle_seconds": 5.0}}
+{"kind": "tx", "ts": 1795297942.8343823, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-scroll.ppm"}, "execute": "screendump", "id": 45}}
+{"kind": "rx", "ts": 1795297942.8402383, "value": {"id": 45, "return": {}}}
+{"kind": "screendump", "ts": 1795297943.2408206, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-scroll.ppm"}}
+{"kind": "tx", "ts": 1795297943.2410588, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 7219}, "type": "abs"}, {"data": {"axis": "y", "value": 27647}, "type": "abs"}]}, "execute": "input-send-event", "id": 46}}
+{"kind": "rx", "ts": 1795297943.242382, "value": {"id": 46, "return": {}}}
+{"kind": "action", "ts": 1795297943.242473, "value": {"op": "absolute", "qemu_x": 7219, "qemu_y": 27647, "transport": "qmp", "x": 282, "y": 675}}
+{"kind": "tx", "ts": 1795297944.2427108, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 47}}
+{"kind": "rx", "ts": 1795297944.2436879, "value": {"id": 47, "return": {}}}
+{"kind": "tx", "ts": 1795297944.243805, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 48}}
+{"kind": "rx", "ts": 1795297944.244625, "value": {"id": 48, "return": {}}}
+{"kind": "action", "ts": 1795297944.2447104, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1795297944.2447882, "value": {"name": "real-click-plus-one-attempt-1", "x": 282, "y": 675}}
+{"kind": "tx", "ts": 1795297946.245149, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/counter-attempt-1.ppm"}, "execute": "screendump", "id": 49}}
+{"kind": "rx", "ts": 1795297946.2563038, "value": {"id": 49, "return": {}}}
+{"kind": "screendump", "ts": 1795297946.6567166, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/counter-attempt-1.ppm"}}
+{"kind": "checkpoint", "ts": 1795297946.7409449, "value": {"attempt": 1, "detail": "→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）", "name": "mouse-counter-attempt", "pass": false, "screenshot": "counter-attempt-1.ppm", "x": 282, "y": 675}}
+{"kind": "tx", "ts": 1795297946.7411199, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 7219}, "type": "abs"}, {"data": {"axis": "y", "value": 27647}, "type": "abs"}]}, "execute": "input-send-event", "id": 50}}
+{"kind": "rx", "ts": 1795297946.7447138, "value": {"id": 50, "return": {}}}
+{"kind": "action", "ts": 1795297946.7448459, "value": {"op": "absolute", "qemu_x": 7219, "qemu_y": 27647, "transport": "qmp", "x": 282, "y": 675}}
+{"kind": "tx", "ts": 1795297947.7451174, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 51}}
+{"kind": "rx", "ts": 1795297947.7461402, "value": {"id": 51, "return": {}}}
+{"kind": "tx", "ts": 1795297947.7462604, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 52}}
+{"kind": "rx", "ts": 1795297947.7472029, "value": {"id": 52, "return": {}}}
+{"kind": "action", "ts": 1795297947.7472873, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1795297947.7473598, "value": {"name": "real-click-plus-one-attempt-2", "x": 282, "y": 675}}
+{"kind": "tx", "ts": 1795297949.7476568, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/counter-attempt-2.ppm"}, "execute": "screendump", "id": 53}}
+{"kind": "rx", "ts": 1795297949.753708, "value": {"id": 53, "return": {}}}
+{"kind": "screendump", "ts": 1795297950.1540806, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/counter-attempt-2.ppm"}}
+{"kind": "checkpoint", "ts": 1795297950.2292228, "value": {"attempt": 2, "detail": "→ 两帧有局部差异：renderer 存活且 JS 在执行", "name": "mouse-counter-attempt", "pass": true, "screenshot": "counter-attempt-2.ppm", "x": 282, "y": 675}}
+{"kind": "checkpoint", "ts": 1795297950.2294078, "value": {"attempts": 2, "name": "mouse-counter-summary", "pass": true}}
+{"kind": "tx", "ts": 1795297950.229514, "value": {"arguments": {"events": [{"data": {"axis": "x", "value": 8064}, "type": "abs"}, {"data": {"axis": "y", "value": 29408}, "type": "abs"}]}, "execute": "input-send-event", "id": 54}}
+{"kind": "rx", "ts": 1795297950.2305462, "value": {"id": 54, "return": {}}}
+{"kind": "action", "ts": 1795297950.2306414, "value": {"op": "absolute", "qemu_x": 8064, "qemu_y": 29408, "transport": "qmp", "x": 315, "y": 718}}
+{"kind": "tx", "ts": 1795297951.230886, "value": {"arguments": {"events": [{"data": {"button": "left", "down": true}, "type": "btn"}]}, "execute": "input-send-event", "id": 55}}
+{"kind": "rx", "ts": 1795297951.2314835, "value": {"id": 55, "return": {}}}
+{"kind": "tx", "ts": 1795297951.2315645, "value": {"arguments": {"events": [{"data": {"button": "left", "down": false}, "type": "btn"}]}, "execute": "input-send-event", "id": 56}}
+{"kind": "rx", "ts": 1795297951.2320545, "value": {"id": 56, "return": {}}}
+{"kind": "action", "ts": 1795297951.2321098, "value": {"op": "click", "transport": "qmp"}}
+{"kind": "checkpoint", "ts": 1795297951.232181, "value": {"name": "mouse-click-navigation", "x": 315, "y": 718}}
+{"kind": "tx", "ts": 1795298011.2324185, "value": {"arguments": {"keys": [{"data": "pgup", "type": "qcode"}]}, "execute": "send-key", "id": 57}}
+{"kind": "rx", "ts": 1795298011.2329671, "value": {"id": 57, "return": {}}}
+{"kind": "action", "ts": 1795298011.236642, "value": {"op": "key", "qcode": "pgup", "transport": "send-key"}}
+{"kind": "checkpoint", "ts": 1795298012.2368855, "value": {"attempt": 1, "name": "layout-pageup", "settle_seconds": 1.0}}
+{"kind": "tx", "ts": 1795298012.2370315, "value": {"arguments": {"keys": [{"data": "pgup", "type": "qcode"}]}, "execute": "send-key", "id": 58}}
+{"kind": "rx", "ts": 1795298012.2378979, "value": {"id": 58, "return": {}}}
+{"kind": "action", "ts": 1795298012.2379875, "value": {"op": "key", "qcode": "pgup", "transport": "send-key"}}
+{"kind": "checkpoint", "ts": 1795298013.2382212, "value": {"attempt": 2, "name": "layout-pageup", "settle_seconds": 1.0}}
+{"kind": "tx", "ts": 1795298013.238367, "value": {"arguments": {"keys": [{"data": "pgup", "type": "qcode"}]}, "execute": "send-key", "id": 59}}
+{"kind": "rx", "ts": 1795298013.2397296, "value": {"id": 59, "return": {}}}
+{"kind": "action", "ts": 1795298013.2398355, "value": {"op": "key", "qcode": "pgup", "transport": "send-key"}}
+{"kind": "checkpoint", "ts": 1795298014.2400594, "value": {"attempt": 3, "name": "layout-pageup", "settle_seconds": 1.0}}
+{"kind": "checkpoint", "ts": 1795298016.2402914, "value": {"method": "pageup", "name": "layout-return-to-top", "settle_seconds": 2.0}}
+{"kind": "tx", "ts": 1795298016.240454, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-mouse-navigation.ppm"}, "execute": "screendump", "id": 60}}
+{"kind": "rx", "ts": 1795298016.2497268, "value": {"id": 60, "return": {}}}
+{"kind": "screendump", "ts": 1795298016.650114, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-mouse-navigation.ppm"}}
+{"kind": "tx", "ts": 1795298016.650262, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 61}}
+{"kind": "rx", "ts": 1795298016.6507986, "value": {"id": 61, "return": {}}}
+{"kind": "action", "ts": 1795298016.6508849, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298017.151143, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 62}}
+{"kind": "rx", "ts": 1795298017.1519308, "value": {"id": 62, "return": {}}}
+{"kind": "action", "ts": 1795298017.1520011, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298017.652249, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 63}}
+{"kind": "rx", "ts": 1795298017.655827, "value": {"id": 63, "return": {}}}
+{"kind": "action", "ts": 1795298017.6559322, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298018.1561847, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 64}}
+{"kind": "rx", "ts": 1795298018.1576612, "value": {"id": 64, "return": {}}}
+{"kind": "action", "ts": 1795298018.1577785, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298018.658046, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 65}}
+{"kind": "rx", "ts": 1795298018.6588979, "value": {"id": 65, "return": {}}}
+{"kind": "action", "ts": 1795298018.6590056, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298019.1592596, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 66}}
+{"kind": "rx", "ts": 1795298019.1599898, "value": {"id": 66, "return": {}}}
+{"kind": "action", "ts": 1795298019.1600728, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298019.6603584, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 67}}
+{"kind": "rx", "ts": 1795298019.661263, "value": {"id": 67, "return": {}}}
+{"kind": "action", "ts": 1795298019.6613648, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298020.1616268, "value": {"arguments": {"keys": [{"data": "pgdn", "type": "qcode"}]}, "execute": "send-key", "id": 68}}
+{"kind": "rx", "ts": 1795298020.1624587, "value": {"id": 68, "return": {}}}
+{"kind": "action", "ts": 1795298020.162553, "value": {"op": "key", "qcode": "pgdn", "transport": "send-key"}}
+{"kind": "tx", "ts": 1795298020.6628444, "value": {"arguments": {"keys": [{"data": "end", "type": "qcode"}]}, "execute": "send-key", "id": 69}}
+{"kind": "rx", "ts": 1795298020.6638794, "value": {"id": 69, "return": {}}}
+{"kind": "action", "ts": 1795298020.6639647, "value": {"op": "key", "qcode": "end", "transport": "send-key"}}
+{"kind": "checkpoint", "ts": 1795298023.6641474, "value": {"method": "pgdn-plus-end", "name": "layout-verdict-bottom", "settle_seconds": 3.0}}
+{"kind": "tx", "ts": 1795298023.664295, "value": {"arguments": {"filename": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-mouse-navigation-verdict.ppm"}, "execute": "screendump", "id": 70}}
+{"kind": "rx", "ts": 1795298023.6698751, "value": {"id": 70, "return": {}}}
+{"kind": "screendump", "ts": 1795298024.070272, "value": {"bytes": 3072016, "path": "/home/mo/xk6/tmp/input-r78-c80-tablet-input07/interaction-shots/after-mouse-navigation-verdict.ppm"}}
+{"kind": "result", "ts": 1795298024.0703537, "value": {"ok": true}}
+{"kind": "rx", "ts": 1795298029.2045658, "value": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}}
+{"kind": "connected", "ts": 1795298029.2046804, "value": {"greeting": {"QMP": {"capabilities": ["oob"], "version": {"package": "Debian 1:10.2.1+ds-1ubuntu3.2", "qemu": {"major": 10, "micro": 1, "minor": 2}}}}, "socket": "/tmp/xk6-qmp-r78-c80-tablet-input07.sock"}}
+{"kind": "tx", "ts": 1795298029.2047539, "value": {"execute": "qmp_capabilities", "id": 1}}
+{"kind": "rx", "ts": 1795298029.2050736, "value": {"id": 1, "return": {}}}
+{"kind": "tx", "ts": 1795298029.2051492, "value": {"arguments": {"path": "/backend/console[0]", "property": "device"}, "execute": "qom-get", "id": 2}}
+{"kind": "rx", "ts": 1795298029.205665, "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}
+{"kind": "console-device", "ts": 1795298029.205753, "value": {"path": "/backend/console[0]", "value": {"id": 2, "return": "/machine/peripheral-anon/device[2]"}}}
+{"kind": "tx", "ts": 1795298029.2058442, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "type"}, "execute": "qom-get", "id": 3}}
+{"kind": "rx", "ts": 1795298029.2069378, "value": {"id": 3, "return": "virtio-gpu-pci"}}
+{"kind": "console-device-property", "ts": 1795298029.2070253, "value": {"path": "/machine/peripheral-anon/device[2]", "property": "type", "value": {"id": 3, "return": "virtio-gpu-pci"}}}
+{"kind": "tx", "ts": 1795298029.2071214, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "id"}, "execute": "qom-get", "id": 4}}
+{"kind": "rx", "ts": 1795298029.207948, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.id' not found"}, "id": 4}}
+{"kind": "console-device-property-error", "ts": 1795298029.208051, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.id' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "id"}}
+{"kind": "tx", "ts": 1795298029.20815, "value": {"arguments": {"path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}, "execute": "qom-get", "id": 5}}
+{"kind": "rx", "ts": 1795298029.2089448, "value": {"error": {"class": "GenericError", "desc": "Property 'virtio-gpu-pci.canonical-path' not found"}, "id": 5}}
+{"kind": "console-device-property-error", "ts": 1795298029.2090461, "value": {"error": "{\"class\": \"GenericError\", \"desc\": \"Property 'virtio-gpu-pci.canonical-path' not found\"}", "path": "/machine/peripheral-anon/device[2]", "property": "canonical-path"}}
+{"kind": "tx", "ts": 1795298029.209151, "value": {"arguments": {"path": "/backend/console[1]", "property": "device"}, "execute": "qom-get", "id": 6}}
+{"kind": "rx", "ts": 1795298029.20984, "value": {"error": {"class": "DeviceNotFound", "desc": "Device '/backend/console[1]' not found"}, "id": 6}}
+{"kind": "console-device-error", "ts": 1795298029.2099395, "value": {"error": "{\"class\": \"DeviceNotFound\", \"desc\": \"Device '/backend/console[1]' not found\"}", "path": "/backend/console[1]"}}
+{"kind": "tx", "ts": 1795298029.2100267, "value": {"execute": "query-mice", "id": 7}}
+{"kind": "rx", "ts": 1795298029.2104073, "value": {"id": 7, "return": [{"absolute": false, "current": false, "index": 2, "name": "QEMU Virtio Mouse"}, {"absolute": true, "current": true, "index": 3, "name": "QEMU Virtio Tablet"}]}}
+{"kind": "mouse-query", "ts": 1795298029.2104914, "value": {"id": 7, "return": [{"absolute": false, "current": false, "index": 2, "name": "QEMU Virtio Mouse"}, {"absolute": true, "current": true, "index": 3, "name": "QEMU Virtio Tablet"}]}}
+{"kind": "tx", "ts": 1795298029.2105906, "value": {"arguments": {"command-line": "info mice"}, "execute": "human-monitor-command", "id": 8}}
+{"kind": "rx", "ts": 1795298029.2112274, "value": {"id": 8, "return": "  Mouse #2: QEMU Virtio Mouse\r\n* Mouse #3: QEMU Virtio Tablet (absolute)\r\n"}}
+{"kind": "mouse-inventory", "ts": 1795298029.211316, "value": {"id": 8, "return": "  Mouse #2: QEMU Virtio Mouse\r\n* Mouse #3: QEMU Virtio Tablet (absolute)\r\n"}}
+{"kind": "tx", "ts": 1795298029.21142, "value": {"arguments": {"command-line": "mouse_set 3"}, "execute": "human-monitor-command", "id": 9}}
+{"kind": "rx", "ts": 1795298029.2120998, "value": {"id": 9, "return": ""}}
+{"kind": "mouse-selected", "ts": 1795298029.212203, "value": {"index": 3}}
+{"kind": "tx", "ts": 1795298029.2123039, "value": {"execute": "quit", "id": 10}}
+{"kind": "rx", "ts": 1795298029.2126741, "value": {"data": {"guest": false, "reason": "host-qmp-quit"}, "event": "SHUTDOWN", "timestamp": {"microseconds": 212575, "seconds": 1795298029}}}
+{"kind": "rx", "ts": 1795298029.2134452, "value": {"id": 10, "return": {}}}

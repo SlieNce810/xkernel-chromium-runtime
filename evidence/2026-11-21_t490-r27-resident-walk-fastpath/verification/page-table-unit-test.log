@@ -1,0 +1,158 @@
+Running x-kernel...
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> /home/mo/xk6/worktrees/xk-compat-fix-r1/mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `target/tools/xkmake/x86_64-unknown-linux-gnu/debug/xkmake run --target-dir /home/mo/xk6/worktrees/xk-compat-fix-r1/target --unittest --unittest-crate page_table --disk-image /home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img --no-vsock --memory 2g`
+📝 Generating Rust const definitions from resolved Kconfig...
+Output: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64
+📝 Generated config.rs at: /home/mo/xk6/worktrees/xk-compat-fix-r1/target/kbuild/kplat-aarch64/config.rs
+✅ Generated config.rs successfully
+warning: the feature `cfg_select` has been stable since 1.95.0 and no longer requires an attribute to enable
+ --> mm/kaddr_layout/src/lib.rs:6:12
+  |
+6 | #![feature(cfg_select)]
+  |            ^^^^^^^^^^
+  |
+  = note: `#[warn(stable_features)]` on by default
+
+warning: `kaddr_layout` (lib) generated 1 warning
+warning: unused import: `format`
+ --> mm/filemap/src/shared.rs:5:13
+  |
+5 | use alloc::{format, sync::Arc, vec, vec::Vec};
+  |             ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `filemap` (lib) generated 1 warning (run `cargo fix --lib -p filemap` to apply 1 suggestion)
+warning: function `seccomp_syscall_arch` is never used
+   --> core/ksyscall/src/task/seccomp.rs:149:14
+    |
+149 | pub const fn seccomp_syscall_arch() -> u32 { 0xc000_00b7 }
+    |              ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ksyscall` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.18s
+warning: the following packages contain code that will be rejected by a future version of Rust: aes v0.9.3, memchr v2.8.3, polyval v0.7.3, sha1 v0.11.0, sha2 v0.11.0
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+Running kplat-aarch64 (aarch64-unknown-none-softfloat)
+qemu-system-aarch64 \
+  -m 2g \
+  -smp 4 \
+  -cpu cortex-a76 \
+  -machine 'virt,gic-version=3' \
+  -kernel /home/mo/xk6/worktrees/xk-compat-fix-r1/target/xkmake/kplat-aarch64/release/kernel.bin \
+  -device 'virtio-blk-pci,drive=disk0' \
+  -drive 'id=disk0,if=none,format=raw,file=/home/mo/xk6/worktrees/xk-compat-fix-r1/disk.img' \
+  -device 'virtio-net-pci,netdev=net0' \
+  -netdev 'user,id=net0,hostfwd=tcp::61005-:5555,hostfwd=udp::61005-:5555' \
+  -object 'rng-random,id=host_rng0' \
+  -device 'virtio-rng-pci,rng=host_rng0' \
+  -nographic
+[boot] entered primary switched cpu=0 mpidr=0x0 dtb=0x48000000 kimage_voffset=0xffff7fffbfe00000
+[boot] boot linear RAM map extended from DT
+[boot] handoff to kruntime boot_info=0xffff80000149d020
+[boot] kruntime primary start cpu=0 boot_info=0xffff80000149d020
+[boot] firmware: DTB at 0x48000000
+[boot] firmware: chosen stdout-path=/pl011@9000000
+[boot] firmware: chosen bootargs=<none>
+[boot] firmware: hwdesc source=device tree
+[boot] firmware: memory source=device tree
+[boot] firmware: no cmdline
+[boot] kruntime memory regions ready
+[boot] kruntime allocator ready
+[boot] memory space map ready
+[boot] NMI mode: Pseudo (PMR)
+
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
+
+Boot at 2026-11-20 20:13:39.021519616 UTC
+
+[37m[  2.216148 fbdevice:81] [33mfbdev emulation unavailable: ()[m
+[m[37m[  2.585059 knet:183] [33m  No vsock device found![m
+[march = aarch64
+platform = kplat-aarch64
+target = aarch64-unknown-none-softfloat
+build_mode = release
+build_machine = mo@mo-ThinkPad-T490
+build_time = 2026-11-20T20:10:15.608898808Z
+log_level = warn
+backtrace = false
+nr_cpus_max = 4
+vmm = off
+config_sha256 = 6a7f3ba9b7f095255411e0147021e5ab5169ac957f9cab2fe804d3d626be1981
+git_commit = b73e5814087c9d33c5f0a35b66cc56be689d3dee
+git_dirty = true
+build_id = 7237778f4e6edcb4a76e0423fa2407580dd4929f7d0c09c1bb0122fbd388e049
+smp = 4
+[37m[  2.614248 0:18446462599842244624 entry:130] [33mCleaning up stale coverage data if exists...[m
+[mRunning unit tests with crate filter: page_table
+================================
+Starting unit tests [unittest] (parallel)...
+  3 module(s), 11 test(s)
+================================
+  [page_table::defs::tests_page_table_defs] (3 tests)
+  [page_table::table64::tests] (5 tests)
+  [page_table::table64::tests::aarch64_drop] (3 tests)
+  Running 3 serial test(s)...
+      START  page_table::table64::tests::aarch64_drop::kernel_drop_skips_user_asid_flush
+      RESULT page_table::table64::tests::aarch64_drop::kernel_drop_skips_user_asid_flush ... ok
+      START  page_table::table64::tests::aarch64_drop::user_drop_without_provider_skips_asid_flush
+      RESULT page_table::table64::tests::aarch64_drop::user_drop_without_provider_skips_asid_flush ... ok
+      START  page_table::table64::tests::aarch64_drop::user_drop_invalidates_latest_asid_before_freeing_frames
+      RESULT page_table::table64::tests::aarch64_drop::user_drop_invalidates_latest_asid_before_freeing_frames ... ok
+      START  page_table::defs::tests_page_table_defs::test_paging_flags_bits
+      START  page_table::defs::tests_page_table_defs::test_page_size_alignment
+      RESULT page_table::defs::tests_page_table_defs::test_paging_flags_bits ... ok
+      START  page_table::defs::tests_page_table_defs::test_paging_metadata_bounds
+      RESULT page_table::defs::tests_page_table_defs::test_page_size_alignment ... ok
+      RESULT page_table::defs::tests_page_table_defs::test_paging_metadata_bounds ... ok
+      START  page_table::table64::tests::query_entry_returns_leaf_snapshot
+      START  page_table::table64::tests::replace_if_same_commits_only_matching_snapshot
+      START  page_table::table64::tests::finish_reports_explicit_flush_boundary
+      START  page_table::table64::tests::replace_if_same_reports_changed_without_overwrite
+      START  page_table::table64::tests::visit_present_mappings_returns_physical_leaf_base
+      RESULT page_table::table64::tests::finish_reports_explicit_flush_boundary ... ok
+      RESULT page_table::table64::tests::query_entry_returns_leaf_snapshot ... ok
+      RESULT page_table::table64::tests::visit_present_mappings_returns_physical_leaf_base ... ok
+      RESULT page_table::table64::tests::replace_if_same_commits_only_matching_snapshot ... ok
+      RESULT page_table::table64::tests::replace_if_same_reports_changed_without_overwrite ... ok
+
+  >>> Test results: 11 passed, 0 failed, 0 ignored, 11 total
+=== UNITTEST_STATUS: ALL_TESTS_PASSED ===
+=== UNITTEST_STATUS: COVERAGE_PERSISTED ===
+Generating unit-test coverage reports...
+debugfs 1.47.2 (1-Jan-2025)
+Extracted coverage profile to /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/default.profraw (7785512 bytes)
+Converted /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/coverage.info to /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release/coverage.xml
+Coverage reports generated in /home/mo/xk6/worktrees/xk-compat-fix-r1/target/aarch64-unknown-none-softfloat/release

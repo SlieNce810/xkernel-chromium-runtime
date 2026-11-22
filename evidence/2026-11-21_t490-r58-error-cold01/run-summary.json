@@ -1,0 +1,39 @@
+{
+  "schema": "xkernel.goal-run-summary.v1",
+  "run_id": "r58-error-cold01",
+  "kernel_sha256": "c78ecd57fb47b8269ebecf0a4e99ee5d9f85648e01703726eee7af88ad017a67",
+  "kernel_dir": "/home/mo/xk6/worktrees/r53-no-direct-error-log",
+  "log_level": "ERROR",
+  "direct_pte_patch_applied": false,
+  "memory": "2g",
+  "architecture": "aarch64",
+  "accelerator": "pure-tcg",
+  "chromium_version": "149.0.7827.53",
+  "diagnostic_only": true,
+  "driver_rc": 0,
+  "round_rc": 0,
+  "normalizer_rc": 0,
+  "gate_rc": 78,
+  "initial_page_strict_pass": true,
+  "page_first_strict_screenshot_guest_elapsed_seconds": 540,
+  "real_reload_strict_passes": 1,
+  "diagnostic_hold_seconds": 420,
+  "normalizer": {
+    "result": "PASS",
+    "input_events": 242,
+    "output_events": 242,
+    "repairs": 0
+  },
+  "memory_sampler": false,
+  "lifecycle_preload": false,
+  "guest_clock_sync": false,
+  "formal_performance_sample": false,
+  "candidate_result_valid": true,
+  "formal_30_minute_gate": false,
+  "notes": [
+    "The 240-second periodic screenshot was a warm-up white frame; the 540-second screenshot passed the 7/7 strict official-index criteria.",
+    "The stability driver's initial load and one real Ctrl+R reload both passed strict image checks, followed by a 420-second diagnostic hold.",
+    "The 540-second screenshot time is a sampled upper bound on visible page readiness, not a page first-frame latency measurement.",
+    "The diagnostic gate is intentionally skipped (rc=78); this run is not the formal 30-minute stability gate and yields no performance data."
+  ]
+}

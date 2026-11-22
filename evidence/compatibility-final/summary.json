@@ -1,0 +1,38 @@
+{
+  "schema": "xkernel.compatibility-final.v1",
+  "result": "PASS",
+  "kernel_sha256": "a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f",
+  "kernel_source_revision": "b73e5814087c9d33c5f0a35b66cc56be689d3dee",
+  "kernel_source_diff_sha256": "4b53090a860899aa7864ed895cf0e165480147d50738c2abb64a726549dcdaec",
+  "configuration_sha256": "1d0ff69ea0a36e151f63e2191229225f62a05aee027c99cdc0ea39f04c110419",
+  "candidate": "c80 no-direct-PTE, LOG_LEVEL_ERROR compatibility candidate",
+  "completed": [
+    "full compatprobe ABI matrix 38/38 on the a70ecb4a candidate (R64 focused bundle)",
+    "SCM_RIGHTS stream short-read 6/6 on the a70ecb4a candidate (R64 focused bundle); first-byte delivery and no-repeat semantics pass",
+    "memfd sealing 12/12 on the a70ecb4a candidate (R64 focused bundle)",
+    "procfs allocation, file sharing, fork/COW, and unmap memory probe returns numeric RSS/PSS/USS/Shared values on the a70ecb4a candidate (R64 focused bundle)",
+    "inotify, timerfd, and MADV_DONTNEED hole behavior are included in the 38/38 Linux ABI matrix; native T490 Linux 7.0 and WSL2 5.15 control references are retained in report 331/342/344",
+    "Chromium 149 official-index page strict passes on the same a70ecb4a kernel in R65, R66, R68, and the formal R70 run",
+    "Browser to Zygote to Renderer parent chain passes the strict 4/4 process-structure gate on R70",
+    "formal stability gate passes on the same kernel: initial strict page, 10/10 real reloads, 1804.991-second hold, 60 liveness samples, 0 process exits and 0 guest exceptions"
+  ],
+  "pending": [],
+  "scope_notes": [
+    "The focused matrix covers the listed Chromium ABI dependencies; it does not declare full native Chromium sandbox isolation.",
+    "The separate 2 GiB real input score is formally PASS 4/4 on R78; it is not covered by an ABI probe.",
+    "No Chromium-tree one-second RSS/PSS/USS peak or four-metric before/after batch has yet been admitted."
+  ],
+  "evidence": [
+    "report/435-T490-R62兼容候选focusedABI与procfs通过-20261121.md",
+    "report/437-T490-R64最小SCMRights候选focused兼容通过Wayland待定位-20261122.md",
+    "report/444-T490-R70-a70e正式稳定性通过-20261122.md",
+    "report/445-T490-R70-a70e候选Browser-Zygote-Renderer结构复核-20261122.md",
+    "report/331-T490-native-Linux-compat-memory-reference-20261119.md",
+    "report/342-T490同一候选内核memfd与madvise兼容性修复-20261119.md",
+    "report/344-T490最终Browser-run内核兼容性矩阵复核-20261119.md",
+    "evidence/2026-11-22_t490-r64-targeted-compat-bundle/",
+    "evidence/2026-11-22_t490-r70-r64-compat-formal-lowshot/",
+    "evidence/2026-11-22_t490-r70-process-structure-review/"
+  ],
+  "supersedes": "summary-ac1032-history.json"
+}

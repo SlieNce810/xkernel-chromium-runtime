@@ -1,0 +1,38 @@
+{
+  "schema": "xkernel.interaction-score-gate.v2",
+  "mode": "default-multiprocess",
+  "sandbox_mode": "diagnostic-no-sandbox",
+  "input_transport": "QMP send-key + HMP virtio-mouse",
+  "ready_rc": 0,
+  "driver_rc": 0,
+  "round_rc": 0,
+  "javascript_pass": true,
+  "keyboard_pass": true,
+  "mouse_pass": false,
+  "checks": {
+    "javascript_selftest": {
+      "pass": true,
+      "reason": "⚠️ 取景不够：['interaction_selfcheck_pass'] 需要更高的画幅才可能入镜（当前 H=800）——这不是渲染失败，但**必须**用更高的窗口/滚动后重截，否则该页的关键结论没有像素证据"
+    },
+    "keyboard_echo_diff": {
+      "pass": true,
+      "reason": "→ 两帧有局部差异：renderer 存活且 JS 在执行"
+    },
+    "mouse_counter_diff": {
+      "pass": false,
+      "reason": "→ 两帧无差异（renderer 已死 / 未绘制）或整屏重绘（闪屏）"
+    },
+    "mouse_navigation": {
+      "pass": false,
+      "reason": "official-layout strict failed ['official_banner', 'layout_c1_flex_row', 'layout_c2_grid_2x2', 'layout_c3_box_model']; 结论条绿字 2373 px（≥300，实测 1483）+ 绿底 63175 px（≥5000，实测 30489）→ JS 已跑完 C1–C6 且 6/6 通过"
+    },
+    "real_input_actions": {
+      "pass": true,
+      "reason": "real input actions recorded",
+      "real_key_actions": 20,
+      "hmp_pointer_clicks": 5,
+      "hmp_pointer_moves": 512
+    }
+  },
+  "pass": false
+}

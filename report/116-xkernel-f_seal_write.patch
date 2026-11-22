@@ -1,0 +1,36 @@
+diff --git a/posix/fs/src/io.rs b/posix/fs/src/io.rs
+--- a/posix/fs/src/io.rs
++++ b/posix/fs/src/io.rs
+@@ -12,5 +12,6 @@
+ use kvfs::{FMode, Filename, LookupFlags, LookupIntent, OpenFlags, VfsFile, pipe::PipeObject};
+ use linux_raw_sys::general::__kernel_off_t;
+ use linux_sysno::Sysno;
++use memfs::shmem;
+ use osvm::{VirtPtr, VmBytes, VmBytesMut};
+ use posix_types::{IoVec, IoVectorBuf, IoVectorBufIo, UserConstPtr, UserPtr};
+@@ -134,4 +135,5 @@ fn write_zeros_range(file: &VfsFile, start: u64, end: u64) -> KResult<()> {
+ fn write_zeros_range(file: &VfsFile, start: u64, end: u64) -> KResult<()> {
++    shmem::check_write_allowed(file.path())?;
+     if end <= start {
+         return Ok(());
+     }
+@@ -175,4 +177,5 @@ fn write_file_from_io_with_pos(
+ ) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     let mut src = IoSourceAdapter(src);
+     let mut iter = iov_iter_source(&mut src);
+     let written = file.write_iter_from(&mut iter, pos)?;
+@@ -186,4 +189,5 @@ fn write_file_from_io(file: &VfsFile, src: impl Read + IoBuf + RewindBytes) -> KResult<usize> {
+ fn write_file_from_io(file: &VfsFile, src: impl Read + IoBuf + RewindBytes) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     if file.is_stream() {
+         let mut pos = 0;
+         write_file_from_io_with_pos(file, src, &mut pos)
+@@ -202,6 +206,7 @@ fn write_file_at_from_io(
+     src: impl Read + IoBuf + RewindBytes,
+     mut offset: u64,
+ ) -> KResult<usize> {
++    shmem::check_write_allowed(file.path())?;
+     reject_positioned_stream_io(file)?;
+
+     let mut src = IoSourceAdapter(src);

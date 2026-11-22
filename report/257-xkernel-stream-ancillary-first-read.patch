@@ -1,0 +1,52 @@
+--- a/net/knet/src/unix/stream.rs	2026-11-14 06:46:22.545621236 +0800
++++ b/net/knet/src/unix/stream.rs	2026-11-14 06:47:18.417188786 +0800
+@@ -435,9 +435,12 @@
+                 if count > 0 {
+                     if !peek {
+                         // Consume exactly the stream boundaries covered by
+-                        // this read. Deliver control data only when the boundary
+-                        // carrying it is fully consumed; this matches Linux's
+-                        // recvmsg behavior for coalesced writes.
++                        // this read. Linux delivers ancillary data with the
++                        // first successful recvmsg that consumes bytes from
++                        // the corresponding sendmsg, even if that read only
++                        // consumes part of the stream write. Keep the byte
++                        // boundary for subsequent reads, but mark the control
++                        // batch delivered immediately.
+                         let Some(mut boundaries) = chan.incoming_ancillary.try_lock() else {
+                             return Err(KError::WouldBlock);
+                         };
+@@ -447,13 +450,10 @@
+                             let consumed = front.bytes_remaining.min(remaining);
+                             front.bytes_remaining -= consumed;
+                             remaining -= consumed;
+-                            if front.bytes_remaining != 0 {
+-                                break;
+-                            }
+-                            let mut batch = boundaries.pop_front().expect("front exists");
+-                            if !batch.data.is_empty() {
++                            if !front.data.is_empty() {
++                                let mut batch = core::mem::take(&mut front.data);
+                                 if !self.endpoint.pass_credentials.load(Ordering::Acquire) {
+-                                    batch.data.retain(|item| {
++                                    batch.retain(|item| {
+                                         !matches!(
+                                             item.as_ref().downcast_ref::<KernelAncillaryData>(),
+                                             Some(KernelAncillaryData::Credentials(_)),
+@@ -461,9 +461,15 @@
+                                     });
+                                 }
+                                 if let Some(out) = ancillary_out.as_mut() {
+-                                    out.append(&mut batch.data);
++                                    out.append(&mut batch);
+                                 }
+                             }
++                            let boundary_remaining = front.bytes_remaining;
++                            if boundary_remaining == 0 {
++                                boundaries.pop_front();
++                            } else {
++                                break;
++                            }
+                         }
+                         let occupied_after = occupied_before - count;
+                         if !channel::is_stream_writable(occupied_before)

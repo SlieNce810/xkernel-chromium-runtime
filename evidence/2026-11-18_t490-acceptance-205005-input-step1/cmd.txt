@@ -1,0 +1,4 @@
+scp launcher.sh -> mo@10.249.11.192:/home/mo/xk6/tmp/codex-2026-11-18_205005-input-step1-launcher.sh
+ssh chmod +x /home/mo/xk6/tmp/codex-2026-11-18_205005-input-step1-launcher.sh
+ssh nohup bash /home/mo/xk6/tmp/codex-2026-11-18_205005-input-step1-launcher.sh > /home/mo/xk6/tmp/codex-2026-11-18_205005-input-step1.log 2>&1 < /dev/null &
+inner=env -u PLAT_MEM_OVERRIDE EVDEV_PROBE=0 INTERACTION_POINTER_MODE=step1 MULTIPROCESS=1 FORCE_HMP=1 ABS_POINTER=0 NO_CLAMP=1 EXTRA_FLAGS_VALUE=--js-flags=--jitless READY_TIMEOUT=2000 bash scripts/t490/run_input_final.sh codex-2026-11-18_205005-input-step1 2400 60

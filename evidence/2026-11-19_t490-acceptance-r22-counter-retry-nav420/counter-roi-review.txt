@@ -1,0 +1,12 @@
+R22 post-run counter ROI review
+
+As-run mouse counter ROI: 220,625,600,655; the gate reported mouse_counter_diff=PASS. The screenshot still reads 当前：0. Exact diff for that ROI: 42 changed pixels, bbox [293,629,300,643], which is the pointer shape.
+
+Digit-only ROI recheck: 555,625,570,650; changed_pixels=0 (min_changed=20). Corrected counter result: FAIL. Since the as-run counter attempt was marked PASS, INTERACTION_COUNTER_RETRY_TARGETS did not run.
+
+The same three original PPM files were copied from T490 to temporary local storage for this comparison; hashes:
+- after-scroll.ppm c5c57020088f2994d49db8dbc611a49ab6407568e79a6753cc1aa213e0d863ac
+- after-mouse-click.ppm bb4c94be654652852626ef7bda8c91c84aac1b28883c982478aa8b94040140e4
+- after-mouse-navigation.ppm a0401f54ba7d5b09c27b3f140d61c30e5cc64a814ca816dde37e50c68759e704
+
+The copied PPM files remain under the ignored tmp/ directory. The full original PPM set stays on T490 and is listed in the sibling session PPM manifest.

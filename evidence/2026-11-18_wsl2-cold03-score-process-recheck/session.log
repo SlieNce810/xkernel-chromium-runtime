@@ -1,0 +1,36 @@
+[2026-11-18T01:00:09+08:00] BEGIN score-process
+{
+  "schema": "xkernel.chromium.multiprocess-events.v1",
+  "criterion": "process-structure",
+  "result": "PASS",
+  "score_points": 4,
+  "event_count": 10,
+  "valid_event_count": 10,
+  "parse_errors": [],
+  "required_events_missing": [],
+  "untrusted_observation_count": 0,
+  "untrusted_observations": [],
+  "process_tree": {
+    "browser_pid": 66,
+    "browser_ppid": 5,
+    "zygote_pid": 161,
+    "zygote_ppid": 66,
+    "renderer_pid": 282,
+    "renderer_ppid": 161
+  },
+  "parent_links_verified": true,
+  "parent_link_errors": [],
+  "alternate_parent_link_mismatches": [
+    "renderer pid=282 ppid=161 is not zygote pid=160",
+    "renderer pid=355 ppid=161 is not zygote pid=160",
+    "renderer pid=386 ppid=161 is not zygote pid=160",
+    "renderer pid=391 ppid=161 is not zygote pid=160"
+  ],
+  "order_errors": [],
+  "ipc_event_count": 0,
+  "ipc_process_pids": []
+}
+[2026-11-18T01:00:09+08:00] END score-process rc=0
+ACCEPTANCE_OUT=evidence/2026-11-18_wsl2-cold03-score-process-recheck
+BROWSER_SCORE=4/20
+ACCEPTANCE_RC=0
