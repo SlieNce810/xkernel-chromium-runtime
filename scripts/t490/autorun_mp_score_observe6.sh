@@ -1377,6 +1377,28 @@ receipt render_process 'render_process|RenderProcess'
 receipt renderer_exit 'renderer.*exit|Renderer process|exited with'
 receipt navigation 'NavigationRequest|DidStartNavigation|CommitNavigation'
 
+# Lifecycle preload writes its compact JSONL to guest /root.  That path is
+# intentionally not treated as durable evidence by the x-kernel image, and
+# memory export is disabled in low-overhead diagnostics.  Emit the completed
+# file once at shutdown so the event source remains recoverable without
+# enabling the expensive proc-tree sampler.
+if [ -n "$LIFECYCLE_PRELOAD" ] && [ -s /root/lifecycle-probe-events.jsonl ]; then
+    probe_bytes=$(wc -c < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
+    probe_lines=$(wc -l < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
+    probe_sha=$(sha256sum /root/lifecycle-probe-events.jsonl 2>/dev/null | awk '{print $1}')
+    log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines sha256=$probe_sha"
+    probe_seq=0
+    while IFS= read -r probe_line || [ -n "$probe_line" ]; do
+        printf '[mpdiag] MP_LIFECYCLE_PROBE_EVENT run_id=%s seq=%s %s\n' \
+            "$PERF_TRACE_RUN_ID" "$probe_seq" "$probe_line" > /dev/console 2>/dev/null || true
+        echo "MP_LIFECYCLE_PROBE_EVENT run_id=$PERF_TRACE_RUN_ID seq=$probe_seq $probe_line" >> "$LOG"
+        probe_seq=$((probe_seq + 1))
+    done < /root/lifecycle-probe-events.jsonl
+    log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
+else
+    [ -z "$LIFECYCLE_PRELOAD" ] || log "LIFECYCLE_PROBE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
+fi
+
 # 最终门禁：候选子进程累计存活 >=12 s **且** Chromium 自己打出 render_process 回执，
 # 两条同时成立才算 renderer 成立。缺一即 GATE=0 —— 不能把"zygote 的孙子进程"
 # 直接当成 renderer，那正是这类诊断最容易出的假绿。
