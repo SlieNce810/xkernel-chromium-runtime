@@ -1,0 +1,22 @@
+diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/browser/renderer_host/render_frame_host_impl.cc
+index 0000000..0000000 100644
+--- a/content/browser/renderer_host/render_frame_host_impl.cc
++++ b/content/browser/renderer_host/render_frame_host_impl.cc
+@@ -11067,7 +11067,7 @@ void RenderFrameHostImpl::SetCrashReportStorage(
+     return;
+   }
+ 
+-  if (length > blink::mojom::kMaxCrashReportContextSize) {
++  if (length > blink::mojom::kMaxCrashReportStorageSize) {
+     bad_message::ReceivedBadMessage(
+         GetProcess(), bad_message::RFH_CRASH_REPORT_STORAGE_SIZE_TOO_LARGE);
+     return;
+@@ -11095,7 +11095,7 @@ void RenderFrameHostImpl::SetCrashReportStorage(
+ 
+   // We can use `ValueOrDie()` below because we know `length` is sufficiently
+   // far enough from the boundary of `uint32_t` (because of the
+-  // `kMaxCrashReportContextSize` check) such that it cannot have overflown at
++  // `kMaxCrashReportStorageSize` check) such that it cannot have overflown at
+   // this point.
+   base::UnsafeSharedMemoryRegion region =
+       base::UnsafeSharedMemoryRegion::Create(total_size.ValueOrDie());
