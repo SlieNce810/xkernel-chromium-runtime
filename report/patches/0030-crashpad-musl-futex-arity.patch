@@ -1,0 +1,18 @@
+diff --git a/third_party/crashpad/crashpad/client/crashpad_client_linux.cc b/third_party/crashpad/crashpad/client/crashpad_client_linux.cc
+index 0000000..0000000 100644
+--- a/third_party/crashpad/crashpad/client/crashpad_client_linux.cc
++++ b/third_party/crashpad/crashpad/client/crashpad_client_linux.cc
+@@ -248,9 +248,7 @@ class CrashpadClientLinux {
+               FUTEX_WAIT_PRIVATE,
+               kDumpNotDone,
+-              &timeout,
+-              nullptr,
+-              0);
++              &timeout);
+@@ -259,7 +257,7 @@ class CrashpadClientLinux {
+   void WakeThreads() {
+     dump_done_futex_ = kDumpDone;
+     sys_futex(
+-        &dump_done_futex_, FUTEX_WAKE_PRIVATE, INT_MAX, nullptr, nullptr, 0);
++        &dump_done_futex_, FUTEX_WAKE_PRIVATE, INT_MAX, nullptr);
+   }
