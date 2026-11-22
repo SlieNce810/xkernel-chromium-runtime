@@ -39,6 +39,7 @@
 | `0024-chromium-renderer-lifecycle-events.patch` + `0024a-chromium-multiprocess-eventlog-header.patch` | Chromium 149 zygote renderer-create 与 Browser channel-ready 生命周期事件；第二个补丁补齐 eventlog header 和 `base/BUILD.gn` 登记 | 机制已完成 exact Chromium 149 AArch64 对象编译；运行时链接/事件样本待 T490 构建完成后复核 |
 | `0025-chromium-generated-gpu-skia-metadata.patch` | 为不完整 Chromium 源快照补齐 `GPU_LISTS_VERSION` 和 `SKIA_COMMIT_HASH` 诊断元数据 | T490 `gpu_internals_ui.o` 已通过 AArch64 musl 编译；最终 chrome 链接待 R114 |
 | `0026-chromium-musl-crash-report-constant.patch` | 将 `render_frame_host_impl.cc` 使用的旧 Mojo crash-report 常量改为生成头提供的 `kMaxCrashReportStorageSize` | R114 `[291/24139]` 编译错误已最小复现；修复后构建待继续 |
+| `0027-chromium-musl-service-worker-value-or.patch` | 将 ServiceWorker optional set iterator 的 `value_or({})` 改为显式 `request_timeouts_.end()` | R115 `[103/23842]` 编译错误已最小复现；修复后构建待继续 |
 
 ---
 
