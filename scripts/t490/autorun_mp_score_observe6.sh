@@ -1126,24 +1126,28 @@ tick=0
 # （2026-11-04 的 mp-r2：跑到 600 s 仍在扫描循环里，日志一句没出来）。
 # 这里在 tick≥6 时导一次，只导一次，代价 120 行串口输出。
 CHROME_LOG_DUMPED=0
-LIFECYCLE_PROBE_EXPORTED=0
+LIFECYCLE_PROBE_LINES_EMITTED=0
 export_lifecycle_probe() {
-    [ "$LIFECYCLE_PROBE_EXPORTED" = "1" ] && return 0
     [ -n "$LIFECYCLE_PRELOAD" ] || return 0
     [ -s /root/lifecycle-probe-events.jsonl ] || return 0
     probe_bytes=$(wc -c < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
     probe_lines=$(wc -l < /root/lifecycle-probe-events.jsonl 2>/dev/null || echo 0)
+    [ "$probe_lines" -gt "$LIFECYCLE_PROBE_LINES_EMITTED" ] || return 0
     probe_sha=$(sha256sum /root/lifecycle-probe-events.jsonl 2>/dev/null | awk '{print $1}')
-    log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines sha256=$probe_sha"
-    probe_seq=0
+    probe_start=$((LIFECYCLE_PROBE_LINES_EMITTED + 1))
+    probe_new_file="/tmp/lifecycle-probe-new-$$.jsonl"
+    tail -n +"$probe_start" /root/lifecycle-probe-events.jsonl > "$probe_new_file" 2>/dev/null || return 0
+    log "LIFECYCLE_PROBE_EXPORT_BEGIN run_id=$PERF_TRACE_RUN_ID bytes=$probe_bytes lines=$probe_lines from=$probe_start sha256=$probe_sha"
+    probe_seq=$LIFECYCLE_PROBE_LINES_EMITTED
     while IFS= read -r probe_line || [ -n "$probe_line" ]; do
         printf '[mpdiag] MP_LIFECYCLE_PROBE_EVENT run_id=%s seq=%s %s\n' \
             "$PERF_TRACE_RUN_ID" "$probe_seq" "$probe_line" > /dev/console 2>/dev/null || true
         echo "MP_LIFECYCLE_PROBE_EVENT run_id=$PERF_TRACE_RUN_ID seq=$probe_seq $probe_line" >> "$LOG"
         probe_seq=$((probe_seq + 1))
-    done < /root/lifecycle-probe-events.jsonl
+    done < "$probe_new_file"
+    rm -f "$probe_new_file"
+    LIFECYCLE_PROBE_LINES_EMITTED=$probe_lines
     log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
-    LIFECYCLE_PROBE_EXPORTED=1
 }
 [ "$SAMPLE_SECONDS" -ge 1 ] 2>/dev/null || SAMPLE_SECONDS=5
 while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
@@ -1305,7 +1309,7 @@ else
 fi
 
 export_lifecycle_probe
-[ "$LIFECYCLE_PROBE_EXPORTED" = "1" ] || {
+[ "$LIFECYCLE_PROBE_LINES_EMITTED" -gt 0 ] || {
     [ -z "$LIFECYCLE_PRELOAD" ] || log "LIFECYCLE_PROBE_EXPORT_EMPTY run_id=$PERF_TRACE_RUN_ID"
 }
 
