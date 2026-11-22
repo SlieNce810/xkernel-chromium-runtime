@@ -46,6 +46,7 @@
 | `0031-dawn-khronos-platform-include-path.patch` | 将 Dawn Khronos platform target 指向仓库现有 `third_party/khronos/KHR/khrplatform.h` | R118 `[402/23077]` OpenGL 自动生成对象缺头；修复后需 GN 重生成 |
 | `0032-enable-dawn-tint-glsl-writer.patch` | 为启用的 Dawn OpenGL backend 打开 Tint GLSL writer | R119 ShaderModuleGL 缺 GLSL writer 类型；修改 args.gn 后待继续 |
 | `0033-raw-ref-transparent-const-less.patch` | 为 `std::less<base::raw_ref<T>>` 增加 const heterogeneous lookup 重载 | R120 `[2518/22948]` PermissionRequest map 查找错误；修复后构建待继续 |
+| `0034-permission-request-local-raw-ref-comparator.patch` | 将 const heterogeneous lookup comparator 局部化到 PermissionRequest map，避免公共 raw_ref 头触发全树重编 | R122 取代 0033 的构建策略；同一权限查找语义，影响范围更小 |
 
 ---
 

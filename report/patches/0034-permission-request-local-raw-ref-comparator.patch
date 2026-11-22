@@ -1,0 +1,36 @@
+diff --git a/components/permissions/permission_request_manager.h b/components/permissions/permission_request_manager.h
+index 0000000..0000000 100644
+--- a/components/permissions/permission_request_manager.h
++++ b/components/permissions/permission_request_manager.h
+@@ -550,10 +550,27 @@ class PermissionRequestManager : public content::WebContentsUserData<PermissionRequestManager> {
+     bool IsSourceFrameInactiveAndDisallowActivation() const;
+   };
+ 
++  struct PermissionRequestRefLess {
++    using is_transparent = void;
++
++    bool operator()(const base::raw_ref<PermissionRequest>& lhs,
++                    const base::raw_ref<PermissionRequest>& rhs) const {
++      return lhs < rhs;
++    }
++
++    bool operator()(const base::raw_ref<PermissionRequest>& lhs,
++                    const PermissionRequest& rhs) const {
++      return lhs < rhs;
++    }
++
++    bool operator()(const PermissionRequest& lhs,
++                    const base::raw_ref<PermissionRequest>& rhs) const {
++      return lhs < rhs;
++    }
++  };
++
+   PermissionRequestQueue pending_permission_requests_;
+@@ -567,7 +584,8 @@ class PermissionRequestManager : public content::WebContentsUserData<PermissionRequestManager> {
+   // Maps each PermissionRequest currently in |requests_| or
+   // |pending_permission_requests_| to which RenderFrameHost it originated from.
+   // Note that no date is stored for |duplicate_requests_|.
+-  std::map<base::raw_ref<PermissionRequest>, PermissionRequestSource>
++  std::map<base::raw_ref<PermissionRequest>, PermissionRequestSource,
++           PermissionRequestRefLess>
+       request_sources_map_;
