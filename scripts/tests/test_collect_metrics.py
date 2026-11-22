@@ -185,6 +185,14 @@ class CollectMetricsTests(unittest.TestCase):
         with self.assertRaisesRegex(collect_metrics.InvalidSample, "first_valid_frame"):
             self.validate()
 
+    def test_observer_renderer_events_are_diagnostic_only(self) -> None:
+        rows = [dict(row) for row in self.rows]
+        rows[6]["source"] = "observer-zygote-fork-boundary"
+        rows[7]["source"] = "observer-process-tree"
+        self.save_events(rows)
+        with self.assertRaisesRegex(collect_metrics.InvalidSample, "diagnostic-only"):
+            self.validate()
+
     def test_duplicate_sample_id_at_another_time_is_rejected(self) -> None:
         with self.memory.open(encoding="utf-8") as stream:
             rows = list(csv.DictReader(stream))

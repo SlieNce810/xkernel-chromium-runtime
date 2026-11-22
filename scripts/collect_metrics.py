@@ -269,6 +269,14 @@ def _validate_lifecycle(events: list[dict[str, Any]], processes: dict[str, dict[
             raise InvalidSample(f"renderer ready does not match a renderer process: {pid}/{instance}")
         if not _is_descendant(instance, browser_instance, processes):
             raise InvalidSample("renderer is outside the browser process tree")
+        request_source = request.get("source")
+        ready_source = renderer_ready.get("source")
+        if (isinstance(request_source, str) and request_source.startswith("observer-")) or \
+                (isinstance(ready_source, str) and ready_source.startswith("observer-")):
+            raise InvalidSample(
+                "renderer lifecycle events from observer-* are diagnostic-only and "
+                "cannot form a formal performance sample"
+            )
         resolved = dict(renderer_ready)
         resolved["_request"] = request
         renderer_ready_by_id[renderer_id] = resolved
