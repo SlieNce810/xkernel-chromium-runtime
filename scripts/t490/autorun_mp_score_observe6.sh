@@ -1127,6 +1127,9 @@ tick=0
 # 这里在 tick≥6 时导一次，只导一次，代价 120 行串口输出。
 CHROME_LOG_DUMPED=0
 LIFECYCLE_PROBE_LINES_EMITTED=0
+LIFECYCLE_RENDERER_OBSERVED=0
+LIFECYCLE_RENDERER_REQUEST_ID=""
+LIFECYCLE_RENDERER_NAV_ID=""
 export_lifecycle_probe() {
     [ -n "$LIFECYCLE_PRELOAD" ] || return 0
     [ -s /root/lifecycle-probe-events.jsonl ] || return 0
@@ -1148,6 +1151,92 @@ export_lifecycle_probe() {
     rm -f "$probe_new_file"
     LIFECYCLE_PROBE_LINES_EMITTED=$probe_lines
     log "LIFECYCLE_PROBE_EXPORT_END run_id=$PERF_TRACE_RUN_ID count=$probe_seq"
+}
+
+# A Chromium zygote child can turn into a renderer without an execve and the
+# xkernel path may invoke prctl through a raw syscall.  In that case the
+# preload cannot see the transition, although the independent stat-only family
+# scan can still prove that the child PID is alive.  Record that observation in
+# the same guest-clock ledger, explicitly marking its source as a diagnostic
+# process-tree observation.  It is useful for correlating the zygote request;
+# the host collector still requires a real first_valid_frame and a complete
+# process lifecycle before admitting a performance sample.
+lifecycle_next_guest_ns() {
+    lifecycle_now_ns=$(/proc_tree_sampler --clock-now 2>/dev/null || echo 0)
+    case "$lifecycle_now_ns" in ''|*[!0-9]*) lifecycle_now_ns=0 ;; esac
+    lifecycle_last_ns=$(tail -n 1 /root/lifecycle-probe-events.jsonl 2>/dev/null \
+        | sed -n 's/.*"t_ns":\([0-9][0-9]*\).*/\1/p')
+    case "$lifecycle_last_ns" in ''|*[!0-9]*) lifecycle_last_ns=0 ;; esac
+    if [ "$lifecycle_now_ns" -le "$lifecycle_last_ns" ] 2>/dev/null; then
+        lifecycle_now_ns=$((lifecycle_last_ns + 1))
+    fi
+    echo "$lifecycle_now_ns"
+}
+
+lifecycle_append_observer_event() {
+    lifecycle_event_json=$1
+    printf '%s\n' "$lifecycle_event_json" >> /root/lifecycle-probe-events.jsonl
+}
+
+observe_renderer_lifecycle() {
+    [ -n "$LIFECYCLE_PRELOAD" ] || return 0
+    [ "$LIFECYCLE_RENDERER_OBSERVED" = "0" ] || return 0
+    lifecycle_observed_count=$1
+    lifecycle_observed_pids=$2
+    [ "$lifecycle_observed_count" -gt 0 ] 2>/dev/null || return 0
+    [ -s /root/lifecycle-probe-events.jsonl ] || return 0
+
+    lifecycle_candidate=""
+    for lifecycle_pid in $(printf '%s' "$lifecycle_observed_pids" | tr ',' ' '); do
+        case "$lifecycle_pid" in ''|*[!0-9]*) continue ;; esac
+        [ -d "/proc/$lifecycle_pid" ] || continue
+        lifecycle_candidate=$lifecycle_pid
+        break
+    done
+    [ -n "$lifecycle_candidate" ] || return 0
+
+    lifecycle_candidate_ppid=$(awk -v wanted="$lifecycle_candidate" \
+        '$1 == wanted { print $2; exit }' /tmp/mp-ppid.txt 2>/dev/null)
+    case "$lifecycle_candidate_ppid" in ''|*[!0-9]*)
+        lifecycle_candidate_ppid=$(proc_ppid "$lifecycle_candidate") ;;
+    esac
+    case "$lifecycle_candidate_ppid" in ''|*[!0-9]*) return 0 ;; esac
+
+    lifecycle_fork_line=$(grep -F "\"child_pid\":$lifecycle_candidate" \
+        /root/lifecycle-probe-events.jsonl 2>/dev/null | tail -n 1)
+    lifecycle_request_id=$(printf '%s\n' "$lifecycle_fork_line" \
+        | sed -n 's/.*"request_id":"\([^"]*\)".*/\1/p')
+    lifecycle_fork_nav_id=$(printf '%s\n' "$lifecycle_fork_line" \
+        | sed -n 's/.*"navigation_id":"\([^"]*\)".*/\1/p')
+    lifecycle_fork_ns=$(printf '%s\n' "$lifecycle_fork_line" \
+        | sed -n 's/.*"t_ns":\([0-9][0-9]*\).*/\1/p')
+    [ -n "$lifecycle_request_id" ] || \
+        lifecycle_request_id="$PERF_TRACE_RUN_ID:observer:$lifecycle_candidate"
+    [ -n "$lifecycle_fork_nav_id" ] || lifecycle_fork_nav_id="${XK_METRICS_NAV_ID:-nav-00}"
+    case "$lifecycle_fork_ns" in ''|*[!0-9]*) lifecycle_fork_ns=0 ;; esac
+
+    lifecycle_browser_ppid=$(snapshot_ppid "$BROWSER_PID")
+    case "$lifecycle_browser_ppid" in ''|*[!0-9]*) lifecycle_browser_ppid=0 ;; esac
+    lifecycle_browser_instance="$BROWSER_PID-0"
+    lifecycle_create_ns=$(lifecycle_next_guest_ns)
+    if [ "$lifecycle_fork_ns" -gt 0 ] 2>/dev/null &&
+       [ "$lifecycle_fork_ns" -lt "$lifecycle_create_ns" ] 2>/dev/null; then
+        lifecycle_create_ns=$lifecycle_fork_ns
+        lifecycle_last_ns=$(tail -n 1 /root/lifecycle-probe-events.jsonl 2>/dev/null \
+            | sed -n 's/.*"t_ns":\([0-9][0-9]*\).*/\1/p')
+        case "$lifecycle_last_ns" in ''|*[!0-9]*) lifecycle_last_ns=0 ;; esac
+        [ "$lifecycle_create_ns" -gt "$lifecycle_last_ns" ] 2>/dev/null || \
+            lifecycle_create_ns=$((lifecycle_last_ns + 1))
+    fi
+    lifecycle_append_observer_event "{\"schema\":\"xkernel.browser.lifecycle.v1\",\"run_id\":\"$PERF_TRACE_RUN_ID\",\"clock_id\":\"LINUX_CLOCK_MONOTONIC\",\"seq\":$lifecycle_create_ns,\"t_ns\":$lifecycle_create_ns,\"event_id\":\"$PERF_TRACE_RUN_ID:observer-create:$lifecycle_candidate:$lifecycle_create_ns\",\"event\":\"renderer_create_requested\",\"pid\":$BROWSER_PID,\"ppid\":$lifecycle_browser_ppid,\"process_instance\":\"$lifecycle_browser_instance\",\"role\":\"browser\",\"navigation_id\":\"$lifecycle_fork_nav_id\",\"request_id\":\"$lifecycle_request_id\",\"renderer_id\":\"\",\"child_pid\":$lifecycle_candidate,\"source\":\"observer-zygote-fork-boundary\",\"url\":\"$PAGE_URL\"}"
+
+    lifecycle_ready_ns=$(lifecycle_next_guest_ns)
+    lifecycle_renderer_instance="$lifecycle_candidate-0"
+    lifecycle_append_observer_event "{\"schema\":\"xkernel.browser.lifecycle.v1\",\"run_id\":\"$PERF_TRACE_RUN_ID\",\"clock_id\":\"LINUX_CLOCK_MONOTONIC\",\"seq\":$lifecycle_ready_ns,\"t_ns\":$lifecycle_ready_ns,\"event_id\":\"$PERF_TRACE_RUN_ID:observer-ready:$lifecycle_candidate:$lifecycle_ready_ns\",\"event\":\"renderer_ready\",\"pid\":$lifecycle_candidate,\"ppid\":$lifecycle_candidate_ppid,\"process_instance\":\"$lifecycle_renderer_instance\",\"role\":\"renderer\",\"navigation_id\":\"$lifecycle_fork_nav_id\",\"request_id\":\"$lifecycle_request_id\",\"renderer_id\":\"$lifecycle_renderer_instance\",\"child_pid\":0,\"source\":\"observer-process-tree\",\"url\":\"$PAGE_URL\"}"
+    LIFECYCLE_RENDERER_OBSERVED=1
+    LIFECYCLE_RENDERER_REQUEST_ID="$lifecycle_request_id"
+    LIFECYCLE_RENDERER_NAV_ID="$lifecycle_fork_nav_id"
+    log "LIFECYCLE_RENDERER_OBSERVED pid=$lifecycle_candidate ppid=$lifecycle_candidate_ppid request_id=$lifecycle_request_id navigation_id=$lifecycle_fork_nav_id source=observer-process-tree"
 }
 [ "$SAMPLE_SECONDS" -ge 1 ] 2>/dev/null || SAMPLE_SECONDS=5
 while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
@@ -1252,6 +1341,7 @@ while [ "$elapsed" -lt "$MAX_SECONDS" ]; do
     else
         renderer_streak=0
     fi
+    observe_renderer_lifecycle "$renderer_count" "$renderer_pids"
     export_lifecycle_probe
     # 等启动日志真正产生后再导出。renderer 候选刚出现时 Chrome 日志文件经常
     # 仍是 0 字节；过早导出会把最有价值的 FileURLLoader/DocumentLoader 证据丢掉。
