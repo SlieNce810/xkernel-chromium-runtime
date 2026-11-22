@@ -18,6 +18,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifndef PR_SET_NAME
+#define PR_SET_NAME 15
+#endif
+
 typedef int (*epoll_wait_fn)(int, struct epoll_event *, int, int);
 typedef int (*epoll_pwait_fn)(int, struct epoll_event *, int, int,
                               const sigset_t *);
@@ -31,6 +35,8 @@ typedef int (*execve_fn)(const char *, char *const[], char *const[]);
 typedef int (*execveat_fn)(int, const char *, char *const[], char *const[], int);
 typedef int (*openat_fn)(int, const char *, int, ...);
 typedef int (*open_fn)(const char *, int, ...);
+typedef int (*prctl_fn)(int, unsigned long, unsigned long, unsigned long,
+                        unsigned long);
 
 static epoll_wait_fn next_epoll_wait;
 static epoll_pwait_fn next_epoll_pwait;
@@ -42,6 +48,7 @@ static execve_fn next_execve;
 static execveat_fn next_execveat;
 static openat_fn next_openat;
 static open_fn next_open;
+static prctl_fn next_prctl;
 
 static pid_t cached_pid = -1;
 static char process_role[24] = "unknown";
@@ -629,4 +636,29 @@ int open(const char *path, int flags, ...) {
         fd = (int)raw_openat(AT_FDCWD, path, flags, mode);
     maybe_report_navigation(AT_FDCWD, path, fd, request_ns);
     return fd;
+}
+
+/*
+ * Chromium's zygote child can become a renderer in-place: it is forked from
+ * the zygote and changes its comm name before entering RendererMain, without
+ * an execve that would load the inherited preload again.  Observe that
+ * unambiguous transition directly.  The wrapper keeps the variadic ABI used
+ * by prctl(2) and always delegates the real operation first, so a failed name
+ * change cannot be reported as renderer readiness.
+ */
+int prctl(int option, unsigned long arg2, unsigned long arg3,
+          unsigned long arg4, unsigned long arg5) {
+    int result;
+    if (next_prctl)
+        result = next_prctl(option, arg2, arg3, arg4, arg5);
+    else
+        result = (int)syscall(SYS_prctl, option, arg2, arg3, arg4, arg5);
+    if (result == 0 && option == PR_SET_NAME) {
+        const char *name = (const char *)(uintptr_t)arg2;
+        if (name && strncmp(name, "CrRendererMain", 15) == 0) {
+            snprintf(process_role, sizeof(process_role), "%s", "renderer");
+            maybe_report_loop_ready();
+        }
+    }
+    return result;
 }
