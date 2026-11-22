@@ -16,3 +16,12 @@ const PermissionRequest/raw_ref 三种比较。公共 `raw_ref.h` 恢复为原�
 
 这保留 R121 试验揭示的修复语义，同时避免不必要的全树重编。R122 需要继续执行
 同一 `out/tryframe-root4` 的 `ninja -j8 chrome` 验证。
+
+在恢复全量构建前，已对对应目标执行单目标 Ninja 编译并确认对象生成：
+
+```text
+out/tryframe-root4/obj/components/permissions/permissions/permission_request_manager.o
+OBJECT_OK size=216136
+```
+
+全量 R123 仍在继续，最终链接尚待完成。
