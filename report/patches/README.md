@@ -43,6 +43,7 @@
 | `0028-chromium-musl-explicit-value-or-types.patch` | 为 Chromium 生产代码的 `vector<uint8_t>` 和 `std::string` optional 默认值补显式类型 | R116 静态复核已完成；重新编译验证待继续 |
 | `0029-lifecycle-event-seq-field.patch` | 为 preload lifecycle JSONL 增加采集器要求的显式 `seq` 字段 | v7 已发现旧格式不能直接进入 `collect_metrics.py`；下一轮使用修复后的 preload 验证 |
 | `0030-crashpad-musl-futex-arity.patch` | 将 Crashpad 两处 futex 调用适配当前四参数 LSS 头 | R117 `[605/23688]` 编译错误已最小复现；修复后构建待继续 |
+| `0031-dawn-khronos-platform-include-path.patch` | 将 Dawn Khronos platform target 指向仓库现有 `third_party/khronos/KHR/khrplatform.h` | R118 `[402/23077]` OpenGL 自动生成对象缺头；修复后需 GN 重生成 |
 
 ---
 

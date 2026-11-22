@@ -1,0 +1,17 @@
+diff --git a/third_party/dawn/third_party/EGL-Registry/BUILD.gn b/third_party/dawn/third_party/EGL-Registry/BUILD.gn
+index 0000000..0000000 100644
+--- a/third_party/dawn/third_party/EGL-Registry/BUILD.gn
++++ b/third_party/dawn/third_party/EGL-Registry/BUILD.gn
+@@ -31,10 +31,10 @@ import("../../scripts/dawn_overrides_with_defaults.gni")
+ 
+ config("khronos_headers_public") {
+-  include_dirs = [ "${dawn_egl_registry_dir}/api" ]
++  include_dirs = [ "${dawn_root}/../khronos", "${dawn_egl_registry_dir}/api" ]
+ }
+ 
+ source_set("khronos_platform") {
+-  sources = [ "${dawn_egl_registry_dir}/api/KHR/khrplatform.h" ]
++  sources = [ "${dawn_root}/../khronos/KHR/khrplatform.h" ]
+ 
+   public_configs = [ ":khronos_headers_public" ]
+ }
