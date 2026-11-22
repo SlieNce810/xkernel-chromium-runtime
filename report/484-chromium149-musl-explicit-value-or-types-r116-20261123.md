@@ -1,0 +1,18 @@
+# Chromium 149 R116 的显式 `value_or` 类型修复（2026-11-23）
+
+R115 暂停后，对不完整 Chromium 149 源快照中的剩余生产代码进行静态复核，发现
+两处同一 libc++/musl 模板推断风险：
+
+- `chrome/browser/net/profile_network_context_service.cc` 返回
+  `std::vector<uint8_t>`，将 `Base64Decode(...).value_or({})` 改为
+  `value_or(std::vector<uint8_t>())`；
+- `chrome/updater/tools/updater_util.cc` 输出 `std::string`，将
+  `WriteJsonWithOptions(...).value_or({})` 改为 `value_or(std::string())`。
+
+补丁 [0028](patches/0028-chromium-musl-explicit-value-or-types.patch) 只明确模板
+默认值类型，不改变业务分支。单元测试文件中的 `expected_unittest.cc` 用法不在
+`chrome` 生产目标内，未修改。
+
+远端临时修复已写入 T490 Chromium 源树；待 R116 编译重新到达这些目标后，以实际
+编译结果确认是否覆盖该风险。正式运行和性能结论仍以最终链接的 exact Chromium
+149 二进制为准。

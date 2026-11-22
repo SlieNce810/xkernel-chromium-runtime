@@ -40,6 +40,7 @@
 | `0025-chromium-generated-gpu-skia-metadata.patch` | 为不完整 Chromium 源快照补齐 `GPU_LISTS_VERSION` 和 `SKIA_COMMIT_HASH` 诊断元数据 | T490 `gpu_internals_ui.o` 已通过 AArch64 musl 编译；最终 chrome 链接待 R114 |
 | `0026-chromium-musl-crash-report-constant.patch` | 将 `render_frame_host_impl.cc` 使用的旧 Mojo crash-report 常量改为生成头提供的 `kMaxCrashReportStorageSize` | R114 `[291/24139]` 编译错误已最小复现；修复后构建待继续 |
 | `0027-chromium-musl-service-worker-value-or.patch` | 将 ServiceWorker optional set iterator 的 `value_or({})` 改为显式 `request_timeouts_.end()` | R115 `[103/23842]` 编译错误已最小复现；修复后构建待继续 |
+| `0028-chromium-musl-explicit-value-or-types.patch` | 为 Chromium 生产代码的 `vector<uint8_t>` 和 `std::string` optional 默认值补显式类型 | R116 静态复核已完成；重新编译验证待继续 |
 
 ---
 
