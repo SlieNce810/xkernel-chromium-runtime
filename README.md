@@ -20,6 +20,8 @@ T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生�
 
 当前正式高阶性能状态仍为 `0/4`，before/after 为 `0/0`，30 分钟/十次加载的新统一轮尚未通过；这些诊断轮不改变正式 gate。Chromium 149 AArch64/musl 源码构建在 T490 单一 Ninja 进程中继续进行，完成前不把预编译二进制的诊断结果写成源码构建结果。统一复现说明与最新状态见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
 
+仓库当前 `goal_audit.py` 重算结果为：2 GiB 浏览器评分 20/20、历史/候选稳定性 gate PASS、兼容性 PASS；唯一未关闭的高阶条款是四项正式性能指标与 before/after 批次（`0/4`、`0/0`）。
+
 ## 2026-11-22 当前复核状态
 
 冻结候选为 c80 no-direct-PTE、LOG_LEVEL_ERROR 内核，实际 Browser-run 二进制 SHA-256 为 `a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f`；源码基线 `b73e5814087c9d33c5f0a35b66cc56be689d3dee`，配置 SHA-256 `1d0ff69e…`。正式条件固定为 T490、AArch64 QEMU 纯 TCG、2 GiB、Weston 原生 Wayland、Chromium 149 默认 Browser → Zygote → Renderer 和真实 virtio 输入链路。
