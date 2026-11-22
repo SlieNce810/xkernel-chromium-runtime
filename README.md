@@ -19,7 +19,7 @@ Input 的正式 2 GiB 证据为 [R78](evidence/2026-11-22_t490-r78-c80-tablet-in
 
 统一入口已加入内核 SHA-256 预检、tablet dry-run、绝对 pointer 事件统计、CSS 双帧判据和 readiness round 早停；`scripts/final-acceptance.sh all --dry-run` 的六阶段命令展开已通过。兼容性摘要见 [evidence/compatibility-final/summary.json](evidence/compatibility-final/summary.json)，R70 正式稳定性见 [report/444](report/444-T490-R70-a70e正式稳定性通过-20261122.md)，进程链复核见 [report/445](report/445-T490-R70-a70e候选Browser-Zygote-Renderer结构复核-20261122.md)。
 
-当前总目标仍为 `INCOMPLETE`，剩余工作集中在高阶性能条款：浏览器启动时间、页面首帧、renderer 创建延迟和进程树 RSS/PSS/USS 峰值尚无有效 before/after 批次（0/0），还没有完成优化前后各五次独立运行和可复核收益结论。最新机器可复核审计为 `evidence/2026-11-22_t490-final-report-r6/goal-audit.json`。
+当前总目标仍为 `INCOMPLETE`，剩余工作集中在高阶性能条款：浏览器启动时间、页面首帧、renderer 创建延迟和进程树 RSS/PSS/USS 峰值尚无有效 before/after 批次（0/0），还没有完成优化前后各五次独立运行和可复核收益结论。R79–R86 的采集器与优化诊断、无效样本和退化候选见 [report/454](report/454-T490-performance-r79-r85-invalid-sampler-and-optimization-review-20261122.md) 与 [report/455](report/455-T490-R86-fastpath-repeated-page-regression-20261122.md)。最新机器可复核审计为 `evidence/2026-11-22_t490-final-report-r6/goal-audit.json`。
 
 ## 2026-11-18 决赛验收状态
 
