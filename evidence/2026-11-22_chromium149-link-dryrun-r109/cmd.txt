@@ -1,0 +1,12 @@
+R109 exact Chromium 149 chrome link dry-run (T490)
+
+Remote: mo@10.249.11.192
+Source: /home/mo/chromium-src-149-alpine
+Source revision: 9d2c8156a72129edca4785abb98866fad60ea338
+Output: out/tryframe-root4
+
+Command:
+  /home/mo/ninja-src/ninja -C out/tryframe-root4 -n chrome
+  /home/mo/ninja-src/ninja -C out/tryframe-root4 -d explain -n chrome
+
+Result: 31,209 build actions would be scheduled before the chrome link. The first missing outputs are Blink renderer objects; one generated Mojo module is also older than its input. Existing output cache has 23,065 object files and 1,193 archives, but it is not a complete link closure. No actual build, link, binary replacement, guest boot, or runtime run was started.
