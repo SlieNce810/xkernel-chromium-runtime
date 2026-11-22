@@ -1,0 +1,17 @@
+R108 exact Chromium 149 AArch64 lifecycle object compile (T490)
+
+Remote source: /home/mo/chromium-src-149-alpine
+Source revision: 9d2c8156a72129edca4785abb98866fad60ea338
+Existing installed Browser SHA-256: d7d89bcb466c1d9a7ab209220c8ab997f66c02b77c5e80d3ea10ed64c772a641
+Output: /home/mo/chromium-src-149-alpine/out/tryframe-root4
+
+1. Backed up the two exact Chromium 149 source files and added the eventlog header plus two lifecycle calls only in the temporary remote tree:
+   - RenderProcessHostImpl::OnChannelConnected -> renderer-ready
+   - Zygote::ForkWithRealPid -> renderer-create-requested
+2. Added CHROMIUM_ENABLE_MULTIPROCESS_EVENTLOG=1 only to the two emitted compile commands.
+3. Let Ninja generate missing Mojo headers on demand from compiler diagnostics (storage, remoting, cert verifier, metrics, auction worklet, tracing internals, font service, and their feature headers).
+4. Compiled the exact Chromium 149 RPH object with the AArch64/musl command: PASS, 32.61 s.
+5. Compiled the exact Chromium 149 zygote_linux object with the AArch64/musl command: PASS, 3.88 s.
+6. Verified both outputs are AArch64 relocatable ELF objects and contain their event strings.
+7. Restored both source files and removed the temporary header; remote git status for those paths is clean.
+8. No full link, binary replacement, guest boot, or formal performance run was performed.
