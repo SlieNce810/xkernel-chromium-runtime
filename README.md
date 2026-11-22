@@ -20,7 +20,7 @@ T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生�
 
 当前正式高阶性能状态仍为 `0/4`，before/after 为 `0/0`，30 分钟/十次加载的新统一轮尚未通过；这些诊断轮不改变正式 gate。Chromium 149 AArch64/musl 源码构建在 T490 单一 Ninja 进程中继续进行，完成前不把预编译二进制的诊断结果写成源码构建结果。统一复现说明与最新状态见 [决赛剩余任务复现与统一验收](docs/决赛剩余任务复现与统一验收.md)。
 
-仓库当前 `goal_audit.py` 重算结果为：2 GiB 浏览器评分 20/20、历史/候选稳定性 gate PASS、兼容性 PASS；唯一未关闭的高阶条款是四项正式性能指标与 before/after 批次（`0/4`、`0/0`）。
+仓库当前 `goal_audit.py` 重算结果为：2 GiB 浏览器评分 20/20、历史/候选稳定性 gate PASS、兼容性 PASS；唯一未关闭的高阶条款是四项正式性能指标与 before/after 批次（`0/4`、`0/0`）。源码 Chromium 149 产物的 guest 注入打包工具已在 T490 用现有 AArch64 Chromium 149 二进制验证，成员路径、源文件 SHA、tar SHA 和 manifest 均通过，见 [report 491](report/491-T490-chromium149-package-tool-validation-20261123.md)。
 
 ## 2026-11-22 当前复核状态
 
