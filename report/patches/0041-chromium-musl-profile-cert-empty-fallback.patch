@@ -1,0 +1,29 @@
+diff --git a/chrome/browser/net/profile_network_context_service.cc b/chrome/browser/net/profile_network_context_service.cc
+--- a/chrome/browser/net/profile_network_context_service.cc
++++ b/chrome/browser/net/profile_network_context_service.cc
+@@ -136,7 +136,7 @@
+ #if BUILDFLAG(IS_MAC)
+ #include "net/ssl/client_cert_store_mac.h"
+ #endif  // BUILDFLAG(IS_MAC)
+ 
+-#if BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_LINUX) && !BUILDFLAG(USE_NSS_CERTS))
+ #include "net/ssl/client_cert_store_empty.h"
+@@ -1305,6 +1305,11 @@ ProfileNetworkContextService::CreateClientCertStore() {
+   return GetWrappedCertStore(profile_,
+                              std::make_unique<net::ClientCertStoreEmpty>());
++#elif BUILDFLAG(IS_LINUX)
++  // The musl diagnostic build has no NSS backend; retain profile/browser
++  // certificate matching with an empty platform store.
++  return GetWrappedCertStore(profile_,
++                             std::make_unique<net::ClientCertStoreEmpty>());
+ #else
+#error Unknown platform.
+@@ -1324,7 +1329,7 @@ void ProfileNetworkContextService::SaveEncryptedCachePrimaryKey(
+ std::vector<uint8_t>
+ ProfileNetworkContextService::GetEncryptedCachePrimaryKey() {
+   std::string encoded_encrypted_primary_key = profile_->GetPrefs()->GetString(
+       enterprise_connectors::kEncryptedCachePrimaryKey);
+-  return base::Base64Decode(encoded_encrypted_primary_key).value_or({});
++  return base::Base64Decode(encoded_encrypted_primary_key).value_or(std::vector<uint8_t>());
+ }

@@ -1,0 +1,18 @@
+diff --git a/chrome/common/crash_keys.cc b/chrome/common/crash_keys.cc
+--- a/chrome/common/crash_keys.cc
++++ b/chrome/common/crash_keys.cc
+@@ -50,7 +50,13 @@ class CrashKeyWithName {
+   CrashKeyWithName& operator=(CrashKeyWithName&&) = delete;
+   ~CrashKeyWithName() = delete;
+ 
+   std::string_view Name() const { return name_; }
+-  std::string_view Value() const { return crash_key_.value(); }
++  std::string_view Value() const {
++#if BUILDFLAG(USE_CRASHPAD_ANNOTATION)
++    return crash_key_.value();
++#else
++    return {};
++#endif
++  }
+   void Clear() { crash_key_.Clear(); }
+   void Set(std::string_view value) { crash_key_.Set(value); }

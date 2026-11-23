@@ -1,0 +1,31 @@
+diff --git a/chrome/browser/ui/webui/certificate_manager/client_cert_sources.cc b/chrome/browser/ui/webui/certificate_manager/client_cert_sources.cc
+--- a/chrome/browser/ui/webui/certificate_manager/client_cert_sources.cc
++++ b/chrome/browser/ui/webui/certificate_manager/client_cert_sources.cc
+@@ -129,7 +129,7 @@ class ClientCertStoreLoader {
+       active_requests_;
+ };
+ 
+-#if BUILDFLAG(IS_LINUX)
++#if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_NSS_CERTS)
+ class ClientCertStoreFactoryNSS : public ClientCertStoreFactory {
+@@ -154,7 +154,7 @@ class ClientCertStoreFactoryMac : public ClientCertStoreFactory {
+ };
+ #endif
+ 
+-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_LINUX)
++#if !BUILDFLAG(IS_CHROMEOS) && (!BUILDFLAG(IS_LINUX) || !BUILDFLAG(USE_NSS_CERTS))
+ std::unique_ptr<ClientCertStoreLoader> CreatePlatformClientCertLoader(
+@@ -325,7 +325,7 @@ class ClientCertSource : public CertificateManagerPageHandler::CertSource {
+   std::optional<net::CertificateList> certs_;
+ };
+ 
+-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
++#if BUILDFLAG(IS_CHROMEOS) || (BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_NSS_CERTS))
+ // ChromeOS currently can use either Kcer or NSS for listing client certs, and
+@@ -1047,7 +1047,7 @@ CreatePlatformClientCertSource(
+     mojo::Remote<certificate_manager::mojom::CertificateManagerPage>*
+         remote_client,
+     Profile* profile) {
+-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
++#if BUILDFLAG(IS_CHROMEOS) || (BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_NSS_CERTS))
+   return std::make_unique<WritableClientCertSource>(remote_client, profile);

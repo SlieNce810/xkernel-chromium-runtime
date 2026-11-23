@@ -1,0 +1,24 @@
+diff --git a/build/toolchain/linux/unbundle/BUILD.gn b/build/toolchain/linux/unbundle/BUILD.gn
+--- a/build/toolchain/linux/unbundle/BUILD.gn
++++ b/build/toolchain/linux/unbundle/BUILD.gn
+@@ -18,6 +18,8 @@ gcc_toolchain("default") {
+   toolchain_args = {
+     current_cpu = current_cpu
+     current_os = current_os
++    # Preserve the real host toolchain for compiled_action() helpers.
++    host_toolchain = host_toolchain
+   }
+ }
+diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -5264,7 +5264,7 @@ group("browser_generated_files") {
+     public_deps +=
+         [ "//chrome/browser/compose:compose_optimization_guide_proto" ]
+   }
+ 
+-  if (is_win || is_mac || is_linux) {
++  if (is_win || is_mac || (is_linux && current_cpu != "arm64")) {
+     public_deps +=
+         [ "//chrome/browser/new_tab_page/chrome_colors:generate_colors_info" ]
+   }

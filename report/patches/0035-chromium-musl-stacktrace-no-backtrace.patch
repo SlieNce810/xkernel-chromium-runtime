@@ -1,0 +1,13 @@
+diff --git a/base/debug/stack_trace_posix.cc b/base/debug/stack_trace_posix.cc
+--- a/base/debug/stack_trace_posix.cc
++++ b/base/debug/stack_trace_posix.cc
+@@ -1080,6 +1080,10 @@ void StackTrace::OutputToStreamWithPrefixImpl(
+     cstring_view prefix_string) const {
+   StreamBacktraceOutputHandler handler(os);
+   ProcessBacktrace(addresses(), prefix_string, &handler);
+ }
++#else
++void StackTrace::OutputToStreamWithPrefixImpl(
++    std::ostream* os,
++    cstring_view prefix_string) const {}
+ #endif
