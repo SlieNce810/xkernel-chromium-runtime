@@ -1,0 +1,32 @@
+diff --git a/components/metrics/dwa/dwa_service.cc b/components/metrics/dwa/dwa_service.cc
+--- a/components/metrics/dwa/dwa_service.cc
++++ b/components/metrics/dwa/dwa_service.cc
+@@
+ DwaService::GetEncryptionPublicKey() {
++  // The musl diagnostic image has no FCP crypto backend.
++  return std::nullopt;
+ }
+@@
+ void DwaService::HandleEncryptionPublicKeyRefresh(
+     std::optional<fcp::confidentialcompute::DataUploadConfig>) {
++  // Leave private-metrics encryption disabled on this image.
+ }
+@@
+ DwaService::EncryptPrivateMetricReport(
+     const ::private_metrics::PrivateMetricReport&,
+     std::string_view,
+     const fcp::confidential_compute::OkpCwt&) {
++  return std::nullopt;
+ }
+diff --git a/components/metrics/private_metrics/BUILD.gn b/components/metrics/private_metrics/BUILD.gn
+--- a/components/metrics/private_metrics/BUILD.gn
++++ b/components/metrics/private_metrics/BUILD.gn
+@@
+-    "//third_party/federated_compute:confidential_compute",
+*** Add File: C:/Users/12697/.codex/worktrees/final-remaining-acceptance-20261117/report/patches/0047-chromium-musl-guest-libuuid-search-path.patch
+diff --git a/build/toolchain/linux/unbundle/BUILD.gn b/build/toolchain/linux/unbundle/BUILD.gn
+--- a/build/toolchain/linux/unbundle/BUILD.gn
++++ b/build/toolchain/linux/unbundle/BUILD.gn
+@@
+-  extra_ldflags = "--target=aarch64-linux-musl --sysroot=/home/mo/musl/aarch64-linux-musl-cross/aarch64-linux-musl --gcc-toolchain=/home/mo/musl/aarch64-linux-musl-cross -fuse-ld=lld"
++  extra_ldflags = "--target=aarch64-linux-musl --sysroot=/home/mo/musl/aarch64-linux-musl-cross/aarch64-linux-musl --gcc-toolchain=/home/mo/musl/aarch64-linux-musl-cross -L/home/mo/aarch64-libuuid/usr/lib -fuse-ld=lld"

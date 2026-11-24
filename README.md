@@ -22,6 +22,8 @@ T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生�
 
 仓库当前 `goal_audit.py` 重算结果为：2 GiB 浏览器评分 20/20、历史/候选稳定性 gate PASS、兼容性 PASS；唯一未关闭的高阶条款是四项正式性能指标与 before/after 批次（`0/4`、`0/0`）。源码 Chromium 149 产物的 guest 注入打包工具已在 T490 用现有 AArch64 Chromium 149 二进制验证，成员路径、源文件 SHA、tar SHA 和 manifest 均通过，见 [report 491](report/491-T490-chromium149-package-tool-validation-20261123.md)。
 
+2026-11-24 的源码构建轮已推进到 guest `chrome` 最终链接：R133 完成 377/377 个编译与归档动作，并解决了 host libvpx、guest libuuid 和无 NSS Firefox importer 的阻断。最终链接继续暴露出当前诊断裁剪与 Skia/V8/FCP/DBus 等源码依赖不一致，尚未生成可运行的 `chrome` ELF；R140–R155 只作为兼容性诊断，不计入稳定性或性能 gate。完整失败链、补丁和下一步见 [report 494](report/494-chromium149-musl-r133-final-link-and-r140-r155-closure-20261124.md)。
+
 ## 2026-11-22 当前复核状态
 
 冻结候选为 c80 no-direct-PTE、LOG_LEVEL_ERROR 内核，实际 Browser-run 二进制 SHA-256 为 `a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f`；源码基线 `b73e5814087c9d33c5f0a35b66cc56be689d3dee`，配置 SHA-256 `1d0ff69e…`。正式条件固定为 T490、AArch64 QEMU 纯 TCG、2 GiB、Weston 原生 Wayland、Chromium 149 默认 Browser → Zygote → Renderer 和真实 virtio 输入链路。

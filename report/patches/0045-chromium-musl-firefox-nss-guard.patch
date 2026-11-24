@@ -1,0 +1,35 @@
+diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
+--- a/chrome/utility/BUILD.gn
++++ b/chrome/utility/BUILD.gn
+@@ -113,7 +113,7 @@ if (!is_android) {
+     }
+-    if (!is_mac && !is_chromeos) {
++    if (!is_mac && !is_chromeos && (use_nss_certs || is_win)) {
+       # NSS decryptor is not needed on ChromeOS. Additionally, it depends on
+       # system NSS that is unavailable on MacOS/Fuchsia.
+       sources += [
+diff --git a/chrome/utility/importer/firefox_importer.h b/chrome/utility/importer/firefox_importer.h
+--- a/chrome/utility/importer/firefox_importer.h
++++ b/chrome/utility/importer/firefox_importer.h
+@@ -20,6 +20,7 @@
+ #include "build/build_config.h"
++#include "crypto/crypto_buildflags.h"
+@@ -65,7 +66,7 @@ class FirefoxImporter : public Importer {
+-#if !BUILDFLAG(IS_MAC)
++#if !BUILDFLAG(IS_MAC) && BUILDFLAG(USE_NSS_CERTS)
+   void ImportPasswords();
+diff --git a/chrome/utility/importer/firefox_importer.cc b/chrome/utility/importer/firefox_importer.cc
+--- a/chrome/utility/importer/firefox_importer.cc
++++ b/chrome/utility/importer/firefox_importer.cc
+@@ -30,7 +30,7 @@
+-#if !BUILDFLAG(IS_MAC)
++#if !BUILDFLAG(IS_MAC) && BUILDFLAG(USE_NSS_CERTS)
+ #include "chrome/utility/importer/nss_decryptor.h"
+@@ -148,7 +148,7 @@ void FirefoxImporter::StartImport(
+-#if !BUILDFLAG(IS_MAC)
++#if !BUILDFLAG(IS_MAC) && BUILDFLAG(USE_NSS_CERTS)
+   if ((items & user_data_importer::PASSWORDS) && !cancelled()) {
+@@ -403,7 +403,7 @@
+-#if !BUILDFLAG(IS_MAC)
++#if !BUILDFLAG(IS_MAC) && BUILDFLAG(USE_NSS_CERTS)
+ void FirefoxImporter::ImportPasswords() {
