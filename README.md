@@ -24,6 +24,8 @@ T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生�
 
 2026-11-24 的源码构建轮已推进到 guest `chrome` 最终链接：R133 完成 377/377 个编译与归档动作，并解决了 host libvpx、guest libuuid 和无 NSS Firefox importer 的阻断。最终链接继续暴露出当前诊断裁剪与 Skia/V8/FCP/DBus 等源码依赖不一致，尚未生成可运行的 `chrome` ELF；R140–R155 只作为兼容性诊断，不计入稳定性或性能 gate。完整失败链、补丁和下一步见 [report 494](report/494-chromium149-musl-r133-final-link-and-r140-r155-closure-20261124.md)。
 
+同日 R177 已在 T490 以隔离链接方式生成 AArch64 musl `chrome` ELF，大小 487,474,928 字节，SHA-256 为 `58433b67eba7ecf4f6effaf7673ed6fe87f5640194ecd184b2106deca8803161`。该结果复用了 R133 已完成对象并加入诊断用符号对象，尚未经过新的 GN 全量构建、guest 注入或稳定性/性能 gate；因此只作为源码链接进展和截止包证据，详见 [report 498](report/498-chromium149-musl-r177-isolated-link-aarch64-elf-20261124.md)。
+
 ## 2026-11-22 当前复核状态
 
 冻结候选为 c80 no-direct-PTE、LOG_LEVEL_ERROR 内核，实际 Browser-run 二进制 SHA-256 为 `a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f`；源码基线 `b73e5814087c9d33c5f0a35b66cc56be689d3dee`，配置 SHA-256 `1d0ff69e…`。正式条件固定为 T490、AArch64 QEMU 纯 TCG、2 GiB、Weston 原生 Wayland、Chromium 149 默认 Browser → Zygote → Renderer 和真实 virtio 输入链路。
