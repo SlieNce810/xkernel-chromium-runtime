@@ -26,6 +26,8 @@ T490 `10.249.11.192` 已完成 Chromium 149.0.7827.53 预编译二进制的生�
 
 同日 R177 已在 T490 以隔离链接方式生成 AArch64 musl `chrome` ELF，大小 487,474,928 字节，SHA-256 为 `58433b67eba7ecf4f6effaf7673ed6fe87f5640194ecd184b2106deca8803161`。该结果复用了 R133 已完成对象并加入诊断用符号对象，尚未经过新的 GN 全量构建、guest 注入或稳定性/性能 gate；因此只作为源码链接进展和截止包证据，详见 [report 498](report/498-chromium149-musl-r177-isolated-link-aarch64-elf-20261124.md)。
 
+2026-11-25 的 R177 guest smoke 已将该包注入 2 GiB 纯 TCG 会话；平台合规 15/15、Weston/输入和首张截图均通过，但 Browser 在约 75 秒以 `exit_code=133`（SIGTRAP）退出，`SINGLE_GATE=0`。这轮说明隔离链接 ELF 还不能进入运行时验收，详见 [report 500](report/500-T490-chromium149-r177-guest-smoke-sigtrap-20261125.md) 和对应 [evidence](evidence/2026-11-25_t490-r177-smoke)。
+
 ## 2026-11-22 当前复核状态
 
 冻结候选为 c80 no-direct-PTE、LOG_LEVEL_ERROR 内核，实际 Browser-run 二进制 SHA-256 为 `a70ecb4a34910f56c31d677f1b27d3a25088b94dc2fc82ba13b33544f34e3c1f`；源码基线 `b73e5814087c9d33c5f0a35b66cc56be689d3dee`，配置 SHA-256 `1d0ff69e…`。正式条件固定为 T490、AArch64 QEMU 纯 TCG、2 GiB、Weston 原生 Wayland、Chromium 149 默认 Browser → Zygote → Renderer 和真实 virtio 输入链路。
