@@ -81,3 +81,5 @@ ld.lld: error: undefined symbol: v8::internal::BackingStore::AllocateWasmMemory(
 链接依赖冻结后，必须在新的输出目录重新运行 `gn gen` 和完整的
 `ninja -C <out> chrome`，随后检查 AArch64 ELF、SHA-256、guest 注入、冷启动和功能 gate。
 只有这次全量构建通过，才可以开始新的正式稳定性和性能采样。
+
+本轮两个已通过定向编译的 stub 源文件已保存在 [patch 0049](patches/0049-chromium-musl-r162-link-stubs-diagnostic.patch)。该补丁只用于复现 R162 的链接边界，不能单独视为最终修复。

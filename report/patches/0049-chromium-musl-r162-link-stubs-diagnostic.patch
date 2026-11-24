@@ -1,0 +1,143 @@
+# Diagnostic-only patch extracted from the T490 R162 source files.
+# It is intentionally incomplete; R162 still has unresolved symbols.
+
+diff --git a/chrome/app/musl_link_stubs.cc b/chrome/app/musl_link_stubs.cc
+new file mode 100644
+--- /dev/null
++++ b/chrome/app/musl_link_stubs.cc
+@@ -0,0 +1,90 @@
++#include <memory>
++#include <optional>
++#include <string>
++#include <vector>
++
++#include "chrome/browser/notifications/notification_platform_bridge.h"
++#include "chrome/browser/platform_util.h"
++#include "chrome/browser/platform_util_internal.h"
++#include "device/bluetooth/dbus/bluez_dbus_manager.h"
++#include "include/codec/SkJpegDecoder.h"
++#include "include/core/SkStream.h"
++#include "include/encode/SkJpegEncoder.h"
++#include "include/private/SkJpegMetadataDecoder.h"
++#include "include/utils/SkParsePath.h"
++
++class GURL;
++class Profile;
++
++namespace platform_util {
++
++void OpenExternal(const GURL&) {}
++void ShowItemInFolder(Profile*, const base::FilePath&) {}
++
++namespace internal {
++void PlatformOpenVerifiedItem(const base::FilePath&, OpenItemType) {}
++}  // namespace internal
++
++}  // namespace platform_util
++
++std::unique_ptr<NotificationPlatformBridge>
++NotificationPlatformBridge::Create() {
++  return nullptr;
++}
++
++namespace bluez {
++void BluezDBusManager::Shutdown() {}
++}  // namespace bluez
++
++std::unique_ptr<SkJpegMetadataDecoder> SkJpegMetadataDecoder::Make(
++    std::vector<SkJpegMetadataDecoder::Segment>) {
++  return nullptr;
++}
++
++std::unique_ptr<SkJpegMetadataDecoder> SkJpegMetadataDecoder::Make(
++    sk_sp<const SkData>) {
++  return nullptr;
++}
++
++namespace SkJpegEncoder {
++bool Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
++bool Encode(SkWStream*, const SkYUVAPixmaps&, const SkColorSpace*,
++            const Options&) {
++  return false;
++}
++sk_sp<SkData> Encode(const SkPixmap&, const Options&) { return nullptr; }
++sk_sp<SkData> Encode(GrDirectContext*, const SkImage*, const Options&) {
++  return nullptr;
++}
++std::unique_ptr<SkEncoder> Make(SkWStream*, const SkPixmap&, const Options&) {
++  return nullptr;
++}
++std::unique_ptr<SkEncoder> Make(SkWStream*, const SkYUVAPixmaps&,
++                               const SkColorSpace*, const Options&) {
++  return nullptr;
++}
++}  // namespace SkJpegEncoder
++
++namespace SkJpegDecoder {
++bool IsJpeg(const void*, size_t) { return false; }
++std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream>, SkCodec::Result*,
++                                SkCodecs::DecodeContext) {
++  return nullptr;
++}
++std::unique_ptr<SkCodec> Decode(sk_sp<const SkData>, SkCodec::Result*,
++                                SkCodecs::DecodeContext) {
++  return nullptr;
++}
++}  // namespace SkJpegDecoder
++
++std::optional<SkPath> SkParsePath::FromSVGString(const char*) {
++  return std::nullopt;
++}
++
++extern "C" unsigned int vpx_variance4x4_neon_dotprod(
++    const unsigned char* src, int src_stride, const unsigned char* ref,
++    int ref_stride, unsigned int* sse) {
++  unsigned int sum = 0;
++  unsigned int error = 0;
++  for (int y = 0; y < 4; ++y) {
++    for (int x = 0; x < 4; ++x) {
++      int d = static_cast<int>(src[y * src_stride + x]) -
++              static_cast<int>(ref[y * ref_stride + x]);
++      sum += static_cast<unsigned int>(d);
++      error += static_cast<unsigned int>(d * d);
++    }
++  }
++  if (sse) *sse = error;
++  return error - (sum * sum >> 4);
++}
++
++struct VP9Common;
++struct YV12_BUFFER_CONFIG;
++extern "C" int vp9_post_proc_frame(VP9Common*, YV12_BUFFER_CONFIG*, int, int) {
++  return 0;
++}
++
++extern "C" void __arm_tpidr2_save() {}
++extern "C" void __arm_tpidr2_restore() {}
+
+diff --git a/net/net_musl_trust_stubs.cc b/net/net_musl_trust_stubs.cc
+new file mode 100644
+--- /dev/null
++++ b/net/net_musl_trust_stubs.cc
+@@ -0,0 +1,20 @@
++#include <memory>
++
++#include "net/cert/internal/system_trust_store.h"
++#include "net/cert/test_root_certs.h"
++
++namespace net {
++
++std::unique_ptr<SystemTrustStore> CreateSslSystemTrustStoreChromeRoot(
++    std::unique_ptr<TrustStoreChrome>) {
++  return nullptr;
++}
++
++bool TestRootCerts::AddImpl(X509Certificate*) {
++  return true;
++}
++
++void TestRootCerts::ClearImpl() {}
++void TestRootCerts::Init() {}
++TestRootCerts::~TestRootCerts() = default;
++
++}  // namespace net
