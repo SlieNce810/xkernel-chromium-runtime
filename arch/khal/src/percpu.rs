@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
+//! CPU-local data structures.
+
+pub use kplat::cpu::*;
+
+#[percpu::def_percpu]
+static CURRENT_TASK_PTR: usize = 0;
+
+/// Gets the pointer to the current task with preemption-safety.
+///
+/// Preemption may be enabled when calling this function. This function will
+/// guarantee the correctness even the current task is preempted.
+#[inline]
+pub fn current_task_ptr<T>() -> *const T {
+    #[cfg(target_arch = "x86_64")]
+    // SAFETY: on x86_64 the per-CPU task pointer is read with a single `gs`
+    // access, so the value cannot be torn by preemption.
+    unsafe {
+        // on x86, only one instruction is needed to read the per-CPU task pointer from `gs:[off]`.
+        CURRENT_TASK_PTR.read_current_raw() as _
+    }
+    #[cfg(any(
+        target_arch = "aarch64",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        target_arch = "loongarch64"
+    ))]
+    // SAFETY: interrupts are masked for the duration of the multi-instruction
+    // per-CPU read sequence, so the current CPU context cannot change midway.
+    unsafe {
+        // on RISC-V and LA64, reading `CURRENT_TASK_PTR` requires multiple instruction, so we disable local IRQs.
+        let _guard = kspin::IrqSave::new();
+        CURRENT_TASK_PTR.read_current_raw() as *const T
+    }
+}
+
+/// Sets the pointer to the current task with preemption-safety.
+///
+/// Preemption may be enabled when calling this function. This function will
+/// guarantee the correctness even the current task is preempted.
+///
+/// # Safety
+///
+/// The given `ptr` must be pointed to a valid task structure.
+#[inline]
+pub unsafe fn set_current_task_ptr<T>(ptr: *const T) {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: the caller guarantees `ptr` targets a valid task structure,
+        // and x86 updates the per-CPU pointer atomically through `gs`.
+        unsafe { CURRENT_TASK_PTR.write_current_raw(ptr as usize) }
+    }
+    #[cfg(any(
+        target_arch = "aarch64",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        target_arch = "loongarch64"
+    ))]
+    {
+        let _guard = kspin::IrqSave::new();
+        // SAFETY: the caller guarantees `ptr` targets a valid task structure,
+        // and interrupts are masked across the multi-instruction update.
+        unsafe { CURRENT_TASK_PTR.write_current_raw(ptr as usize) }
+    }
+}
+#[cfg(feature = "smp")]
+pub use kplat::cpu::ap_cpu_init as init_secondary;
+pub use kplat::cpu::{boot_cpu_init as init_primary, id as this_cpu_id};
+
+#[cfg(unittest)]
+#[allow(missing_docs)]
+pub mod tests_percpu {
+    use unittest::def_test;
+
+    use super::{current_task_ptr, this_cpu_id};
+
+    #[def_test]
+    fn test_current_task_ptr_consistent() {
+        let first = current_task_ptr::<u8>() as usize;
+        let second = current_task_ptr::<u8>() as usize;
+        assert_eq!(first, second);
+    }
+
+    #[def_test]
+    fn test_this_cpu_id_consistent() {
+        let id = this_cpu_id();
+        assert_eq!(id, this_cpu_id());
+    }
+}
