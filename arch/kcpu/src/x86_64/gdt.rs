@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
+//! Global Descriptor Table (GDT) and Task State Segment (TSS) setup.
+
+use x86_64::{
+    PrivilegeLevel,
+    instructions::tables::load_tss,
+    registers::segmentation::{CS, DS, ES, SS, Segment, SegmentSelector},
+    structures::{
+        gdt::{Descriptor, GlobalDescriptorTable},
+        tss::TaskStateSegment,
+    },
+};
+
+#[percpu::def_percpu]
+#[unsafe(no_mangle)]
+static TSS: TaskStateSegment = TaskStateSegment::new();
+
+#[percpu::def_percpu]
+static GDT: GlobalDescriptorTable = GlobalDescriptorTable::new();
+
+/// Kernel code segment for 64-bit mode.
+pub const KCODE64: SegmentSelector = SegmentSelector::new(1, PrivilegeLevel::Ring0);
+/// Kernel data segment.
+pub const KDATA: SegmentSelector = SegmentSelector::new(2, PrivilegeLevel::Ring0);
+/// User data segment.
+pub const UDATA: SegmentSelector = SegmentSelector::new(3, PrivilegeLevel::Ring3);
+/// User code segment for 64-bit mode.
+pub const UCODE64: SegmentSelector = SegmentSelector::new(4, PrivilegeLevel::Ring3);
+
+/// Initializes the per-CPU TSS and GDT structures and loads them into the
+/// current CPU.
+pub(super) fn init() {
+    // SAFETY: Called during per-CPU initialization (boot or secondary CPU bringup), single-threaded for this CPU.
+    let gdt = unsafe { GDT.current_ref_mut_raw() };
+    assert_eq!(gdt.append(Descriptor::kernel_code_segment()), KCODE64);
+    assert_eq!(gdt.append(Descriptor::kernel_data_segment()), KDATA);
+    assert_eq!(gdt.append(Descriptor::user_data_segment()), UDATA);
+    assert_eq!(gdt.append(Descriptor::user_code_segment()), UCODE64);
+    // SAFETY: TSS is initialized; reading a shared reference for passing to GDT descriptor.
+    let tss = gdt.append(Descriptor::tss_segment(unsafe { TSS.current_ref_raw() }));
+    gdt.load();
+    // SAFETY: Segment selectors are compile-time constants verified by `assert_eq!` above. Loading them after `gdt.load()` is valid because the GDT now contains the referenced descriptors.
+    unsafe {
+        DS::set_reg(KDATA);
+        ES::set_reg(KDATA);
+        SS::set_reg(KDATA);
+        CS::set_reg(KCODE64);
+        load_tss(tss);
+    }
+}
