@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
+//! Watchdog task registration and checks.
+use alloc::vec::Vec;
+
+#[percpu::def_percpu]
+static WATCHDOG_TASK_QUEUE: Vec<&'static dyn WatchdogTask> = Vec::new();
+
+/// Watchdog task trait.
+pub trait WatchdogTask {
+    /// Task name
+    fn name(&self) -> &str;
+
+    /// Check whether the task is healthy.
+    /// Return `true` if healthy, `false` to trigger recovery actions.
+    fn check(&self) -> bool;
+}
+
+/// Register a watchdog task for the current CPU.
+///
+/// This function adds the task into the per-CPU watchdog task queue.
+pub fn register_watchdog_task(task: &'static dyn WatchdogTask) {
+    // SAFETY: `current_ref_mut_raw` accesses the per‑CPU task queue for
+    // the current CPU.  Registration happens during per‑CPU init where
+    // migration is impossible.
+    unsafe {
+        WATCHDOG_TASK_QUEUE.current_ref_mut_raw().push(task);
+    }
+}
+
+/// Check watchdog tasks and return the first failed task ID if any.
+#[cfg(feature = "nmi")]
+pub(crate) fn check_watchdog_tasks() -> Option<&'static str> {
+    // SAFETY: `current_ref_mut_raw` accesses the per‑CPU task queue for
+    // the current CPU.  Called from NMI context where CPU migration is
+    // impossible.
+    unsafe {
+        let queue = WATCHDOG_TASK_QUEUE.current_ref_mut_raw();
+        for task in queue.iter() {
+            if !task.check() {
+                return Some(task.name());
+            }
+        }
+        None
+    }
+}
+
+/// Default mutex deadlock watchdog task.
+pub static MUTEX_DEADLOCK_CHECK: MutexDeadlockCheck = MutexDeadlockCheck;
+
+/// Watchdog task that checks for mutex deadlocks.
+pub struct MutexDeadlockCheck;
+
+impl WatchdogTask for MutexDeadlockCheck {
+    fn name(&self) -> &str {
+        "MutexDeadlock"
+    }
+
+    fn check(&self) -> bool {
+        ktask::check_mutex_deadlock()
+    }
+}
