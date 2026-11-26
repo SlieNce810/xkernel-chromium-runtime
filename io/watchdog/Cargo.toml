@@ -1,0 +1,26 @@
+[package]
+name = "watchdog"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Watchdog timer with NMI support for embedded systems"
+keywords = ["watchdog", "nmi", "embedded", "no_std"]
+categories = ["no-std", "embedded", "hardware-support"]
+
+[features]
+default = []
+nmi = ["khal/nmi"]
+
+[dependencies]
+karch.workspace = true
+khal.workspace = true
+ktime_types.workspace = true
+kspin.workspace = true
+ktask = { workspace = true, features = ["watchdog"] }
+kwork = { workspace = true }
+log.workspace = true
+percpu.workspace = true
+kbuild_config = { workspace = true }
+kcpu_id_map = { workspace = true }
+unittest.workspace = true
