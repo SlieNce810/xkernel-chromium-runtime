@@ -1,0 +1,208 @@
+# kprocess — Design
+
+## Purpose and ownership
+
+`kprocess` owns the process domain: stable process/thread identity bindings,
+parent-child and group/session relations, task publication, exit/wait state,
+process-runtime capabilities, signal targeting and timer-delivery integration.
+`Process` is a stable identity that can outlive runnable threads; its weak
+`ProcessRuntime` reference is separate from the externally visible exited state.
+`Thread` owns a strong runtime reference and its own objective/subjective
+credential pointers. `ProcessRuntime` is crate-private; external users operate
+through `Process`, `Thread` and the semantic facade modules.
+
+Syscall ABI decoding belongs to `ksyscall`; image loading belongs to `kexec`;
+trap-loop and cleanup orchestration belong to `posix-process`; MM/VMA state
+belongs to `memspace`; fd/resources, filesystem context and namespaces belong
+to `kfd`/`kresources`, `fs_context` and `kns`. `kidentity` owns `PidHandle`
+allocation and namespace number projection; public PID/TID values here currently
+use root/global numbers. Concrete controlling-terminal behavior belongs to TTY
+implementations of `ControllingTerminal`.
+
+## Source scope and architecture
+
+The analysis covers the entire crate, including feature-gated code and tests.
+
+| Source | Role |
+|---|---|
+| `src/lib.rs` | Public facade, task construction/publication and current-resource helpers. |
+| `src/process.rs`, `src/process/exit.rs`, `src/process/tree.rs`, `src/process/thread_membership.rs`, `src/process/runtime_access.rs` | Stable identity, exit/wait, tree/group membership, thread membership and runtime capabilities. |
+| `src/process_runtime/mod.rs`, `src/process_runtime/posix_state.rs`, `src/process_runtime/runtime_state.rs` | Runtime construction/fork, exec metadata, mm-user ownership, heap and timers. |
+| `src/thread/mod.rs`, `src/thread/core.rs`, `src/thread/current.rs`, `src/thread/cpu_time.rs`, `src/thread/task_ext.rs` | Task-bound thread state, credentials, current-context access and task-runtime hooks. |
+| `src/publication.rs`, `src/process_domain.rs`, `src/lookup.rs`, `src/lifecycle.rs` | Directory slots, relation transaction lock, lookup and exit events/CPU totals. |
+| `src/process_group.rs`, `src/session.rs` | Group member slots, session groups and controlling terminal. |
+| `src/capability.rs`, `src/cgroup.rs`, `src/credentials.rs`, `src/job_control.rs`, `src/pidfd.rs`, `src/process_exit.rs`, `src/process_signals.rs`, `src/procfs.rs`, `src/ptrace.rs`, `src/resource_limits.rs`, `src/scheduler.rs`, `src/stat.rs`, `src/system_view.rs`, `src/timer_delivery.rs`, `src/wait_reap.rs` | Domain-specific public queries, updates, callbacks and snapshots. |
+| `src/tests.rs` | Process-domain regression cases; additional modules have inline tests. |
+
+```text
+TaskInner --owns user runtime--> Thread --owns--> ProcessRuntime
+                                   |                 |
+                                   +--owns Process <-+
+                                              |
+                                weak runtime reference
+Process --group membership--> ProcessGroup --owns--> Session
+Process --parent/child relation slots--> Process
+ProcessPublication --slots--> process / task / group / session views
+```
+
+`ProcessPublication` stores strong published process identities and weak task,
+group and session values inside stable slots. Per-process thread/group slots
+retain stable bindings with weak target references. Child relation slots are
+intrusive list entries prepared before relation updates. The global `INIT_PROC`
+retains init identity; orphan reparenting reserves an init relation slot.
+
+## Public interface groups and users
+
+- Boot/clone owners call `build_process_thread`, `Thread::prepare_process_fork`
+  or `prepare_thread_clone`, construct `TaskInner::new_user` using the matching
+  identity, then call `publish_user_task`. `PublishedUserTask::commit` runs
+  parent-side writeback before activation; abort/drop rolls back publication.
+- `Process` runtime capabilities return filesystem/namespace/mm/resource/signal
+  references and expose timer/exec/teardown operations. `LiveAddressSpace` owns
+  an active mm-user handle; its mapping closure supplies both the locked space
+  and observer/invalidation handles required by mapping runtimes.
+- `scheduler`, `resource_limits`, `capability` and job-control mutation queries
+  resolve non-exited processes. Query/pidfd views may retain published zombies.
+  `procfs` additionally requires a representative published task for listing.
+- `process_signals` resolves process/group/thread targets and calls `ksignal`,
+  interrupting a chosen task. `None` probes a target without queuing a signal.
+  These helpers do not perform all syscall permission checks.
+- `process_exit` and `wait_reap` are used by lifecycle/syscall owners to sequence
+  last-thread cleanup, stable exit publication, child scanning and final identity
+  removal. `PidFd` implements `Pollable` and anonymous-file operations against
+  stable identity and exit completion.
+- `migrate_cgroup_process` adapts a PID and filesystem authorization callback to
+  process-wide migration; `scheduler` coordinates published task memberships.
+  `CurrentThread` credential preparation/commit replaces only the calling
+  thread's pointers; `ptrace` checks cross-task read credentials.
+- `timer_delivery` registers `ktimer` expiry and `ksignal` dequeue observers;
+  CPU timers run on current-user-thread return and wall timers on the alarm task.
+  `UserTaskRuntime for Thread` supplies CPU residency and AArch64 switch roots to
+  `ktask`; `CurrentSignalDispatch` adapts current-task signal injection.
+- `TaskStat`, `system_view`, nice/scheduler and CPU-accounting APIs provide
+  procfs/scheduler snapshots rather than owning hardware scheduling policy.
+
+## Execution context and calling constraints
+
+Construction, fork, runtime capability acquisition, publication, cgroup migration
+and most facade operations allocate or acquire sleepable locks. They require
+initialized allocator/scheduler and relevant MM/filesystem/namespace services;
+they are not general interrupt-context or early-boot APIs. Current-user helpers
+require a `Thread` installed in the current task. `current_fs_context` alone
+falls back to `init_fs` for kernel tasks; it still requires initialized filesystem
+state. A `CurrentThread` handle is created without validating its payload, but
+its dereference requires a matching user runtime.
+
+The process-domain spin rwlock is IRQ-safe and non-sleeping. Relation snapshots
+use its read side; fork/exit/reparent/reap/publication mutations use its write
+side. No sleepable lock, resource destructor or external signal callback may be
+introduced under that transaction. Callbacks passed to cgroup authorization,
+scheduler validation, TEE access or mapping access execute while the documented
+owner lock is held and must avoid recursive acquisition/incompatible lock order.
+Timer initialization is once-only and requires timer/signal/task runtime ready.
+CPU accounting depends on monotonic time; task runtime hooks depend on MM CPU
+residency and architecture initialization.
+
+## State transitions
+
+The actual `ProcessExitState` variants are Running, Zombie and Dead. New
+identities start Running even before publication; “prepared” or “exiting” are
+control-flow phases, not extra enum variants. Exit changes Running to Zombie
+for waitable policy or Dead for autoreap, reparents children to init and resets
+their exit signal to SIGCHLD. Init is excluded from this normal exit transition.
+A consuming wait changes Zombie to Dead and removes parent membership;
+`WaitReapMode::Peek` leaves it intact. A scan returns Ready, NoMatchingChild or
+NoWaitableChild according to selector, exit-signal class and actual state.
+
+Publication slots transition Vacant/Retired → Reserved → Published; retirement
+clears the value to Retired before structural directory deletion. Reservation
+of an already Published identity leaves it published. Cleanup removes only the
+same slot when it is Vacant/Retired, protecting reused PID/TID bindings. A
+`PublishedUserTask` owns a rollback record until activation consumes it.
+
+Thread accounting uses None/User/Kernel: each state change charges elapsed time
+to the prior state before selecting the next. Thread exit and no-new-privileges
+are separately published atomic flags. Group/session changes create or select a
+group and publish group/session identity together; existing-group movement
+requires the same session. The syscall owner checks additional leader/ID rules.
+
+## Critical flows
+
+Fork takes the process cgroup gate, reserves a child charge, clones/shares fs and
+namespaces, allocates a root identity and validates/attaches the child relation.
+Shared fs while its parent is in exec returns WouldBlock; namespace errors map
+to InvalidInput/Unsupported or a mount error. `CallerParent` inherits the
+caller's current parent and exit-signal contract, rechecking it under the domain
+lock. Runtime preparation then clones/shares mm, signal actions and fd table;
+`AttachedForkProcess` rolls back the attached relation if preparation fails.
+The new thread starts from the caller's subjective credential snapshot and
+inherits no-new-privileges. A sibling clone shares the existing runtime.
+
+Publication reconciles the thread's cgroup under the gate, reserves table/member
+slots under the publication table write lock, then publishes all visible slots
+under one domain write transaction. Parent writeback runs after visibility and
+before activation. Failure/drop retires owned bindings and removes an inserted,
+still-running unpublished child relation; it does not retire an unrelated
+existing process identity. Retired slot deletion checks pointer identity and
+state to tolerate numeric ID reuse.
+
+Last-thread cleanup is orchestrated by `posix-process`: remove thread visibility,
+record final CPU time, detach mm/files/fs/ns and optional resources, then call
+`complete_process_exit`. SIGCHLD preparation occurs outside the domain lock;
+parent/exit-signal changes cause retry. The domain transaction commits exit,
+autoreap and reparent; only then are signal queueing and parent wakeup performed.
+Default SIGCHLD, explicit ignore and no-child-wait policy come from `ksignal`.
+Child-exit payloads contain wait status, PID/UID and CPU time. If no published
+thread credential snapshot exists at payload construction, the current code
+uses UID zero. Non-SIGCHLD exit signals use the generic process-send path.
+
+Wait scans/matches/consumes under the domain write lock and returns a stable
+`WaitedChild`. The wrapper adds child CPU totals and removes the retired directory
+entry outside that lock. `finish_thread_exit` retires TID visibility before later
+resource teardown, so external thread lookup stops targeting exit-tail tasks.
+
+Exec updates optional TA context, heap, signal dispositions, POSIX timers,
+close-on-exec files and optional IPC/private state, then publishes path/cmdline
+under one `ExecMetadata` lock. A failure closing descriptors can occur after
+earlier changes: the operation is not an all-state rollback transaction. The
+combined metadata update is atomic, but separate path and cmdline calls need not
+observe the same generation across a concurrent exec.
+
+## Concurrency model
+
+Lock order for publication is process cgroup gate → publication tables → process
+domain → small spin-locked slots. Exit/reap retire visibility under the domain
+lock, release it, then remove table entries. Lookup first collects table slot
+references and then observes them under the domain read lock. Tree/member/group
+locks protect local containers; cross-object invariants require the domain token.
+Session terminal and group lists have their own IRQ-safe spin locks.
+
+Runtime fs/ns slots and exec metadata use RwLock; mm-user state, CPU accounting,
+scheduler state and timers use mutexes. Thread credential commit takes objective
+then subjective credential write locks and asserts the pointers were not
+independently overridden. CPU totals use relaxed nanosecond atomics and are
+observational counters, not publication barriers. Heap and thread control fields
+use their documented atomic orderings; no single atomic read proves an entire
+process snapshot is current. `Process::resources` can retain the resource object
+after its fd-table slot was detached, and `mm_id` remains available while the
+runtime shell exists even after active mm ownership is released.
+
+## Resource lifecycle, decisions and limitations
+
+Threads strongly retain runtime, while Process retains it weakly to avoid an
+identity/runtime cycle. `MmUserHandle` counts active users; `MmPin`/observers
+retain metadata without keeping user mappings alive. Releasing the final active
+user clears mappings; `LiveAddressSpace` delays that event while held. Exit takes
+owner slots once and drops objects outside their locks; repeated detach is safe
+while the runtime shell remains reachable. Zombies/pidfds retain stable identity
+without requiring attached files, filesystem paths or namespaces.
+
+Preallocated intrusive child slots keep commit-time relations within the
+non-sleeping domain boundary; stable publication slots separate visibility from
+allocating/deleting BTreeMap entries. Dedicated semantic query modules prevent
+callers from reconstructing lifecycle policy from weak runtime references.
+Known limits include root/global PID semantics, no child-subreaper implementation,
+representative-thread credential snapshots, simplified ptrace privilege checks
+(effective UID zero substitutes for CAP_SYS_PTRACE), and no full authorization
+policy in signal/job-control facade helpers. Optional TEE/TIPC behavior exists
+only with its Cargo feature enabled.
